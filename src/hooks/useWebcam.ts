@@ -1,4 +1,5 @@
-import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType, Result } from "@zxing/library";
+import { BarcodeFormat, BrowserMultiFormatReader } from "@zxing/browser";
+import { DecodeHintType, Result } from '@zxing/library';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 export type UseWebcamOptions = {
@@ -11,13 +12,15 @@ const barcodeFormats = [BarcodeFormat.CODE_39, BarcodeFormat.CODE_93, BarcodeFor
 defaultHints.set(DecodeHintType.POSSIBLE_FORMATS, barcodeFormats);
 
 const decodeFromVideo = async (codeReader: BrowserMultiFormatReader, element: HTMLVideoElement, deviceId?: string) => {
-    return new Promise<Result>((resolve) => {
+    return new Promise<Result>((resolve, reject) => {
         codeReader.decodeFromVideoDevice(deviceId ?? '', element, (result, err) => {
             if (!result) {
                 return;
             }
+            if (err) {
+                console.log(err);
+            }
             resolve(result);
-            codeReader.reset();
         });
     });
 };
@@ -34,44 +37,69 @@ export const useWebcam = (options: UseWebcamOptions) => {
     const [device, setDevice] = useState<MediaDeviceInfo>();
     const [devices, setDevices] = useState<MediaDeviceInfo[]>();
 
+    const [shouldReset, setShouldReset] = useState<boolean>(false);
+
     const [code, setCode] = useState<string | undefined>();
+
+    const listDevices = async (active: boolean) => {
+        if (!active) {
+            return;
+        }
+        const deviceList = await BrowserMultiFormatReader.listVideoInputDevices();
+        setDevices(deviceList);
+        return deviceList;
+    };
+
+    const setPreferredDevice = (deviceList: MediaDeviceInfo[] | undefined = devices) => {
+        if (deviceList?.length === 0) {
+            return;
+        }
+        const deviceToUse = (preferDeviceLabelMatch &&
+                             deviceList?.find(device => preferDeviceLabelMatch.test(device.label))) ??
+                            deviceList?.[0];
+        setDevice(deviceToUse);
+        return deviceToUse;
+    };
 
     useEffect(() => {
         let active = true;
 
-        const listDevices = async () => {
-            if (!active) {
-                return;
-            }
-            setDevices(await codeReaderRef.current.listVideoInputDevices());
-        };
-        listDevices();
-
+        listDevices(active);
         return () => {
             active = false;
         };
-    }, []);
+    }, [shouldReset]);
 
     useEffect(() => {
-        if (devices?.length === 0) {
-            return;
-        }
-        const deviceToUse = (preferDeviceLabelMatch &&
-                            devices?.find(device => preferDeviceLabelMatch.test(device.label))) ??
-                            devices?.[0];
-        setDevice(deviceToUse);
+        setPreferredDevice();
     }, [devices]);
-
-    const tearDown = () => codeReaderRef.current.reset();
 
     // Returned getter functions
     const getCode = useCallback(async () => {
-        if (!(device && webcamRef.current)) {
-            console.log('No webcam attached');
-            tearDown();
+        let deviceToUse = device;
+        if (!webcamRef.current) {
+            console.log('lost ref to webcam');
             return;
         }
-        return await decodeFromVideo(codeReaderRef.current, webcamRef.current, device?.deviceId);
+        // webcamRef.current.pause();
+
+        if (!deviceToUse) {
+            console.log('No webcam attached');
+
+            codeReaderRef.current = new BrowserMultiFormatReader(hints);
+            const deviceList = await listDevices(true);
+
+            if (deviceList?.length === 0) {
+                console.log('No device list found');
+                return;
+            }
+            deviceToUse = setPreferredDevice(deviceList);
+
+            if (!deviceToUse) {
+                console.log('N')
+            }
+        }
+        return await decodeFromVideo(codeReaderRef.current, webcamRef.current, deviceToUse?.deviceId);
     }, [device]);
 
     const getDevices = () => devices;
@@ -84,6 +112,6 @@ export const useWebcam = (options: UseWebcamOptions) => {
         getDevices,
 
         setDevice,
-        tearDown,
+        setShouldReset,
     };
 };

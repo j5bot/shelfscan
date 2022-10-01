@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWebcam } from '../hooks/useWebcam';
 
 export type WebcamScannerProps = {
-    onScan: (code: string) => void;
+    onScan: (code: string, format?: BarcodeFormat) => void;
     shouldScan?: boolean;
     preferDeviceLabelMatch?: RegExp;
     height?: number;
@@ -31,10 +31,11 @@ export const WebcamScanner = (props: WebcamScannerProps) => {
         let active = true;
 
         const scanCode = async () => {
-            const code = await getCode().then(result => result?.getText());
-            if (code) {
-                onScan(code);
+            const result = await getCode();
+            if (!result) {
+                return;
             }
+            onScan(result.getText(), result.getBarcodeFormat());
         };
         scanCode();
 
@@ -45,7 +46,7 @@ export const WebcamScanner = (props: WebcamScannerProps) => {
 
     return (
         <>
-            <div>
+            <div className="webcam-scanner-preview-box">
                 <video
                     ref={webcamRef}
                     height={height}
