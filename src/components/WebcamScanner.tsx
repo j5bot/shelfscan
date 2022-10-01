@@ -19,7 +19,7 @@ export const WebcamScanner = (props: WebcamScannerProps) => {
         preferDeviceLabelMatch
     } = props;
 
-    const { webcamRef, getCode, getDevices, tearDown } = useWebcam({
+    const { webcamRef, getCode, getDevices } = useWebcam({
         preferDeviceLabelMatch,
     });
 
@@ -40,7 +40,6 @@ export const WebcamScanner = (props: WebcamScannerProps) => {
 
         return () => {
             active = false;
-            tearDown();
         };
     }, [shouldScan, onScan]);
 
