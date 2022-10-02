@@ -64,7 +64,7 @@ export const useWebcam = (options: UseWebcamOptions) => {
     useEffect(() => {
         let active = true;
 
-        listDevices(active);
+        listDevices(active).then();
         return () => {
             active = false;
         };
