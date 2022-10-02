@@ -24,11 +24,14 @@ const App = () => {
 
   return (
     <div className="App">
-      <WebcamScanner
-          onScan={onScan}
-          preferDeviceLabelMatch={labelMatch}
-      />
-        {code &&
+        {/* this is all you need for your scanner */}
+          <WebcamScanner
+              onScan={onScan}
+              preferDeviceLabelMatch={labelMatch}
+          />
+        {/* right here */}
+
+         {code &&
          <>
              {AppSettings.showUPCText &&
               <FormGroup label={'UPC'}>

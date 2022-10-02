@@ -1,5 +1,5 @@
 import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType, Result } from '@zxing/library';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useWebcam } from '../hooks/useWebcam';
 
 export type WebcamScannerProps = {
@@ -10,13 +10,14 @@ export type WebcamScannerProps = {
     width?: number;
 };
 
-export const WebcamScanner = (props: WebcamScannerProps) => {
+export const WebcamScanner = (props: PropsWithChildren<WebcamScannerProps>) => {
     const {
         height,
         width,
         onScan,
         shouldScan = true,
-        preferDeviceLabelMatch
+        preferDeviceLabelMatch,
+        children,
     } = props;
 
     const { webcamRef, getCode, getDevices } = useWebcam({
@@ -47,11 +48,14 @@ export const WebcamScanner = (props: WebcamScannerProps) => {
     return (
         <>
             <div className="webcam-scanner-preview-box">
-                <video
-                    ref={webcamRef}
-                    height={height}
-                    width={width}
-                />
+                <>
+                    <video
+                        ref={webcamRef}
+                        height={height}
+                        width={width}
+                    />
+                    {children}
+                </>
             </div>
         </>
     );
