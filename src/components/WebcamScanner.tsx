@@ -1,19 +1,26 @@
-import { BarcodeFormat, BrowserMultiFormatReader, DecodeHintType, Result } from '@zxing/library';
-import { FC, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useWebcam } from '../hooks/useWebcam';
+import { BarcodeFormat } from '@zxing/library';
+import { PropsWithChildren, useEffect } from 'react';
+import { useWebcam } from '../hooks';
+
+export type WebcamOnScanOptions = {
+    code: string;
+    format?: BarcodeFormat;
+};
 
 export type WebcamScannerProps = {
-    onScan: (code: string, format?: BarcodeFormat) => void;
+    onScan: (options: WebcamOnScanOptions) => void;
+    onDevices?: (devices: MediaDeviceInfo[]) => void;
     shouldScan?: boolean;
     preferDeviceLabelMatch?: RegExp;
-    height?: number;
-    width?: number;
+    height?: number | string;
+    width?: number | string;
 };
 
 export const WebcamScanner = (props: PropsWithChildren<WebcamScannerProps>) => {
     const {
-        height,
-        width,
+        height = 480,
+        width = 640,
+        onDevices,
         onScan,
         shouldScan = true,
         preferDeviceLabelMatch,
@@ -23,6 +30,10 @@ export const WebcamScanner = (props: PropsWithChildren<WebcamScannerProps>) => {
     const { webcamRef, getCode, getDevices } = useWebcam({
         preferDeviceLabelMatch,
     });
+
+    useEffect(() => {
+        onDevices?.(getDevices() ?? []);
+    }, [getDevices]);
 
     useEffect(() => {
         if (!shouldScan) {
@@ -36,9 +47,12 @@ export const WebcamScanner = (props: PropsWithChildren<WebcamScannerProps>) => {
             if (!result) {
                 return;
             }
-            onScan(result.getText(), result.getBarcodeFormat());
+            onScan({
+                code: result.getText(),
+                format: result.getBarcodeFormat(),
+            });
         };
-        scanCode();
+        scanCode().then();
 
         return () => {
             active = false;
@@ -48,14 +62,14 @@ export const WebcamScanner = (props: PropsWithChildren<WebcamScannerProps>) => {
     return (
         <>
             <div className="webcam-scanner-preview-box">
-                <>
+                <div className="webcam-scanner-preview">
                     <video
                         ref={webcamRef}
                         height={height}
                         width={width}
                     />
                     {children}
-                </>
+                </div>
             </div>
         </>
     );

@@ -1,11 +1,13 @@
 import { BarcodeFormat, BrowserMultiFormatReader } from "@zxing/browser";
 import { DecodeHintType, Result } from '@zxing/library';
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type UseWebcamOptions = {
     hints?: Map<DecodeHintType, string[]>;
     preferDeviceLabelMatch?: RegExp;
 };
+
+type MediaDeviceInfoWithCapabilities = MediaDeviceInfo & MediaTrackCapabilities;
 
 const defaultHints = new Map();
 const barcodeFormats = [BarcodeFormat.CODE_39, BarcodeFormat.CODE_93, BarcodeFormat.EAN_13];
@@ -35,28 +37,49 @@ export const useWebcam = (options: UseWebcamOptions) => {
     const codeReaderRef = useRef<BrowserMultiFormatReader>(new BrowserMultiFormatReader(hints));
 
     const [device, setDevice] = useState<MediaDeviceInfo>();
-    const [devices, setDevices] = useState<MediaDeviceInfo[]>();
+    const [devices, setDevices] = useState<MediaDeviceInfoWithCapabilities[]>();
 
     const [shouldReset, setShouldReset] = useState<boolean>(false);
-
-    const [code, setCode] = useState<string | undefined>();
 
     const listDevices = async (active: boolean) => {
         if (!active) {
             return;
         }
-        const deviceList = await BrowserMultiFormatReader.listVideoInputDevices();
+
+        try {
+            await navigator.mediaDevices.getUserMedia({}).then();
+        } catch (e) {
+            // window.alert('error getting user media' + JSON.stringify(e));
+        }
+
+        const deviceList = await navigator.mediaDevices.enumerateDevices()
+            .then(
+                (devices) => devices
+                    .filter((deviceInfo) => {
+                        return deviceInfo.kind === 'videoinput';
+                    })
+                    .map((deviceInfo) => {
+                        const capabilities = (deviceInfo as any).getCapabilities?.();
+                        console.log(capabilities);
+                        return {
+                            ...deviceInfo,
+                            ...(capabilities as MediaTrackCapabilities)
+                        };
+                    })
+            );
+
         setDevices(deviceList);
         return deviceList;
     };
 
-    const setPreferredDevice = (deviceList: MediaDeviceInfo[] | undefined = devices) => {
+    const setPreferredDevice = (deviceList: MediaDeviceInfoWithCapabilities[] | undefined = devices) => {
         if (deviceList?.length === 0) {
             return;
         }
-        const deviceToUse = (preferDeviceLabelMatch &&
-                             deviceList?.find(device => preferDeviceLabelMatch.test(device.label))) ??
-                            deviceList?.[0];
+        const matchingDevice = deviceList?.find(device => preferDeviceLabelMatch?.test(device.label));
+        const facingDevice = !matchingDevice && deviceList?.find(device => device?.facingMode?.includes('environment'));
+        const defaultDevice = !(matchingDevice || facingDevice) ? devices?.[0] : undefined;
+        const deviceToUse = matchingDevice || facingDevice || defaultDevice;
         setDevice(deviceToUse);
         return deviceToUse;
     };
@@ -72,7 +95,7 @@ export const useWebcam = (options: UseWebcamOptions) => {
 
     useEffect(() => {
         setPreferredDevice();
-    }, [devices]);
+    }, [devices, setPreferredDevice]);
 
     // Returned getter functions
     const getCode = useCallback(async () => {
