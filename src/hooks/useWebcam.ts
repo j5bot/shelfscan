@@ -34,7 +34,10 @@ export const useWebcam = (options: UseWebcamOptions) => {
     } = options;
 
     const webcamRef = useRef<HTMLVideoElement | null>(null);
-    const codeReaderRef = useRef<BrowserMultiFormatReader>(new BrowserMultiFormatReader(hints));
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+    // should fork here for BarcodeDetector
+    const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
 
     const [device, setDevice] = useState<MediaDeviceInfo>();
     const [devices, setDevices] = useState<MediaDeviceInfoWithCapabilities[]>();
@@ -119,9 +122,15 @@ export const useWebcam = (options: UseWebcamOptions) => {
             deviceToUse = setPreferredDevice(deviceList);
 
             if (!deviceToUse) {
-                console.log('N')
+                console.log('No device');
+                return;
             }
         }
+
+        if (!codeReaderRef.current) {
+            return;
+        }
+
         return await decodeFromVideo(codeReaderRef.current, webcamRef.current, deviceToUse?.deviceId);
     }, [device]);
 
