@@ -1,5 +1,5 @@
-import { BarcodeFormat } from "@zxing/browser";
-import { useBarcode } from "next-barcode";
+import { useBarcode } from 'next-barcode';
+import { BarcodeFormat } from "use-barcode-scanner/dist/esm";
 
 export type BarcodeDisplayProps = {
     code: string;

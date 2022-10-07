@@ -1,76 +1,51 @@
-import { BarcodeFormat } from '@zxing/library';
-import { PropsWithChildren, useEffect } from 'react';
-import { useWebcam } from '../hooks';
-
-export type WebcamOnScanOptions = {
-    code: string;
-    format?: BarcodeFormat;
-};
+import { FC, PropsWithChildren } from 'react';
+import { useBarcodeScanner } from 'use-barcode-scanner/dist/esm';
 
 export type WebcamScannerProps = {
-    onScan: (options: WebcamOnScanOptions) => void;
+    onScan: (code: string) => void;
     onDevices?: (devices: MediaDeviceInfo[]) => void;
     shouldScan?: boolean;
     preferDeviceLabelMatch?: RegExp;
-    height?: number | string;
-    width?: number | string;
+    canvasWidth?: number;
+    canvasHeight?: number;
+    videoWidth?: number;
+    videoHeight?: number;
+    zoom?: number;
 };
 
-export const WebcamScanner = (props: PropsWithChildren<WebcamScannerProps>) => {
+export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerProps>) => {
     const {
-        height = 480,
-        width = 640,
-        onDevices,
-        onScan,
-        shouldScan = true,
         preferDeviceLabelMatch,
-        children,
     } = props;
 
-    const { webcamRef, getCode, getDevices } = useWebcam({
-        preferDeviceLabelMatch,
-    });
+    const {
+        onDevices,
+        onScan,
+        canvasWidth = 320,
+        canvasHeight = 240,
+        videoWidth = 640,
+        videoHeight = 480,
+        zoom = 1,
+    } = props;
 
-    useEffect(() => {
-        onDevices?.(getDevices() ?? []);
-    }, [getDevices]);
+    const {
+        webcamVideoRef,
+        canvasRef,
+        hasPermission,
+    } = useBarcodeScanner({ zoom, onScan, onDevices });
 
-    useEffect(() => {
-        if (!shouldScan) {
-            return;
-        }
-
-        let active = true;
-
-        const scanCode = async () => {
-            const result = await getCode();
-            if (!result) {
-                return;
-            }
-            onScan({
-                code: result.getText(),
-                format: result.getBarcodeFormat(),
-            });
-        };
-        scanCode().then();
-
-        return () => {
-            active = false;
-        };
-    }, [shouldScan, onScan]);
-
-    return (
+    return (hasPermission ?
         <>
             <div className="webcam-scanner-preview-box">
                 <div className="webcam-scanner-preview">
                     <video
-                        ref={webcamRef}
-                        height={height}
-                        width={width}
+                        ref={webcamVideoRef}
+                        height={videoHeight}
+                        width={videoWidth}
                     />
-                    {children}
+                    <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
                 </div>
             </div>
         </>
-    );
+    : null);
 };

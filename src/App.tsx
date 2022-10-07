@@ -4,7 +4,7 @@ import './App.css';
 // only needed if using some of the "fancy" components
 import '@blueprintjs/core/lib/css/blueprint.css';
 
-import { WebcamOnScanOptions, WebcamScanner } from './components/WebcamScanner';
+import { WebcamScanner } from './components/WebcamScanner';
 import { useGameUPCApi } from './hooks/useGameUPCApi';
 import {
     ShowGameUPCData,
@@ -34,8 +34,7 @@ const App = () => {
     const [codes, setCodes] = useState<string[]>([]);
     const [gameUPCData, setGameUPCData] = useState();
 
-    const onScan = (options: WebcamOnScanOptions) => {
-        const { code } = options;
+    const onScan = (code: string) => {
         setCode(code);
         setCodes(codes.concat(code));
     };
@@ -56,6 +55,7 @@ const App = () => {
             <WebcamScanner
                 onScan={onScan}
                 preferDeviceLabelMatch={AppSettings.labelMatch}
+                zoom={2}
             />
             {/* that's all for the scanner */}
 
