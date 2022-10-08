@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/gameupc-scanner/static/css/main.2a79c7b0.css",
-    "main.js": "/gameupc-scanner/static/js/main.f5b1e41a.js",
-    "static/js/787.9be4ee65.chunk.js": "/gameupc-scanner/static/js/787.9be4ee65.chunk.js",
+    "main.css": "/gameupc-scanner/static/css/main.cdd86308.css",
+    "main.js": "/gameupc-scanner/static/js/main.c043e311.js",
+    "static/js/787.b9546448.chunk.js": "/gameupc-scanner/static/js/787.b9546448.chunk.js",
     "index.html": "/gameupc-scanner/index.html",
-    "main.2a79c7b0.css.map": "/gameupc-scanner/static/css/main.2a79c7b0.css.map",
-    "main.f5b1e41a.js.map": "/gameupc-scanner/static/js/main.f5b1e41a.js.map",
-    "787.9be4ee65.chunk.js.map": "/gameupc-scanner/static/js/787.9be4ee65.chunk.js.map"
+    "main.cdd86308.css.map": "/gameupc-scanner/static/css/main.cdd86308.css.map",
+    "main.c043e311.js.map": "/gameupc-scanner/static/js/main.c043e311.js.map",
+    "787.b9546448.chunk.js.map": "/gameupc-scanner/static/js/787.b9546448.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.2a79c7b0.css",
-    "static/js/main.f5b1e41a.js"
+    "static/css/main.cdd86308.css",
+    "static/js/main.c043e311.js"
   ]
 }
