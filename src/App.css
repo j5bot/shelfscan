@@ -13,11 +13,27 @@
 .webcam-scanner-preview {
   position: relative;
   max-width: max-content;
+  min-width: max-content;
+  min-height: max-content;
 }
 .webcam-scanner-preview > canvas {
   position: absolute;
   left: 160px;
   top: 30px;
+}
+.webcam-scanner-preview > video {
+  border: solid 1px #ccc;
+  min-height: 300px;
+  min-width: 640px;
+}
+.webcam-scanner-device-switcher {
+  position: absolute;
+  padding: 0 5px;
+  border-radius: 3px;
+  top: 5px;
+  left: 10px;
+  color: white;
+  background-color: #ccc;
 }
 
 .barcode-display-input {

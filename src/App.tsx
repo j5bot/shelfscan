@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 
 import './App.css';
-// only needed if using some of the "fancy" components
 import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/select/lib/css/blueprint-select.css';
+import { ShowDevices } from './components/dev/ShowDevices';
 
 import { WebcamScanner } from './components/WebcamScanner';
 import { useGameUPCApi } from './hooks/useGameUPCApi';
@@ -17,6 +18,7 @@ const AppSettings = {
     labelMatch: /back/ig,
 
     /* dev/debug/display settings */
+    showDevices: true,
     showUPCText: false,
     showUPCImage: true,
     showGameUPCData: true,
@@ -32,6 +34,7 @@ const App = () => {
 
     const [code, setCode] = useState<string>('');
     const [codes, setCodes] = useState<string[]>([]);
+    const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
     const [gameUPCData, setGameUPCData] = useState();
 
     const onScan = (code: string) => {
@@ -53,13 +56,17 @@ const App = () => {
         <div className="App">
             {/* this is all you need for your scanner */}
             <WebcamScanner
+                devices={devices}
                 onScan={onScan}
-                preferDeviceLabelMatch={AppSettings.labelMatch}
+                onDevices={setDevices}
                 zoom={2}
             />
             {/* that's all for the scanner */}
 
             {/* dev/debug/display */}
+            {/* use this to show the list of devices */}
+            {AppSettings.showDevices && <ShowDevices devices={devices} />}
+
             {/* use this to show a textbox with the UPC */}
             {AppSettings.showUPCText && <ShowUPCText code={code} />}
             {/* end UPC textbox */}
