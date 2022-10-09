@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { GameUPCData } from '../types';
 
 const gameUPCHost = 'https://api.gameupc.com/dev';
 const gameUPCFetchOptions = {
@@ -17,10 +18,11 @@ const fetchGameDataForUpc = async (upc: string) => {
 };
 
 const postOrDeleteGameUPCMatch = async (
-    upc: string, bggId: string, body: string,
+    upc: string, bggId: number, version: number = -1, body: string,
     del: boolean = false) => {
+    const postOrDeleteVersion = version >= 0 ? `/version/${version}` : '';
     return await fetch(
-        `${gameUPCHost}/upc/${upc}/bgg/${bggId}`,
+        `${gameUPCHost}/upc/${upc}/bgg/${bggId}${postOrDeleteVersion}`,
         Object.assign(
             { body, method: del ? 'DELETE' : 'POST' },
             gameUPCFetchOptions
@@ -28,12 +30,12 @@ const postOrDeleteGameUPCMatch = async (
     ).then(response => response.json());
 };
 
-const postGameUPCMatch = async (upc: string, bggId: string, body: string) => {
-    return postOrDeleteGameUPCMatch(upc, bggId, body, false);
+const postGameUPCMatch = async (upc: string, bggId: number, version: number = -1, body: string) => {
+    return postOrDeleteGameUPCMatch(upc, bggId, version, body, false);
 };
 
-const deleteGameUPCMatch = async (upc: string, bggId: string, body: string) => {
-    return postOrDeleteGameUPCMatch(upc, bggId, body, false);
+const deleteGameUPCMatch = async (upc: string, bggId: number, version: number = -1, body: string) => {
+    return postOrDeleteGameUPCMatch(upc, bggId, version, body, false);
 };
 
 export type UseGameUPCApiOptions = {
@@ -44,7 +46,7 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
     const { updaterId = 'gameupc-scanner' } = options;
 
     const [warmed, setWarmed] = useState<boolean>(false);
-    const [gameDataMap, setGameDataMap] = useState<Record<string, Promise<any>>>({});
+    const [gameDataMap, setGameDataMap] = useState<Record<string, Promise<GameUPCData>>>({});
     const [gameUPCs, setGameUPCs] = useState<string[]>([]);
     const [fetchingGameUPCs, setFetchingGameUPCs] = useState<string[]>([]);
 
@@ -61,9 +63,9 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
         return () => { warming = false; };
     }, [warmed, setWarmed]);
 
-    const getGameData = async (upc: string) => {
+    const getGameData = async (upc: string): Promise<GameUPCData | undefined> => {
         if (fetchingGameUPCs.includes(upc)) {
-            return;
+            return undefined;
         }
         if (gameUPCs.includes(upc)) {
             return gameDataMap[upc];
@@ -88,15 +90,15 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
         return await gameData;
     };
 
-    const submitOrVerifyGame = async (upc: string, bggId: string) => {
-        const gameData = await postGameUPCMatch(upc, bggId, gameUPCApiPostUserBody);
+    const submitOrVerifyGame = async (upc: string, bggId: number, version: number = -1) => {
+        const gameData = await postGameUPCMatch(upc, bggId, version, gameUPCApiPostUserBody);
         gameDataMap[upc] = gameData;
         setGameDataMap(gameDataMap);
         return gameData;
     };
 
-    const removeGame = async (upc: string, bggId: string) => {
-        const gameData = await deleteGameUPCMatch(upc, bggId, gameUPCApiPostUserBody);
+    const removeGame = async (upc: string, bggId: number, version: number = -1) => {
+        const gameData = await deleteGameUPCMatch(upc, bggId, version, gameUPCApiPostUserBody);
         gameDataMap[upc] = gameData;
         setGameDataMap(gameDataMap);
         return gameData;

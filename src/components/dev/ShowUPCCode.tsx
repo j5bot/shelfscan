@@ -3,7 +3,9 @@ import React from 'react';
 import { ScannerDevOptions } from '../../types';
 import { BarcodeDisplay } from '../BarcodeDisplay';
 
-type ShowUPCCodeProps = Pick<ScannerDevOptions, 'code'>;
+type ShowUPCCodeProps = Pick<ScannerDevOptions, 'code'> & {
+    onChange?: (code: string) => void;
+};
 
 export const ShowUPCImage = (props: ShowUPCCodeProps) => {
     const { code } = props;
@@ -16,16 +18,21 @@ export const ShowUPCImage = (props: ShowUPCCodeProps) => {
 };
 
 export const ShowUPCText = (props: ShowUPCCodeProps) => {
-    const { code } = props;
+    const { code, onChange } = props;
 
-    if (!code) {
+    if (!(code || onChange)) {
         return null;
     }
 
-    return <InputGroup
-        className="barcode-display-input"
-        large={true}
-        readOnly={true}
-        value={code}
-    />;
+    return (
+        <FormGroup label={'UPC Text'}>
+            <InputGroup
+                className="barcode-display-input"
+                large={true}
+                value={code}
+                onChange={(event) => onChange?.(event.target.value)}
+                readOnly={!onChange}
+            />
+        </FormGroup>
+    );
 };

@@ -1,7 +1,7 @@
-import { Icon, MenuItem } from '@blueprintjs/core';
-import { IconNames } from '@blueprintjs/icons';
-import { Select2 } from '@blueprintjs/select';
-import { FC, PropsWithChildren, useMemo, useState } from 'react';
+// import { Icon, MenuItem } from '@blueprintjs/core';
+// import { IconNames } from '@blueprintjs/icons';
+// import { Select2 } from '@blueprintjs/select';
+import { FC, PropsWithChildren } from 'react';
 import { useBarcodeScanner } from 'use-barcode-scanner/dist/esm';
 
 export type WebcamScannerProps = {
@@ -19,9 +19,8 @@ export type WebcamScannerProps = {
 
 export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerProps>) => {
     const {
-        devices = [],
+        // devices = [],
         onDevices: parentOnDevices,
-        // preferDeviceLabelMatch,
         onScan,
         canvasWidth = 320,
         canvasHeight = 240,
@@ -29,12 +28,6 @@ export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerPro
         videoHeight = 480,
         zoom = 1,
     } = props;
-
-    // const deviceChoiceOptions = useMemo(() => {
-    //     return {
-    //         matcher: preferDeviceLabelMatch,
-    //     }
-    // }, []);
 
     const {
         webcamVideoRef,
@@ -44,21 +37,20 @@ export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerPro
         zoom,
         onScan,
         onDevices: parentOnDevices,
-        // deviceChoiceOptions,
         shouldPlay: false,
     });
 
-    const renderDeviceMenuItem = (device: MediaDeviceInfo) => {
-        const { deviceId, label } = device;
-        const index = devices?.findIndex((findDevice: MediaDeviceInfo) => findDevice === device) ?? 0;
-        return (
-            <MenuItem key={device.deviceId} title={`${label} - ${deviceId}`} text={label.length > 0 ? label : `Camera #${index + 1}`} />
-        );
-    };
-
-    const onSelectDevice = (device: MediaDeviceInfo) => {
-        console.log(JSON.stringify(device, undefined, 2));
-    };
+    // const renderDeviceMenuItem = (device: MediaDeviceInfo) => {
+    //     const { deviceId, label } = device;
+    //     const index = devices?.findIndex((findDevice: MediaDeviceInfo) => findDevice === device) ?? 0;
+    //     return (
+    //         <MenuItem key={device.deviceId} title={`${label} - ${deviceId}`} text={label.length > 0 ? label : `Camera #${index + 1}`} />
+    //     );
+    // };
+    //
+    // const onSelectDevice = (device: MediaDeviceInfo) => {
+    //     console.log(JSON.stringify(device, undefined, 2));
+    // };
 
     return (hasPermission ?
         <>
@@ -72,15 +64,16 @@ export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerPro
                         autoPlay={true}
                     />
                     <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
-                    <div className={'webcam-scanner-device-switcher'}>
-                        <Select2
-                            items={devices}
-                            itemRenderer={renderDeviceMenuItem}
-                            onItemSelect={onSelectDevice}
-                        >
-                            <Icon icon={IconNames.MOBILE_VIDEO} size={32} />
-                        </Select2>
-                    </div>
+                    <div className={'scanline'}>-</div>
+                    {/*<div className={'webcam-scanner-device-switcher'}>*/}
+                    {/*    <Select2*/}
+                    {/*        items={devices}*/}
+                    {/*        itemRenderer={renderDeviceMenuItem}*/}
+                    {/*        onItemSelect={onSelectDevice}*/}
+                    {/*    >*/}
+                    {/*        <Icon icon={IconNames.MOBILE_VIDEO} size={32} />*/}
+                    {/*    </Select2>*/}
+                    {/*</div>*/}
                 </div>
             </div>
         </>

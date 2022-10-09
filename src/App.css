@@ -39,3 +39,46 @@
 .barcode-display-input {
   width: max-content;
 }
+
+.bp4-form-group {
+  padding: 10px calc(50vw - 300px);
+}
+
+.settings-switches {
+  text-align: left;
+}
+
+.results-buttons-group {
+  padding: 10px;
+}
+
+.results-buttons-version-label {
+  align-self: center;
+  padding: 0 8px;
+}
+
+button.bp4-button > span > li {
+  list-style: none;
+  display: block;
+}
+
+.scanline {
+  position: absolute;
+  top: 30px;
+  left: 160px;
+  width: 320px;
+  height: 1px;
+  overflow: hidden;
+
+  border-top: solid 3px #ff000099;
+
+  animation-name: scanline;
+  animation-iteration-count: infinite;
+  animation-duration: 1.5s;
+  animation-timing-function: linear;
+}
+
+@keyframes scanline {
+  from { top: 30px; }
+  to { top: 269px; }
+}
