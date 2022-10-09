@@ -21,6 +21,7 @@ export type WebcamScannerProps = {
 export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerProps>) => {
     const {
         settings,
+        devices,
         onDevices: parentOnDevices,
         onScan,
         canvasWidth = 320,
@@ -41,7 +42,7 @@ export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerPro
         shouldPlay: false,
     });
 
-    return (hasPermission ?
+    return (hasPermission && devices?.length ?
         <>
             <div className="webcam-scanner-preview-box">
                 <div className="webcam-scanner-preview">
