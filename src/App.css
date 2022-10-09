@@ -82,6 +82,10 @@ button.bp4-button > span > li {
   animation-timing-function: linear;
 }
 
+img + img {
+  padding-left: 10px;
+}
+
 @keyframes scanline {
   from { top: 30px; }
   to { top: 269px; }

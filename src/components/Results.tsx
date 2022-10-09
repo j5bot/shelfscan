@@ -47,6 +47,8 @@ export const Results = (props: ResultsButtonsProps) => {
 
     const singleOrNoBggInfo = bggInfo.length <= 1;
 
+    const selected = selectedVersion ?? selectedGame;
+
     return (
         <>
             <ButtonGroup className={'results-buttons-group'}>
@@ -64,6 +66,8 @@ export const Results = (props: ResultsButtonsProps) => {
                 <Button intent={Intent.PRIMARY} onClick={() => submitOrVerifyGame(upc, bggId, selectedVersion.version_id)}>Submit</Button>
                 <Button intent={Intent.WARNING} onClick={() => removeGame(upc, bggId, selectedVersion.version_id)}>Remove</Button>
             </ButtonGroup>
+            {selectedGame?.image_url && <img src={selectedGame?.image_url} height={400} /> }
+            {selectedVersion.image_url && <img src={selectedVersion?.image_url} height={400} />}
             {/*<textarea readOnly={true} rows={10} cols={100} value={JSON.stringify(selectedVersion, undefined, 2)} />*/}
         </>
     );
