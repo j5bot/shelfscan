@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Intent, MenuItem } from '@blueprintjs/core';
+import { Button, ButtonGroup, FormGroup, Intent, MenuItem } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { Select2 } from '@blueprintjs/select';
 import { useCallback, useEffect, useState } from 'react';
@@ -51,7 +51,7 @@ export const Results = (props: ResultsButtonsProps) => {
 
     return (
         <>
-            <ButtonGroup className={'results-buttons-group'}>
+            <FormGroup className={'results-buttons-group'}>
                 <Select2<GameUPCBggInfo> items={bggInfo} itemRenderer={renderBggVersion} onItemSelect={onGameSelect}>
                     <Button rightIcon={singleOrNoBggInfo ? undefined : IconNames.CHEVRON_DOWN}>
                         {renderBggVersion(selectedGame, {})}
@@ -63,9 +63,9 @@ export const Results = (props: ResultsButtonsProps) => {
                         {renderBggVersion(selectedVersion, {})}
                     </Button>
                 </Select2>
-                <Button intent={Intent.PRIMARY} onClick={() => submitOrVerifyGame(upc, bggId, selectedVersion.version_id)}>Submit</Button>
-                <Button intent={Intent.WARNING} onClick={() => removeGame(upc, bggId, selectedVersion.version_id)}>Remove</Button>
-            </ButtonGroup>
+                <Button className='gameupc-button' intent={Intent.WARNING} onClick={() => removeGame(upc, bggId, selectedVersion.version_id)}>Remove</Button>
+                <Button className='gameupc-button' intent={Intent.PRIMARY} onClick={() => submitOrVerifyGame(upc, bggId, selectedVersion.version_id)}>Submit</Button>
+            </FormGroup>
             {selectedGame?.image_url && <img src={selectedGame?.image_url} height={400} /> }
             {selectedVersion.image_url && <img src={selectedVersion?.image_url} height={400} />}
             {/*<textarea readOnly={true} rows={10} cols={100} value={JSON.stringify(selectedVersion, undefined, 2)} />*/}

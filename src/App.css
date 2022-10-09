@@ -49,7 +49,11 @@
 }
 
 .results-buttons-group {
-  padding: 10px;
+  /*padding: 10px;*/
+  text-align: left;
+}
+.results-buttons-group .bp4-popover2-target {
+  padding: 5px 0;
 }
 
 .results-buttons-version-label {
@@ -82,8 +86,12 @@ button.bp4-button > span > li {
   animation-timing-function: linear;
 }
 
-img + img {
-  padding-left: 10px;
+.gameupc-button {
+  margin-top: 5px;
+}
+
+img + img, button.gameupc-button + button.gameupc-button {
+  margin-left: 10px;
 }
 
 @keyframes scanline {
