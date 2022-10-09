@@ -21,6 +21,8 @@ import { GameUPCData } from './types';
 const AppSettings: Record<string, boolean | RegExp> = {
     labelMatch: /back/ig,
 
+    scanLine: true,
+
     /* dev/debug/display settings */
     showDevices: false,
     showUPCText: false,
@@ -68,6 +70,7 @@ const App = () => {
         <div className="App">
             {/* this is all you need for your scanner */}
             <WebcamScanner
+                settings={settings}
                 devices={devices}
                 onScan={onScan}
                 onDevices={setDevices}
@@ -75,7 +78,16 @@ const App = () => {
             />
             {/* that's all for the scanner */}
 
-            <Results gameData={gameUPCData} submitOrVerifyGame={submitOrVerifyGame} removeGame={removeGame} />
+            <Results settings={settings} gameData={gameUPCData} submitOrVerifyGame={submitOrVerifyGame} removeGame={removeGame} />
+
+            <FormGroup label={'Extras'} className="settings-switches">
+                <Switch label="Scan Line"
+                        name={'scanLine'}
+                        value={'scanLine'}
+                        onChange={setSetting}
+                        checked={!!settings.scanLine}
+                />
+            </FormGroup>
 
             <FormGroup label={'Info Options'} className="settings-switches">
                 <Switch label="Devices"

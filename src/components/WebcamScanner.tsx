@@ -5,6 +5,7 @@ import { FC, PropsWithChildren } from 'react';
 import { useBarcodeScanner } from 'use-barcode-scanner/dist/esm';
 
 export type WebcamScannerProps = {
+    settings?: Record<string, boolean | RegExp>;
     devices?: MediaDeviceInfo[];
     onScan: (code: string) => void;
     onDevices?: (devices: MediaDeviceInfo[]) => void;
@@ -19,7 +20,7 @@ export type WebcamScannerProps = {
 
 export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerProps>) => {
     const {
-        // devices = [],
+        settings,
         onDevices: parentOnDevices,
         onScan,
         canvasWidth = 320,
@@ -40,18 +41,6 @@ export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerPro
         shouldPlay: false,
     });
 
-    // const renderDeviceMenuItem = (device: MediaDeviceInfo) => {
-    //     const { deviceId, label } = device;
-    //     const index = devices?.findIndex((findDevice: MediaDeviceInfo) => findDevice === device) ?? 0;
-    //     return (
-    //         <MenuItem key={device.deviceId} title={`${label} - ${deviceId}`} text={label.length > 0 ? label : `Camera #${index + 1}`} />
-    //     );
-    // };
-    //
-    // const onSelectDevice = (device: MediaDeviceInfo) => {
-    //     console.log(JSON.stringify(device, undefined, 2));
-    // };
-
     return (hasPermission ?
         <>
             <div className="webcam-scanner-preview-box">
@@ -64,16 +53,7 @@ export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerPro
                         autoPlay={true}
                     />
                     <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
-                    <div className={'scanline'}>-</div>
-                    {/*<div className={'webcam-scanner-device-switcher'}>*/}
-                    {/*    <Select2*/}
-                    {/*        items={devices}*/}
-                    {/*        itemRenderer={renderDeviceMenuItem}*/}
-                    {/*        onItemSelect={onSelectDevice}*/}
-                    {/*    >*/}
-                    {/*        <Icon icon={IconNames.MOBILE_VIDEO} size={32} />*/}
-                    {/*    </Select2>*/}
-                    {/*</div>*/}
+                    {settings?.scanLine && <div className={'scanline'}>-</div>}
                 </div>
             </div>
         </>

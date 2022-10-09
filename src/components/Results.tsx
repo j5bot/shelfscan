@@ -5,13 +5,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCData } from '../types';
 
 export type ResultsButtonsProps = {
+    settings: Record<string, boolean | RegExp>;
     gameData?: GameUPCData;
     submitOrVerifyGame: (upc: string, bggId: number, version: number) => Promise<GameUPCData>;
     removeGame: (upc: string, bggId: number, version: number) => Promise<GameUPCData>;
 };
 
 export const Results = (props: ResultsButtonsProps) => {
-    const { removeGame, submitOrVerifyGame, gameData } = props;
+    const { settings, removeGame, submitOrVerifyGame, gameData } = props;
     const [selectedGame, setSelectedGame] = useState<GameUPCBggInfo | undefined>();
     const [selectedVersion, setSelectedVersion] = useState<GameUPCBggVersion>({ version_id: -1, name: '<Select Version>' } as GameUPCBggVersion);
 
@@ -32,7 +33,7 @@ export const Results = (props: ResultsButtonsProps) => {
     }
 
     const { upc, bgg_info: bggInfo } = gameData;
-    const { id: bggId, versions = [] } = bggInfo.find((info) => info === selectedGame) ?? bggInfo[0];
+    const { id: bggId, versions = [] } = bggInfo?.find((info) => info === selectedGame) ?? bggInfo[0];
 
     // const { version_id: versionId, name, published = -1 } = selectedVersion;
 

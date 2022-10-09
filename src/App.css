@@ -62,6 +62,10 @@ button.bp4-button > span > li {
   display: block;
 }
 
+.bp4-menu.bp4-menu.bp4-menu {
+  max-width: 90vw;
+}
+
 .scanline {
   position: absolute;
   top: 30px;
