@@ -1,42 +1,43 @@
 import React from 'react';
 import { useBarcodeScanner } from 'use-barcode-scanner/dist/hooks/esm';
 
-export type WebcamScannerProps = {
-    settings?: Record<string, boolean | RegExp>;
-    devices?: MediaDeviceInfo[];
-    onScan: (code: string) => void;
-    onDevices?: (devices: MediaDeviceInfo[]) => void;
-    shouldScan?: boolean;
-    preferDeviceLabelMatch?: RegExp;
-    canvasWidth?: number;
+export type BarcodeScannerProps = {
+    autoStart?: boolean;
     canvasHeight?: number;
-    videoWidth?: number;
+    canvasWidth?: number;
+    devices?: MediaDeviceInfo[];
+    onDevices?: (devices: MediaDeviceInfo[]) => void;
+    onScan: (code: string) => void;
+    preferDeviceLabelMatch?: RegExp;
+    settings?: Record<string, boolean | RegExp>;
     videoHeight?: number;
+    videoWidth?: number;
     zoom?: number;
 };
 
-export const WebcamScanner = (props: WebcamScannerProps) => {
+export const BarcodeScanner = (props: BarcodeScannerProps) => {
     const {
-        settings,
-        devices,
-        onDevices: parentOnDevices,
-        onScan,
-        canvasWidth = 320,
+        autoStart = true,
         canvasHeight = 240,
-        videoWidth = 640,
+        canvasWidth = 320,
+        devices,
+        onDevices,
+        onScan,
+        settings,
         videoHeight = 480,
+        videoWidth = 640,
         zoom = 1,
     } = props;
 
     const {
-        webcamVideoRef,
         canvasRef,
         hasPermission,
+        webcamVideoRef,
     } = useBarcodeScanner({
-        zoom,
+        onDevices,
         onScan,
-        onDevices: parentOnDevices,
         shouldPlay: false,
+        zoom,
     });
 
     return (hasPermission && devices?.length ?
@@ -45,10 +46,10 @@ export const WebcamScanner = (props: WebcamScannerProps) => {
                 <div className="webcam-scanner-preview">
                     <video
                         ref={webcamVideoRef}
-                        height={videoHeight}
                         width={videoWidth}
+                        height={videoHeight}
+                        autoPlay={autoStart}
                         playsInline={true}
-                        autoPlay={true}
                     />
                     <canvas ref={canvasRef} width={canvasWidth} height={canvasHeight} />
                     {settings?.scanLine && <div className={'scanline'}>-</div>}

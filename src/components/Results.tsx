@@ -33,7 +33,7 @@ export const Results = (props: ResultsButtonsProps) => {
     }
 
     const { upc, bgg_info: bggInfo } = gameData;
-    const { id: bggId, versions = [] } = bggInfo?.find((info) => info === selectedGame) ?? bggInfo[0];
+    const { id: bggId, versions = [] } = (bggInfo?.find((info) => { return info === selectedGame }) ?? bggInfo[0] ?? {});
 
     // const { version_id: versionId, name, published = -1 } = selectedVersion;
 

@@ -3,6 +3,7 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 import '@blueprintjs/select/lib/css/blueprint-select.css';
 import React, { FormEvent, useEffect, useState } from 'react';
+import { BarcodeScanner } from 'use-barcode-scanner/dist/components/esm';
 
 import './App.css';
 
@@ -11,7 +12,6 @@ import {
     ShowScanHistory,
     ShowUPCImage,
     ShowUPCText,
-    WebcamScanner
 } from './components';
 import { ShowDevices } from './components/dev/ShowDevices';
 import { Results } from './components/Results';
@@ -69,7 +69,7 @@ const App = () => {
     return (
         <div className="App">
             {/* this is all you need for your scanner */}
-            <WebcamScanner
+            <BarcodeScanner
                 settings={settings}
                 devices={devices}
                 onScan={onScan}
