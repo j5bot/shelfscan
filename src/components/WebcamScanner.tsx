@@ -1,8 +1,5 @@
-// import { Icon, MenuItem } from '@blueprintjs/core';
-// import { IconNames } from '@blueprintjs/icons';
-// import { Select2 } from '@blueprintjs/select';
-import { FC, PropsWithChildren } from 'react';
-import { useBarcodeScanner } from 'use-barcode-scanner/dist/esm';
+import React from 'react';
+import { useBarcodeScanner } from 'use-barcode-scanner/dist/hooks/esm';
 
 export type WebcamScannerProps = {
     settings?: Record<string, boolean | RegExp>;
@@ -18,7 +15,7 @@ export type WebcamScannerProps = {
     zoom?: number;
 };
 
-export const WebcamScanner: FC<any> = (props: PropsWithChildren<WebcamScannerProps>) => {
+export const WebcamScanner = (props: WebcamScannerProps) => {
     const {
         settings,
         devices,

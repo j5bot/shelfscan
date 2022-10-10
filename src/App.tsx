@@ -1,21 +1,21 @@
 import { FormGroup, Switch } from '@blueprintjs/core';
-import React, { FormEvent, useEffect, useState } from 'react';
-
-import './App.css';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 import '@blueprintjs/select/lib/css/blueprint-select.css';
-import { ShowDevices } from './components/dev/ShowDevices';
-import { Results } from './components/Results';
+import React, { FormEvent, useEffect, useState } from 'react';
 
-import { WebcamScanner } from './components/WebcamScanner';
-import { useGameUPCApi } from './hooks/useGameUPCApi';
+import './App.css';
+
 import {
     ShowGameUPCData,
     ShowScanHistory,
     ShowUPCImage,
-    ShowUPCText
-} from './components/dev';
+    ShowUPCText,
+    WebcamScanner
+} from './components';
+import { ShowDevices } from './components/dev/ShowDevices';
+import { Results } from './components/Results';
+import { useGameUPCApi } from './hooks';
 import { GameUPCData } from './types';
 
 const AppSettings: Record<string, boolean | RegExp> = {

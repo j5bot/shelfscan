@@ -1,5 +1,5 @@
 import { useBarcode } from 'next-barcode';
-import { BarcodeFormat } from "use-barcode-scanner/dist/esm";
+import { BarcodeFormat } from "use-barcode-scanner/dist/hooks/esm";
 
 export type BarcodeDisplayProps = {
     code: string;
