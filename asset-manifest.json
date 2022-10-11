@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/static/css/main.30565f70.css",
-    "main.js": "/static/js/main.d5636a4d.js",
-    "static/js/90.29f37b4d.chunk.js": "/static/js/90.29f37b4d.chunk.js",
-    "static/js/787.b9546448.chunk.js": "/static/js/787.b9546448.chunk.js",
-    "index.html": "/index.html",
-    "main.30565f70.css.map": "/static/css/main.30565f70.css.map",
-    "main.d5636a4d.js.map": "/static/js/main.d5636a4d.js.map",
-    "90.29f37b4d.chunk.js.map": "/static/js/90.29f37b4d.chunk.js.map",
-    "787.b9546448.chunk.js.map": "/static/js/787.b9546448.chunk.js.map"
+    "main.css": "/gameupc-scanner/static/css/main.30565f70.css",
+    "main.js": "/gameupc-scanner/static/js/main.ad44a017.js",
+    "static/js/90.29f37b4d.chunk.js": "/gameupc-scanner/static/js/90.29f37b4d.chunk.js",
+    "static/js/787.b9546448.chunk.js": "/gameupc-scanner/static/js/787.b9546448.chunk.js",
+    "index.html": "/gameupc-scanner/index.html",
+    "main.30565f70.css.map": "/gameupc-scanner/static/css/main.30565f70.css.map",
+    "main.ad44a017.js.map": "/gameupc-scanner/static/js/main.ad44a017.js.map",
+    "90.29f37b4d.chunk.js.map": "/gameupc-scanner/static/js/90.29f37b4d.chunk.js.map",
+    "787.b9546448.chunk.js.map": "/gameupc-scanner/static/js/787.b9546448.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.30565f70.css",
-    "static/js/main.d5636a4d.js"
+    "static/js/main.ad44a017.js"
   ]
 }
