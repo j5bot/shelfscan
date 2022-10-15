@@ -22,7 +22,7 @@ const postOrDeleteGameUPCMatch = async (
     del: boolean = false) => {
     const postOrDeleteVersion = version >= 0 ? `/version/${version}` : '';
     return await fetch(
-        `${gameUPCHost}/upc/${upc}/bgg/${bggId}${postOrDeleteVersion}`,
+        `${gameUPCHost}/upc/${upc}/bgg_id/${bggId}${postOrDeleteVersion}`,
         Object.assign(
             { body, method: del ? 'DELETE' : 'POST' },
             gameUPCFetchOptions

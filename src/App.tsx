@@ -3,7 +3,8 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 import '@blueprintjs/select/lib/css/blueprint-select.css';
 import React, { FormEvent, useEffect, useState } from 'react';
-import { BarcodeScanner } from 'use-barcode-scanner/dist/components/esm';
+import { BarcodeScanner } from '@use-barcode-scanner/components';
+import '@use-barcode-scanner/components/dist/css/components.css';
 
 import './App.css';
 

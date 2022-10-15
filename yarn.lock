@@ -2298,6 +2298,32 @@
     "@typescript-eslint/types" "5.39.0"
     eslint-visitor-keys "^3.3.0"
 
+"@undecaf/barcode-detector-polyfill@^0.9.13":
+  version "0.9.13"
+  resolved "https://registry.yarnpkg.com/@undecaf/barcode-detector-polyfill/-/barcode-detector-polyfill-0.9.13.tgz#fce948a5ebb54788eb6fbf09267924934fffc4f6"
+  integrity sha512-gkukDBEIl/IMhTWHLwrPUVt1fAsT4E4J+JxPNFIS9QMz6WOVctQ8Yc6DsDCtANCwl2xy3QTdvMNNvj+n7Vo2ig==
+  dependencies:
+    "@undecaf/zbar-wasm" "^0.9.11"
+
+"@undecaf/zbar-wasm@^0.9.11":
+  version "0.9.11"
+  resolved "https://registry.yarnpkg.com/@undecaf/zbar-wasm/-/zbar-wasm-0.9.11.tgz#3bcc746f3f0e40f1a942cc1b7ca41658de725455"
+  integrity sha512-R73AbCWeKAmwuldXGOvklgspHlPHAEXlU7qOz9wUgrNSfHTeffayDL86XP9lYuqwASHT1MBiu2qCXSuL3o8t8A==
+
+"@use-barcode-scanner/components@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@use-barcode-scanner/components/-/components-0.0.4.tgz#6a7947446127cbcd174349c089acaa09574f2ca3"
+  integrity sha512-gepuzR2blDdwVT9AG1wqH355tzaFPjDXG6g8W+jmstbIFqq2G5LO71PJ1VFOYcvMg3f2a/CjdAU6cJ0RQIKL5g==
+  dependencies:
+    "@use-barcode-scanner/hooks" "^0.0.1"
+
+"@use-barcode-scanner/hooks@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@use-barcode-scanner/hooks/-/hooks-0.0.1.tgz#124a9191559625261c442a59859edf1216b521a4"
+  integrity sha512-pkf6S46KqCHZ+mfIqBbW9yzSNZgWZtB2z3UKd1zFlT32hGVxGpdRjzFhuRTOeUQAEh6spaH16X0hmC5U8+Zywg==
+  dependencies:
+    "@undecaf/barcode-detector-polyfill" "^0.9.13"
+
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"

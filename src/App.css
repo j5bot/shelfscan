@@ -4,17 +4,12 @@
 }
 
 .webcam-scanner-preview-box {
-  max-height: 300px;
-  overflow: hidden;
   display: flex;
   justify-content: center;
 }
 
 .webcam-scanner-preview {
   position: relative;
-  max-width: max-content;
-  min-width: max-content;
-  min-height: max-content;
 }
 .webcam-scanner-preview > canvas {
   position: absolute;

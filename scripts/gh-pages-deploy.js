@@ -5,7 +5,7 @@ const OUTPUT_DIR = 'build';
 const SITE_BRANCH = 'deploy';
 
 const publishCallback = (err) => {
-    err && console.error(`An error occured deploying to Github Pages: ${err}`);
+    err && console.error(`An error occurred deploying to Github Pages: ${err}`);
 };
 
 const options = {
