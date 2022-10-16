@@ -3,6 +3,31 @@
   padding: 20px;
 }
 
+.scanner-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.scanner-container {
+  position: relative;
+  height: 300px;
+}
+
+.webcam-scanner-preview-box {
+  --video-crop-width: 100vw !important;
+  position: absolute;
+  top: 0;
+  left: calc(-50vw - 2px);
+  width: calc(100vw + 2px);
+}
+
+.webcam-scanner-preview {
+  border: 0;
+}
+
+/*
 .webcam-scanner-preview-box {
   display: flex;
   justify-content: center;
@@ -30,6 +55,8 @@
   color: white;
   background-color: #ccc;
 }
+
+ */
 
 .barcode-display-input {
   width: max-content;
@@ -65,31 +92,10 @@ button.bp4-button > span > li {
   max-width: 90vw;
 }
 
-.scanline {
-  position: absolute;
-  top: 30px;
-  left: 160px;
-  width: 320px;
-  height: 1px;
-  overflow: hidden;
-
-  border-top: solid 3px #ff000099;
-
-  animation-name: scanline;
-  animation-iteration-count: infinite;
-  animation-duration: 1.5s;
-  animation-timing-function: linear;
-}
-
 .gameupc-button {
   margin-top: 5px;
 }
 
 img + img, button.gameupc-button + button.gameupc-button {
   margin-left: 10px;
-}
-
-@keyframes scanline {
-  from { top: 30px; }
-  to { top: 269px; }
 }

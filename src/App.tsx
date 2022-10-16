@@ -69,15 +69,19 @@ const App = () => {
 
     return (
         <div className="App">
-            {/* this is all you need for your scanner */}
-            <BarcodeScanner
-                settings={settings}
-                devices={devices}
-                onScan={onScan}
-                onDevices={setDevices}
-                zoom={2}
-            />
-            {/* that's all for the scanner */}
+            <div className="scanner-top">
+                <div className="scanner-container">
+                    {/* this is all you need for your scanner */}
+                    <BarcodeScanner
+                        settings={settings}
+                        devices={devices}
+                        onScan={onScan}
+                        onDevices={setDevices}
+                        zoom={2}
+                    />
+                    {/* that's all for the scanner */}
+                </div>
+            </div>
 
             <Results settings={settings} gameData={gameUPCData} submitOrVerifyGame={submitOrVerifyGame} removeGame={removeGame} />
 
