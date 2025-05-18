@@ -1,10 +1,10 @@
 'use client';
 
-import '@react-barcode-scanner/components/dist/index.css';
-
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
 import { BarcodeScanner, BarcodeScannerProps } from '@react-barcode-scanner/components/dist';
 import React, { useState } from 'react';
+import { FaBarcode } from 'react-icons/fa6';
+import { GiCardPick } from 'react-icons/gi';
 
 type ExtendedProps = BarcodeScannerProps & { scanLine?: boolean };
 
@@ -45,32 +45,52 @@ export default function Home(props: ExtendedProps) {
     };
 
     return (
-        <div>
-        <BarcodeScanner
-            devices={devices}
-            onDevices={onDevices}
-            onScan={onScan}
-            settings={{
-                scanLine,
-            }}
-            canvasWidth={canvasWidth}
-            canvasHeight={canvasHeight}
-            videoWidth={videoWidth}
-            videoHeight={videoHeight}
-            videoCropHeight={videoCropHeight}
-            videoCropWidth={videoCropWidth}
-            zoom={zoom}
-            blur={blur}
-        />
-            <ul>
-            {codes.map(code => (
-                <li>
-                    {code} - {gameDataMap[code] && JSON.stringify(gameDataMap[code], undefined, 2)}
-                </li>
-            ))}
-            </ul>
-        </div>
-    );
+        <div className="flex flex-col w-full items-center">
+                <div className="flex gap-2 p-15 pb-5 relative">
+                    <BarcodeScanner
+                        devices={devices}
+                        onDevices={onDevices}
+                        onScan={onScan}
+                        settings={{
+                            scanLine,
+                        }}
+                        canvasWidth={canvasWidth}
+                        canvasHeight={canvasHeight}
+                        videoWidth={videoWidth}
+                        videoHeight={videoHeight}
+                        videoCropHeight={videoCropHeight}
+                        videoCropWidth={videoCropWidth}
+                        zoom={zoom}
+                        blur={blur}
+                    />
+                    <div className="absolute right-0 flex flex-col gap-2">
+                        <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>
+                            <FaBarcode size={32} />
+                        </button>
+                        <button className={`p-2 cursor-pointer bg-gray-100 rounded-sm`}>
+                            <GiCardPick size={32} />
+                        </button>
+                    </div>
+                </div>
+                <fieldset className="bg-gray-100 rounded-lg flex gap-4 p-5">
+                    <input className="bg-white p-2 rounded-md"
+                       type="text" name="username" placeholder="BGG Username" />
+                    <input className="bg-white p-2 rounded-md"
+                       type="password" name="password" placeholder="BGG Password" />
+                    <button className="p-2 rounded-md bg-gray-200 whitespace-nowrap" type="button" name="login">
+                        Log In
+                    </button>
+                </fieldset>
+                <div className="items-start p-5">
+                    <ul>
+                        {codes.map(code => (
+                            <li>
+                                {code} - {Object.entries(gameDataMap[code]).length > 0 ? JSON.stringify(gameDataMap[code], undefined, 2) : 'Not found'}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+        </div>);
 
   // return (
   //   <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
