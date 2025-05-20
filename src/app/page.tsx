@@ -1,9 +1,10 @@
 'use client';
 
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
+import { BggLoginForm } from '@/app/ui/bgg-login-form';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { BarcodeScanner, BarcodeScannerProps } from '@react-barcode-scanner/components/dist';
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 import { GiCardPick } from 'react-icons/gi';
 
@@ -74,15 +75,9 @@ export default function Home(props: ExtendedProps) {
                         </button>
                     </div>
                 </div>
-                <fieldset className="bg-gray-100 rounded-lg flex gap-4 p-5">
-                    <input className="bg-white p-2 rounded-md"
-                       type="text" name="username" placeholder="BGG Username" />
-                    <input className="bg-white p-2 rounded-md"
-                       type="password" name="password" placeholder="BGG Password" />
-                    <button className="p-2 rounded-md bg-gray-200 whitespace-nowrap" type="button" name="login">
-                        Log In
-                    </button>
-                </fieldset>
+                <Suspense>
+                    <BggLoginForm />
+                </Suspense>
                 <div className="items-start p-5">
                     <Scanlist codes={codes} gameUPCResults={gameDataMap} />
                 </div>

@@ -48,7 +48,7 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
     const { updaterId = 'gameupc-scanner' } = options;
 
     const [warmed, setWarmed] = useState<boolean>(false);
-    const [gameDataMap, setGameDataMap] = useState<Record<string, Promise<GameUPCData>>>({});
+    const [gameDataMap, setGameDataMap] = useState<Record<string, GameUPCData>>({});
     const [gameUPCs, setGameUPCs] = useState<string[]>([]);
     const [fetchingGameUPCs, setFetchingGameUPCs] = useState<string[]>([]);
 
@@ -59,7 +59,7 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
     useEffect(() => {
         let warming = true;
 
-        if (!warmed) {
+        if (!(warmed || warming)) {
             warmupGameUPCApi().then(() => setWarmed(true));
         }
         return () => { warming = false; };
@@ -89,7 +89,7 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
         gameDataMap[upc] = await gameData;
         setGameDataMap(gameDataMap);
 
-        return await gameDataMap[upc];
+        return gameDataMap[upc];
     };
 
     const submitOrVerifyGame = async (upc: string, bggId: number, version: number = -1) => {
