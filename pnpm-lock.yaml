@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@react-barcode-scanner/components':
-        specifier: 0.0.17-alpha
-        version: 0.0.17-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 0.0.21-alpha
+        version: 0.0.21-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next:
         specifier: 15.3.2
         version: 15.3.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -338,14 +338,14 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@react-barcode-scanner/components@0.0.17-alpha':
-    resolution: {integrity: sha512-whTbYb29DpaxxhAJTr3ESY+tHIjmbqqOlQN8NO/mcG81eCo+1zVKPEQNVQfoPDGWKYRPEGog+8wo4Nu+1xwMHQ==}
+  '@react-barcode-scanner/components@0.0.21-alpha':
+    resolution: {integrity: sha512-8THdhfxslWXOIKak3vwB4IkueL5X+KbIvLDXQjl5gWaClpfopl0A5RBBCJ85RjJmJfqD3kixZ5KcXis9l9OXnA==}
     peerDependencies:
       react: 18 - 19
       react-dom: 18 - 19
 
-  '@react-barcode-scanner/hooks@0.0.17-alpha':
-    resolution: {integrity: sha512-0ASG8AwLlxKfKb6a/sJfjkESNg8QUUovGSFiCWj0xK+Ro1vTbWeLIGLVxtRCRmPME94Fxhji0YzLc7H1ycv//A==}
+  '@react-barcode-scanner/hooks@0.0.21-alpha':
+    resolution: {integrity: sha512-TfV/k9nNzy1lF77gBTkb4ZcD8+veOqJHnmXzAUiGfNQUcR9oeToBbAvYKkk0tiXX7rUZvR1n3Kw1rUrk373iEQ==}
     peerDependencies:
       react: 18 - 19
       react-dom: 18 - 19
@@ -2260,13 +2260,13 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@react-barcode-scanner/components@0.0.17-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-barcode-scanner/components@0.0.21-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-barcode-scanner/hooks': 0.0.17-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-barcode-scanner/hooks': 0.0.21-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-barcode-scanner/hooks@0.0.17-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-barcode-scanner/hooks@0.0.21-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@undecaf/barcode-detector-polyfill': 0.9.21
       react: 19.1.0

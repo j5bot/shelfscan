@@ -1,6 +1,7 @@
 'use client';
 
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
+import { Scanlist } from '@/app/ui/games/Scanlist';
 import { BarcodeScanner, BarcodeScannerProps } from '@react-barcode-scanner/components/dist';
 import React, { useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
@@ -36,8 +37,9 @@ export default function Home(props: ExtendedProps) {
         if (codes.includes(code)) {
             return;
         }
-        setCodes(codes.concat(code));
         await getGameData(code);
+        codes.push(code);
+        setCodes(codes);
     };
     // @ts-ignore IDE doesn't recognize the MediaDeviceInfo built-in type
     const onDevices = (devices: MediaDeviceInfo[]) => {
@@ -82,13 +84,7 @@ export default function Home(props: ExtendedProps) {
                     </button>
                 </fieldset>
                 <div className="items-start p-5">
-                    <ul>
-                        {codes.map(code => (
-                            <li>
-                                {code} - {Object.entries(gameDataMap[code]).length > 0 ? JSON.stringify(gameDataMap[code], undefined, 2) : 'Not found'}
-                            </li>
-                        ))}
-                    </ul>
+                    <Scanlist codes={codes} gameUPCResults={gameDataMap} />
                 </div>
         </div>);
 

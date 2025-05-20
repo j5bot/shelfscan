@@ -86,10 +86,10 @@ export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
                 return data;
             });
 
-        gameDataMap[upc] = gameData;
+        gameDataMap[upc] = await gameData;
         setGameDataMap(gameDataMap);
 
-        return await gameData;
+        return await gameDataMap[upc];
     };
 
     const submitOrVerifyGame = async (upc: string, bggId: number, version: number = -1) => {
