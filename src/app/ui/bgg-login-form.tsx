@@ -2,7 +2,12 @@ import { bggLogin } from '@/app/lib/actions';
 import React, { useActionState } from 'react';
 
 export function BggLoginForm() {
-    const [errorMessage, formAction, isPending] = useActionState(bggLogin, undefined);
+    const [errorMessage, formAction, isPending] = useActionState(bggLogin, {
+        message: undefined,
+        errors: {},
+    });
+
+    void errorMessage;
 
     return (
         <form action={formAction}>

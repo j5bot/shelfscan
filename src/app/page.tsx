@@ -3,15 +3,12 @@
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
 import { BggLoginForm } from '@/app/ui/bgg-login-form';
 import { Scanlist } from '@/app/ui/games/Scanlist';
-import { BarcodeScanner, BarcodeScannerProps } from '@react-barcode-scanner/components/dist';
+import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
 import React, { Suspense, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 import { GiCardPick } from 'react-icons/gi';
 
-type ExtendedProps = BarcodeScannerProps & { scanLine?: boolean };
-
-
-export default function Home(props: ExtendedProps) {
+export default function Home() {
     const {
         gameDataMap,
         getGameData,
@@ -19,6 +16,10 @@ export default function Home(props: ExtendedProps) {
         removeGame,
     } = useGameUPCApi({});
 
+    void submitOrVerifyGame;
+    void removeGame;
+
+    // props
     const {
         scanLine = true,
         canvasHeight = 240,
@@ -29,7 +30,7 @@ export default function Home(props: ExtendedProps) {
         videoCropWidth= 320,
         zoom = 2,
         blur = 0,
-    } = props;
+    } = {};
 
     const [codes, setCodes] = useState<string[]>([]);
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -42,7 +43,7 @@ export default function Home(props: ExtendedProps) {
         codes.push(code);
         setCodes(codes);
     };
-    // @ts-ignore IDE doesn't recognize the MediaDeviceInfo built-in type
+
     const onDevices = (devices: MediaDeviceInfo[]) => {
         setDevices(devices);
     };
