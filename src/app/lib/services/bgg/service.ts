@@ -32,6 +32,9 @@ export const getBggUser = async (name: string): Promise<BggUser> => {
             document.querySelector('marketrating')?.getAttribute('value') ??
             '0',
         );
+        const avatarUrl = document
+            .querySelector('avatarlink')
+            ?.getAttribute('value');
 
         return {
             user: name,
@@ -43,6 +46,7 @@ export const getBggUser = async (name: string): Promise<BggUser> => {
             country,
             tradeRating,
             marketRating,
+            avatarUrl,
         } as BggUser;
     });
 };

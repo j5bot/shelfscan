@@ -27,6 +27,9 @@ export const bggUserSlice = createSlice({
         setCookie: (state, action: PayloadAction<string>) => {
             state.cookie = action.payload;
         },
+        setLoggedIn: (state, action: PayloadAction<boolean>) => {
+            state.loggedIn = action.payload;
+        },
         setUser: (state, action: PayloadAction<Partial<BggUser>>) => {
             Object.assign(state, action.payload);
         },
@@ -39,7 +42,7 @@ export const bggUserSlice = createSlice({
 
 export const {
     setCookie,
-    setUser
+    setLoggedIn,
 } = bggUserSlice.actions;
 
 export default bggUserSlice.reducer;

@@ -6,6 +6,7 @@ export type BggUser = {
     city?: string;
     state?: string;
     country?: string;
+    avatarUrl?: string;
 } & BggUserProfile;
 
 export type BggUserProfile = {

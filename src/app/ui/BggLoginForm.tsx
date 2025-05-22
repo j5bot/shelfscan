@@ -1,13 +1,16 @@
 'use client';
 
 import { bggLogin, BggLoginState } from '@/app/lib/actions';
-import { useDispatch } from '@/app/lib/hooks';
+import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { useActionStateWithCallbacks } from '@/app/lib/hooks/useActionStateWithCallbacks';
-import { fetchBggUser, setCookie } from '@/app/lib/redux/bgg/user/slice';
+import { fetchBggUser, setCookie, setLoggedIn } from '@/app/lib/redux/bgg/user/slice';
+import Image from 'next/image';
 import React from 'react';
 
 export function BggLoginForm() {
     const dispatch = useDispatch();
+    const { user, firstName, avatarUrl, loggedIn } = useSelector(state => state.bgg.user);
+
     const [state, formAction, isPending] = useActionStateWithCallbacks<BggLoginState>({
         action: bggLogin as any,
         initialState: {
@@ -22,15 +25,29 @@ export function BggLoginForm() {
                 }
                 dispatch(fetchBggUser(username));
                 dispatch(setCookie(cookie));
+                dispatch(setLoggedIn(true));
             }
         ],
     });
 
     void state;
 
-    return (
+    const containerClassName = 'bg-gray-100 rounded-lg flex gap-4 p-5';
+    const displayName = `${firstName} [${user}]`;
+
+    return loggedIn ? (
+        <div className={containerClassName}>
+            {/* avatarUrl && (<Image
+                className="rounded-sm"
+                src={avatarUrl}
+                alt={displayName}
+                width={64} height={64}
+            />) */}
+            {displayName}
+        </div>
+    ) : (
         <form action={formAction}>
-            <fieldset className="bg-gray-100 rounded-lg flex gap-4 p-5">
+            <fieldset className={containerClassName}>
                 <input className="bg-white p-2 rounded-md"
                        type="text" name="username" placeholder="BGG Username" />
                 <input className="bg-white p-2 rounded-md"

@@ -44,9 +44,10 @@ export const fetchCollectionItems = createAsyncThunk(
     async (params: Partial<GetCollectionItemsParams>, { dispatch, getState }) => {
         const state: RootState = getState() as unknown as RootState;
         const { id: userId, cookie } = state.bgg.user;
-        const data = await getCollectionItems({ userId, cookie, data: params.data });
-
-        return data;
+        if (!(userId && cookie && params.data)) {
+            return;
+        }
+        return await getCollectionItems({ userId, cookie, data: params.data });
     }
 );
 
