@@ -704,4 +704,6 @@ const collectionDataSample = {
         "review_tstamp": null
     }
 ]
-}
+};
+
+void collectionDataSample;

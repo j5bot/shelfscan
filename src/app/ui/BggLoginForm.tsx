@@ -12,7 +12,9 @@ export function BggLoginForm() {
     const { user, firstName, avatarUrl, loggedIn } = useSelector(state => state.bgg.user);
 
     const [state, formAction, isPending] = useActionStateWithCallbacks<BggLoginState>({
-        action: bggLogin as any,
+        // I don't know why this type is arguing ... the action param is supposed to take formData
+        action: (bggLogin as unknown) as
+            Parameters<(typeof useActionStateWithCallbacks<BggLoginState>)>[0]['action'],
         initialState: {
             data: {},
             errors: {},
@@ -37,12 +39,12 @@ export function BggLoginForm() {
 
     return loggedIn ? (
         <div className={containerClassName}>
-            {/* avatarUrl && (<Image
+            {avatarUrl && (<Image
                 className="rounded-sm"
                 src={avatarUrl}
                 alt={displayName}
                 width={64} height={64}
-            />) */}
+            />)}
             {displayName}
         </div>
     ) : (

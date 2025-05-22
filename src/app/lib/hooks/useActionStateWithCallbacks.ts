@@ -27,7 +27,7 @@ export const useActionStateWithCallbacks =
             return;
         }
         setResults(callbacks.map(callback => callback(state)));
-    }, [setResults, state]);
+    }, [callbacks, setResults, state]);
 
     return [state, formAction, isPending, results];
 };

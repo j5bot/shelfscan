@@ -1,6 +1,5 @@
 import { RootState } from '@/app/lib/redux/store';
 import { getCollectionItems, GetCollectionItemsParams } from '@/app/lib/services/bgg/collectionData';
-import { BggUser } from '@/app/lib/types/BggUser';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type CollectionId = string;
@@ -41,7 +40,7 @@ const initialState: BggCollectionSliceState = {
 
 export const fetchCollectionItems = createAsyncThunk(
     `${SLICE_TITLE}/fetch/item`,
-    async (params: Partial<GetCollectionItemsParams>, { dispatch, getState }) => {
+    async (params: Partial<GetCollectionItemsParams>, { getState }) => {
         const state: RootState = getState() as unknown as RootState;
         const { id: userId, cookie } = state.bgg.user;
         if (!(userId && cookie && params.data)) {
@@ -65,14 +64,13 @@ export const bggCollectionSlice = createSlice({
     },
     extraReducers: builder =>
         builder
-            .addCase(fetchCollectionItems.fulfilled, (state, action) => {
-                const { items } = action.payload;
-
+            .addCase(fetchCollectionItems.fulfilled, (/* state, action */) => {
+                // const { items } = action.payload;
             })
 });
 
-export const {
-    addUpdateCollectionItem,
-} = bggCollectionSlice.actions;
+// export const {
+//     addUpdateCollectionItem,
+// } = bggCollectionSlice.actions;
 
 export default bggCollectionSlice.reducer;

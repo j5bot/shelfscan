@@ -27,7 +27,14 @@ export function Scanner(props: ScannerProps) {
     const dispatch = useDispatch();
 
     const scanAudio = useMemo(() => {
-        return new Audio('/sounds/barcode-scan.mp3');
+        try {
+            return new Audio('/sounds/barcode-scan.mp3');
+        } catch (e) {
+            void e;
+            return {
+                play: () => Promise.resolve(),
+            };
+        }
     }, []);
 
     const [codes, setCodes] = useState<string[]>([]);

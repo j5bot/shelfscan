@@ -4,7 +4,7 @@ import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
 import { Provider } from '@/app/Provider';
 import { BggLoginForm } from '@/app/ui/BggLoginForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
-import { Scanner } from '@/app/ui/Scanner';
+import { Scanner, ScannerProps } from '@/app/ui/Scanner';
 import React, { Suspense, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 import { GiCardPick } from 'react-icons/gi';
@@ -33,7 +33,7 @@ export default function Home() {
             <div className="flex flex-col w-full items-center">
                 <div className="flex gap-2 p-15 pb-5 relative">
                     <Suspense>
-                        <Scanner onScan={onScan as any} />
+                        <Scanner onScan={onScan as ScannerProps['onScan']} />
                     </Suspense>
                     <div className="absolute right-0 flex flex-col gap-2">
                         <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>
