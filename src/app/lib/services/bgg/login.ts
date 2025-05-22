@@ -1,4 +1,4 @@
-import { bggWorkerHost } from './service';
+import { bggCookieHost, bggWorkerHost } from './constants';
 
 const loginAPIUrl = `${bggWorkerHost}/login/api/v1`;
 
@@ -13,6 +13,7 @@ export const doBggLogin = async (userName: string, password: string) => {
         headers: {
             accept: 'application/json',
             'content-type': 'application/json',
+            cookie: bggCookie,
         },
         body: JSON.stringify({
             credentials: {
@@ -20,12 +21,16 @@ export const doBggLogin = async (userName: string, password: string) => {
                 password: password,
             },
         }),
-    }).then((response) => {
-        response.text().then(cookie => {
-            bggCookie = cookie;
+    }).then(async (response) => {
+        const cookie = await response.text().then(cookie => {
+            bggCookie = cookie.replace(/\.boardgamegeek\.com/ig, bggCookieHost);
             return bggCookie;
-        }).then(console.log);
-        return response.status === noContentStatus || response.status === okStatus;
+        });
+
+        return {
+            cookie,
+            loginResponse: response.status === noContentStatus || response.status === okStatus
+        };
     });
 };
 

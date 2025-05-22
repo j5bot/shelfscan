@@ -4,8 +4,13 @@ import { doBggLogin } from '@/app/lib/services/bgg/login';
 import { z } from 'zod';
 
 export type BggLoginState = {
+    data: {
+        username?: string;
+        cookie?: string;
+    };
     message?: string;
     errors: {
+        login?: string[];
         username?: string[];
         password?: string[];
     }
@@ -21,6 +26,8 @@ const BggLoginFormSchema = z.object({
 });
 
 export async function bggLogin(prevState: BggLoginState, formData: FormData) {
+    void prevState;
+
     const formDataObject = Object.fromEntries(formData);
 
     const validated = BggLoginFormSchema
@@ -28,10 +35,24 @@ export async function bggLogin(prevState: BggLoginState, formData: FormData) {
 
     if (!validated.success) {
         return {
+            data: {},
             errors: validated.error.flatten().fieldErrors,
             message: 'Missing login details, unable to log in',
         };
     }
 
-    return await doBggLogin(validated.data.username, validated.data.password);
+    const { loginResponse, cookie } = await doBggLogin(validated.data.username, validated.data.password);
+
+    if (!loginResponse) {
+        return {
+            data: {},
+            errors: { login: ['Login failed.'] },
+            message: 'Login failed',
+        };
+    }
+
+    return {
+        data: { ...validated.data, cookie },
+        errors: {},
+    };
 }

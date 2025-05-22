@@ -1,9 +1,10 @@
 'use client';
 
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
-import { BggLoginForm } from '@/app/ui/bgg-login-form';
+import { Provider } from '@/app/Provider';
+import { BggLoginForm } from '@/app/ui/BggLoginForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
-import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
+import { Scanner } from '@/app/ui/Scanner';
 import React, { Suspense, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 import { GiCardPick } from 'react-icons/gi';
@@ -16,57 +17,24 @@ export default function Home() {
         removeGame,
     } = useGameUPCApi({});
 
+    const [codes, setCodes] = useState<string[]>([]);
+
     void submitOrVerifyGame;
     void removeGame;
 
-    // props
-    const {
-        scanLine = true,
-        canvasHeight = 240,
-        canvasWidth = 320,
-        videoHeight = 480,
-        videoWidth = 640,
-        videoCropHeight = 240,
-        videoCropWidth= 320,
-        zoom = 2,
-        blur = 0,
-    } = {};
-
-    const [codes, setCodes] = useState<string[]>([]);
-    const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-
     const onScan = async (code: string) => {
-        if (codes.includes(code)) {
-            return;
-        }
-        await getGameData(code);
         codes.push(code);
         setCodes(codes);
-    };
-
-    const onDevices = (devices: MediaDeviceInfo[]) => {
-        setDevices(devices);
+        return await getGameData(code);
     };
 
     return (
-        <div className="flex flex-col w-full items-center">
+        <Provider>
+            <div className="flex flex-col w-full items-center">
                 <div className="flex gap-2 p-15 pb-5 relative">
-                    <BarcodeScanner
-                        devices={devices}
-                        onDevices={onDevices}
-                        onScan={onScan}
-                        settings={{
-                            scanLine,
-                        }}
-                        canvasWidth={canvasWidth}
-                        canvasHeight={canvasHeight}
-                        videoWidth={videoWidth}
-                        videoHeight={videoHeight}
-                        videoCropHeight={videoCropHeight}
-                        videoCropWidth={videoCropWidth}
-                        zoom={zoom}
-                        blur={blur}
-                    />
+                    <Suspense>
+                        <Scanner onScan={onScan as any} />
+                    </Suspense>
                     <div className="absolute right-0 flex flex-col gap-2">
                         <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>
                             <FaBarcode size={32} />
@@ -79,10 +47,13 @@ export default function Home() {
                 <Suspense>
                     <BggLoginForm />
                 </Suspense>
-                <div className="items-start p-5">
-                    <Scanlist codes={codes} gameUPCResults={gameDataMap} />
-                </div>
-        </div>);
+                <Suspense>
+                    <div className="items-start p-5">
+                        <Scanlist codes={codes} gameUPCResults={gameDataMap} />
+                    </div>
+                </Suspense>
+            </div>
+        </Provider>);
 
   // return (
   //   <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">

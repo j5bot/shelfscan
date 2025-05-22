@@ -34,3 +34,7 @@ body {
 .webcam-scanner-preview {
   border-radius: var(--radius-2xl);
 }
+
+.contain-img {
+  object-fit: contain;
+}

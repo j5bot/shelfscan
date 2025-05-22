@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@react-barcode-scanner/components": "0.0.21-alpha",
+    "@reduxjs/toolkit": "^2.8.2",
+    "jsdom": "^26.1.0",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
+    "react-redux": "^9.2.0",
+    "sleep-promise": "^9.1.0",
     "zod": "^3.25.7"
   },
   "devDependencies": {
