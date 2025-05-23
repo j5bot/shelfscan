@@ -1,6 +1,7 @@
 'use client';
 
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
+import { useTailwindBreakpoint } from '@/app/lib/hooks/useTailwindBreakpoint';
 import { Provider } from '@/app/Provider';
 import { BggLoginForm } from '@/app/ui/BggLoginForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
@@ -10,6 +11,9 @@ import { FaBarcode } from 'react-icons/fa6';
 import { GiCardPick } from 'react-icons/gi';
 
 export default function Home() {
+    const breakpoint = useTailwindBreakpoint();
+    console.log(breakpoint);
+
     const {
         gameDataMap,
         getGameData,
@@ -23,24 +27,26 @@ export default function Home() {
     void removeGame;
 
     const onScan = async (code: string) => {
-        codes.push(code);
-        setCodes(codes);
+        if (!codes.includes(code)) {
+            codes.push(code);
+            setCodes(codes);
+        }
         return await getGameData(code);
     };
 
     return (
         <Provider>
-            <div className="flex flex-col w-full items-center">
-                <div className="flex gap-2 p-15 pb-5 relative">
+            <div className="flex flex-col w-full items-center-safe p-3 sm:p-4">
+                <div className="flex gap-2 pb-3 sm:pb-5 relative">
                     <Suspense>
-                        <Scanner onScan={onScan as ScannerProps['onScan']} />
+                        <Scanner onScan={onScan as ScannerProps['onScan']} size={breakpoint} />
                     </Suspense>
-                    <div className="absolute right-0 flex flex-col gap-2">
+                    <div className="flex flex-col gap-2">
                         <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>
-                            <FaBarcode size={32} />
+                            <FaBarcode size={20} />
                         </button>
                         <button className={`p-2 cursor-pointer bg-gray-100 rounded-sm`}>
-                            <GiCardPick size={32} />
+                            <GiCardPick size={20} />
                         </button>
                     </div>
                 </div>
