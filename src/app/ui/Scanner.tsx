@@ -1,7 +1,7 @@
 'use client';
 
 import { useDispatch } from '@/app/lib/hooks';
-import { TailwindCSSBreakId, useTailwindBreakpoint } from '@/app/lib/hooks/useTailwindBreakpoint';
+import { TailwindCSSBreakId } from '@/app/lib/hooks/useTailwindBreakpoint';
 import { fetchCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { GameUPCData } from '@/app/lib/types/GameUPCData';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';

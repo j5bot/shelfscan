@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 
 const TailwindCSSBreakIds = {
     mobile: 'mobile',
@@ -23,21 +23,21 @@ const TailwindCSSBreaks = [
 export const useTailwindBreakpoint = () => {
     const [breakpoint, setBreakpoint] = useState<TailwindCSSBreakId>('mobile');
     const [addedElements, setAddedElements] = useState<boolean>(true);
-    // useEffect(() => {
-    //     TailwindCSSBreaks.forEach(bp => {
-    //         const { size } = bp;
-    //         const breakDetect = document.createElement('div');
-    //         const className = TailwindCSSBreaks.map(innerBp => {
-    //             const cssPrefix = !innerBp.prefix ? '' : `${innerBp.size}:`;
-    //             // return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
-    //             return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
-    //         }).join(' ');
-    //         breakDetect.className = `${className}`;
-    //         breakDetect.id = `${size}-breakpoint-detect`;
-    //         document.body.appendChild(breakDetect);
-    //     });
-    //     setAddedElements(true);
-    // }, [setAddedElements]);
+    useLayoutEffect(() => {
+        TailwindCSSBreaks.forEach(bp => {
+            const { size } = bp;
+            const breakDetect = document.createElement('div');
+            const className = TailwindCSSBreaks.map(innerBp => {
+                const cssPrefix = !innerBp.prefix ? '' : `${innerBp.size}:`;
+                // return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
+                return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
+            }).join(' ');
+            breakDetect.className = `${className}`;
+            breakDetect.id = `${size}-breakpoint-detect`;
+            document.body.appendChild(breakDetect);
+        });
+        setAddedElements(true);
+    }, [setAddedElements]);
 
     useEffect(() => {
         if (!addedElements) {
