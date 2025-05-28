@@ -15,10 +15,10 @@ export type ScannerProps = {
 export const ScannerSizes = {
     mobile: { height: 240, width: 320 },
     sm: { height: 240, width: 320 },
-    md: { height: 360, width: 480 },
-    lg: { height: 360, width: 480 },
-    xl: { height: 360, width: 480 },
-    '2xl': { height: 360, width: 480 },
+    md: { height: 376, width: 480 },
+    lg: { height: 376, width: 480 },
+    xl: { height: 376, width: 480 },
+    '2xl': { height: 376, width: 480 },
 } as const;
 export type ScannerSize = TailwindCSSBreakId;
 

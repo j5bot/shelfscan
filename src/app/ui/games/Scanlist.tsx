@@ -10,7 +10,7 @@ type ScanlistProps = {
 export function Scanlist(props: ScanlistProps) {
     const { codes, gameUPCResults } = props;
 
-    return (<ul className="flex items-center gap-3">{codes.map(code => {
+    return (<ul className="flex items-start gap-3 flex-wrap">{codes.map(code => {
         const { bgg_info: bggInfo } = gameUPCResults[code] ?? {};
 
         const {
@@ -19,13 +19,26 @@ export function Scanlist(props: ScanlistProps) {
         } = bggInfo?.[0] ?? {};
 
         const imageSize = getImageSizeFromUrl(thumbnailUrl ?? '');
+        const smallSquareSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
+        const imageContainerStyles = {
+            width: `${smallSquareSize}px`,
+            height: `${smallSquareSize}px`,
+        };
 
-        return <li className="rounded-md bg-orange-100 p-4" key={code}>
+        return <li className="flex flex-col rounded-md bg-orange-100 p-4" key={code}>
             <p>{name}</p>
             <p className="text-sm text-gray-400">[{code}]</p>
             {thumbnailUrl && (
-                <div>
-                    <Image src={thumbnailUrl} alt={name} width={imageSize.width} height={imageSize.height} />
+                <div className="flex justify-center p-1">
+                    <div className="flex justify-center items-center overflow-clip hover:overflow-visible hover:scale-150" style={imageContainerStyles}>
+                        <Image
+                            className=""
+                            src={thumbnailUrl}
+                            alt={name}
+                            width={smallSquareSize}
+                            height={smallSquareSize}
+                        />
+                    </div>
                 </div>
             )}
         </li>;

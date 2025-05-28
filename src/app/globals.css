@@ -29,7 +29,3 @@ body {
 .react-barcode-scanner-container {
   border-radius: var(--radius-2xl);
 }
-
-.contain-img {
-  object-fit: contain;
-}
