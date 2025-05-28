@@ -26,13 +26,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.webcam-scanner-preview-box.webcam-scanner-preview-box {
-  --video-border: none;
-  align-items: center;
-  width: 100%;
-}
-
-.webcam-scanner-preview {
+.react-barcode-scanner-container {
   border-radius: var(--radius-2xl);
 }
 

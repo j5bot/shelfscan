@@ -4,13 +4,17 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@react-barcode-scanner/components': link:../../../Library/pnpm/global/5/node_modules/@react-barcode-scanner/components
+  components: link:../../../Library/pnpm/global/5/node_modules/file:~/Developer/@react-barcode-scanner/components
+
 importers:
 
   .:
     dependencies:
       '@react-barcode-scanner/components':
-        specifier: 0.0.22-alpha
-        version: 0.0.22-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 0.0.26-alpha
+        version: 0.0.26-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@reduxjs/toolkit':
         specifier: ^2.8.2
         version: 2.8.2(react-redux@9.2.0(@types/react@19.1.4)(react@19.1.0)(redux@5.0.1))(react@19.1.0)
@@ -384,14 +388,14 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@react-barcode-scanner/components@0.0.22-alpha':
-    resolution: {integrity: sha512-6Bg3AHefKwzSbwq+gLvRDSOuPqfzbgAhnpESXwoDKI+W5h31MoVZgFMWgx4UamjviVKibfeMcuia1YxPkb6P7Q==}
+  '@react-barcode-scanner/components@0.0.26-alpha':
+    resolution: {integrity: sha512-Gkmxz6flLRNr/cYdKvEDp6dAw2GFntMoZKx8iEGuzyyZLILIBrsrls+80qHNgiZ7jeTlz63Q4GGwx972SIcYpQ==}
     peerDependencies:
       react: 18 - 19
       react-dom: 18 - 19
 
-  '@react-barcode-scanner/hooks@0.0.22-alpha':
-    resolution: {integrity: sha512-EH4I45MND/FVn5davGBj3LiSgxb+yKjUnuLpGRQiNwSbcZCrdidQD0YoEuPbjpc31UNTV9h15hjtwXdQ1oWsKw==}
+  '@react-barcode-scanner/hooks@0.0.26-alpha':
+    resolution: {integrity: sha512-AUaih9mq1/nmHf78yeIX6uTYhelZxLJiryCcU/j7CZV6w7aq4usDAdX0BcBiX3sCUX/8MhBMIiszRuRQbg6lLg==}
     peerDependencies:
       react: 18 - 19
       react-dom: 18 - 19
@@ -2504,13 +2508,13 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@react-barcode-scanner/components@0.0.22-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-barcode-scanner/components@0.0.26-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-barcode-scanner/hooks': 0.0.22-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-barcode-scanner/hooks': 0.0.26-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@react-barcode-scanner/hooks@0.0.22-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@react-barcode-scanner/hooks@0.0.26-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@undecaf/barcode-detector-polyfill': 0.9.21
       react: 19.1.0

@@ -15,10 +15,10 @@ export type ScannerProps = {
 export const ScannerSizes = {
     mobile: { height: 240, width: 320 },
     sm: { height: 240, width: 320 },
-    md: { height: 320, width: 480 },
-    lg: { height: 320, width: 480 },
-    xl: { height: 320, width: 480 },
-    '2xl': { height: 320, width: 480 },
+    md: { height: 360, width: 480 },
+    lg: { height: 360, width: 480 },
+    xl: { height: 360, width: 480 },
+    '2xl': { height: 360, width: 480 },
 } as const;
 export type ScannerSize = TailwindCSSBreakId;
 
@@ -27,14 +27,14 @@ export function Scanner(props: ScannerProps) {
 
     // usually from props
     const {
-        scanLine = true,
+        scanLine = 'solid 3px red',
         canvasHeight = ScannerSizes[size].height,
         canvasWidth = ScannerSizes[size].width,
-        videoHeight = ScannerSizes[size].height * 2,
-        videoWidth = ScannerSizes[size].width * 2,
+        videoHeight = ScannerSizes[size].height,
+        videoWidth = ScannerSizes[size].width,
         videoCropHeight = ScannerSizes[size].height,
         videoCropWidth= ScannerSizes[size].width,
-        zoom = 2,
+        zoom = 4,
         blur = 0,
     } = {};
 
