@@ -13,12 +13,12 @@ export type ScannerProps = {
 };
 
 export const ScannerSizes = {
-    mobile: { height: 240, width: 320 },
-    sm: { height: 240, width: 320 },
-    md: { height: 376, width: 480 },
-    lg: { height: 376, width: 480 },
-    xl: { height: 376, width: 480 },
-    '2xl': { height: 376, width: 480 },
+    mobile: { height: 240, width: 320, cropWidthRatio: 0.8 },
+    sm: { height: 376, width: 480, cropWidthRatio: 1 },
+    md: { height: 376, width: 480, cropWidthRatio: 1 },
+    lg: { height: 376, width: 480, cropWidthRatio: 1 },
+    xl: { height: 376, width: 480, cropWidthRatio: 1 },
+    '2xl': { height: 376, width: 480, cropWidthRatio: 1 },
 } as const;
 export type ScannerSize = TailwindCSSBreakId;
 
@@ -32,8 +32,8 @@ export function Scanner(props: ScannerProps) {
         canvasWidth = ScannerSizes[size].width,
         videoHeight = ScannerSizes[size].height,
         videoWidth = ScannerSizes[size].width,
-        videoCropHeight = ScannerSizes[size].height,
-        videoCropWidth= ScannerSizes[size].width,
+        videoCropHeight = ScannerSizes[size].height * 0.5,
+        videoCropWidth= ScannerSizes[size].width * ScannerSizes[size].cropWidthRatio,
         zoom = 2,
         blur = 0,
     } = {};

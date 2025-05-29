@@ -7,8 +7,6 @@ import { BggLoginForm } from '@/app/ui/BggLoginForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { Scanner, ScannerProps } from '@/app/ui/Scanner';
 import React, { Suspense, useState } from 'react';
-import { FaBarcode } from 'react-icons/fa6';
-import { GiCardPick } from 'react-icons/gi';
 
 export default function Home() {
     const breakpoint = useTailwindBreakpoint();
@@ -41,20 +39,20 @@ export default function Home() {
                     <Suspense>
                         <Scanner onScan={onScan as ScannerProps['onScan']} size={breakpoint} />
                     </Suspense>
-                    <div className="flex flex-col gap-2">
-                        <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>
-                            <FaBarcode size={20} />
-                        </button>
-                        <button className={`p-2 cursor-pointer bg-gray-100 rounded-sm`}>
-                            <GiCardPick size={20} />
-                        </button>
-                    </div>
+                    {/*<div className="flex flex-col gap-2">*/}
+                    {/*    <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>*/}
+                    {/*        <FaBarcode size={20} />*/}
+                    {/*    </button>*/}
+                    {/*    <button className={`p-2 cursor-pointer bg-gray-100 rounded-sm`}>*/}
+                    {/*        <GiCardPick size={20} />*/}
+                    {/*    </button>*/}
+                    {/*</div>*/}
                 </div>
                 <Suspense>
                     <BggLoginForm />
                 </Suspense>
                 <Suspense>
-                    <div className="items-start p-5">
+                    <div className="flex flex-col justify-center pt-5 pb-5">
                         <Scanlist codes={codes} gameUPCResults={gameDataMap} />
                     </div>
                 </Suspense>

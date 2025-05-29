@@ -34,7 +34,7 @@ export function BggLoginForm() {
 
     void state;
 
-    const containerClassName = 'bg-gray-100 rounded-lg flex gap-4 p-5';
+    const containerClassName = 'bg-gray-100 rounded-lg flex flex-wrap gap-4 p-3';
     const displayName = `${firstName} [${user}]`;
 
     return loggedIn ? (
@@ -48,14 +48,14 @@ export function BggLoginForm() {
             {displayName}
         </div>
     ) : (
-        <form action={formAction}>
+        <form action={formAction} className="w-full">
             <fieldset className={containerClassName}>
-                <input className="bg-white p-2 rounded-md"
+                <input className="grow bg-white p-2 rounded-md max-w-3/8"
                        type="text" name="username" placeholder="BGG Username" />
-                <input className="bg-white p-2 rounded-md"
+                <input className="grow bg-white p-2 rounded-md max-w-3/8"
                        type="password" name="password" placeholder="BGG Password" />
                 <button
-                    className="p-2 rounded-md bg-gray-200 cursor-pointer whitespace-nowrap"
+                    className="grow p-2 rounded-md bg-gray-200 cursor-pointer whitespace-nowrap max-w-1/4"
                     name="login"
                     disabled={isPending} aria-disabled={isPending}
                     type="submit"

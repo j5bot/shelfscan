@@ -1,6 +1,7 @@
 import { GameUPCData } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import Image from 'next/image';
+import { FaBarcode } from 'react-icons/fa6';
 
 type ScanlistProps = {
     codes: string[];
@@ -10,7 +11,7 @@ type ScanlistProps = {
 export function Scanlist(props: ScanlistProps) {
     const { codes, gameUPCResults } = props;
 
-    return (<ul className="flex items-start gap-3 flex-wrap">{codes.map(code => {
+    return (<ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg-grid-cols-6">{codes.map(code => {
         const { bgg_info: bggInfo } = gameUPCResults[code] ?? {};
 
         const {
@@ -25,22 +26,25 @@ export function Scanlist(props: ScanlistProps) {
             height: `${smallSquareSize}px`,
         };
 
-        return <li className="flex flex-col rounded-md bg-orange-100 p-4" key={code}>
-            <p>{name}</p>
-            <p className="text-sm text-gray-400">[{code}]</p>
-            {thumbnailUrl && (
-                <div className="flex justify-center p-1">
-                    <div className="flex justify-center items-center overflow-clip hover:overflow-visible hover:scale-150" style={imageContainerStyles}>
-                        <Image
-                            className=""
-                            src={thumbnailUrl}
-                            alt={name}
-                            width={smallSquareSize}
-                            height={smallSquareSize}
-                        />
-                    </div>
+        return <li className="rounded-md bg-orange-100" key={code}>
+            <div className="flex flex-col p-2 md:p-4">
+                <div className="flex justify-center items-center gap-1">
+                    <FaBarcode title={code} />
+                    <p className="w-fit overflow-ellipsis overflow-hidden text-nowrap">{name}</p>
                 </div>
-            )}
+                {thumbnailUrl && (
+                    <div className="flex justify-center p-1">
+                        <div className="bg-orange-50 flex justify-center items-center rounded-md overflow-clip hover:overflow-visible hover:scale-150 hover:border-orange-400 hover:border" style={imageContainerStyles}>
+                            <Image
+                                src={thumbnailUrl}
+                                alt={name}
+                                width={smallSquareSize}
+                                height={smallSquareSize}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
         </li>;
 
     })}</ul>);
