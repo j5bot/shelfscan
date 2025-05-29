@@ -49,9 +49,12 @@ export const useTailwindBreakpoint = () => {
             if (!breakDetect) {
                 return;
             }
+
             if (breakDetect.clientWidth) {
                 document.body.classList.add(size);
                 setBreakpoint(size);
+            } else {
+                document.body.classList.remove(size);
             }
         })
     }, [addedElements]);
