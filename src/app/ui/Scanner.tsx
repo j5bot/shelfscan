@@ -13,7 +13,7 @@ export type ScannerProps = {
 };
 
 export const ScannerSizes = {
-    mobile: { height: 240, width: 320, cropWidthRatio: 0.8 },
+    mobile: { height: 240, width: 320, cropWidthRatio: 0.9 },
     sm: { height: 376, width: 480, cropWidthRatio: 1 },
     md: { height: 376, width: 480, cropWidthRatio: 1 },
     lg: { height: 376, width: 480, cropWidthRatio: 1 },

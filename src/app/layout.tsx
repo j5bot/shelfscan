@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Share_Tech } from 'next/font/google';
 import "./globals.css";
 import Image from 'next/image';
 import React from 'react';
+
+const shareTech = Share_Tech({
+    variable: '--font-share-tech',
+    weight: '400',
+    subsets: ['latin'],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +37,7 @@ export default function RootLayout({
           <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
           <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased`}>
       <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
           <Image
               priority={true}

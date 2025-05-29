@@ -29,7 +29,6 @@ export const useTailwindBreakpoint = () => {
             const breakDetect = document.createElement('div');
             const className = TailwindCSSBreaks.map(innerBp => {
                 const cssPrefix = !innerBp.prefix ? '' : `${innerBp.size}:`;
-                // return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
                 return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
             }).join(' ');
             breakDetect.className = `${className}`;
@@ -53,7 +52,7 @@ export const useTailwindBreakpoint = () => {
             if (breakDetect.clientWidth) {
                 setBreakpoint(size);
             }
-            // document.body.removeChild<HTMLElement>(breakDetect);
+            breakDetect.style.setProperty('display', 'none');
         })
     }, [addedElements]);
 

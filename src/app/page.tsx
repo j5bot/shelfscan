@@ -3,10 +3,10 @@
 import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
 import { useTailwindBreakpoint } from '@/app/lib/hooks/useTailwindBreakpoint';
 import { Provider } from '@/app/Provider';
-import { BggLoginForm } from '@/app/ui/BggLoginForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { Scanner, ScannerProps } from '@/app/ui/Scanner';
 import React, { Suspense, useState } from 'react';
+import { FaBarcode } from 'react-icons/fa6';
 
 export default function Home() {
     const breakpoint = useTailwindBreakpoint();
@@ -34,10 +34,13 @@ export default function Home() {
 
     return (
         <Provider>
-            <div className="flex flex-col w-full items-center-safe p-3 sm:p-4">
+            <div className="flex flex-col w-full items-end p-3 sm:p-4">
                 <div className="flex gap-2 pb-3 sm:pb-5 relative">
                     <Suspense>
-                        <Scanner onScan={onScan as ScannerProps['onScan']} size={breakpoint} />
+                        <div>
+                            <h2 className="text-center ">Scan a Board Game UPC</h2>
+                            <Scanner onScan={onScan as ScannerProps['onScan']} size={breakpoint} />
+                        </div>
                     </Suspense>
                     {/*<div className="flex flex-col gap-2">*/}
                     {/*    <button className={`p-2 cursor-pointer bg-gray-300 rounded-sm`}>*/}
@@ -48,12 +51,22 @@ export default function Home() {
                     {/*    </button>*/}
                     {/*</div>*/}
                 </div>
+                {/*<Suspense>*/}
+                {/*    <BggLoginForm />*/}
+                {/*</Suspense>*/}
                 <Suspense>
-                    <BggLoginForm />
-                </Suspense>
-                <Suspense>
-                    <div className="flex flex-col justify-center pt-5 pb-5">
-                        <Scanlist codes={codes} gameUPCResults={gameDataMap} />
+                    <div className="relative w-full h-full bg-orange-50 p-2">
+                        <div className="flex flex-col justify-center h-full w-full">
+                            {codes.length > 0
+                                ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)
+                                : (
+                                    <div className="w-full justify-items-center text-center">
+                                        <h2>No UPCs Scanned</h2>
+                                        <FaBarcode size={128} />
+                                    </div>
+                                )
+                            }
+                        </div>
                     </div>
                 </Suspense>
             </div>

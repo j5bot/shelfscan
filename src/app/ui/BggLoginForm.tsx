@@ -44,7 +44,7 @@ export function BggLoginForm() {
                 src={avatarUrl}
                 alt={displayName}
                 width={32} height={32}
-s            />) : null}
+            />) : null}
             {displayName}
         </div>
     ) : (
