@@ -34,7 +34,7 @@ export function Scanner(props: ScannerProps) {
         videoWidth = ScannerSizes[size].width,
         videoCropHeight = ScannerSizes[size].height,
         videoCropWidth= ScannerSizes[size].width,
-        zoom = 4,
+        zoom = 2,
         blur = 0,
     } = {};
 
