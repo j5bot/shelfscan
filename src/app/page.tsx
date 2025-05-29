@@ -34,11 +34,11 @@ export default function Home() {
 
     return (
         <Provider>
-            <div className="flex flex-col w-full items-end p-3 sm:p-4">
+            <div className="flex flex-col w-full items-end md:items-center p-3 sm:p-4">
                 <div className="flex gap-2 pb-3 sm:pb-5 relative">
                     <Suspense>
                         <div>
-                            <h2 className="mb-1 text-center ">Scan a Board Game UPC</h2>
+                            <h2 className="mb-1 text-center">Scan a Board Game UPC</h2>
                             <Scanner onScan={onScan as ScannerProps['onScan']} size={breakpoint} />
                         </div>
                     </Suspense>

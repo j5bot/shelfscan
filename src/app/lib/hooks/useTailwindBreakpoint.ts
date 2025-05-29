@@ -31,7 +31,7 @@ export const useTailwindBreakpoint = () => {
                 const cssPrefix = !innerBp.prefix ? '' : `${innerBp.size}:`;
                 return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
             }).join(' ');
-            breakDetect.className = `${className}`;
+            breakDetect.className = `${className} absolute top-0 left-0`;
             breakDetect.id = `${size}-breakpoint-detect`;
             document.body.appendChild(breakDetect);
         });
@@ -50,9 +50,9 @@ export const useTailwindBreakpoint = () => {
                 return;
             }
             if (breakDetect.clientWidth) {
+                document.body.classList.add(size);
                 setBreakpoint(size);
             }
-            breakDetect.style.setProperty('display', 'none');
         })
     }, [addedElements]);
 

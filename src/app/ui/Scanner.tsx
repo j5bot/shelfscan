@@ -17,8 +17,8 @@ export const ScannerSizes = {
     sm: { height: 376, width: 480, cropWidthRatio: 1 },
     md: { height: 376, width: 480, cropWidthRatio: 1 },
     lg: { height: 376, width: 480, cropWidthRatio: 1 },
-    xl: { height: 376, width: 480, cropWidthRatio: 1 },
-    '2xl': { height: 376, width: 480, cropWidthRatio: 1 },
+    xl: { height: 480, width: 640, cropWidthRatio: 1 },
+    '2xl': { height: 480, width: 640, cropWidthRatio: 1 },
 } as const;
 export type ScannerSize = TailwindCSSBreakId;
 
