@@ -38,13 +38,13 @@ export function BggLoginForm() {
     const displayName = `${firstName} [${user}]`;
 
     return loggedIn ? (
-        <div className={containerClassName}>
-            {avatarUrl && (<Image
-                className="rounded-sm"
+        <div className={`${containerClassName}`}>
+            {avatarUrl ? (<Image
+                className="rounded-4xl"
                 src={avatarUrl}
                 alt={displayName}
-                width={64} height={64}
-            />)}
+                width={32} height={32}
+s            />) : null}
             {displayName}
         </div>
     ) : (
