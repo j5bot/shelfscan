@@ -31,7 +31,7 @@ export default function Home() {
         return await getGameData(code);
     };
 
-    return (
+    return breakpoint ? (
         <Provider>
             <div className="flex flex-col w-full items-end md:items-center p-3 sm:p-4">
                 <div className="flex gap-2 pb-3 sm:pb-5 relative">
@@ -71,5 +71,5 @@ export default function Home() {
                 </Suspense>
             </div>
         </Provider>
-    );
+    ) : null;
 }
