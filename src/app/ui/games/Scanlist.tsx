@@ -1,7 +1,7 @@
 import { GameUPCData } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import Image from 'next/image';
-import { FaBarcode } from 'react-icons/fa6';
+import { FaBarcode, FaQuestion } from 'react-icons/fa6';
 
 type ScanlistProps = {
     codes: string[];
@@ -32,7 +32,7 @@ export function Scanlist(props: ScanlistProps) {
                     <FaBarcode title={code} />
                     <p className="w-fit overflow-ellipsis overflow-hidden text-nowrap">{name}</p>
                 </div>
-                {thumbnailUrl && (
+                {thumbnailUrl ? (
                     <div className="flex justify-center p-1">
                         <div className="bg-orange-50 flex justify-center items-center rounded-md overflow-clip hover:overflow-visible hover:scale-150 hover:border-orange-400 hover:border" style={imageContainerStyles}>
                             <Image
@@ -43,6 +43,8 @@ export function Scanlist(props: ScanlistProps) {
                             />
                         </div>
                     </div>
+                ) : (
+                    <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
                 )}
             </div>
         </li>;

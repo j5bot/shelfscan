@@ -38,7 +38,7 @@ export default function Home() {
                 <div className="flex gap-2 pb-3 sm:pb-5 relative">
                     <Suspense>
                         <div>
-                            <h2 className="text-center ">Scan a Board Game UPC</h2>
+                            <h2 className="mb-1 text-center ">Scan a Board Game UPC</h2>
                             <Scanner onScan={onScan as ScannerProps['onScan']} size={breakpoint} />
                         </div>
                     </Suspense>
@@ -61,8 +61,9 @@ export default function Home() {
                                 ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)
                                 : (
                                     <div className="w-full justify-items-center text-center">
-                                        <h2>No UPCs Scanned</h2>
+                                        <h2 className="text-xl tracking-widest">No UPCs Scanned</h2>
                                         <FaBarcode size={128} />
+                                        <h3>Check your shelf before you wreck yourself</h3>
                                     </div>
                                 )
                             }
