@@ -61,7 +61,7 @@ export default function Home() {
                                 ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)
                                 : (
                                     <div className="w-full justify-items-center text-center">
-                                        <h2 className="text-xl tracking-widest">No UPCs Scanned</h2>
+                                        <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
                                         <FaBarcode size={128} />
                                         <h3>Check your shelf before you wreck yourself</h3>
                                     </div>
