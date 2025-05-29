@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 
 const TailwindCSSBreakIds = {
     mobile: 'mobile',
@@ -38,7 +38,7 @@ export const useTailwindBreakpoint = () => {
         setAddedElements(true);
     }, [setAddedElements]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!addedElements) {
             return;
         }
