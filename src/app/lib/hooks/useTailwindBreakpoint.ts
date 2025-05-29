@@ -21,7 +21,7 @@ const TailwindCSSBreaks = [
 ];
 
 export const useTailwindBreakpoint = () => {
-    const [breakpoint, setBreakpoint] = useState<TailwindCSSBreakId>('mobile');
+    const [breakpoint, setBreakpoint] = useState<TailwindCSSBreakId>();
     const [addedElements, setAddedElements] = useState<boolean>(true);
     useLayoutEffect(() => {
         TailwindCSSBreaks.forEach(bp => {
