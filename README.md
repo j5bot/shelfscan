@@ -16,3 +16,5 @@ The app is built with `Next.js` and utilizes
 my library
 `@react-barcode-scanner/components` for barcode
 scanning using a webcam or phone camera.
+
+[Sample barcodes to scan](./assets/game-barcodes/UPCs.md)
