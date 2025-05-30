@@ -2,7 +2,6 @@ import React, {
     createContext,
     ReactNode,
     useContext,
-    useEffect,
     useLayoutEffect,
     useState
 } from 'react';
@@ -56,28 +55,12 @@ export const TailwindBreakpointProvider = ({ children }: Props) => {
     </>;
 };
 
-// const breakpointDetectElementIds = Object.values(TailwindCSSBreakIds)
-//     .map(id => `${id}-breakpoint-detect`);
-
 export const useTailwindBreakpoint = () => useContext(TailwindBreakpointContext);
 
 export const useTailwindBreakpointDetect = () => {
     const [breakpoint, setBreakpoint] = useState<TailwindCSSBreakId>();
-    const [addedElements, setAddedElements] = useState<boolean>(false);
-
-    // let timeout: number;
 
     const checkBreakpoint = () => {
-        // const elementNotFound = breakpointDetectElementIds
-        //     .some(elementId => !document.getElementById(elementId));
-        //
-        // if (elementNotFound) {
-        //     if (!timeout) {
-        //         timeout = window.setTimeout(checkBreakpoint, 100);
-        //     }
-        //     return;
-        // }
-
         TailwindCSSBreaks.forEach(bp => {
             const { size } = bp;
             const breakDetect =
@@ -95,33 +78,9 @@ export const useTailwindBreakpointDetect = () => {
         });
     };
 
-    useEffect(() => {
-        if (addedElements) {
-            return;
-        }
-        TailwindCSSBreaks.forEach(bp => {
-            const { size } = bp;
-            const breakDetect = document.createElement('div');
-            const className = TailwindCSSBreaks.map(innerBp => {
-                const cssPrefix = !innerBp.prefix ? '' : `${innerBp.size}:`;
-                return innerBp.size === size ? `${cssPrefix}w-2 ${cssPrefix}h-2` : `${cssPrefix}w-0 ${cssPrefix}h-0`;
-            }).join(' ');
-            breakDetect.className = `${className} absolute top-0 left-0`;
-            breakDetect.id = `${size}-breakpoint-detect`;
-            document.body.appendChild(breakDetect);
-        });
-        setAddedElements(true);
-    }, [addedElements, setAddedElements]);
-
     useLayoutEffect(() => {
-        if (!addedElements) {
-            return;
-        }
         checkBreakpoint();
-        // window.addEventListener('resize', checkBreakpoint);
-        //
-        // return () => window.removeEventListener('resize', checkBreakpoint);
-    }, [addedElements]);
+    }, []);
 
     return breakpoint;
 };
