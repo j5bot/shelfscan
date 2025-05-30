@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 
 const TailwindCSSBreakIds = {
     mobile: 'mobile',
@@ -20,10 +20,47 @@ const TailwindCSSBreaks = [
     { prefix: true, size: TailwindCSSBreakIds['2xl'] },
 ];
 
+const breakpointDetectElementIds = Object.values(TailwindCSSBreakIds)
+    .map(id => `${id}-breakpoint-detect`);
+
 export const useTailwindBreakpoint = () => {
     const [breakpoint, setBreakpoint] = useState<TailwindCSSBreakId>();
-    const [addedElements, setAddedElements] = useState<boolean>(true);
-    useLayoutEffect(() => {
+    const [addedElements, setAddedElements] = useState<boolean>(false);
+
+    let timeout: number;
+
+    const checkBreakpoint = () => {
+        const elementNotFound = breakpointDetectElementIds
+            .some(elementId => !document.getElementById(elementId));
+
+        if (elementNotFound) {
+            if (!timeout) {
+                timeout = window.setTimeout(checkBreakpoint, 10);
+            }
+            return;
+        }
+
+        TailwindCSSBreaks.forEach(bp => {
+            const { size } = bp;
+            const breakDetect =
+                document.getElementById(`${size}-breakpoint-detect`);
+            if (!breakDetect) {
+                return;
+            }
+
+            if (breakDetect.clientWidth) {
+                document.body.classList.add(size);
+                setBreakpoint(size);
+            } else {
+                document.body.classList.remove(size);
+            }
+        });
+    };
+
+    useEffect(() => {
+        if (addedElements) {
+            return;
+        }
         TailwindCSSBreaks.forEach(bp => {
             const { size } = bp;
             const breakDetect = document.createElement('div');
@@ -42,21 +79,7 @@ export const useTailwindBreakpoint = () => {
         if (!addedElements) {
             return;
         }
-        TailwindCSSBreaks.forEach(bp => {
-            const { size } = bp;
-            const breakDetect =
-                document.getElementById(`${size}-breakpoint-detect`);
-            if (!breakDetect) {
-                return;
-            }
-
-            if (breakDetect.clientWidth) {
-                document.body.classList.add(size);
-                setBreakpoint(size);
-            } else {
-                document.body.classList.remove(size);
-            }
-        })
+        checkBreakpoint();
     }, [addedElements]);
 
     return breakpoint;

@@ -32,18 +32,18 @@ export default function RootLayout({
 }>) {
   return (
       <html lang="en">
-      <head>
-          <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-          <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
-          <link rel="manifest" href="/site.webmanifest" />
-      </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased`}>
-          <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
-              <Image
-                  priority={true}
-                  src={'/shelfscan-wordmark.png'}
-                          alt="ShelfScan"
-                          width={64} height={85}
+          <head>
+              <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+              <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+              <link rel="manifest" href="/site.webmanifest" />
+          </head>
+          <body className={`${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased`}>
+              <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
+                  <Image
+                      priority={true}
+                      src={'/shelfscan-wordmark.png'}
+                              alt="ShelfScan"
+                              width={64} height={85}
                   />
               </div>
               <div className="z-0 relative">
