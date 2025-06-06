@@ -1,4 +1,8 @@
-import { GameUPCData, GameUPCVersionStatus } from '@/app/lib/types/GameUPCData';
+import {
+    GameUPCData,
+    GameUPCVersionStatus,
+    GameUPCVersionStatusText
+} from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import Image from 'next/image';
 import { ReactNode } from 'react';
@@ -18,6 +22,9 @@ export function Scanlist(props: ScanlistProps) {
             bgg_info: bggInfo,
             bgg_info_status: bggInfoStatus,
         } = gameUPCResults[code] ?? {};
+
+        const statusText = GameUPCVersionStatusText[bggInfoStatus];
+
         if (!bggInfo) {
             return;
         }
@@ -68,11 +75,19 @@ export function Scanlist(props: ScanlistProps) {
         void overlayIcon;
 
         return <li className="relative rounded-md bg-orange-100" key={code}>
-            <div className="absolute bottom-1 right-1">{statusIcon}</div>
+            <div className="absolute bottom-1 right-1 tooltip" data-tip={statusText}>{statusIcon}</div>
             <div className="flex flex-col p-2 md:p-4">
                 <div className="flex justify-center items-center gap-1">
-                    <FaBarcode title={code} />
-                    <p className="w-fit overflow-ellipsis overflow-hidden text-nowrap">{name}</p>
+                    <div className="tooltip" data-tip={code}>
+                        <FaBarcode />
+                    </div>
+                    <div
+                        className="tooltip w-fit overflow-ellipsis overflow-hidden text-nowrap"
+                        data-tip={name}
+                        title={name}
+                    >
+                        {name}
+                    </div>
                 </div>
                 {thumbnailUrl ? (
                     <div className="flex justify-center p-1">
@@ -81,8 +96,8 @@ export function Scanlist(props: ScanlistProps) {
                             bg-orange-50
                             flex justify-center items-center
                             rounded-md overflow-clip
-                            focus:overflow-visible focus:scale-150 focus:border-orange-400 focus:border
-                            hover:overflow-visible hover:scale-150 hover:border-orange-400 hover:border`}
+                            focus:overflow-visible focus:scale-150
+                            hover:overflow-visible hover:scale-150`}
                             style={imageContainerStyles}>
                             {/*<div className={`absolute top-1 left-1 opacity-65`}>{overlayIcon}</div>*/}
                             <Image
