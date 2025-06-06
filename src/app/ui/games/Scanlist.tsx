@@ -75,7 +75,30 @@ export function Scanlist(props: ScanlistProps) {
         void overlayIcon;
 
         return <li className="relative rounded-md bg-orange-100" key={code}>
-            <div className="absolute bottom-1 right-1 tooltip" data-tip={statusText}>{statusIcon}</div>
+            <div tabIndex={0} role="button" className="absolute bottom-1 right-1 tooltip" data-tip={statusText}>
+                <details className="dropdown dropdown-center">
+                    <summary className="bg-orange-300">{statusIcon}</summary>
+                    <div className="absolute">
+                        <FaSearch />
+                    </div>
+                    <ul className="menu dropdown-content bg-base-100 rounded-box z-1 p-2 w-64 shadow-sm">
+                        {bggInfo.map(info => {
+                            return <li key={info.id}>
+                                <details className="dropdown dropdown-hover">
+                                    <summary>{info.name}</summary>
+                                    <ul className="menu dropdown-content bg-base-100 rounded-box z-1 p-2 w-64 shadow-sm">
+                                        {info.versions.map(version => {
+                                            return <li key={version.version_id}>
+                                                {version.name}
+                                            </li>
+                                        })}
+                                    </ul>
+                                </details>
+                            </li>
+                        })}
+                    </ul>
+                </details>
+            </div>
             <div className="flex flex-col p-2 md:p-4">
                 <div className="flex justify-center items-center gap-1">
                     <div className="tooltip" data-tip={code}>
