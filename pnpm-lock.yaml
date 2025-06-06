@@ -4,13 +4,16 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@react-barcode-scanner/components': link:../../../Library/pnpm/global/5/node_modules/@react-barcode-scanner/components
+
 importers:
 
   .:
     dependencies:
       '@react-barcode-scanner/components':
-        specifier: 0.0.27-alpha
-        version: 0.0.27-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: link:../../../Library/pnpm/global/5/node_modules/@react-barcode-scanner/components
+        version: link:../../../Library/pnpm/global/5/node_modules/@react-barcode-scanner/components
       '@reduxjs/toolkit':
         specifier: ^2.8.2
         version: 2.8.2(react-redux@9.2.0(@types/react@19.1.4)(react@19.1.0)(redux@5.0.1))(react@19.1.0)
@@ -384,18 +387,6 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
-  '@react-barcode-scanner/components@0.0.27-alpha':
-    resolution: {integrity: sha512-r2CX3SMO/N9tdAaZYpA8ti6LmAl13a5ORJlQfXO7vQFF0hBl1GPcv1N694oOA9LfLV+XnJdS1Jgq+V3p5vqDMQ==}
-    peerDependencies:
-      react: 18 - 19
-      react-dom: 18 - 19
-
-  '@react-barcode-scanner/hooks@0.0.27-alpha':
-    resolution: {integrity: sha512-K28eE8d5613h8r+MFwwm03yTySPX9yd7mVWOKwIL1eoxmU3Rsl9WP2pcKMaAt9bVxi7POOTRQe4/Zi1gCiJxxQ==}
-    peerDependencies:
-      react: 18 - 19
-      react-dom: 18 - 19
-
   '@reduxjs/toolkit@2.8.2':
     resolution: {integrity: sha512-MYlOhQ0sLdw4ud48FoC5w0dH9VfWQjtCjreKwYTT3l+r427qYC5Y8PihNutepr8XrNaBUDQo9khWUwQxZaqt5A==}
     peerDependencies:
@@ -585,12 +576,6 @@ packages:
   '@typescript-eslint/visitor-keys@8.32.1':
     resolution: {integrity: sha512-ar0tjQfObzhSaW3C3QNmTc5ofj0hDoNQ5XWrCy6zDyabdr0TWhCkClp+rywGNj/odAFBVzzJrK4tEq5M4Hmu4w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@undecaf/barcode-detector-polyfill@0.9.21':
-    resolution: {integrity: sha512-WcWfrYnCHnTbRYE7GHgKgGvwYhSAQXGKe3tS6+ntqP24z9Uw/cyFV7J4RCCiBvBR+tIQxc7hOep12fi3MXr3Lw==}
-
-  '@undecaf/zbar-wasm@0.9.16':
-    resolution: {integrity: sha512-T5PcT6g+tLScGjR4WmnRErNvfKqEc3kRg2ux14wHmIDNbvNeXa0BkFK19PRK/jb6zGy5NyWtn4ko6KeNuZc/fQ==}
 
   '@unrs/resolver-binding-darwin-arm64@1.7.2':
     resolution: {integrity: sha512-vxtBno4xvowwNmO/ASL0Y45TpHqmNkAaDtz4Jqb+clmcVSSl8XCG/PNFFkGsXXXS6AMjP+ja/TtNCFFa1QwLRg==}
@@ -1443,10 +1428,6 @@ packages:
   js-yaml@4.1.0:
     resolution: {integrity: sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==}
     hasBin: true
-
-  jschardet@3.1.4:
-    resolution: {integrity: sha512-/kmVISmrwVwtyYU40iQUOp3SUPk2dhNCMsZBQX0R1/jZ8maaXJ/oZIzUOiyOqcgtLnETFKYChbJ5iDC/eWmFHg==}
-    engines: {node: '>=0.1.90'}
 
   jsdom@26.1.0:
     resolution: {integrity: sha512-Cvc9WUhxSMEo4McES3P7oK3QaXldCfNWp7pl2NNeiIFlCoLr3kfq9kb1fxftiwk1FLV7CvpvDfonxtzUDeSOPg==}
@@ -2504,18 +2485,6 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@react-barcode-scanner/components@0.0.27-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@react-barcode-scanner/hooks': 0.0.27-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-
-  '@react-barcode-scanner/hooks@0.0.27-alpha(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
-    dependencies:
-      '@undecaf/barcode-detector-polyfill': 0.9.21
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-
   '@reduxjs/toolkit@2.8.2(react-redux@9.2.0(@types/react@19.1.4)(react@19.1.0)(redux@5.0.1))(react@19.1.0)':
     dependencies:
       '@standard-schema/spec': 1.0.0
@@ -2715,14 +2684,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.32.1
       eslint-visitor-keys: 4.2.0
-
-  '@undecaf/barcode-detector-polyfill@0.9.21':
-    dependencies:
-      '@undecaf/zbar-wasm': 0.9.16
-
-  '@undecaf/zbar-wasm@0.9.16':
-    dependencies:
-      jschardet: 3.1.4
 
   '@unrs/resolver-binding-darwin-arm64@1.7.2':
     optional: true
@@ -3758,8 +3719,6 @@ snapshots:
   js-yaml@4.1.0:
     dependencies:
       argparse: 2.0.1
-
-  jschardet@3.1.4: {}
 
   jsdom@26.1.0:
     dependencies:

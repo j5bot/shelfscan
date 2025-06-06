@@ -65,6 +65,8 @@ export function Scanlist(props: ScanlistProps) {
                 break;
         }
 
+        void overlayIcon;
+
         return <li className="relative rounded-md bg-orange-100" key={code}>
             <div className="absolute bottom-1 right-1">{statusIcon}</div>
             <div className="flex flex-col p-2 md:p-4">

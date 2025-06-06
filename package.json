@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-barcode-scanner/components": "0.0.27-alpha",
+    "@react-barcode-scanner/components": "0.0.36-alpha",
     "@reduxjs/toolkit": "^2.8.2",
     "jsdom": "^26.1.0",
     "next": "15.3.2",
