@@ -75,38 +75,34 @@ export function Scanlist(props: ScanlistProps) {
         void overlayIcon;
 
         return <li className="relative rounded-md bg-orange-100" key={code}>
-            <div tabIndex={0} role="button" className="absolute bottom-1 right-1 tooltip" data-tip={statusText}>
+            <div role="button" className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip" data-tip={statusText}>
                 <details className="dropdown dropdown-center">
-                    <summary className="bg-orange-300">{statusIcon}</summary>
-                    <div className="absolute">
-                        <FaSearch />
-                    </div>
-                    <ul className="menu dropdown-content bg-base-100 rounded-box z-1 p-2 w-64 shadow-sm">
+                    <summary className="list-none">{statusIcon}</summary>
+                    <ul className="menu dropdown-content bg-base-100 rounded-box z-1 p-2 w-64 lg:w-fit lg:min-w-64 shadow-sm">
                         {bggInfo.map(info => {
                             return <li key={info.id}>
                                 <details className="dropdown dropdown-hover">
                                     <summary>{info.name}</summary>
-                                    <ul className="menu dropdown-content bg-base-100 rounded-box z-1 p-2 w-64 shadow-sm">
-                                        {info.versions.map(version => {
-                                            return <li key={version.version_id}>
-                                                {version.name}
-                                            </li>
-                                        })}
-                                    </ul>
+                                    <div className="lg:left-10/12 top-0 lg:dropdown-content">
+                                        <ul className="menu bg-base-100 rounded-box z-1 mb-1 lg:w-fit shadow-sm">
+                                            {info.versions.map(version => {
+                                                return <li key={version.version_id} className="">
+                                                    {version.name}
+                                                </li>
+                                            })}
+                                        </ul>
+                                    </div>
                                 </details>
                             </li>
                         })}
                     </ul>
                 </details>
             </div>
-            <div className="flex flex-col p-2 md:p-4">
-                <div className="flex justify-center items-center gap-1">
-                    <div className="tooltip" data-tip={code}>
-                        <FaBarcode />
-                    </div>
+            <div className="flex flex-col p-3 md:p-4">
+                <div className="flex justify-center items-center gap-1 tooltip" data-tip={name}>
+                    <FaBarcode title={code} />
                     <div
-                        className="tooltip w-fit overflow-ellipsis overflow-hidden text-nowrap"
-                        data-tip={name}
+                        className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
                         title={name}
                     >
                         {name}
