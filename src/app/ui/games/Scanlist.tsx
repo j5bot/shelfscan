@@ -75,16 +75,16 @@ export function Scanlist(props: ScanlistProps) {
         void overlayIcon;
 
         return <li className="relative rounded-md bg-orange-100" key={code}>
-            <div role="button" className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip" data-tip={statusText}>
-                <details className="dropdown dropdown-center">
+            <div role="button" className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip tooltip" data-tip={statusText}>
+                <details className="dropdown dropdown-right">
                     <summary className="list-none">{statusIcon}</summary>
-                    <ul className="menu dropdown-content bg-base-100 rounded-box z-1 p-2 w-64 lg:w-fit lg:min-w-64 shadow-sm">
+                    <ul className="menu dropdown-content bg-base-100 rounded-box ml-1 z-1 p-2 w-64 lg:w-fit lg:min-w-64 shadow-sm">
                         {bggInfo.map(info => {
                             return <li key={info.id}>
                                 <details className="dropdown dropdown-hover">
                                     <summary>{info.name}</summary>
                                     <div className="lg:left-10/12 top-0 lg:dropdown-content">
-                                        <ul className="menu bg-base-100 rounded-box z-1 mb-1 lg:w-fit shadow-sm">
+                                        <ul className="menu bg-base-100 rounded-box z-1 mb-1 mt-1 lg:w-fit shadow-sm">
                                             {info.versions.map(version => {
                                                 return <li key={version.version_id} className="">
                                                     {version.name}
