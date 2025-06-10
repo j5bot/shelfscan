@@ -4,10 +4,11 @@ import {
     GameUPCVersionStatusText
 } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
+import { DetailsDialog } from '@/app/ui/games/DetailsDialog';
 import Image from 'next/image';
 import { ReactNode } from 'react';
 import { FaCheckCircle, FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
-import { FaBarcode, FaQuestion } from 'react-icons/fa6';
+import { FaBarcode, FaQuestion, FaX } from 'react-icons/fa6';
 
 type ScanlistProps = {
     codes: string[];
@@ -74,30 +75,26 @@ export function Scanlist(props: ScanlistProps) {
 
         void overlayIcon;
 
+        const detailDialogId = `version_dialog_${code}`;
+
         return <li className="relative rounded-md bg-orange-100" key={code}>
-            <div role="button" className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip tooltip" data-tip={statusText}>
-                <details className="dropdown dropdown-right">
-                    <summary className="list-none">{statusIcon}</summary>
-                    <ul className="menu dropdown-content bg-base-100 rounded-box ml-1 z-1 p-2 w-64 lg:w-fit lg:min-w-64 shadow-sm">
-                        {bggInfo.map(info => {
-                            return <li key={info.id}>
-                                <details className="dropdown dropdown-hover">
-                                    <summary>{info.name}</summary>
-                                    <div className="lg:left-10/12 top-0 lg:dropdown-content">
-                                        <ul className="menu bg-base-100 rounded-box z-1 mb-1 mt-1 lg:w-fit shadow-sm">
-                                            {info.versions.map(version => {
-                                                return <li key={version.version_id} className="">
-                                                    {version.name}
-                                                </li>
-                                            })}
-                                        </ul>
-                                    </div>
-                                </details>
-                            </li>
-                        })}
-                    </ul>
-                </details>
-            </div>
+            <DetailsDialog
+                id={detailDialogId}
+                infos={bggInfo}
+                name={name}
+                closeIcon={<FaX className={statusIconClassName} />}
+                statusIcon={statusIcon}
+            />
+            <button
+                className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip tooltip"
+                data-tip={statusText}
+                data-for-dialog={detailDialogId}
+                onClick={e => (document.getElementById(
+                    e.currentTarget.getAttribute('data-for-dialog') as string
+                ) as HTMLDialogElement).showModal()}
+            >
+                {statusIcon}
+            </button>
             <div className="flex flex-col p-3 md:p-4">
                 <div className="flex justify-center items-center gap-1 tooltip" data-tip={name}>
                     <FaBarcode title={code} />
@@ -132,7 +129,20 @@ export function Scanlist(props: ScanlistProps) {
                 )}
             </div>
         </li>;
-
     })}</ul>);
 
+    /*
+     <details className="dropdown dropdown-hover">
+     <summary>{info.name}</summary>
+     <div className="lg:left-10/12 top-0 lg:dropdown-content border-none">
+     <ul className="menu pl-0 ml-0 bg-base-100 rounded-box z-1 mb-1 mt-1 lg:w-fit shadow-sm">
+     {info.versions.map(version => {
+     return <li key={version.version_id} className="">
+     {version.name}
+     </li>
+     })}
+     </ul>
+     </div>
+     </details>
+     */
 }
