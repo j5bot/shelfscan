@@ -19,6 +19,7 @@ type ScanlistProps = {
 
 export function Scanlist(props: ScanlistProps) {
     const { codes, gameUPCResults } = props;
+    const { gameSelections } = useGameSelections();
 
     return (<ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg-grid-cols-6">{codes.map(code => {
         const {
@@ -26,7 +27,6 @@ export function Scanlist(props: ScanlistProps) {
             bgg_info_status: bggInfoStatus,
         } = gameUPCResults[code] ?? {};
 
-        const { gameSelections } = useGameSelections();
         const [infoId, versionId] = gameSelections[code] ?? [];
 
         const infoIndex = bggInfo?.
