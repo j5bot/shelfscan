@@ -169,7 +169,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
     const version = versions[hoverVersion ?? currentVersion ?? -1];
 
     return <div className="flex flex-col items-center h-full p-3">
-        <div>
+        <div className="mt-20 md:mt-30 pt-3 bg-white rounded-t-2xl">
             <h3 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h3>
             <div className="flex gap-2 items-center justify-center">
                 <ThumbnailBox
