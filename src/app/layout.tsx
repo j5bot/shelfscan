@@ -38,7 +38,10 @@ export default function RootLayout({
               <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
               <link rel="manifest" href="/site.webmanifest" />
           </head>
-          <body className={`h-screen w-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased`}>
+          <body className={`
+          h-screen w-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased
+          bg-[image:url(/images/flair-bg.png)] md:bg-[image:url(/images/flair-bg-lg.png)] bg-repeat bg-contain
+          `}>
               <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
                   <Link href={'/'}>
                       <Image

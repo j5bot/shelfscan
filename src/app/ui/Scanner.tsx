@@ -70,10 +70,17 @@ export function Scanner(props: ScannerProps) {
         setDevices(devices);
     };
 
-    return <div style={{width: `${videoCropWidth}px`, height: `${videoCropHeight}px`}}>
+    return <div
+        style={{
+            width: `${videoCropWidth}px`,
+            height: `${videoCropHeight}px`,
+            borderWidth: breakpoint === 'mobile' ? '0.25rem' : '0.35rem',
+        }}
+        className="border-red-300 box-content rounded-2xl bg-red-300"
+    >
         <BarcodeScanner
             animate={true}
-            className="rounded-2xl"
+            className="rounded-none"
             devices={devices}
             onDevices={onDevices}
             onScan={doScan}

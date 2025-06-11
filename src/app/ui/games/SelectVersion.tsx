@@ -169,8 +169,8 @@ export const SelectVersion = ({ id }: { id: string }) => {
     const version = versions[hoverVersion ?? currentVersion ?? -1];
 
     return <div className="flex flex-col items-center h-full p-3">
-        <div>
-            <h3 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h3>
+        <div className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3">
+            <h2 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h2>
             <div className="flex gap-2 items-center justify-center">
                 <ThumbnailBox
                     alt={version?.name}
@@ -184,7 +184,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
             </div>
             <h4 className="mb-1 text-center">{versions[hoverVersion ?? -1]?.name}</h4>
         </div>
-        <div>
+        <div className="bg-overlay min-w-1/2">
             <div className="flex gap-1 items-center">
                 <div className="tooltip shrink-0" data-tip="Game"><Image
                     className="inline-block"
@@ -209,7 +209,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     alt="Version" width={32} height={32}
                 /></div>
                 <CollapsibleList
-                    className="overflow-scroll h-85 md:h-100 lg:h-125"
+                    className="overflow-scroll h-65 md:h-80 lg:h-100"
                     type="version"
                     items={versions}
                     selectedItemIndex={currentVersion}

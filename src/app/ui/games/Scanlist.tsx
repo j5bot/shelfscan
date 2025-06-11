@@ -5,12 +5,11 @@ import {
     GameUPCVersionStatusText
 } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
-import { DetailsDialog } from '@/app/ui/games/DetailsDialog';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaCheckCircle, FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
-import { FaBarcode, FaX } from 'react-icons/fa6';
+import { FaBarcode } from 'react-icons/fa6';
 
 type ScanlistProps = {
     codes: string[];
@@ -91,25 +90,7 @@ export function Scanlist(props: ScanlistProps) {
 
         void overlayIcon;
 
-        const detailDialogId = `version_dialog_${code}`;
-
         return <li className="relative rounded-md bg-orange-100" key={code}>
-            <DetailsDialog
-                id={detailDialogId}
-                infos={bggInfo}
-                closeIcon={<FaX className="w-4 h-4 p-0.5" />}
-                statusIcon={statusIcon}
-            />
-            {/*<button*/}
-            {/*    className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip"*/}
-            {/*    data-tip={statusText}*/}
-            {/*    data-for-dialog={detailDialogId}*/}
-            {/*    onClick={e => (document.getElementById(*/}
-            {/*        e.currentTarget.getAttribute('data-for-dialog') as string*/}
-            {/*    ) as HTMLDialogElement).showModal()}*/}
-            {/*>*/}
-            {/*    {statusIcon}*/}
-            {/*</button>*/}
             <Link
                 href={`/upc/${code}`}
                 className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip"
@@ -117,9 +98,9 @@ export function Scanlist(props: ScanlistProps) {
             >
                 {statusIcon}
             </Link>
-            <div className="flex flex-col p-3 md:p-4">
+            <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
                 <div className="flex justify-center items-center gap-1 tooltip" data-tip={combinedName}>
-                    <FaBarcode title={code} />
+                    <FaBarcode title={code} size={15} className="shrink-0"/>
                     <div
                         className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
                         title={combinedName}
@@ -127,28 +108,15 @@ export function Scanlist(props: ScanlistProps) {
                         {combinedName}
                     </div>
                 </div>
-                <ThumbnailBox
-                    alt={combinedName}
-                    url={thumbnailUrl}
-                    size={smallSquareSize}
-                    styles={imageContainerStyles}
-                />
+                <Link href={`/upc/${code}`}>
+                    <ThumbnailBox
+                        alt={combinedName}
+                        url={thumbnailUrl}
+                        size={smallSquareSize}
+                        styles={imageContainerStyles}
+                    />
+                </Link>
             </div>
         </li>;
     })}</ul>);
-
-    /*
-     <details className="dropdown dropdown-hover">
-     <summary>{info.name}</summary>
-     <div className="lg:left-10/12 top-0 lg:dropdown-content border-none">
-     <ul className="menu pl-0 ml-0 bg-base-100 rounded-box z-1 mb-1 mt-1 lg:w-fit shadow-sm">
-     {info.versions.map(version => {
-     return <li key={version.version_id} className="">
-     {version.name}
-     </li>
-     })}
-     </ul>
-     </div>
-     </details>
-     */
 }
