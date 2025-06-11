@@ -1,3 +1,4 @@
+import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import {
     GameUPCData,
     GameUPCVersionStatus,
@@ -25,6 +26,14 @@ export function Scanlist(props: ScanlistProps) {
             bgg_info_status: bggInfoStatus,
         } = gameUPCResults[code] ?? {};
 
+        const { gameSelections } = useGameSelections();
+        const [infoId, versionId] = gameSelections[code] ?? [];
+
+        const infoIndex = bggInfo?.
+            findIndex(info => info.id === infoId);
+        const versionIndex = bggInfo?.[infoIndex]?.versions.
+            findIndex(version => version.version_id === versionId);
+
         const statusText = GameUPCVersionStatusText[bggInfoStatus];
 
         if (!bggInfo) {
@@ -33,8 +42,14 @@ export function Scanlist(props: ScanlistProps) {
 
         const {
             name = 'Nothing Found', /* versions = [], */
+        } = bggInfo?.[infoIndex] ?? bggInfo?.[0] ?? {};
+
+        const {
+            name: versionName,
             thumbnail_url: thumbnailUrl,
-        } = bggInfo?.[0] ?? {};
+        } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[0] ?? {};
+
+        const combinedName = name + (versionName ? ` (${versionName})` : '');
 
         const imageSize = getImageSizeFromUrl(thumbnailUrl ?? '');
         const smallSquareSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
@@ -103,17 +118,17 @@ export function Scanlist(props: ScanlistProps) {
                 {statusIcon}
             </Link>
             <div className="flex flex-col p-3 md:p-4">
-                <div className="flex justify-center items-center gap-1 tooltip" data-tip={name}>
+                <div className="flex justify-center items-center gap-1 tooltip" data-tip={combinedName}>
                     <FaBarcode title={code} />
                     <div
                         className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
-                        title={name}
+                        title={combinedName}
                     >
-                        {name}
+                        {combinedName}
                     </div>
                 </div>
                 <ThumbnailBox
-                    alt={name}
+                    alt={combinedName}
                     url={thumbnailUrl}
                     size={smallSquareSize}
                     styles={imageContainerStyles}

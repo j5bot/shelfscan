@@ -50,8 +50,13 @@ export const SelectVersion = ({ id }: { id: string }) => {
         if (!gameSelections[id]) {
             return;
         }
-        const gameSelectionIndex = infos?.findIndex(info => info.id);
-        const versionSelectionIndex = infos?.[gameSelectionIndex]?.versions?.findIndex(version => version.version_id);
+        const selection = gameSelections[id];
+        const gameSelectionIndex = infos?.findIndex(info => info.id === selection[0]);
+        const versionSelectionIndex = infos?.
+            [gameSelectionIndex]?.versions?.
+                findIndex(
+                    version => version.version_id === selection[1]
+                );
 
         if (gameSelectionIndex > -1) {
             setCurrentInfo(gameSelectionIndex);
@@ -161,7 +166,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
     const versions = infos?.[currentInfo ?? 0]?.versions;
 
-    return <div className="flex flex-col items-center h-full">
+    return <div className="flex flex-col items-center h-full p-3">
         <div>
             <h3 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h3>
             <ThumbnailBox
@@ -195,6 +200,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     alt="Version" width={32} height={32}
                 /></div>
                 <CollapsibleList
+                    className="md:h-100"
                     type="version"
                     items={versions}
                     selectedItemIndex={currentVersion}
