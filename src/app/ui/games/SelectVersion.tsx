@@ -164,17 +164,25 @@ export const SelectVersion = ({ id }: { id: string }) => {
         setHoverVersion(parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onHover'];
 
-    const versions = infos?.[currentInfo ?? 0]?.versions;
+    const info = infos?.[currentInfo ?? 0];
+    const versions = info?.versions;
+    const version = versions[hoverVersion ?? currentVersion ?? -1];
 
     return <div className="flex flex-col items-center h-full p-3">
         <div>
             <h3 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h3>
-            <ThumbnailBox
-                alt={versions[hoverVersion ?? currentVersion ?? -1]?.name}
-                url={versions[hoverVersion ?? currentVersion ?? -1]?.thumbnail_url}
-                size={150}
-            />
-            <h3 className="mb-1 text-center">{versions[hoverVersion ?? -1]?.name}</h3>
+            <div className="flex gap-2 items-center justify-center">
+                <ThumbnailBox
+                    alt={version?.name}
+                    url={version?.thumbnail_url}
+                    size={150}
+                />
+                <div className="max-w-1/3">
+                    <div className="border-b-1 border-b-gray-300">{version?.name}</div>
+                    <h4>{version?.published}</h4>
+                </div>
+            </div>
+            <h4 className="mb-1 text-center">{versions[hoverVersion ?? -1]?.name}</h4>
         </div>
         <div>
             <div className="flex gap-1 items-center">
@@ -183,6 +191,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     src={'/icons/box-game.png'} alt="Game" width={32} height={32}
                 /></div>
                 <CollapsibleList
+                    className="overflow-scroll h-50"
                     type="info"
                     items={infos}
                     selectedItemIndex={currentInfo}
@@ -200,7 +209,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     alt="Version" width={32} height={32}
                 /></div>
                 <CollapsibleList
-                    className="md:h-100"
+                    className="overflow-scroll h-85 md:h-100 lg:h-125"
                     type="version"
                     items={versions}
                     selectedItemIndex={currentVersion}

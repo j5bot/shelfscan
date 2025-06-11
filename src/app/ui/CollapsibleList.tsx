@@ -56,7 +56,7 @@ export const CollapsibleList =
      </div> :
      <div>
          <h4>Select</h4>
-         <ul className={`menu overflow-scroll h-50 pl-0 ml-0 mr-0 bg-base-100 rounded-box w-full lg:min-w-64 shadow-sm ${className}`}>
+         <ul className={`menu pl-0 ml-0 mr-0 bg-base-100 rounded-box w-full lg:min-w-64 shadow-sm ${className}`}>
              {items.map((item: T, index: number) => {
                  const itemProps = {
                     [`data-${type}-index`]: index,
