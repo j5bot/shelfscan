@@ -170,7 +170,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
     return <div className="flex flex-col items-center h-full p-3">
         <div className="mt-20 md:mt-30 pt-3 bg-overlay">
-            <h3 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h3>
+            <h2 className="mb-1 text-center">{infos[currentInfo ?? -1]?.name}</h2>
             <div className="flex gap-2 items-center justify-center">
                 <ThumbnailBox
                     alt={version?.name}
