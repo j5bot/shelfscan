@@ -5,10 +5,11 @@ import {
 } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { DetailsDialog } from '@/app/ui/games/DetailsDialog';
-import Image from 'next/image';
+import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaCheckCircle, FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
-import { FaBarcode, FaQuestion, FaX } from 'react-icons/fa6';
+import { FaBarcode, FaX } from 'react-icons/fa6';
 
 type ScanlistProps = {
     codes: string[];
@@ -81,20 +82,26 @@ export function Scanlist(props: ScanlistProps) {
             <DetailsDialog
                 id={detailDialogId}
                 infos={bggInfo}
-                name={name}
-                closeIcon={<FaX className={statusIconClassName} />}
+                closeIcon={<FaX className="w-4 h-4 p-0.5" />}
                 statusIcon={statusIcon}
             />
-            <button
-                className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip tooltip"
+            {/*<button*/}
+            {/*    className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip"*/}
+            {/*    data-tip={statusText}*/}
+            {/*    data-for-dialog={detailDialogId}*/}
+            {/*    onClick={e => (document.getElementById(*/}
+            {/*        e.currentTarget.getAttribute('data-for-dialog') as string*/}
+            {/*    ) as HTMLDialogElement).showModal()}*/}
+            {/*>*/}
+            {/*    {statusIcon}*/}
+            {/*</button>*/}
+            <Link
+                href={`/upc/${code}`}
+                className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip"
                 data-tip={statusText}
-                data-for-dialog={detailDialogId}
-                onClick={e => (document.getElementById(
-                    e.currentTarget.getAttribute('data-for-dialog') as string
-                ) as HTMLDialogElement).showModal()}
             >
                 {statusIcon}
-            </button>
+            </Link>
             <div className="flex flex-col p-3 md:p-4">
                 <div className="flex justify-center items-center gap-1 tooltip" data-tip={name}>
                     <FaBarcode title={code} />
@@ -105,28 +112,12 @@ export function Scanlist(props: ScanlistProps) {
                         {name}
                     </div>
                 </div>
-                {thumbnailUrl ? (
-                    <div className="flex justify-center p-1">
-                        <div className={`
-                            relative
-                            bg-orange-50
-                            flex justify-center items-center
-                            rounded-md overflow-clip
-                            focus:overflow-visible focus:scale-150
-                            hover:overflow-visible hover:scale-150`}
-                            style={imageContainerStyles}>
-                            {/*<div className={`absolute top-1 left-1 opacity-65`}>{overlayIcon}</div>*/}
-                            <Image
-                                src={thumbnailUrl}
-                                alt={name}
-                                width={smallSquareSize}
-                                height={smallSquareSize}
-                            />
-                        </div>
-                    </div>
-                ) : (
-                    <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
-                )}
+                <ThumbnailBox
+                    alt={name}
+                    url={thumbnailUrl}
+                    size={smallSquareSize}
+                    styles={imageContainerStyles}
+                />
             </div>
         </li>;
     })}</ul>);

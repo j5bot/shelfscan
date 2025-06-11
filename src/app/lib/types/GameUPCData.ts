@@ -46,4 +46,5 @@ export type GameUPCBggVersion = {
     thumbnail_url: string;
     image_url: string;
     update_url: string;
+    language: string;
 };

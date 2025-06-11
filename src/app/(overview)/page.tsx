@@ -1,10 +1,10 @@
 'use client';
 
-import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
+import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { Scanner, ScannerProps } from '@/app/ui/Scanner';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 
 export default function Home() {
@@ -15,9 +15,16 @@ export default function Home() {
         getGameData,
         submitOrVerifyGame,
         removeGame,
-    } = useGameUPCApi({});
+    } = useGameUPCData();
 
     const [codes, setCodes] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (!gameDataMap) {
+            return;
+        }
+        setCodes(Object.keys(gameDataMap));
+    }, []);
 
     void submitOrVerifyGame;
     void removeGame;
