@@ -100,7 +100,7 @@ export function Scanlist(props: ScanlistProps) {
             </Link>
             <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
                 <div className="flex justify-center items-center gap-1 tooltip" data-tip={combinedName}>
-                    <FaBarcode title={code} size={32}/>
+                    <FaBarcode title={code} size={15} className="shrink-0"/>
                     <div
                         className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
                         title={combinedName}
