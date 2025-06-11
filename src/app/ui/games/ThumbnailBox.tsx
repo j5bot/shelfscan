@@ -29,10 +29,10 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
                 }}
             >
                 <Image
+                    className="object-contain"
                     src={url}
                     alt={alt}
                     fill={true}
-                    objectFit="contain"
                 />
             </div>
         </div>

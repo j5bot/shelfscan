@@ -1,5 +1,6 @@
 'use client';
 
+import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList, CollapsibleListProps } from '@/app/ui/CollapsibleList';
@@ -20,28 +21,61 @@ export const SelectVersion = ({ id }: { id: string }) => {
         gameDataMap,
     } = useGameUPCData();
 
-    useEffect(() => {
-        if (!id || gameDataMap[id]) {
-            return;
-        }
-        getGameData(id).then();
-    }, [id]);
+    const {
+        gameSelections,
+        setGameSelections,
+    } = useGameSelections();
 
     const { bgg_info: infos } = gameDataMap[id] ?? {};
 
     const [currentInfo, setCurrentInfo] = useState<number | null>(infos?.length === 1 ? 0 : null);
     const [currentVersion, setCurrentVersion] = useState<number | null>(infos?.[currentInfo ?? 0]?.versions.length === 1 ? 0 : null);
+
+    const [selectedInfoId, setSelectedInfoId] = useState<number>();
+    const [selectedVersionId, setSelectedVersionId] = useState<number>();
+
     const [hoverVersion, setHoverVersion] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!id) {
+            return;
+        }
+        if (gameDataMap[id]) {
+            return;
+        }
+        getGameData(id).then();
+    }, [id, gameDataMap]);
+
+    const restorePreviousSelection = () => {
+        if (!gameSelections[id]) {
+            return;
+        }
+        const gameSelectionIndex = infos?.findIndex(info => info.id);
+        const versionSelectionIndex = infos?.[gameSelectionIndex]?.versions?.findIndex(version => version.version_id);
+
+        if (gameSelectionIndex > -1) {
+            setCurrentInfo(gameSelectionIndex);
+            setSelectedInfoId(gameSelections[id][0]);
+        }
+        if (versionSelectionIndex > -1) {
+            setCurrentVersion(versionSelectionIndex);
+            setSelectedVersionId(gameSelections[id][1]);
+        }
+    }
 
     useEffect(() => {
         if (infos?.length === 1) {
             setCurrentInfo(0);
+            setCurrentSelection(0, -1);
+            return;
+        }
+        if ((selectedInfoId ?? -1) > -1) {
             return;
         }
         setCurrentInfo(null);
         setCurrentVersion(null);
         setHoverVersion(null);
-    }, [id, infos?.length, setCurrentInfo]);
+    }, [id, gameDataMap, infos?.length, setCurrentInfo]);
 
     useEffect(() => {
         if (currentInfo === null) {
@@ -49,15 +83,38 @@ export const SelectVersion = ({ id }: { id: string }) => {
         }
         if (infos?.[currentInfo].versions.length === 1) {
             setCurrentVersion(0);
+            setCurrentSelection(currentInfo, 0);
+            return;
+        }
+        if ((selectedVersionId ?? -1) > -1) {
             return;
         }
         setCurrentVersion(null);
         setHoverVersion(null);
-    }, [id, currentInfo, infos?.[currentInfo ?? 0]?.versions.length, setCurrentVersion])
+    }, [id, gameDataMap, currentInfo, infos?.[currentInfo ?? 0]?.versions.length, setCurrentVersion]);
+
+    useEffect(() => {
+        restorePreviousSelection();
+    }, [id]);
 
     if (!infos) {
         return null;
     }
+
+    const setCurrentSelection = (infoIndex: number, versionIndex: number) => {
+        if (infoIndex === -1) {
+            delete gameSelections[id];
+            setGameSelections(gameSelections);
+            return;
+        }
+        if (versionIndex === -1) {
+            gameSelections[id] = [infos[infoIndex].id];
+            setGameSelections(gameSelections);
+            return;
+        }
+        gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
+        setGameSelections(gameSelections);
+    };
 
     const infoClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {
         const index = e.currentTarget.getAttribute('data-info-index') ?? null;
@@ -66,7 +123,9 @@ export const SelectVersion = ({ id }: { id: string }) => {
             return;
         }
 
-        setCurrentInfo(parseInt(index, 10));
+        const currentInfo = parseInt(index, 10);
+        setCurrentInfo(currentInfo);
+        setCurrentSelection(currentInfo, -1);
     }) as CollapsibleListProps<unknown>['onSelect'];
 
     const gameClickHandler = () => {};
@@ -78,7 +137,9 @@ export const SelectVersion = ({ id }: { id: string }) => {
             return;
         }
 
-        setCurrentVersion(parseInt(index, 10));
+        const currentVersion = parseInt(index, 10);
+        setCurrentVersion(currentVersion);
+        setCurrentSelection(currentInfo ?? -1, currentVersion);
     }) as CollapsibleListProps<unknown>['onSelect'];
 
     const versionNameClickHandler = () => {};
