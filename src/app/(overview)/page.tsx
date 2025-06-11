@@ -33,7 +33,7 @@ export default function Home() {
             codes.push(code);
             setCodes(codes);
         }
-        return await getGameData(code);
+        return getGameData(code);
     }) as ScannerProps['onScan'];
 
     return breakpoint && (
@@ -42,7 +42,6 @@ export default function Home() {
                 <Suspense>
                     <div>
                         <Scanner onScan={onScan} />
-                        {/*<h2 className="text-center">Scan a Board Game UPC</h2>*/}
                     </div>
                 </Suspense>
             </div>
@@ -57,7 +56,7 @@ export default function Home() {
                             : (
                                 <div className="w-full flex flex-col items-center justify-items-center text-center">
                                     <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                    <h3>Check your shelf before you wreck yourself</h3>
+                                    <h4>Check your shelf before you wreck yourself</h4>
                                 </div>
                             )
                         }

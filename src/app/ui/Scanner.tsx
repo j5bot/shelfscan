@@ -76,7 +76,7 @@ export function Scanner(props: ScannerProps) {
             height: `${videoCropHeight}px`,
             borderWidth: breakpoint === 'mobile' ? '0.25rem' : '0.35rem',
         }}
-        className="border-red-500 box-content rounded-2xl bg-red-500"
+        className="border-red-300 box-content rounded-2xl bg-red-300"
     >
         <BarcodeScanner
             animate={true}
