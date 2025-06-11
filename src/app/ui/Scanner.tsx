@@ -12,6 +12,7 @@ export type ScannerProps = {
 };
 
 export const ScannerSizes = {
+    loading: { height: 0, width: 0, cropWidthRatio: 1 },
     mobile: { height: 240, width: 320, cropWidthRatio: 0.9 },
     sm: { height: 376, width: 480, cropWidthRatio: 1 },
     md: { height: 376, width: 480, cropWidthRatio: 1 },
@@ -22,7 +23,7 @@ export const ScannerSizes = {
 
 export function Scanner(props: ScannerProps) {
     const { onScan } = props;
-    const breakpoint = useTailwindBreakpoint() ?? 'mobile';
+    const breakpoint = useTailwindBreakpoint() ?? 'loading';
 
     // usually from props
     const {
@@ -69,20 +70,24 @@ export function Scanner(props: ScannerProps) {
         setDevices(devices);
     };
 
-    return <BarcodeScanner
-        devices={devices}
-        onDevices={onDevices}
-        onScan={doScan}
-        settings={{
-            scanLine,
-        }}
-        canvasWidth={canvasWidth}
-        canvasHeight={canvasHeight}
-        videoWidth={videoWidth}
-        videoHeight={videoHeight}
-        videoCropHeight={videoCropHeight}
-        videoCropWidth={videoCropWidth}
-        zoom={zoom}
-        blur={blur}
-    />;
+    return <div style={{width: `${videoCropWidth}px`, height: `${videoCropHeight}px`}}>
+        <BarcodeScanner
+            animate={true}
+            className="rounded-2xl"
+            devices={devices}
+            onDevices={onDevices}
+            onScan={doScan}
+            settings={{
+                scanLine,
+            }}
+            canvasWidth={canvasWidth}
+            canvasHeight={canvasHeight}
+            videoWidth={videoWidth}
+            videoHeight={videoHeight}
+            videoCropHeight={videoCropHeight}
+            videoCropWidth={videoCropWidth}
+            zoom={zoom}
+            blur={blur}
+        />
+    </div>;
 }

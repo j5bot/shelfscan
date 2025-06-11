@@ -1,20 +1,30 @@
 'use client';
 
-import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
+import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
+import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { Scanner, ScannerProps } from '@/app/ui/Scanner';
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 
 export default function Home() {
+    const breakpoint = useTailwindBreakpoint();
+
     const {
         gameDataMap,
         getGameData,
         submitOrVerifyGame,
         removeGame,
-    } = useGameUPCApi({});
+    } = useGameUPCData();
 
     const [codes, setCodes] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (!gameDataMap) {
+            return;
+        }
+        setCodes(Object.keys(gameDataMap));
+    }, []);
 
     void submitOrVerifyGame;
     void removeGame;
@@ -27,9 +37,9 @@ export default function Home() {
         return await getGameData(code);
     }) as ScannerProps['onScan'];
 
-    return (
+    return breakpoint && (
         <div className="flex flex-col w-full items-end md:items-center p-3 sm:p-4">
-            <div className="flex gap-2 pb-3 sm:pb-5 relative">
+            <div className="flex gap-2 pb-3 sm:pb-5">
                 <Suspense>
                     <div>
                         <h2 className="mb-1 text-center">Scan a Board Game UPC</h2>

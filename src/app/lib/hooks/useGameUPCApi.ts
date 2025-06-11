@@ -44,8 +44,8 @@ export type UseGameUPCApiOptions = {
     updaterId?: string;
 };
 
-export const useGameUPCApi = (options: UseGameUPCApiOptions) => {
-    const { updaterId = 'gameupc-scanner' } = options;
+export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
+    const { updaterId = 'gameupc-scanner' } = options ?? {};
 
     const [warmed, setWarmed] = useState<boolean>(false);
     const [gameDataMap, setGameDataMap] = useState<Record<string, GameUPCData>>({});

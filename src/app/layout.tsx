@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Share_Tech } from 'next/font/google';
 import "./globals.css";
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 
 const shareTech = Share_Tech({
@@ -37,14 +38,16 @@ export default function RootLayout({
               <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
               <link rel="manifest" href="/site.webmanifest" />
           </head>
-          <body className={`${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased`}>
+          <body className={`h-screen w-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased`}>
               <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
-                  <Image
-                      priority={true}
-                      src={'/shelfscan-wordmark.png'}
-                              alt="ShelfScan"
-                              width={64} height={85}
-                  />
+                  <Link href={'/'}>
+                      <Image
+                          priority={true}
+                          src={'/shelfscan-wordmark.png'}
+                          alt="ShelfScan"
+                          width={64} height={85}
+                      />
+                  </Link>
               </div>
               <div className="z-0 relative">
                   {children}
