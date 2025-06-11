@@ -38,12 +38,16 @@ export default function Home() {
     }) as ScannerProps['onScan'];
 
     return breakpoint && (
-        <div className="flex flex-col w-full items-end md:items-center p-3 sm:p-4">
+        <div className="flex flex-col w-full items-center p-3 sm:p-4">
+            <div style={{
+                width: breakpoint === 'mobile' ? '200px' : '400px',
+                height: breakpoint === 'mobile' ? '100px' : '150px',
+            }} className="bg-[image:url(/images/flair-top.png)] mb-1 md:mb-3 bg-cover bg-top opacity-60"> </div>
             <div className="flex gap-2 pb-3 sm:pb-5">
                 <Suspense>
                     <div>
-                        <h2 className="mb-1 text-center">Scan a Board Game UPC</h2>
                         <Scanner onScan={onScan} />
+                        <h2 className="text-center">Scan a Board Game UPC</h2>
                     </div>
                 </Suspense>
                 {/*<div className="flex flex-col gap-2">*/}
@@ -74,6 +78,10 @@ export default function Home() {
                     </div>
                 </div>
             </Suspense>
+            <div style={{
+                width: breakpoint === 'mobile' ? '200px' : '400px',
+                height: breakpoint === 'mobile' ? '80px' : '100px',
+            }} className="bg-[image:url(/images/flair-bottom.png)] mt-1 md:mt-3 bg-cover bg-bottom opacity-60"> </div>
         </div>
     );
 }
