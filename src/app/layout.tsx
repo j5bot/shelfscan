@@ -40,7 +40,12 @@ export default function RootLayout({
           </head>
           <body className={`
           h-screen w-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased
-          bg-[image:url(/images/flair-bg.png)] md:bg-[image:url(/images/flair-bg-lg.png)] bg-repeat bg-contain
+          bg-[image:url(/images/flair-bg.png)]
+          md:bg-[image:url(/images/flair-bg-md.png)]
+          lg:bg-[image:url(/images/flair-bg-lg.png)]
+          xl:bg-[image:url(/images/flair-bg-xl.png)]
+          2xl:bg-[image:url(/images/flair-bg-2xl.png)]
+          bg-repeat bg-contain
           `}>
               <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
                   <Link href={'/'}>

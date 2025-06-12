@@ -38,7 +38,7 @@ export default function Home() {
 
     return breakpoint && (
         <div className="flex flex-col w-full items-center p-3 sm:p-4">
-            <div className="flex gap-2 pb-3 mt-20 md:mt-30 rounded-t-2xl p-3 sm:pb-5 bg-white">
+            <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
                 <Suspense>
                     <div>
                         <Scanner onScan={onScan} />
