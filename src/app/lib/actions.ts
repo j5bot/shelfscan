@@ -3,7 +3,7 @@
 import { doBggLogin } from '@/app/lib/services/bgg/login';
 import { z } from 'zod';
 
-export type BggLoginState = {
+export type BggUserState = {
     data: {
         username?: string;
         cookie?: string;
@@ -25,7 +25,7 @@ const BggLoginFormSchema = z.object({
     }),
 });
 
-export async function bggLogin(prevState: BggLoginState, formData: FormData) {
+export async function bggSetUser(prevState: BggUserState, formData: FormData) {
     void prevState;
 
     const formDataObject = Object.fromEntries(formData);

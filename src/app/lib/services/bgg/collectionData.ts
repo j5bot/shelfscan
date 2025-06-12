@@ -1,22 +1,17 @@
-/*
- Sample URL: /api/collections?objectid=232830&objecttype=thing&userid=2382168
- */
-
-import { bggWorkerHost } from '@/app/lib/services/bgg/constants';
+import { bggHost } from '@/app/lib/services/bgg/constants';
 import { GameUPCData } from '@/app/lib/types/GameUPCData';
 
-const collectionApiUrl = `${bggWorkerHost}/api/collections`;
+const collectionApiUrl = `${bggHost}/api/collections`;
 
 export type GetCollectionItemsParams = {
     userId: string;
-    cookie: string;
     data: GameUPCData;
 };
 
 export const getCollectionItems = async (
     params: GetCollectionItemsParams,
 ) => {
-    const { cookie, data, userId } = params;
+    const { data, userId } = params;
 
     if (!userId) {
         return;
@@ -38,10 +33,5 @@ export const getCollectionItems = async (
 
     return await fetch(
         `${collectionApiUrl}?${searchParams.toString()}`,
-        {
-            headers: {
-                cookie,
-            },
-        },
     ).then(response => response.json());
 };

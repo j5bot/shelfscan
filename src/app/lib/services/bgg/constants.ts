@@ -1,2 +1,2 @@
-export const bggWorkerHost = 'https://bgg-cors.j5bot.workers.dev';
+export const bggHost = 'https://boardgamegeek.com';
 export const bggCookieHost = '.j5bot.workers.dev';

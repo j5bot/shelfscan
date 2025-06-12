@@ -6,26 +6,6 @@ export type CollectionId = string;
 export type UserId = string;
 export type VersionId = string;
 
-type CollectionStatus = 'own' | 'trade';
-
-export type CollectionItem = {
-    collid: string;
-    versionid: string | null;
-    objecttype: 'thing';
-    objectid: string;
-    objectname: string;
-    imageid: string;
-    images?: {
-        micro?: string;
-        thumb?: string;
-    };
-    status: Record<CollectionStatus, boolean>;
-}
-
-export type CollectionData = {
-    items: CollectionItem[];
-};
-
 export type BggUserCollectionItems = Record<CollectionId, VersionId[]>;
 
 export type BggCollectionSliceState = {
@@ -42,11 +22,11 @@ export const fetchCollectionItems = createAsyncThunk(
     `${SLICE_TITLE}/fetch/item`,
     async (params: Partial<GetCollectionItemsParams>, { getState }) => {
         const state: RootState = getState() as unknown as RootState;
-        const { id: userId, cookie } = state.bgg.user;
-        if (!(userId && cookie && params.data)) {
+        const { id: userId } = state.bgg.user;
+        if (!(userId && params.data)) {
             return;
         }
-        return await getCollectionItems({ userId, cookie, data: params.data });
+        return await getCollectionItems({ userId, data: params.data });
     }
 );
 

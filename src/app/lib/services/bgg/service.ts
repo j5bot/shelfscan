@@ -1,9 +1,9 @@
-import { bggWorkerHost } from '@/app/lib/services/bgg/constants';
+import { bggHost } from '@/app/lib/services/bgg/constants';
 import { BggUser } from '@/app/lib/types/BggUser';
 import { textFetchAndWait } from '@/app/lib/utils';
 import { getPageDOM } from '@/app/lib/utils/xml';
 
-const userAPI = `${bggWorkerHost}/xmlapi2/user?name=`;
+const userAPI = `${bggHost}/xmlapi2/user?name=`;
 
 export const getBggUser = async (name: string): Promise<BggUser> => {
     return await textFetchAndWait(`${userAPI}${name}`)

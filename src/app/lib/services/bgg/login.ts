@@ -1,6 +1,6 @@
-import { bggCookieHost, bggWorkerHost } from './constants';
+import { bggCookieHost, bggHost } from './constants';
 
-const loginAPIUrl = `${bggWorkerHost}/login/api/v1`;
+const loginAPIUrl = `${bggHost}/login/api/v1`;
 
 const okStatus = 200;
 const noContentStatus = 204;

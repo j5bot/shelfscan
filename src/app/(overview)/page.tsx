@@ -45,9 +45,6 @@ export default function Home() {
                     </div>
                 </Suspense>
             </div>
-            {/*<Suspense>*/}
-            {/*    <BggLoginForm />*/}
-            {/*</Suspense>*/}
             <Suspense>
                 <div className="relative w-full h-full bg-orange-50 p-2">
                     <div className="flex flex-col justify-center h-full w-full">
