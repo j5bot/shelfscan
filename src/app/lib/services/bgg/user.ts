@@ -1,24 +1,18 @@
-import { bggCookieHost, bggHost } from './constants';
-
-const loginAPIUrl = `${bggHost}/login/api/v1`;
+import { bggHost } from './constants';
 
 const okStatus = 200;
 const noContentStatus = 204;
 
-export let bggCookie: string;
-
-export const doBggLogin = async (userName: string, password: string) => {
+export const doBggGetUser = async (userName: string) => {
     return fetch(loginAPIUrl, {
         method: 'POST',
         headers: {
             accept: 'application/json',
             'content-type': 'application/json',
-            cookie: bggCookie,
         },
         body: JSON.stringify({
             credentials: {
                 username: userName,
-                password: password,
             },
         }),
     }).then(async (response) => {

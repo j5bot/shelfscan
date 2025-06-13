@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { useImagePropsWithCache } from '@/app/lib/utils/image';
 import { CSSProperties } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 
@@ -12,7 +12,13 @@ export type ThumbnailBoxProps = {
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {
     const {alt = props.url, url, styles, size} = props;
 
-    return url ? (
+    const imageProps = useImagePropsWithCache({
+        alt,
+        src: url,
+        fill: true,
+    });
+
+    return imageProps ? (
         <div className="flex justify-center p-1">
             <div className={`
                     relative
@@ -28,11 +34,9 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
                     ...styles,
                 }}
             >
-                <Image
+                <img
                     className="object-contain"
-                    src={url}
-                    alt={alt}
-                    fill={true}
+                    {...imageProps}
                 />
             </div>
         </div>

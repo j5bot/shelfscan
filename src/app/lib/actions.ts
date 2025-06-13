@@ -1,27 +1,22 @@
 'use server';
 
-import { doBggLogin } from '@/app/lib/services/bgg/login';
+import { doBggGetUser } from '@/app/lib/services/bgg/user';
 import { z } from 'zod';
 
 export type BggUserState = {
     data: {
         username?: string;
-        cookie?: string;
     };
     message?: string;
     errors: {
         login?: string[];
         username?: string[];
-        password?: string[];
     }
 };
 
-const BggLoginFormSchema = z.object({
+const BggFormSchema = z.object({
     username: z.string({
         required_error: 'Please enter a BGG username',
-    }),
-    password: z.string({
-        required_error: 'Please enter a BGG user password',
     }),
 });
 
@@ -30,7 +25,7 @@ export async function bggSetUser(prevState: BggUserState, formData: FormData) {
 
     const formDataObject = Object.fromEntries(formData);
 
-    const validated = BggLoginFormSchema
+    const validated = BggFormSchema
         .safeParse(formDataObject);
 
     if (!validated.success) {
@@ -41,7 +36,7 @@ export async function bggSetUser(prevState: BggUserState, formData: FormData) {
         };
     }
 
-    const { loginResponse, cookie } = await doBggLogin(validated.data.username, validated.data.password);
+    const { loginResponse } = await doBggGetUser(validated.data.username);
 
     if (!loginResponse) {
         return {
@@ -52,7 +47,7 @@ export async function bggSetUser(prevState: BggUserState, formData: FormData) {
     }
 
     return {
-        data: { ...validated.data, cookie },
+        data: validated.data,
         errors: {},
     };
 }
