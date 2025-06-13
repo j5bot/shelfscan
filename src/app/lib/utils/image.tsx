@@ -52,7 +52,7 @@ export const useImagePropsWithCache = (props: ImageProps) => {
         })();
     }, [props.src, props.quality]);
 
-    const src  = useObjectUrl(imageBlob);
+    const src  = useObjectUrl(imageBlob ?? new Blob());
 
     return { ...imageProps, srcSet: undefined, src };
 };

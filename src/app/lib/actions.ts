@@ -1,6 +1,5 @@
 'use server';
 
-import { doBggGetUser } from '@/app/lib/services/bgg/user';
 import { z } from 'zod';
 
 export type BggUserState = {
@@ -33,16 +32,6 @@ export async function bggSetUser(prevState: BggUserState, formData: FormData) {
             data: {},
             errors: validated.error.flatten().fieldErrors,
             message: 'Missing login details, unable to log in',
-        };
-    }
-
-    const { loginResponse } = await doBggGetUser(validated.data.username);
-
-    if (!loginResponse) {
-        return {
-            data: {},
-            errors: { login: ['Login failed.'] },
-            message: 'Login failed',
         };
     }
 
