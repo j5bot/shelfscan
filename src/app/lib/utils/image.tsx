@@ -20,6 +20,10 @@ export const useImagePropsWithCache = (props: ImageProps) => {
 
     useEffect(() => {
         (async () => {
+            if (imageProps.src === '') {
+                return;
+            }
+
             const id = [
                 imageProps.src,
                 imageProps.width,
@@ -54,5 +58,5 @@ export const useImagePropsWithCache = (props: ImageProps) => {
 
     const src  = useObjectUrl(imageBlob ?? new Blob());
 
-    return { ...imageProps, srcSet: undefined, src };
+    return { ...imageProps, srcSet: undefined, src: imageBlob ? src : undefined };
 };

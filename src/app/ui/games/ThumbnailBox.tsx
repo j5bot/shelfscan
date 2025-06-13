@@ -18,7 +18,7 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         fill: true,
     });
 
-    return imageProps ? (
+    return imageProps.src ? (
         <div className="flex justify-center p-1">
             <div className={`
                     relative
