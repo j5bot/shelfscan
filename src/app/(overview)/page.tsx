@@ -2,6 +2,7 @@
 
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
+import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { Scanner, ScannerProps } from '@/app/ui/Scanner';
 import React, { Suspense, useEffect, useState } from 'react';
@@ -45,6 +46,9 @@ export default function Home() {
                     </div>
                 </Suspense>
             </div>
+            <Suspense>
+                <BggCollectionForm />
+            </Suspense>
             <Suspense>
                 <div className="relative w-full h-full bg-orange-50 p-2">
                     <div className="flex flex-col justify-center h-full w-full">
