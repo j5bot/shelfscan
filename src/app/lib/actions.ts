@@ -47,9 +47,7 @@ export async function bggSetUser(prevState: BggUserState, formData: FormData) {
 
 const MAX_ATTEMPTS = 20;
 
-export const bggGetCollection = async (prevState: string, formData: FormData)=> {
-    void prevState;
-
+export const bggGetCollection = async (formData: FormData)=> {
     const formDataObject = Object.fromEntries(formData);
 
     const validated = BggFormSchema
