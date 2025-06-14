@@ -1,4 +1,5 @@
-import { useImagePropsWithCache } from '@/app/lib/utils/image';
+import { addImageDataToCache, getImageDataFromCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
+import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { CSSProperties } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 
@@ -16,7 +17,10 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         alt,
         src: url,
         fill: true,
-    });
+        getImageId: makeImageCacheId,
+        getImageDataFromCache,
+        addImageDataToCache,
+    }, [url]);
 
     return imageProps.src ? (
         <div className="flex justify-center p-1">

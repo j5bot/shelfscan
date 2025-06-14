@@ -6,7 +6,7 @@ import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList, CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 const renderVersionItem = (version: GameUPCBggVersion) => {
     return <div className="flex flex-col items-start">
@@ -36,6 +36,10 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
     const [hoverVersion, setHoverVersion] = useState<number | null>(null);
 
+    const info = infos?.[currentInfo ?? 0];
+    const versions = info?.versions;
+    const version = versions?.[hoverVersion ?? currentVersion ?? -1];
+
     useEffect(() => {
         if (!id) {
             return;
@@ -44,7 +48,22 @@ export const SelectVersion = ({ id }: { id: string }) => {
             return;
         }
         getGameData(id).then();
-    }, [id, gameDataMap]);
+    }, [id, gameDataMap[id]]);
+
+    const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
+        if (infoIndex === -1) {
+            delete gameSelections[id];
+            setGameSelections(gameSelections);
+            return;
+        }
+        if (versionIndex === -1) {
+            gameSelections[id] = [infos[infoIndex].id];
+            setGameSelections(gameSelections);
+            return;
+        }
+        gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
+        setGameSelections(gameSelections);
+    }, [gameSelections, setGameSelections, infos, versions]);
 
     const restorePreviousSelection = () => {
         if (!gameSelections[id]) {
@@ -80,7 +99,12 @@ export const SelectVersion = ({ id }: { id: string }) => {
         setCurrentInfo(null);
         setCurrentVersion(null);
         setHoverVersion(null);
-    }, [id, gameDataMap, infos?.length, setCurrentInfo]);
+    }, [
+        id,
+        gameDataMap[id],
+        infos?.length,
+        setCurrentInfo,
+    ]);
 
     useEffect(() => {
         if (currentInfo === null) {
@@ -96,7 +120,15 @@ export const SelectVersion = ({ id }: { id: string }) => {
         }
         setCurrentVersion(null);
         setHoverVersion(null);
-    }, [id, gameDataMap, currentInfo, infos?.[currentInfo ?? 0]?.versions.length, setCurrentVersion]);
+    }, [
+        id,
+        gameDataMap[id],
+        currentInfo,
+        infos?.[currentInfo ?? 0]?.versions.length,
+        setCurrentVersion,
+        setCurrentSelection,
+        setHoverVersion,
+    ]);
 
     useEffect(() => {
         restorePreviousSelection();
@@ -105,21 +137,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
     if (!infos) {
         return null;
     }
-
-    const setCurrentSelection = (infoIndex: number, versionIndex: number) => {
-        if (infoIndex === -1) {
-            delete gameSelections[id];
-            setGameSelections(gameSelections);
-            return;
-        }
-        if (versionIndex === -1) {
-            gameSelections[id] = [infos[infoIndex].id];
-            setGameSelections(gameSelections);
-            return;
-        }
-        gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
-        setGameSelections(gameSelections);
-    };
 
     const infoClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {
         const index = e.currentTarget.getAttribute('data-info-index') ?? null;
@@ -163,10 +180,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
         setHoverVersion(parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onHover'];
-
-    const info = infos?.[currentInfo ?? 0];
-    const versions = info?.versions;
-    const version = versions[hoverVersion ?? currentVersion ?? -1];
 
     return <div className="flex flex-col items-center h-full p-3">
         <div className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3">
