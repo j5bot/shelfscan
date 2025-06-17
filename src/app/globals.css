@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+@plugin 'daisyui';
+@import '@react-barcode-scanner/components/dist/index.css';
+
+:root {
+  --background: var(--color-gray-50);
+  --foreground: var(--color-gray-600);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-share-tech);
+  --font-heading: var(--font-share-tech);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 15px;
+}
+
+.bg-overlay {
+  background-color: var(--background);
+}
+
+h1, h2, h3, h4, h5, h6, h7 {
+  font-family: var(--font-share-tech);
+}
+h2 {
+  font-size: 1.5em;
+}
+h3 {
+  font-size: 1.17em;
+}
+
+.react-barcode-scanner-container {
+  border-radius: var(--radius-2xl);
+}
