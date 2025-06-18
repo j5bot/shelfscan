@@ -18,14 +18,14 @@ export const NavDrawer = () => {
         <label htmlFor="nav-drawer" onClick={signOutHandler}><FaSignOutAlt className="inline" /> Sign Out</label>
     </li> : null;
 
-    return <div className="drawer drawer-end bg-white">
+    return <div className="drawer drawer-end">
         <input id="nav-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content absolute top-4 right-5">
             <label htmlFor="nav-drawer" className="drawer-button"><FaBars /></label>
         </div>
         <div className="drawer-side z-[100]">
             <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
-            <ul className="menu bg-overlay text-base-content min-h-full w-1/2 md:w-80 p-2">
+            <ul className="list-none menu bg-overlay bg-base-200 text-base-content min-h-full w-1/2 md:w-80 p-2 mr-0">
                 <li>
                     <Link href="/">
                         <label htmlFor="nav-drawer"><FaBarcode className="inline" /> Scan</label>
