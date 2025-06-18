@@ -11,7 +11,10 @@ export const bggUserSlice = createSlice({
     name: `${SLICE_TITLE}_SLICE`,
     initialState,
     reducers: {
-        setBggUser: (state, action: PayloadAction<Partial<BggUser>>) => {
+        setBggUser: (state, action: PayloadAction<Partial<BggUser> | undefined>) => {
+            if (!action.payload) {
+                return initialState;
+            }
             Object.assign(state, action.payload);
         },
     },

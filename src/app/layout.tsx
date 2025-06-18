@@ -57,7 +57,7 @@ export default function RootLayout({
                       />
                   </Link>
               </div>
-              <div className="z-0 relative">
+              <div className="z-0">
                   {children}
               </div>
           </body>

@@ -6,5 +6,6 @@ export default async function SelectVersionPage({
 }: {
     params: Promise<{id: string}>
 }) {
-    return <Suspense><SelectVersion id={(await params).id} /></Suspense>;
+    const id = (await params).id;
+    return <Suspense><SelectVersion id={id} /></Suspense>;
 }
