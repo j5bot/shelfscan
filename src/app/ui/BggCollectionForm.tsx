@@ -27,6 +27,13 @@ export const BggCollectionForm = ()=> {
     const [collectionItems, setCollectionItems] = useState<BggCollectionMap>();
 
     useEffect(() => {
+        if (!currentUsername) {
+            return;
+        }
+        setUsername(currentUsername);
+    }, [currentUsername, setUsername]);
+
+    useEffect(() => {
         if (!(collectionItems && username && userXml)) {
             return;
         }
@@ -81,7 +88,7 @@ export const BggCollectionForm = ()=> {
     };
     const labelStyle = { fontSize: '0.7em', '--size-selector': '0.2rem' };
 
-    return !(collectionXml && currentUsername) && <form action={getCollectionAction} className="w-full">
+    return !currentUsername && <form action={getCollectionAction} className="w-full">
             <fieldset style={formStyle} className={`bg-gray-100 rounded-lg flex flex-wrap gap-2 p-2 justify-center items-center`}>
                 <input className="grow bg-white p-2 rounded-md max-w-3/8 md:max-w-64"
                        type="text" name="username" placeholder="BGG Username" />
