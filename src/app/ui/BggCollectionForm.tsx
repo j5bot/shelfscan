@@ -91,7 +91,10 @@ export const BggCollectionForm = ()=> {
     return !currentUsername && <form action={getCollectionAction} className="w-full">
             <fieldset style={formStyle} className={`bg-gray-100 rounded-lg flex flex-wrap gap-2 p-2 justify-center items-center`}>
                 <input className="grow bg-white p-2 rounded-md max-w-3/8 md:max-w-64"
-                       type="text" name="username" placeholder="BGG Username" />
+                       type="text" name="username"
+                       placeholder="BGG Username"
+                       autoComplete={'autocomplete'}
+                />
                 <button
                     className="grow p-2 rounded-md bg-gray-200 cursor-pointer whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
                     name="getCollection"

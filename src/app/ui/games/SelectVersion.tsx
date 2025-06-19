@@ -1,18 +1,55 @@
 'use client';
 
 import { useSelectVersion } from '@/app/lib/hooks/useSelectVersion';
-import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
+import {
+    GameUPCBggInfo,
+    GameUPCBggVersion,
+    GameUPCVersionStatus
+} from '@/app/lib/types/GameUPCData';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Image from 'next/image';
 import React, { ReactNode } from 'react';
-import { FaCheck } from 'react-icons/fa6';
+import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+
+// const renderDictionaryListItem = (term: ReactNode, definition: ReactNode, className?: string) =>
+//     (<div className={className}>
+//         <dt>{term}</dt>
+//         <dd>{definition}</dd>
+//     </div>);
+
+// const glossary = [
+//     {
+//         term: <Image
+//             className="inline-block"
+//             src={'/icons/box-game.png'} alt="Game" width={32} height={32}
+//         />,
+//         definition: 'Game',
+//     },
+//     {
+//         term: <Image
+//             className="inline-block"
+//             src={'/icons/box-version.png'}
+//             alt="Version" width={32} height={32}
+//         />,
+//         definition: 'Version',
+//     },
+//     {
+//         term: <FaCheck />,
+//         definition: 'In Collection',
+//     },
+//     {
+//         term: <FaThumbsUp />,
+//         definition: 'Update GameUPC',
+//     },
+// ];
 
 export const SelectVersion = ({ id }: { id: string }) => {
     const {
         currentInfoIndex,
         currentVersionIndex,
+        defaultImageUrl,
         hasInfos,
         currentInfoInCollection,
         currentVersionInCollection,
@@ -28,6 +65,8 @@ export const SelectVersion = ({ id }: { id: string }) => {
         versionClickHandler,
         versionHoverHandler,
         versionNameClickHandler,
+        updateGameUPC,
+        removeGameUPC,
     } = useSelectVersion(id);
 
     if (!hasInfos) {
@@ -50,12 +89,32 @@ export const SelectVersion = ({ id }: { id: string }) => {
     };
 
     const renderSelectedItem = (item: GameUPCBggInfo | GameUPCBggVersion) => {
-        return <div className="flex gap-1 items-center">{item.name}{
-            ((item as GameUPCBggInfo).id ?
-                currentInfoInCollection :
-                currentVersionInCollection)
-            && <FaCheck />
-        }</div>;
+        const isInfo = (item as GameUPCBggInfo).id >= 0;
+        const currentItem = item as GameUPCBggInfo & GameUPCBggVersion;
+        const showUpdate = (isInfo && currentVersionIndex === undefined ) || (!isInfo && currentVersionIndex !== undefined);
+        return <div className="flex gap-1 items-center justify-between">
+            <div className="flex items-center gap-3">
+                {item.name}{
+                (isInfo ?
+                        currentInfoInCollection :
+                     currentVersionInCollection) &&
+                        <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
+                }
+            </div>
+            <div>
+                {showUpdate && (
+                    <button onClick={updateGameUPC} className="btn flex text-xs p-2">
+                        <FaThumbsUp />
+                        <span className="hidden md:block">Update</span>
+                    </button>
+                )} {isInfo && currentItem.version_status === GameUPCVersionStatus.verified && (
+                    <button onClick={updateGameUPC} className="btn flex text-xs p-2">
+                        <FaThumbsDown />
+                        <span className="hidden md:block">Remove</span>
+                    </button>
+                )}
+            </div>
+        </div>;
     };
 
     return <>
@@ -65,8 +124,8 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 <h2 className="mb-1 text-center">{info?.name}</h2>
                 <div className="flex gap-2 items-center justify-center">
                     <ThumbnailBox
-                        alt={version?.name}
-                        url={version?.thumbnail_url}
+                        alt={version?.name ?? 'Default Game Image'}
+                        url={version?.thumbnail_url ?? defaultImageUrl}
                         size={150}
                     />
                     <div className="max-w-1/3">
@@ -77,11 +136,14 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 <h4 className="mb-1 text-center">{hoverVersion?.name}</h4>
             </div>
             <div className="bg-overlay min-w-1/2">
-                <div className="flex gap-1 items-center">
-                    <div className="tooltip shrink-0" data-tip="Game"><Image
-                        className="inline-block"
-                        src={'/icons/box-game.png'} alt="Game" width={32} height={32}
-                    /></div>
+                <div className="flex gap-2 items-center">
+                    <div className="tooltip shrink-0 flex flex-col items-center w-11" data-tip="Game">
+                        <Image
+                            className="inline-block"
+                            src={'/icons/box-game.png'} alt="Game" width={32} height={32}
+                        />
+                        <span className="text-xs">Game</span>
+                    </div>
                     <CollapsibleList
                         className="overflow-scroll h-50"
                         type="info"
@@ -95,11 +157,14 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     />
                 </div>
                 {currentInfoIndex !== null && versions && <div className="flex items-center gap-1.5">
-                    <div className="tooltip shrink-0" data-tip="Version"><Image
+                    <div className="tooltip shrink-0 flex flex-col items-center w-11" data-tip="Version">
+                        <Image
                         className="inline-block"
                         src={'/icons/box-version.png'}
                         alt="Version" width={32} height={32}
-                    /></div>
+                        />
+                        <span className="text-xs">Version</span>
+                    </div>
                     <CollapsibleList
                         className="overflow-scroll h-65 md:h-80 lg:h-100"
                         type="version"
@@ -115,5 +180,16 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 </div>}
             </div>
         </div>
+        {/*<div className="absolute bottom-2 right-4 border-2 p-3 bg-overlay rounded-xl border-gray-200">*/}
+        {/*    <dl>*/}
+        {/*        {glossary.map(entry =>*/}
+        {/*            renderDictionaryListItem(*/}
+        {/*                entry.term,*/}
+        {/*                entry.definition,*/}
+        {/*                'grid grid-cols-2'*/}
+        {/*            )*/}
+        {/*        )}*/}
+        {/*    </dl>*/}
+        {/*</div>*/}
     </>;
 };

@@ -9,6 +9,8 @@ export const useSelectVersion = (id: string) => {
     const {
         getGameData,
         gameDataMap,
+        submitOrVerifyGame,
+        removeGame,
     } = useGameUPCData();
 
     const {
@@ -18,6 +20,7 @@ export const useSelectVersion = (id: string) => {
 
     const { bgg_info: infos } = gameDataMap[id] ?? {};
 
+    const defaultImageUrl = infos?.[0]?.image_url;
     const [currentInfoIndex, setCurrentInfoIndex] = useState<number | null>(infos?.length === 1 ? 0 : null);
     const [currentVersionIndex, setCurrentVersionIndex] = useState<number | null>(infos?.[currentInfoIndex ?? 0]?.versions.length === 1 ? 0 : null);
 
@@ -26,9 +29,23 @@ export const useSelectVersion = (id: string) => {
 
     const [hoverVersionIndex, setHoverVersionIndex] = useState<number | null>(null);
 
-    const info = infos?.[currentInfoIndex ?? 0];
+    const info = infos?.[currentInfoIndex ?? -1];
     const versions = info?.versions;
-    const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? 0];
+    const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
+
+    const updateGameUPC = () => {
+        if (!selectedInfoId) {
+            return;
+        }
+        submitOrVerifyGame(id, selectedInfoId, selectedVersionId);
+    };
+
+    const removeGameUPC = () => {
+        if (!selectedInfoId) {
+            return;
+        }
+        removeGame(id, selectedInfoId, selectedVersionId);
+    }
 
     const {
         infoIndexes: infoIndexesInCollection,
@@ -184,6 +201,7 @@ export const useSelectVersion = (id: string) => {
     return {
         currentInfoIndex,
         currentVersionIndex,
+        defaultImageUrl,
         hasInfos: infos?.length > 0,
         currentInfoInCollection: currentInfoIndex !== null && infoIndexesInCollection.includes(currentInfoIndex),
         currentVersionInCollection: currentVersionIndex !== null && versionIndexesInCollection.includes(currentVersionIndex),
@@ -203,5 +221,7 @@ export const useSelectVersion = (id: string) => {
         versionHoverHandler,
         setCurrentSelection,
         restorePreviousSelection,
+        updateGameUPC,
+        removeGameUPC,
     };
 }
