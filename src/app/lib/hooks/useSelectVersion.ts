@@ -27,7 +27,6 @@ export const useSelectVersion = (id: string) => {
     }, [username]);
 
     const { bgg_info_status: status, bgg_info: infos } = gameDataMap[id] ?? {};
-    void status;
 
     const defaultImageUrl = infos?.[0]?.image_url;
     const [currentInfoIndex, setCurrentInfoIndex] = useState<number | null>(infos?.length === 1 ? 0 : null);
@@ -232,5 +231,6 @@ export const useSelectVersion = (id: string) => {
         restorePreviousSelection,
         updateGameUPC,
         removeGameUPC,
+        status,
     };
 }

@@ -52,6 +52,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         currentVersionIndex,
         defaultImageUrl,
         hasInfos,
+        status,
         currentInfoInCollection,
         currentVersionInCollection,
         info,
@@ -67,7 +68,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         versionHoverHandler,
         versionNameClickHandler,
         updateGameUPC,
-        // removeGameUPC,
+        removeGameUPC,
     } = useSelectVersion(id);
 
     if (!hasInfos) {
@@ -95,14 +96,16 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
     const renderSelectedItem = (item: GameUPCBggInfo | GameUPCBggVersion) => {
         const isInfo = (item as GameUPCBggInfo).id >= 0;
-        const currentItem = item as GameUPCBggInfo & GameUPCBggVersion;
-        const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== undefined);
+        const inCollection = isInfo ?
+                             currentInfoInCollection :
+                             currentVersionInCollection;
+        const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== -1);
+        const showRemove = isInfo ? status === GameUPCStatus.verified : info?.version_status === GameUPCStatus.verified;
+
         return <div className="flex gap-1 items-center justify-between">
             <div className="flex items-center gap-3">
                 {item.name}{
-                (isInfo ?
-                        currentInfoInCollection :
-                     currentVersionInCollection) &&
+                inCollection &&
                         <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
                 }
             </div>
@@ -115,8 +118,8 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         <FaThumbsUp />
                         <span className="hidden md:block">Update</span>
                     </button>
-                )} {isInfo && currentItem.version_status === GameUPCStatus.verified && (
-                    <button onClick={updateGameUPC} className="text-gray-500btn flex text-xs">
+                )} {showRemove && (
+                    <button onClick={removeGameUPC} className="text-gray-500 btn flex text-xs">
                         <FaThumbsDown />
                         <span className="hidden md:block">Remove</span>
                     </button>
