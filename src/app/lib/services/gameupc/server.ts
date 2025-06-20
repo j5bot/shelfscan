@@ -8,9 +8,8 @@ const gameUPCFetchOptions = {
     })
 };
 
-export const warmupGameUPCApi = async () => {
+export const warmupGameUPCApi = async () =>
     await fetch(`${gameUPCHost}/warmup`, gameUPCFetchOptions);
-};
 
 export const fetchGameDataForUpc = async (upc: string) => {
     return await fetch(`${gameUPCHost}/upc/${upc}`, gameUPCFetchOptions)

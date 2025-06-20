@@ -12,10 +12,18 @@ import { useEffect, useState, useTransition } from 'react';
 
 export type UseGameUPCApiOptions = {
     updaterId?: string;
+    username?: string;
 };
 
 export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
     const { updaterId = 'ShelfScan' } = options ?? {};
+
+    const [gameUPCUserId, setGameUPCUserId] = useState<string>(updaterId);
+
+    const setUpdater = (username?: string) => {
+        setGameUPCUserId(updaterId + username ? `/${username}` : '');
+    };
+
     const [isPending, startTransition] = useTransition();
     void isPending;
 
@@ -25,7 +33,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
     const [fetchingGameUPCs, setFetchingGameUPCs] = useState<string[]>([]);
 
     const gameUPCApiPostUserBody = JSON.stringify({
-        user_id: updaterId,
+        user_id: gameUPCUserId,
     });
 
     useEffect(() => {
@@ -86,5 +94,6 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         getGameData,
         removeGame,
         submitOrVerifyGame,
+        setUpdater,
     };
 };

@@ -22,7 +22,7 @@ export const BggCollectionForm = ()=> {
 
     const [isPending, startTransition] = useTransition();
     const [username, setUsername] = useState<string | undefined>();
-    const [collectionXml, setCollectionXml] = useState<string>();
+    // const [collectionXml, setCollectionXml] = useState<string>();
     const [userXml, setUserXml] = useState<string>();
     const [collectionItems, setCollectionItems] = useState<BggCollectionMap>();
 
@@ -72,7 +72,7 @@ export const BggCollectionForm = ()=> {
                 userXml = await bggGetUser(formData);
                 addResponseToCache({id: userCacheId, method: 'GET', response: userXml }).then();
             }
-            setCollectionXml(xml);
+            // setCollectionXml(xml);
             setUserXml(userXml);
             const items = getCollectionFromXml(xml);
 

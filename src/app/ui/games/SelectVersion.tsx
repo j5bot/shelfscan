@@ -4,10 +4,11 @@ import { useSelectVersion } from '@/app/lib/hooks/useSelectVersion';
 import {
     GameUPCBggInfo,
     GameUPCBggVersion,
-    GameUPCVersionStatus
+    GameUPCStatus
 } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { ConfidenceLevelIcon } from '@/app/ui/gameupc/ConfidenceLevelIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Image from 'next/image';
 import React, { ReactNode } from 'react';
@@ -66,7 +67,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         versionHoverHandler,
         versionNameClickHandler,
         updateGameUPC,
-        removeGameUPC,
+        // removeGameUPC,
     } = useSelectVersion(id);
 
     if (!hasInfos) {
@@ -101,13 +102,16 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
                 }
             </div>
-            <div>
+            <div className="flex gap-2 items-center">
+                <ConfidenceLevelIcon
+                    confidence={item.confidence}
+                />
                 {showUpdate && (
                     <button onClick={updateGameUPC} className="btn flex text-xs p-2">
                         <FaThumbsUp />
                         <span className="hidden md:block">Update</span>
                     </button>
-                )} {isInfo && currentItem.version_status === GameUPCVersionStatus.verified && (
+                )} {isInfo && currentItem.version_status === GameUPCStatus.verified && (
                     <button onClick={updateGameUPC} className="btn flex text-xs p-2">
                         <FaThumbsDown />
                         <span className="hidden md:block">Remove</span>

@@ -1,5 +1,5 @@
-export type GameUPCVersionStatus = 'verified' | 'none' | 'choose_from_versions' | 'choose_from_bgg_info_or_search' | 'choose_from_versions_or_search';
-export const GameUPCVersionStatus: Record<GameUPCVersionStatus, GameUPCVersionStatus> = {
+export type GameUPCStatus = 'verified' | 'none' | 'choose_from_versions' | 'choose_from_bgg_info_or_search' | 'choose_from_versions_or_search';
+export const GameUPCStatus: Record<GameUPCStatus, GameUPCStatus> = {
     verified: 'verified',
     none: 'none',
     choose_from_versions: 'choose_from_versions',
@@ -7,7 +7,7 @@ export const GameUPCVersionStatus: Record<GameUPCVersionStatus, GameUPCVersionSt
     choose_from_versions_or_search: 'choose_from_versions_or_search',
 };
 
-export const GameUPCVersionStatusText: Record<GameUPCVersionStatus, string> = {
+export const GameUPCVersionStatusText: Record<GameUPCStatus, string> = {
     verified: 'Verified',
     none: 'Not found',
     choose_from_versions: 'Choose from the available versions',
@@ -21,7 +21,7 @@ export type GameUPCData = {
     upc: string;
     name: string;
     searched_for: string;
-    bgg_info_status: GameUPCVersionStatus;
+    bgg_info_status: GameUPCStatus;
     bgg_info: GameUPCBggInfo[];
 };
 
@@ -34,7 +34,7 @@ export type GameUPCBggInfo = {
     image_url: string;
     data_url: string;
     update_url: string;
-    version_status: GameUPCVersionStatus;
+    version_status: GameUPCStatus;
     versions: GameUPCBggVersion[];
 };
 

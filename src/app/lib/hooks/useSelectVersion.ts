@@ -2,15 +2,19 @@ import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks/index';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
+import { RootState } from '@/app/lib/redux/store';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import React, { useCallback, useEffect, useState } from 'react';
 
 export const useSelectVersion = (id: string) => {
+    const username = useSelector((state: RootState) => state.bgg.user?.user);
+
     const {
         getGameData,
         gameDataMap,
         submitOrVerifyGame,
         removeGame,
+        setUpdater,
     } = useGameUPCData();
 
     const {
@@ -18,7 +22,12 @@ export const useSelectVersion = (id: string) => {
         setGameSelections,
     } = useGameSelections();
 
-    const { bgg_info: infos } = gameDataMap[id] ?? {};
+    useEffect(() => {
+        setUpdater(username);
+    }, [username]);
+
+    const { bgg_info_status: status, bgg_info: infos } = gameDataMap[id] ?? {};
+    void status;
 
     const defaultImageUrl = infos?.[0]?.image_url;
     const [currentInfoIndex, setCurrentInfoIndex] = useState<number | null>(infos?.length === 1 ? 0 : null);
