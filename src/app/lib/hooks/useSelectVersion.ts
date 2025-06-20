@@ -60,12 +60,6 @@ export const useSelectVersion = (id: string) => {
         versionIndexes: versionIndexesInCollection,
     } = useSelector(state => getIndexesInCollectionFromInfos(state, infos));
 
-    // const collectionItems = useSelector(state => getItemsInCollectionById(state, info?.id));
-    // const collectionVersions = useSelector(state => getVersionsInCollectionById(state, version?.version_id));
-    //
-    // const infoUpdateUrl = info?.update_url;
-    // const versionUpdateUrl = version?.update_url;
-
     useEffect(() => {
         if (!id) {
             return;
@@ -87,10 +81,13 @@ export const useSelectVersion = (id: string) => {
             return;
         }
         if (versionIndex === -1) {
+            setSelectedInfoId(infos[infoIndex].id);
             gameSelections[id] = [infos[infoIndex].id];
             setGameSelections(gameSelections);
             return;
         }
+        setSelectedInfoId(infos[infoIndex].id);
+        setSelectedVersionId(versions[versionIndex].version_id);
         gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
         setGameSelections(gameSelections);
     }, [gameSelections, setGameSelections, infos, versions]);
