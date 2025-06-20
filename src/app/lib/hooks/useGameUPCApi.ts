@@ -48,11 +48,11 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         return () => { warming = false; };
     }, [warmed]);
 
-    const getGameData = async (upc: string): Promise<GameUPCData | undefined> => {
+    const getGameData = async (upc: string, search?: string): Promise<GameUPCData | undefined> => {
         if (fetchingGameUPCs.includes(upc)) {
             return undefined;
         }
-        if (gameUPCs.includes(upc)) {
+        if (gameUPCs.includes(upc) && (!search || search?.length === 0)) {
             return gameDataMap[upc];
         }
 
@@ -60,7 +60,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         setFetchingGameUPCs(fetchingGameUPCs);
 
         startTransition(async () => {
-            const gameData = fetchGameDataForUpc(upc)
+            const gameData = fetchGameDataForUpc(upc, search)
                 .then(data => {
                     gameUPCs.push(upc);
                     setGameUPCs(gameUPCs);
@@ -93,7 +93,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         gameDataMap,
         getGameData,
         removeGame,
-        submitOrVerifyGame,
         setUpdater,
+        submitOrVerifyGame,
     };
 };

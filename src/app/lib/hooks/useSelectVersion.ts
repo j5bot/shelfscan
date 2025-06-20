@@ -76,6 +76,10 @@ export const useSelectVersion = (id: string) => {
         getGameData(id).then();
     }, [id, gameDataMap[id]]);
 
+    const searchGameUPC = (search: string) => {
+        getGameData(id, search).then();
+    };
+
     const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
         if (infoIndex === -1) {
             delete gameSelections[id];
@@ -229,6 +233,7 @@ export const useSelectVersion = (id: string) => {
         versionHoverHandler,
         setCurrentSelection,
         restorePreviousSelection,
+        searchGameUPC,
         updateGameUPC,
         removeGameUPC,
         status,

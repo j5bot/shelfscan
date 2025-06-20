@@ -14,13 +14,13 @@ type ConfidenceLevelPath = ValueOf<typeof ConfidenceLevelPaths>;
 
 const getConfidenceLevelPath = (confidence: number): ConfidenceLevelPath => {
     switch (true) {
-        case confidence > 80:
+        case confidence >= 90:
             return ConfidenceLevelPaths.FULL;
-        case confidence > 60:
+        case confidence >= 70:
             return ConfidenceLevelPaths.HIGH;
-        case confidence > 40:
+        case confidence >= 50:
             return ConfidenceLevelPaths.MEDIUM;
-        case confidence > 20:
+        case confidence >= 30:
             return ConfidenceLevelPaths.LOW
         default:
             return ConfidenceLevelPaths.POOR;

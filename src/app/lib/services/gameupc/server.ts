@@ -12,8 +12,12 @@ export const warmupGameUPCApi = async () => {
     await fetch(`${gameUPCHost}/warmup`, gameUPCFetchOptions);
 };
 
-export const fetchGameDataForUpc = async (upc: string) => {
-    return await fetch(`${gameUPCHost}/upc/${upc}`, gameUPCFetchOptions)
+export const fetchGameDataForUpc = async (upc: string, search?: string) => {
+    const url = new URL(`${gameUPCHost}/upc/${upc}`);
+    if (search && search.length > 0) {
+        url.searchParams.append('search', search);
+    }
+    return await fetch(url.toString(), gameUPCFetchOptions)
         .then(response => response.json());
 };
 
