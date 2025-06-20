@@ -9,10 +9,8 @@ import {
 import { GameUPCData } from '@/app/lib/types/GameUPCData';
 import { useEffect, useState, useTransition } from 'react';
 
-
 export type UseGameUPCApiOptions = {
     updaterId?: string;
-    username?: string;
 };
 
 export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
