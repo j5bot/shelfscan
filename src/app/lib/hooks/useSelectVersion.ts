@@ -2,13 +2,19 @@ import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks/index';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
+import { RootState } from '@/app/lib/redux/store';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import React, { useCallback, useEffect, useState } from 'react';
 
 export const useSelectVersion = (id: string) => {
+    const username = useSelector((state: RootState) => state.bgg.user?.user);
+
     const {
         getGameData,
         gameDataMap,
+        submitOrVerifyGame,
+        removeGame,
+        setUpdater,
     } = useGameUPCData();
 
     const {
@@ -16,8 +22,13 @@ export const useSelectVersion = (id: string) => {
         setGameSelections,
     } = useGameSelections();
 
-    const { bgg_info: infos } = gameDataMap[id] ?? {};
+    useEffect(() => {
+        setUpdater(username);
+    }, [username]);
 
+    const { bgg_info_status: status, bgg_info: infos } = gameDataMap[id] ?? {};
+
+    const defaultImageUrl = infos?.[0]?.image_url;
     const [currentInfoIndex, setCurrentInfoIndex] = useState<number | null>(infos?.length === 1 ? 0 : null);
     const [currentVersionIndex, setCurrentVersionIndex] = useState<number | null>(infos?.[currentInfoIndex ?? 0]?.versions.length === 1 ? 0 : null);
 
@@ -26,9 +37,23 @@ export const useSelectVersion = (id: string) => {
 
     const [hoverVersionIndex, setHoverVersionIndex] = useState<number | null>(null);
 
-    const info = infos?.[currentInfoIndex ?? 0];
+    const info = infos?.[currentInfoIndex ?? -1];
     const versions = info?.versions;
-    const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? 0];
+    const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
+
+    const updateGameUPC = () => {
+        if (!selectedInfoId) {
+            return;
+        }
+        submitOrVerifyGame(id, selectedInfoId, selectedVersionId);
+    };
+
+    const removeGameUPC = () => {
+        if (!selectedInfoId) {
+            return;
+        }
+        removeGame(id, selectedInfoId, selectedVersionId);
+    }
 
     const {
         infoIndexes: infoIndexesInCollection,
@@ -50,6 +75,10 @@ export const useSelectVersion = (id: string) => {
         }
         getGameData(id).then();
     }, [id, gameDataMap[id]]);
+
+    const searchGameUPC = (search: string) => {
+        getGameData(id, search).then();
+    };
 
     const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
         if (infoIndex === -1) {
@@ -92,6 +121,7 @@ export const useSelectVersion = (id: string) => {
         if (infos?.length === 1) {
             setCurrentInfoIndex(0);
             setCurrentSelection(0, -1);
+            setSelectedInfoId(infos[0].id);
             return;
         }
         if ((selectedInfoId ?? -1) > -1) {
@@ -99,6 +129,7 @@ export const useSelectVersion = (id: string) => {
         }
         setCurrentInfoIndex(null);
         setCurrentVersionIndex(null);
+        setSelectedInfoId(undefined);
         setHoverVersionIndex(null);
     }, [
         id,
@@ -114,12 +145,14 @@ export const useSelectVersion = (id: string) => {
         if (infos?.[currentInfoIndex].versions.length === 1) {
             setCurrentVersionIndex(0);
             setCurrentSelection(currentInfoIndex, 0);
+            setSelectedVersionId(infos?.[currentInfoIndex]?.versions?.[0].version_id);
             return;
         }
         if ((selectedVersionId ?? -1) > -1) {
             return;
         }
         setCurrentVersionIndex(null);
+        setSelectedVersionId(undefined);
         setHoverVersionIndex(null);
     }, [
         id,
@@ -184,6 +217,7 @@ export const useSelectVersion = (id: string) => {
     return {
         currentInfoIndex,
         currentVersionIndex,
+        defaultImageUrl,
         hasInfos: infos?.length > 0,
         currentInfoInCollection: currentInfoIndex !== null && infoIndexesInCollection.includes(currentInfoIndex),
         currentVersionInCollection: currentVersionIndex !== null && versionIndexesInCollection.includes(currentVersionIndex),
@@ -203,5 +237,9 @@ export const useSelectVersion = (id: string) => {
         versionHoverHandler,
         setCurrentSelection,
         restorePreviousSelection,
+        searchGameUPC,
+        updateGameUPC,
+        removeGameUPC,
+        status,
     };
 }

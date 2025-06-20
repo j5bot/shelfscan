@@ -1,7 +1,6 @@
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import {
-    GameUPCData,
-    GameUPCVersionStatus,
+    GameUPCData, GameUPCStatus,
     GameUPCVersionStatusText
 } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
@@ -64,22 +63,22 @@ export function Scanlist(props: ScanlistProps) {
         const overlayIconSize = (smallSquareSize ?? 100) * 0.5;
 
         switch (bggInfoStatus) {
-            case GameUPCVersionStatus.verified:
+            case GameUPCStatus.verified:
                 statusIcon = <FaCheckCircle className={statusIconClassName} title="VerifiGameUPCVersionStatused" />;
                 break;
-            case GameUPCVersionStatus.none:
+            case GameUPCStatus.none:
                 statusIcon = <FaQuestionCircle className={statusIconClassName} title="Unknown" />;
                 overlayIcon = <FaSearchPlus title="Must Search" color="white" size={overlayIconSize} />
                 break;
-            case GameUPCVersionStatus.choose_from_versions:
+            case GameUPCStatus.choose_from_versions:
                 statusIcon = <FaSearch className={statusIconClassName} title="Choose From Versions" />;
                 overlayIcon = <FaSearch title="Must Search" color="white" size={overlayIconSize} />
                 break;
-            case GameUPCVersionStatus.choose_from_bgg_info_or_search:
+            case GameUPCStatus.choose_from_bgg_info_or_search:
                 statusIcon = <FaSearchPlus className={statusIconClassName} title="Choose or Search" />;
                 overlayIcon = <FaSearchPlus title="Must Search" color="white" size={overlayIconSize} />
                 break;
-            case GameUPCVersionStatus.choose_from_versions_or_search:
+            case GameUPCStatus.choose_from_versions_or_search:
                 statusIcon = <FaSearchPlus className={statusIconClassName} title="Choose or Search" />;
                 overlayIcon = <FaSearchPlus title="Must Search" color="white" size={overlayIconSize} />
                 break;

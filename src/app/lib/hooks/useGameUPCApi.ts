@@ -9,13 +9,19 @@ import {
 import { GameUPCData } from '@/app/lib/types/GameUPCData';
 import { useEffect, useState, useTransition } from 'react';
 
-
 export type UseGameUPCApiOptions = {
     updaterId?: string;
 };
 
 export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
     const { updaterId = 'ShelfScan' } = options ?? {};
+
+    const [gameUPCUserId, setGameUPCUserId] = useState<string>(updaterId);
+
+    const setUpdater = (username?: string) => {
+        setGameUPCUserId(updaterId + (username ? `/${username}` : ''));
+    };
+
     const [isPending, startTransition] = useTransition();
     void isPending;
 
@@ -25,7 +31,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
     const [fetchingGameUPCs, setFetchingGameUPCs] = useState<string[]>([]);
 
     const gameUPCApiPostUserBody = JSON.stringify({
-        user_id: updaterId,
+        user_id: gameUPCUserId,
     });
 
     useEffect(() => {
@@ -40,11 +46,11 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         return () => { warming = false; };
     }, [warmed]);
 
-    const getGameData = async (upc: string): Promise<GameUPCData | undefined> => {
+    const getGameData = async (upc: string, search?: string): Promise<GameUPCData | undefined> => {
         if (fetchingGameUPCs.includes(upc)) {
             return undefined;
         }
-        if (gameUPCs.includes(upc)) {
+        if (gameUPCs.includes(upc) && (!search || search?.length === 0)) {
             return gameDataMap[upc];
         }
 
@@ -52,7 +58,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         setFetchingGameUPCs(fetchingGameUPCs);
 
         startTransition(async () => {
-            const gameData = fetchGameDataForUpc(upc)
+            const gameData = fetchGameDataForUpc(upc, search)
                 .then(data => {
                     gameUPCs.push(upc);
                     setGameUPCs(gameUPCs);
@@ -85,6 +91,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         gameDataMap,
         getGameData,
         removeGame,
+        setUpdater,
         submitOrVerifyGame,
     };
 };
