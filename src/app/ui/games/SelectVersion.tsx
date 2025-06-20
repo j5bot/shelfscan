@@ -77,14 +77,18 @@ export const SelectVersion = ({ id }: { id: string }) => {
     const renderItem = (info: GameUPCBggInfo, index: number): ReactNode => {
         return <div className="flex items-center justify-start gap-2">{info.name}{
             isInfoInCollection(index) && <FaCheck />
-        }</div>;
+        } <ConfidenceLevelIcon
+            confidence={info.confidence}
+        /></div>;
     };
 
     const renderVersionItem = (version: GameUPCBggVersion, index: number): ReactNode => {
         return <div className="flex flex-col items-start">
             <div className="flex gap-2 items-center">{version.name}{
                 isVersionInCollection(index) && <FaCheck />
-            }</div>
+            } <ConfidenceLevelIcon
+                confidence={version.confidence}
+            /></div>
             <div className="text-accent">{version.language} {version.published}</div>
         </div>
     };
@@ -92,7 +96,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
     const renderSelectedItem = (item: GameUPCBggInfo | GameUPCBggVersion) => {
         const isInfo = (item as GameUPCBggInfo).id >= 0;
         const currentItem = item as GameUPCBggInfo & GameUPCBggVersion;
-        const showUpdate = (isInfo && currentVersionIndex === undefined ) || (!isInfo && currentVersionIndex !== undefined);
+        const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== undefined);
         return <div className="flex gap-1 items-center justify-between">
             <div className="flex items-center gap-3">
                 {item.name}{
@@ -107,12 +111,12 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     confidence={item.confidence}
                 />
                 {showUpdate && (
-                    <button onClick={updateGameUPC} className="btn flex text-xs p-2">
+                    <button onClick={updateGameUPC} className="text-gray-500 btn flex text-xs">
                         <FaThumbsUp />
                         <span className="hidden md:block">Update</span>
                     </button>
                 )} {isInfo && currentItem.version_status === GameUPCStatus.verified && (
-                    <button onClick={updateGameUPC} className="btn flex text-xs p-2">
+                    <button onClick={updateGameUPC} className="text-gray-500btn flex text-xs">
                         <FaThumbsDown />
                         <span className="hidden md:block">Remove</span>
                     </button>
@@ -132,7 +136,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         url={version?.thumbnail_url ?? defaultImageUrl}
                         size={150}
                     />
-                    <div className="max-w-1/3">
+                    <div className="w-content lg:max-w-2/3">
                         <div className="border-b-1 border-b-gray-300">{version?.name}</div>
                         <h4>{version?.published}</h4>
                     </div>
