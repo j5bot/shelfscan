@@ -38,7 +38,8 @@ export const CollapsibleList =
     const [itemsClosed, setItemsClosed] = useState<boolean>(true);
 
     const selectedItemClickHandler = <CE extends HTMLElement,>(e: React.MouseEvent<CE>) => {
-        if (e.currentTarget.tagName !== 'DIV') {
+        // @ts-expect-error casting to unknown should work, right?
+        if ((e.target as unknown).tagName !== 'DIV') {
             return;
         }
         onClick(e);

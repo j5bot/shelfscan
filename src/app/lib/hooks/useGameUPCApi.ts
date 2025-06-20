@@ -21,7 +21,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
     const [gameUPCUserId, setGameUPCUserId] = useState<string>(updaterId);
 
     const setUpdater = (username?: string) => {
-        setGameUPCUserId(updaterId + username ? `/${username}` : '');
+        setGameUPCUserId(updaterId + (username ? `/${username}` : ''));
     };
 
     const [isPending, startTransition] = useTransition();

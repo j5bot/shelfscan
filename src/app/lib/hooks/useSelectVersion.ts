@@ -121,6 +121,7 @@ export const useSelectVersion = (id: string) => {
         if (infos?.length === 1) {
             setCurrentInfoIndex(0);
             setCurrentSelection(0, -1);
+            setSelectedInfoId(infos[0].id);
             return;
         }
         if ((selectedInfoId ?? -1) > -1) {
@@ -128,6 +129,7 @@ export const useSelectVersion = (id: string) => {
         }
         setCurrentInfoIndex(null);
         setCurrentVersionIndex(null);
+        setSelectedInfoId(undefined);
         setHoverVersionIndex(null);
     }, [
         id,
@@ -143,12 +145,14 @@ export const useSelectVersion = (id: string) => {
         if (infos?.[currentInfoIndex].versions.length === 1) {
             setCurrentVersionIndex(0);
             setCurrentSelection(currentInfoIndex, 0);
+            setSelectedVersionId(infos?.[currentInfoIndex]?.versions?.[0].version_id);
             return;
         }
         if ((selectedVersionId ?? -1) > -1) {
             return;
         }
         setCurrentVersionIndex(null);
+        setSelectedVersionId(undefined);
         setHoverVersionIndex(null);
     }, [
         id,

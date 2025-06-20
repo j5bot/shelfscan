@@ -117,15 +117,15 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
         return <div className="flex gap-1 items-center justify-between">
             <div className="flex items-center gap-3">
-                {item.name}{
+                {item?.name}{
                 inCollection &&
                         <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
                 }
             </div>
-            <div className="flex gap-2 items-center" data-confidence={item.confidence}>
+            <div className="flex gap-2 items-center" data-confidence={item?.confidence}>
                 <ConfidenceLevelIcon
-                    confidence={item.confidence}
-                    barColor={item.confidence >= 90 ? 'green' : item.confidence < 20 ? 'red' : 'currentColor' }
+                    confidence={item?.confidence}
+                    barColor={item?.confidence >= 90 ? 'green' : item?.confidence < 20 ? 'red' : 'currentColor' }
                 />
                 {showUpdate && (
                     <button onClick={updateGameUPC} className="text-gray-500 btn flex text-xs">
