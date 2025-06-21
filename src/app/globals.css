@@ -46,3 +46,11 @@ h3 {
 .react-barcode-scanner-container {
   border-radius: var(--radius-2xl);
 }
+
+@media only screen and (hover: none) and (pointer: coarse) {
+  input:focus,
+  select:focus,
+  textarea:focus {
+    font-size: 16px;
+  }
+}
