@@ -157,10 +157,10 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         size={150}
                     />
                     <div className="flex flex-col gap-2 w-content lg:max-w-2/3">
-                        <div className="grow">
+                        {version?.name && <div className="grow">
                             <div className="border-b-1 border-b-gray-300">{version?.name}</div>
                             <h4>{version?.published}</h4>
-                        </div>
+                        </div>}
                         <div className="shrink pb-1">
                             <details className="flex gap-1.5">
                                 <summary className="text-gray-500 btn h-7 p-0">
