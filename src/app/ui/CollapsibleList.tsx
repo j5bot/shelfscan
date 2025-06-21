@@ -54,7 +54,7 @@ export const CollapsibleList =
     return itemsClosed && selectedItemIndex !== null ?
      <div
          className={`rounded-sm w-full mb-1 bg-orange-50 p-2 ${(selectedItemIndex ?? -1) >= 0 && items.length > 1 ? 'cursor-pointer' : ''}`}
-         onClick={selectedItemClickHandler}
+         onClick={items.length > 1 ? selectedItemClickHandler : undefined}
      >
          {renderSelectedItem(items[selectedItemIndex ?? 0])}
      </div> :

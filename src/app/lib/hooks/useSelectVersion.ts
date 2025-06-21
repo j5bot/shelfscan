@@ -174,6 +174,7 @@ export const useSelectVersion = (id: string) => {
 
         const currentInfo = parseInt(index, 10);
         setCurrentInfoIndex(currentInfo);
+        setCurrentVersionIndex(null);
         setCurrentSelection(currentInfo, -1);
     }) as CollapsibleListProps<unknown>['onSelect'];
 

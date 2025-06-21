@@ -122,7 +122,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
                 }
             </div>
-            <div className="flex gap-2 items-center" data-confidence={item?.confidence}>
+            <div className="flex gap-0.5 items-center" data-confidence={item?.confidence}>
                 <SvgCssGauge
                     className="m-0.5"
                     duration={0.5}
@@ -131,12 +131,12 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     value={confidence}
                 />
                 {showUpdate && (
-                    <button onClick={updateGameUPC} className="text-gray-500 btn flex text-xs">
+                    <button onClick={updateGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
                         <FaThumbsUp />
                         <span className="hidden md:block">Update</span>
                     </button>
                 )} {showRemove && (
-                    <button onClick={removeGameUPC} className="text-gray-500 btn flex text-xs">
+                    <button onClick={removeGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
                         <FaThumbsDown />
                         <span className="hidden md:block">Remove</span>
                     </button>
@@ -187,7 +187,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 </div>
                 <h4 className="mb-1 text-center">{hoverVersion?.name}</h4>
             </div>
-            <div className="bg-overlay min-w-1/2">
+            <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
                 <div className="flex gap-2 items-center">
                     <div className="tooltip shrink-0 flex flex-col items-center w-11" data-tip="Game">
                         <Image
