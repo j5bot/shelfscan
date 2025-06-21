@@ -8,12 +8,27 @@ import {
 } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
-import { ConfidenceLevelIcon } from '@/app/ui/gameupc/ConfidenceLevelIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
+import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
 import React, { ReactNode, SyntheticEvent, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight, FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+
+const getConfidenceLevelColor = (confidence: number) => {
+    switch (true) {
+        case confidence >= 90:
+            return 'lightgreen';
+        case confidence >= 60:
+            return 'lightblue';
+        case confidence >= 45:
+            return 'gold';
+        case confidence >= 30:
+            return 'orange';
+        default:
+            return 'crimson';
+    }
+};
 
 export const SelectVersion = ({ id }: { id: string }) => {
     const {
@@ -57,25 +72,42 @@ export const SelectVersion = ({ id }: { id: string }) => {
     };
 
     const renderItem = (info: GameUPCBggInfo, index: number): ReactNode => {
-        return <div className="flex items-center justify-start gap-2">{info.name}{
-            isInfoInCollection(index) && <FaCheck />
-        } <ConfidenceLevelIcon
-            confidence={info.confidence}
-        /></div>;
+        const { confidence, name } = info;
+        const confidenceLevelColor = getConfidenceLevelColor(confidence);
+
+        return <div className="flex items-center justify-start gap-2">
+            <div>{name}{
+                isInfoInCollection(index) && <FaCheck />
+            }</div>
+            <SvgCssGauge className="shrink-0 m-0.5"
+                         color={confidenceLevelColor}
+                         fill={confidenceLevelColor}
+                         value={confidence} />
+        </div>;
     };
 
-    const renderVersionItem = (version: GameUPCBggVersion, index: number): ReactNode => {
+    const renderVersionItem = (item: GameUPCBggVersion, index: number): ReactNode => {
+        const { confidence, name, language, published } = item;
+        const confidenceLevelColor = getConfidenceLevelColor(confidence);
+
         return <div className="flex flex-col items-start">
-            <div className="flex gap-2 items-center">{version.name}{
+            <div className="flex gap-2 items-center">
+                <div>{name}{
                 isVersionInCollection(index) && <FaCheck />
-            } <ConfidenceLevelIcon
-                confidence={version.confidence}
-            /></div>
-            <div className="text-accent">{version.language} {version.published}</div>
+                }</div>
+                <SvgCssGauge className="shrink-0 m-0.5"
+                             color={confidenceLevelColor}
+                             fill={confidenceLevelColor}
+                             value={confidence} />
+            </div>
+            <div className="text-accent">{language} {published}</div>
         </div>
     };
 
     const renderSelectedItem = (item: GameUPCBggInfo | GameUPCBggVersion) => {
+        const { confidence } = item;
+        const confidenceLevelColor = getConfidenceLevelColor(confidence);
+
         const isInfo = (item as GameUPCBggInfo)?.id >= 0;
         const inCollection = isInfo ?
                              currentInfoInCollection :
@@ -91,9 +123,12 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 }
             </div>
             <div className="flex gap-2 items-center" data-confidence={item?.confidence}>
-                <ConfidenceLevelIcon
-                    confidence={item?.confidence}
-                    barColor={item?.confidence >= 90 ? 'green' : item?.confidence < 20 ? 'red' : 'currentColor' }
+                <SvgCssGauge
+                    className="m-0.5"
+                    duration={0.5}
+                    fill={confidenceLevelColor}
+                    color={confidenceLevelColor}
+                    value={confidence}
                 />
                 {showUpdate && (
                     <button onClick={updateGameUPC} className="text-gray-500 btn flex text-xs">

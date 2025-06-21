@@ -1,0 +1,103 @@
+@property --svg-css-gauge-value {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 100;
+}
+
+@property --svg-css-gauge-start-value {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+}
+
+@property --svg-css-gauge-animate-easing {
+    syntax: "*";
+    inherits: true;
+    initial-value: ease-in-out;
+}
+
+@property --svg-css-gauge-animate-duration {
+    syntax: "<time>";
+    inherits: true;
+    initial-value: 1s;
+}
+
+@property --svg-css-gauge-rotate {
+    syntax: "<angle>";
+    inherits: true;
+    initial-value: 0deg;
+}
+
+@property --svg-css-gauge-radius {
+    syntax: "<length-percentage>";
+    inherits: true;
+    initial-value: 40%;
+}
+
+@property --svg-css-gauge-background {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: none;
+}
+
+@property --svg-css-gauge-fill {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: none;
+}
+
+@property --svg-css-gauge-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: none;
+}
+
+@property --svg-css-gauge-width {
+    syntax: "<length-percentage>";
+    inherits: true;
+    initial-value: 15%;
+}
+
+@property --svg-css-gauge-gap {
+    syntax: "<length-percentage>";
+    inherits: true;
+    initial-value: 3%;
+}
+
+@property --svg-css-gauge-cap {
+    syntax: "*";
+    inherits: true;
+    initial-value: none;
+}
+
+.svg-css-gauge {
+    background-color: var(--svg-css-gauge-background);
+    stroke-dasharray: var(--svg-css-gauge-value) 200;
+    animation: svg-css-gauge-animation var(--svg-css-gauge-animate-duration) var(--svg-css-gauge-animate-easing) 1;
+}
+
+.svg-css-gauge svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(calc(-90deg + var(--svg-css-gauge-rotate)));
+}
+
+.svg-css-gauge svg circle:first-of-type {
+    stroke: var(--svg-css-gauge-color);
+    stroke-width: var(--svg-css-gauge-width);
+    stroke-linecap: var(--svg-css-gauge-cap);
+    r: var(--svg-css-gauge-radius);
+}
+.svg-css-gauge svg circle:nth-of-type(2) {
+    fill: var(--svg-css-gauge-fill);
+    r: calc(var(--svg-css-gauge-radius) - var(--svg-css-gauge-gap) - (var(--svg-css-gauge-width) / 2));
+}
+
+@keyframes svg-css-gauge-animation {
+    from {
+        stroke-dasharray: var(--svg-css-gauge-start-value) 200;
+    }
+    to {
+        stroke-dasharray: var(--svg-css-gauge-value) 200;
+    }
+}
