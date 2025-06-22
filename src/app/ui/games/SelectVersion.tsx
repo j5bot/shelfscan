@@ -153,7 +153,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <div className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3">
-                <h2 className="mb-1 text-center">{info?.name}</h2>
+                <h2 className="mb-1 text-center uppercase">{info?.name}</h2>
                 <div className="flex gap-2 items-stretch justify-center">
                     <ThumbnailBox
                         alt={version?.name ?? 'Default Game Image'}
