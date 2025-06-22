@@ -8,6 +8,7 @@ import {
 } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { InCollectionIcon } from '@/app/ui/icons/InCollectionIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
@@ -121,8 +122,14 @@ export const SelectVersion = ({ id }: { id: string }) => {
             <div className="flex items-center gap-3">
                 {item?.name}{
                 inCollection &&
-                        <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
-                }
+                (
+                    <>
+                        <div className="tooltip inline-block" data-tooltip="In Collection X">
+                            <InCollectionIcon fill="currentColor" className="w-4 h-4" />
+                        </div>
+                        {/*<FaCheck className="tooltip inline-block" data-tooltip="In Collection" />*/}
+                    </>
+                )}
             </div>
             <div className="flex gap-0.5 items-center" data-confidence={item?.confidence}>
                 <SvgCssGauge
@@ -133,15 +140,21 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     value={confidence}
                 />
                 {showUpdate && (
-                    <button disabled={isUpdating}
-                        onClick={updateGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
-                        <FaThumbsUp />
+                    <button
+                        disabled={isUpdating}
+                        onClick={updateGameUPC}
+                        className="text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                    >
+                        <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
                         <span className="hidden md:block">Update</span>
                     </button>
                 )} {showRemove && (
-                    <button disabled={isRemoving}
-                        onClick={removeGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
-                        <FaThumbsDown />
+                    <button
+                        disabled={isRemoving}
+                        onClick={removeGameUPC}
+                        className="text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                    >
+                        <FaThumbsDown className="md:w-2.5 md:h-2.5" />
                         <span className="hidden md:block">Remove</span>
                     </button>
                 )}
