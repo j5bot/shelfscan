@@ -14,7 +14,7 @@ import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
 import React, { ReactNode, SyntheticEvent, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { FaCaretRight, FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+import { FaCaretRight, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
@@ -42,7 +42,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
         currentVersionInCollection,
         info,
         version,
-        hoverVersion,
         infos,
         versions,
         isInfoInCollection,
