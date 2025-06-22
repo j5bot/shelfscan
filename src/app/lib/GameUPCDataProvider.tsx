@@ -1,4 +1,4 @@
-import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApi';
+import { useGameUPCApi } from '@/app/lib/hooks/useGameUPCApiWithPending';
 import { createContext, ReactNode, useContext } from 'react';
 
 const GameUPCDataContext =
