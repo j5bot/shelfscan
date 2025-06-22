@@ -54,6 +54,8 @@ export const SelectVersion = ({ id }: { id: string }) => {
         updateGameUPC,
         removeGameUPC,
         searchGameUPC,
+        isUpdating,
+        isRemoving,
     } = useSelectVersion(id);
 
     const [searchString, setSearchString] = useState<string>('');
@@ -131,12 +133,14 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     value={confidence}
                 />
                 {showUpdate && (
-                    <button onClick={updateGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
+                    <button disabled={isUpdating}
+                        onClick={updateGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
                         <FaThumbsUp />
                         <span className="hidden md:block">Update</span>
                     </button>
                 )} {showRemove && (
-                    <button onClick={removeGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
+                    <button disabled={isRemoving}
+                        onClick={removeGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
                         <FaThumbsDown />
                         <span className="hidden md:block">Remove</span>
                     </button>
