@@ -15,6 +15,8 @@ export const useSelectVersion = (id: string) => {
         submitOrVerifyGame,
         removeGame,
         setUpdater,
+        isSubmitPending,
+        isRemovePending,
     } = useGameUPCData();
 
     const {
@@ -42,14 +44,14 @@ export const useSelectVersion = (id: string) => {
     const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
 
     const updateGameUPC = () => {
-        if (!selectedInfoId) {
+        if (!selectedInfoId || isSubmitPending) {
             return;
         }
         submitOrVerifyGame(id, selectedInfoId, selectedVersionId);
     };
 
     const removeGameUPC = () => {
-        if (!selectedInfoId) {
+        if (!selectedInfoId || isRemovePending) {
             return;
         }
         removeGame(id, selectedInfoId, selectedVersionId);
@@ -238,6 +240,8 @@ export const useSelectVersion = (id: string) => {
         searchGameUPC,
         updateGameUPC,
         removeGameUPC,
+        isUpdating: isSubmitPending,
+        isRemoving: isRemovePending,
         status,
     };
 }
