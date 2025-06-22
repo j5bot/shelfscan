@@ -44,6 +44,9 @@ export const BggCollectionForm = ()=> {
     }, [collectionItems, username, userXml]);
 
     const getCollectionAction = async (formData: FormData) => {
+        if (isPending) {
+            return;
+        }
         startTransition(async () => {
             const username = formData.get('username')?.toString();
             const id = getCacheIdForCollection(formData);
@@ -98,8 +101,8 @@ export const BggCollectionForm = ()=> {
                     name="getCollection"
                     disabled={isPending} aria-disabled={isPending}
                     type="submit"
-                >
-                    Get Collection
+                >{isPending ? <span className="loading loading-bars loading-xs" />
+                     : <>Get Collection</>}
                 </button>
                 <label style={labelStyle} htmlFor="useCache">
                     <input disabled={isPending}
