@@ -1,5 +1,6 @@
 'use client';
 
+import { loader } from '@/app/(overview)/loading';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
@@ -9,11 +10,6 @@ import { Scanner } from '@/app/ui/Scanner';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useEffect, useState } from 'react';
 import { hasSeenTour } from '../lib/tours';
-
-const loader = <div className="w-1/2 h-30 bg-overlay flex flex-col justify-center items-center">
-    <div className="loading loading-bars loading-xl" />
-    <div>Warming up...</div>
-</div>;
 
 export default function Page() {
     const breakpoint = useTailwindBreakpoint();
@@ -59,7 +55,7 @@ export default function Page() {
         {breakpoint ? (
              <div className="flex flex-col w-full items-center p-3 sm:p-4">
                  <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
-                     <Suspense fallback={loader}>
+                     <Suspense fallback={loader('Focusing...')}>
                          <div>
                              <Scanner onScan={onScan} />
                          </div>
@@ -86,7 +82,7 @@ export default function Page() {
              </div>
          ) : (
              <div className="absolute top-0 w-screen h-screen right-0 bottom-0 left-0 flex justify-center items-center">
-                 {loader}
+                 {loader('Warming up...')}
              </div>
          )
     }</>;
