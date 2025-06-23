@@ -41,7 +41,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
         currentVersionInCollection,
         info,
         version,
-        hoverVersion,
         infos,
         versions,
         isInfoInCollection,
@@ -94,7 +93,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
         return <div className="flex flex-col items-start">
             <div className="flex gap-2 items-center">
-                <div>{name}{
+                <div className="flex gap-2">{name}{
                 isVersionInCollection(index) && <FaCheck />
                 }</div>
                 <SvgCssGauge className="shrink-0 m-0.5"
@@ -133,15 +132,21 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     value={confidence}
                 />
                 {showUpdate && (
-                    <button disabled={isUpdating}
-                        onClick={updateGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
-                        <FaThumbsUp />
+                    <button
+                        disabled={isUpdating}
+                        onClick={updateGameUPC}
+                        className="text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                    >
+                        <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
                         <span className="hidden md:block">Update</span>
                     </button>
                 )} {showRemove && (
-                    <button disabled={isRemoving}
-                        onClick={removeGameUPC} className="text-gray-500 h-6 w-6 p-1 btn flex text-xs">
-                        <FaThumbsDown />
+                    <button
+                        disabled={isRemoving}
+                        onClick={removeGameUPC}
+                        className="text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                    >
+                        <FaThumbsDown className="md:w-2.5 md:h-2.5" />
                         <span className="hidden md:block">Remove</span>
                     </button>
                 )}
@@ -163,7 +168,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     <div className="flex flex-col gap-2 w-content lg:max-w-2/3">
                         {version?.name && <div className="grow">
                             <div className="border-b-1 border-b-gray-300">{version?.name}</div>
-                            <h4>{version?.published}</h4>
+                            <h4>{version?.published || 'Unknown'}</h4>
                         </div>}
                         <div className="shrink pb-1">
                             <details className="flex gap-1.5">
@@ -189,19 +194,18 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         </div>
                     </div>
                 </div>
-                <h4 className="mb-1 text-center">{hoverVersion?.name}</h4>
             </div>
             <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
                 <div className="flex gap-2 items-center">
-                    <div className="tooltip shrink-0 flex flex-col items-center w-11" data-tip="Game">
+                    <div className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
                         <Image
-                            className="inline-block"
+                            className="inline-block w-6 h-6 md:w-8 md:h-8"
                             src={'/icons/box-game.png'} alt="Game" width={32} height={32}
                         />
-                        <span className="text-xs">Game</span>
+                        {/*<span className="text-xs">Game</span>*/}
                     </div>
                     <CollapsibleList
-                        className="overflow-scroll h-50"
+                        className="text-sm md:text-md overflow-scroll h-50"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
@@ -213,16 +217,16 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     />
                 </div>
                 {currentInfoIndex !== null && versions && <div className="flex items-center gap-1.5">
-                    <div className="tooltip shrink-0 flex flex-col items-center w-11" data-tip="Version">
+                    <div className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Version">
                         <Image
-                        className="inline-block"
+                            className="inline-block w-6 h-6 md:w-8 md:h-8"
                         src={'/icons/box-version.png'}
                         alt="Version" width={32} height={32}
                         />
-                        <span className="text-xs">Version</span>
+                        {/*<span className="text-xs">Version</span>*/}
                     </div>
                     <CollapsibleList
-                        className="overflow-scroll h-65 md:h-80 lg:h-100"
+                        className="text-sm md:text-md overflow-scroll h-65 md:h-80 lg:h-100"
                         type="version"
                         items={versions}
                         selectedItemIndex={currentVersionIndex}
