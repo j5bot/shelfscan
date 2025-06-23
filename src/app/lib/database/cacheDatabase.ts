@@ -37,8 +37,13 @@ export const makeImageCacheId = (imageProps: ImageProps) => [
 export const getImageDataFromCache = async (id: string) =>
     (await cacheDatabase.images.get(id))?.data;
 
-export const addImageDataToCache = async (id: string, blob: Blob) =>
-    cacheDatabase.images.add({ id, data: blob });
+export const addImageDataToCache = async (id: string, blob: Blob) => {
+    if ((await cacheDatabase.images.get(id))) {
+        return cacheDatabase.images.put({ id, data: blob });
+    } else {
+        return cacheDatabase.images.add({ id, data: blob });
+    }
+};
 
 export const getResponseFromCache = async (id: string) =>
     (await cacheDatabase.responses.get(id))?.response;

@@ -22,12 +22,17 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
     const { props: imageProps } = getImageProps(paramsForGetImageProps);
 
     useEffect(() => {
+        let getting: boolean = true;
         (async () => {
             if (imageProps.src === '' || !imageProps.src) {
                 return;
             }
 
             const id = getImageId(imageProps);
+
+            if (!getting) {
+                return;
+            }
             const cachedImage = await getImageDataFromCache(id);
 
             let blob: Blob;
@@ -41,6 +46,9 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
                     },
                 }).then(r => r.blob());
 
+                if (!getting) {
+                    return;
+                }
                 await addImageDataToCache(id, blob);
             }
 
@@ -50,6 +58,10 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
 
             setImageBlob(blob);
         })();
+
+        return () => {
+            getting = false;
+        };
     }, dependencies);
 
     const src  = useObjectUrl(imageBlob ?? blobForUndefined);

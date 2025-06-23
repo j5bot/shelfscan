@@ -8,7 +8,8 @@ import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
 import Link from 'next/link';
-import { FaSignOutAlt } from 'react-icons/fa';
+import { useNextStep } from 'nextstepjs';
+import { FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
 import { FaBarcode, FaBars } from 'react-icons/fa6';
 
 const closeOnNavigate = () => {
@@ -17,6 +18,7 @@ const closeOnNavigate = () => {
 
 export const NavDrawer = () => {
     const dispatch = useDispatch();
+    const { setCurrentStep, startNextStep } = useNextStep();
 
     const user = useSelector((state: RootState)=> state.bgg.user);
 
@@ -72,10 +74,16 @@ export const NavDrawer = () => {
                         <div className="text-xs">{name}</div>
                     </div>
                 </div>}
-                <ul className="list-none menu text-base-content p-0 pt-2">
-                    <li>
-                        <Link href="/" onNavigate={closeOnNavigate}>
-                            <FaBarcode className="inline" /> Scan
+                <ul className="w-full list-none menu text-base-content p-0 pt-2">
+                    <li className="w-full">
+                        <Link className="block w-full" href="/" onNavigate={closeOnNavigate}>
+                            <div className="flex gap-2 w-full">
+                                <div className="grow"><FaBarcode className="inline" /> Scan</div>
+                                <button className="cursor-pointer" onClick={() => {
+                                    startNextStep('scanner');
+                                    setCurrentStep(1);
+                                }}><FaQuestionCircle /></button>
+                            </div>
                         </Link>
                     </li>
                     {signOutMenuItem}

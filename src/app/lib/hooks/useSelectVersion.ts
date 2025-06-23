@@ -26,7 +26,7 @@ export const useSelectVersion = (id: string) => {
 
     useEffect(() => {
         setUpdater(username);
-    }, [username]);
+    }, [username, setUpdater]);
 
     const { bgg_info_status: status, bgg_info: infos } = gameDataMap[id] ?? {};
 
@@ -62,15 +62,17 @@ export const useSelectVersion = (id: string) => {
         versionIndexes: versionIndexesInCollection,
     } = useSelector(state => getIndexesInCollectionFromInfos(state, infos));
 
+    const gameData = gameDataMap[id];
+
     useEffect(() => {
         if (!id) {
             return;
         }
-        if (gameDataMap[id]) {
+        if (gameData) {
             return;
         }
         getGameData(id).then();
-    }, [id, gameDataMap[id]]);
+    }, [id, gameData, getGameData]);
 
     const searchGameUPC = (search: string) => {
         getGameData(id, search).then();
@@ -92,7 +94,7 @@ export const useSelectVersion = (id: string) => {
         setSelectedVersionId(versions[versionIndex].version_id);
         gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
         setGameSelections(gameSelections);
-    }, [gameSelections, setGameSelections, infos, versions]);
+    }, [id, gameSelections, setGameSelections, infos, versions]);
 
     const restorePreviousSelection = () => {
         if (!gameSelections[id]) {
@@ -116,11 +118,13 @@ export const useSelectVersion = (id: string) => {
         }
     }
 
+    const infosLength = infos?.length;
+    const firstInfo = infos?.[0];
     useEffect(() => {
-        if (infos?.length === 1) {
+        if (infosLength === 1) {
             setCurrentInfoIndex(0);
             setCurrentSelection(0, -1);
-            setSelectedInfoId(infos[0].id);
+            setSelectedInfoId(firstInfo.id);
             return;
         }
         if ((selectedInfoId ?? -1) > -1) {
@@ -132,11 +136,17 @@ export const useSelectVersion = (id: string) => {
         setHoverVersionIndex(null);
     }, [
         id,
+        selectedInfoId,
         gameDataMap[id],
-        infos?.length,
+        firstInfo,
+        infosLength,
         setCurrentInfoIndex,
+        setCurrentVersionIndex,
+        setSelectedVersionId,
+        setCurrentSelection,
     ]);
 
+    const versionsLength = infos?.[currentInfoIndex ?? 0]?.versions.length;
     useEffect(() => {
         if (currentInfoIndex === null) {
             return;
@@ -155,9 +165,9 @@ export const useSelectVersion = (id: string) => {
         setHoverVersionIndex(null);
     }, [
         id,
-        gameDataMap[id],
+        gameData,
         currentInfoIndex,
-        infos?.[currentInfoIndex ?? 0]?.versions.length,
+        versionsLength,
         setCurrentVersionIndex,
         setCurrentSelection,
         setHoverVersionIndex,

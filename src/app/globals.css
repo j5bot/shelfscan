@@ -47,6 +47,10 @@ h3 {
   border-radius: var(--radius-2xl);
 }
 
+svg[data-name=nextstep-arrow] > #triangle {
+  fill: white;
+}
+
 @media only screen and (hover: none) and (pointer: coarse) {
   input:focus,
   select:focus,
