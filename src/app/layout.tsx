@@ -47,7 +47,7 @@ export default function RootLayout({
           2xl:bg-[image:url(/images/flair-bg-2xl.png)]
           bg-repeat bg-contain
           `}>
-              <div className="absolute flex flex-row gap-4 top-3 left-2 z-40">
+              <div id="shelfscan-logo" className="absolute flex flex-row gap-4 top-3 left-2 z-40">
                   <Link href={'/'}>
                       <Image
                           priority={true}

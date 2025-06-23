@@ -6,7 +6,9 @@ import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
+import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useEffect, useState } from 'react';
+import { hasSeenTour } from '../lib/tours';
 
 const loader = <div className="w-1/2 h-30 bg-overlay flex flex-col justify-center items-center">
     <div className="loading loading-bars loading-xl" />
@@ -16,6 +18,8 @@ const loader = <div className="w-1/2 h-30 bg-overlay flex flex-col justify-cente
 export default function Page() {
     const breakpoint = useTailwindBreakpoint();
 
+    const { startNextStep } = useNextStep();
+
     const {
         gameDataMap,
         getGameData,
@@ -24,6 +28,13 @@ export default function Page() {
     } = useGameUPCData();
 
     const [codes, setCodes] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (!breakpoint || hasSeenTour('scanner')) {
+            return;
+        }
+        startNextStep('scanner');
+    }, [breakpoint, startNextStep]);
 
     useEffect(() => {
         if (!gameDataMap) {

@@ -64,6 +64,7 @@ export function Scanner(props: ScannerProps) {
     };
 
     return <div
+        id="scan-barcodes"
         style={{
             width: `${videoCropWidth}px`,
             height: `${videoCropHeight}px`,
