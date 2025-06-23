@@ -41,7 +41,7 @@ export const BggCollectionForm = ()=> {
             username,
             items: collectionItems,
         }));
-    }, [collectionItems, username, userXml]);
+    }, [collectionItems, username, userXml, dispatch]);
 
     const getCollectionAction = async (formData: FormData) => {
         if (isPending) {

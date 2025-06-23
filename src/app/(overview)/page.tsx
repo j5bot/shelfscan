@@ -32,12 +32,13 @@ export default function Page() {
         startNextStep('scanner');
     }, [breakpoint, startNextStep]);
 
+    const hasGameDataMap = !!gameDataMap;
     useEffect(() => {
         if (!gameDataMap) {
             return;
         }
         setCodes(Object.keys(gameDataMap));
-    }, []);
+    }, [setCodes, hasGameDataMap]);
 
     void submitOrVerifyGame;
     void removeGame;
