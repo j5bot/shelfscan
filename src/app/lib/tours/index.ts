@@ -1,6 +1,6 @@
 import { scannerTour } from '@/app/lib/tours/scannerTour';
-import { selectVersionTour } from '@/app/lib/tours/selectVersion';
-import { Tour } from 'nextstepjs';
+import { selectVersionTour } from '@/app/lib/tours/selectVersionTour';
+import { Tour } from '@/app/lib/types/tour';
 
 const getTourInfo = (tourName: string = 'default') => {
     const info = window?.localStorage.getItem(`tours-${tourName}`);

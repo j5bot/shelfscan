@@ -26,8 +26,18 @@ export const NavDrawer = () => {
         user: username,
         firstName,
         lastName,
-        avatarUrl,
+        avatarUrl: baseAvatarUrl,
     } = user;
+
+    let avatarUrl: string;
+    switch (true) {
+        case !baseAvatarUrl || baseAvatarUrl === 'N/A':
+            avatarUrl = '/images/no-avatar.png';
+            break;
+        default:
+            avatarUrl = baseAvatarUrl;
+            break;
+    }
 
     const nameSegments = [];
     if (firstName?.length) {
@@ -39,7 +49,7 @@ export const NavDrawer = () => {
     const name = nameSegments.join(' ');
 
     const { src, alt, ...imageProps } = useImagePropsWithCache({
-        src: avatarUrl as string,
+        src: avatarUrl,
         alt: username as string,
         height: 64,
         width: 64,

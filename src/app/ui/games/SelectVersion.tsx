@@ -80,7 +80,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
             <div>{name}{
                 isInfoInCollection(index) && <FaCheck />
             }</div>
-            <SvgCssGauge className="shrink-0 m-0.5"
+            <SvgCssGauge className="confidence-level shrink-0 m-0.5"
                          color={confidenceLevelColor}
                          fill={confidenceLevelColor}
                          value={confidence} />
@@ -96,7 +96,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 <div className="flex gap-2">{name}{
                 isVersionInCollection(index) && <FaCheck />
                 }</div>
-                <SvgCssGauge className="shrink-0 m-0.5"
+                <SvgCssGauge className="confidence-level shrink-0 m-0.5"
                              color={confidenceLevelColor}
                              fill={confidenceLevelColor}
                              value={confidence} />
@@ -125,7 +125,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
             </div>
             <div className="flex gap-0.5 items-center" data-confidence={item?.confidence}>
                 <SvgCssGauge
-                    className="m-0.5"
+                    className="confidence-level m-0.5"
                     duration={0.5}
                     fill={confidenceLevelColor}
                     color={confidenceLevelColor}
@@ -135,7 +135,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     <button
                         disabled={isUpdating}
                         onClick={updateGameUPC}
-                        className="text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                        className="update-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
                     >
                         <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
                         <span className="hidden md:block">Update</span>
@@ -144,7 +144,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     <button
                         disabled={isRemoving}
                         onClick={removeGameUPC}
-                        className="text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                        className="remove-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
                     >
                         <FaThumbsDown className="md:w-2.5 md:h-2.5" />
                         <span className="hidden md:block">Remove</span>
@@ -197,7 +197,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
             </div>
             <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
                 <div id="select-game" className="flex gap-2 items-center">
-                    <div className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
+                    <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
                         <Image
                             className="inline-block w-6 h-6 md:w-8 md:h-8"
                             src={'/icons/box-game.png'} alt="Game" width={32} height={32}
@@ -220,7 +220,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     id="select-version"
                     className="flex items-center gap-1.5"
                 >
-                    <div className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Version">
+                    <div id="version-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Version">
                         <Image
                             className="inline-block w-6 h-6 md:w-8 md:h-8"
                         src={'/icons/box-version.png'}

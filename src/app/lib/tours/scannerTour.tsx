@@ -1,7 +1,8 @@
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { onComplete } from '@/app/lib/tours/index';
 import { pointer } from '@/app/lib/tours/stepConfig';
+import { Tour, TourStep } from '@/app/lib/types/tour';
+import { TourCardProps } from '@/app/ui/tour/TourCard';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Step, useNextStep } from 'nextstepjs';
@@ -10,8 +11,10 @@ import { FaBarcode, FaCloudArrowDown, FaList, FaUser } from 'react-icons/fa6';
 
 const testUPC = '222222222222';
 
-const PresentList = () => {
-    const { startNextStep, closeNextStep  } = useNextStep();
+const PresentList = (props: TourCardProps) => {
+    const { skipTour } = props;
+
+    const { startNextStep, closeNextStep } = useNextStep();
     const { codes, setCodes } = useCodes();
     const {
         getGameData,
@@ -33,17 +36,29 @@ const PresentList = () => {
             href={`/upc/${testUPC}`}
             className="btn"
             onClick={() => {
-                onComplete('scanner');
+                skipTour?.();
                 closeNextStep();
                 setTimeout(() => {
                     startNextStep('selectVersion');
                 }, 1000);
             }}
-        >Go to Details</Link>
+        >Go to Select Version Tour</Link>
     </div>;
 };
 
-const steps: Step[] = [
+const generateListStep = (params: TourCardProps): Step => {
+    return {
+        icon: <FaList className="h-5 w-5" />,
+            title: 'Select Version',
+        content: <PresentList {...params} />,
+        selector: '#scanlist',
+        side: 'top',
+        showControls: true,
+        ...pointer,
+    };
+};
+
+const steps: TourStep[] = [
     {
         icon: <Image
             priority={true}
@@ -63,7 +78,8 @@ an application for scanning board game UPCs`,
     {
         icon: <FaUser className="h-5 w-5" />,
         title: 'BoardGameGeek User',
-        content: 'Enter your BGG username to integrate your collection info with ShelfScan',
+        content: `Enter your BGG username to integrate your collection info with ShelfScan.  If you
+        don't have a BGG account, just enter 'j5bot'`,
         selector: '#bgg-username',
         side: 'bottom-left',
         showControls: true,
@@ -92,19 +108,10 @@ an application for scanning board game UPCs`,
         ...pointer,
         pointerRadius: 12,
     },
-    {
-        icon: <FaList className="h-5 w-5" />,
-        title: 'Select Version',
-        content: <PresentList />,
-        selector: '#scanlist',
-        side: 'top',
-        showControls: true,
-        showSkip: true,
-        ...pointer,
-    }
+    generateListStep,
 ];
 
-export const scannerTour = {
+export const scannerTour: Tour = {
     tour: 'scanner',
     steps,
 };
