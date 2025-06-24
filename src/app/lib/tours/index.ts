@@ -1,5 +1,6 @@
 import { scannerTour } from '@/app/lib/tours/scannerTour';
-import { Tour } from 'nextstepjs';
+import { selectVersionTour } from '@/app/lib/tours/selectVersionTour';
+import { Tour } from '@/app/lib/types/tour';
 
 const getTourInfo = (tourName: string = 'default') => {
     const info = window?.localStorage.getItem(`tours-${tourName}`);
@@ -42,4 +43,5 @@ export const hasSeenTour = (tourName: string) => {
 
 export const tours: Tour[] = [
     scannerTour,
+    selectVersionTour,
 ];

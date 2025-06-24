@@ -1,6 +1,7 @@
 'use client';
 
 import { loader } from '@/app/(overview)/loading';
+import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
@@ -8,7 +9,7 @@ import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { hasSeenTour } from '../lib/tours';
 
 export default function Page() {
@@ -23,7 +24,10 @@ export default function Page() {
         removeGame,
     } = useGameUPCData();
 
-    const [codes, setCodes] = useState<string[]>([]);
+    const {
+        codes,
+        setCodes,
+    } = useCodes();
 
     useEffect(() => {
         if (!breakpoint || hasSeenTour('scanner')) {
@@ -66,7 +70,7 @@ export default function Page() {
                      <BggCollectionForm />
                  </Suspense>
                  <Suspense>
-                     <div className="relative w-full h-full bg-orange-50 p-2">
+                     <div id="scanlist" className="relative w-full h-full bg-orange-50 p-2">
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
                               ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)
