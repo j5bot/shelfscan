@@ -9,7 +9,7 @@ import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { hasSeenTour } from '../lib/tours';
 
 export default function Page() {
