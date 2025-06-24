@@ -79,10 +79,11 @@ export const NavDrawer = () => {
                         <Link className="block w-full" href="/" onNavigate={closeOnNavigate}>
                             <div className="flex gap-2 w-full">
                                 <div className="grow"><FaBarcode className="inline" /> Scan</div>
-                                <button className="cursor-pointer" onClick={() => {
-                                    startNextStep('scanner');
-                                    setCurrentStep(1);
-                                }}><FaQuestionCircle /></button>
+                                {!username &&
+                                    <button className="cursor-pointer" onClick={() => {
+                                        startNextStep('scanner');
+                                        setCurrentStep(1);
+                                    }}><FaQuestionCircle /></button>}
                             </div>
                         </Link>
                     </li>
