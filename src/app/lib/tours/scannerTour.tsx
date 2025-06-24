@@ -1,11 +1,18 @@
 import { pointer } from '@/app/lib/tours/stepConfig';
+import Image from 'next/image';
 import { Step } from 'nextstepjs';
+import React from 'react';
 import { FaBarcode, FaCloudArrowDown, FaUser } from 'react-icons/fa6';
 
 const steps: Step[] = [
     {
-        icon: '',
-        title: 'ShelfScan',
+        icon: <Image
+            priority={true}
+            src={'/wordmark.svg'}
+            alt="ShelfScan"
+            width={200} height={64}
+        />,
+        title: '',
         content: `Welcome to ShelfScan,
 an application for scanning board game UPCs`,
         selector: '#shelfscan-logo',

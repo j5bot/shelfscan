@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Share_Tech } from 'next/font/google';
-import "./globals.css";
+import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -12,18 +12,18 @@ const shareTech = Share_Tech({
 });
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "ShelfScan",
-  description: "Scan board game UPCs and assign them to the correct game versions",
+    title: `ShelfScan`,
+    description: 'Board game UPC scanner / GameUPC.com API updater',
 };
 
 export default function RootLayout({
@@ -34,6 +34,7 @@ export default function RootLayout({
   return (
       <html lang="en">
           <head>
+              <title>ShelfScan</title>
               <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
               <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
               <link rel="manifest" href="/site.webmanifest" />
