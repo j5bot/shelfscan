@@ -1,4 +1,5 @@
 import { scannerTour } from '@/app/lib/tours/scannerTour';
+import { selectVersionTour } from '@/app/lib/tours/selectVersion';
 import { Tour } from 'nextstepjs';
 
 const getTourInfo = (tourName: string = 'default') => {
@@ -42,4 +43,5 @@ export const hasSeenTour = (tourName: string) => {
 
 export const tours: Tour[] = [
     scannerTour,
+    selectVersionTour,
 ];

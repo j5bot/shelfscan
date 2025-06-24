@@ -1,8 +1,47 @@
+import { useCodes } from '@/app/lib/CodesProvider';
+import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
+import { onComplete } from '@/app/lib/tours/index';
 import { pointer } from '@/app/lib/tours/stepConfig';
 import Image from 'next/image';
-import { Step } from 'nextstepjs';
-import React from 'react';
-import { FaBarcode, FaCloudArrowDown, FaUser } from 'react-icons/fa6';
+import Link from 'next/link';
+import { Step, useNextStep } from 'nextstepjs';
+import React, { useEffect } from 'react';
+import { FaBarcode, FaCloudArrowDown, FaList, FaUser } from 'react-icons/fa6';
+
+const testUPC = '222222222222';
+
+const PresentList = () => {
+    const { startNextStep, closeNextStep  } = useNextStep();
+    const { codes, setCodes } = useCodes();
+    const {
+        getGameData,
+    } = useGameUPCData();
+
+    useEffect(() => {
+        getGameData(testUPC).then();
+        if (!codes.includes(testUPC)) {
+            setCodes([...codes, testUPC]);
+        }
+    }, []);
+
+    return <div className="flex flex-col gap-2">
+        <div>
+            Click on an item in the scanned game list to view details and select
+            the game version that matches what you scanned.
+        </div>
+        <Link
+            href={`/upc/${testUPC}`}
+            className="btn"
+            onClick={() => {
+                onComplete('scanner');
+                closeNextStep();
+                setTimeout(() => {
+                    startNextStep('selectVersion');
+                }, 1000);
+            }}
+        >Go to Details</Link>
+    </div>;
+};
 
 const steps: Step[] = [
     {
@@ -53,6 +92,16 @@ an application for scanning board game UPCs`,
         ...pointer,
         pointerRadius: 12,
     },
+    {
+        icon: <FaList className="h-5 w-5" />,
+        title: 'Select Version',
+        content: <PresentList />,
+        selector: '#scanlist',
+        side: 'top',
+        showControls: true,
+        showSkip: true,
+        ...pointer,
+    }
 ];
 
 export const scannerTour = {
