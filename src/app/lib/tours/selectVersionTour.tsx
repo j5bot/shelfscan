@@ -3,13 +3,13 @@ import { Tour, TourStep } from '@/app/lib/types/tour';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
 import React from 'react';
-import { FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const steps: TourStep[] = [
     {
         icon: '',
         title: 'Game Details',
-        content: 'Basic details about the game you scanned',
+        content: 'Basic details about the game you scanned will appear here',
         selector: '#game-details',
         side: 'bottom',
         showControls: true,
@@ -49,7 +49,17 @@ const steps: TourStep[] = [
             src={'/icons/box-game.png'} alt="Game" width={32} height={32}
         />,
         title: 'Select Matching Game',
-        content: `Select the matching game from the list`,
+        content: `Select the matching game from the list. Choose a game now`,
+        selector: '#select-game',
+        side: 'top',
+        showControls: true,
+        showSkip: true,
+        ...pointer,
+    },
+    {
+        icon: <FaCheck />,
+        title: 'In Collection',
+        content: `A checkmark appears next to the game's name if it is already in your collection`,
         selector: '#select-game',
         side: 'top',
         showControls: true,
@@ -81,6 +91,26 @@ const steps: TourStep[] = [
         Scroll right to see all choices.  Go ahead and choose a version now`,
         selector: '#select-version',
         side: 'top',
+        showControls: true,
+        showSkip: true,
+        ...pointer,
+    },
+    {
+        icon: <FaCheck />,
+        title: 'Version In Collection',
+        content: `A checkmark appears next to the version's name if it is already in your collection`,
+        selector: '#select-version',
+        side: 'top',
+        showControls: true,
+        showSkip: true,
+        ...pointer,
+    },
+    {
+        icon: '',
+        title: 'Game Details',
+        content: `You'll now see more details and the correct image for the selected version here`,
+        selector: '#game-details',
+        side: 'bottom',
         showControls: true,
         showSkip: true,
         ...pointer,
