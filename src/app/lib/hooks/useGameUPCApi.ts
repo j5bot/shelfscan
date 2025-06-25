@@ -22,8 +22,10 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         setGameUPCUserId(updaterId + (username ? `/${username}` : ''));
     };
 
-    const [isPending, startTransition] = useTransition();
-    void isPending;
+    const [isGetPending, startGetTransition] = useTransition();
+    const [isWarmPending, startWarmTransition] = useTransition();
+    const [isSubmitPending, startSubmitTransition] = useTransition();
+    const [isRemovePending, startRemoveTransition] = useTransition();
 
     const [warmed, setWarmed] = useState<boolean>(false);
     const [gameDataMap, setGameDataMap] = useState<Record<string, GameUPCData>>({});
@@ -38,7 +40,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         let warming = false;
         if (!(warmed || warming)) {
             warming = true;
-            startTransition(async () => {
+            startWarmTransition(async () => {
                 warmupGameUPCApi().then();
                 setWarmed(true);
             });
@@ -57,7 +59,7 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         fetchingGameUPCs.push(upc);
         setFetchingGameUPCs(fetchingGameUPCs);
 
-        startTransition(async () => {
+        startGetTransition(async () => {
             const gameData = fetchGameDataForUpc(upc, search)
                 .then(data => {
                     gameUPCs.push(upc);
@@ -74,14 +76,14 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
     };
 
     const submitOrVerifyGame = (upc: string, bggId: number, version: number = -1) => {
-        startTransition(async () => {
+        startSubmitTransition(async () => {
             gameDataMap[upc] = await postGameUPCMatch(upc, bggId, version, gameUPCApiPostUserBody);
             setGameDataMap(gameDataMap);
         });
     };
 
     const removeGame = (upc: string, bggId: number, version: number = -1) => {
-        startTransition(async () => {
+        startRemoveTransition(async () => {
             gameDataMap[upc] = await deleteGameUPCMatch(upc, bggId, version, gameUPCApiPostUserBody);
             setGameDataMap(gameDataMap);
         });
@@ -93,5 +95,9 @@ export const useGameUPCApi = (options?: UseGameUPCApiOptions) => {
         removeGame,
         setUpdater,
         submitOrVerifyGame,
+        isWarmPending,
+        isGetPending,
+        isSubmitPending,
+        isRemovePending,
     };
 };
