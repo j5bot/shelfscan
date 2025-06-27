@@ -89,7 +89,7 @@ export function Scanlist(props: ScanlistProps) {
 
         void overlayIcon;
 
-        return <li className="relative rounded-md bg-orange-100" key={code}>
+        return <li className="relative rounded-md bg-orange-100 dark:bg-orange-900" key={code}>
             <Link
                 href={`/upc/${code}`}
                 className="absolute bottom-0 right-0.5 md:bottom-1 md:right-1 tooltip"

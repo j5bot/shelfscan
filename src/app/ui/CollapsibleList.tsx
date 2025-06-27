@@ -3,7 +3,7 @@ import React, { ReactNode, useState } from 'react';
 export const makeListItemClassName = (current: number, selected: number | null) =>
     `cursor-pointer max-w-3/4 ml-0.5 mr-1 rounded-sm ${
         current === selected ?
-        'p-1 pl-1.5 bg-orange-50' :
+        'p-1 pl-1.5 bg-orange-50 dark:bg-yellow-700' :
         'pl-1.5'
     }`;
 
@@ -53,7 +53,7 @@ export const CollapsibleList =
 
     return itemsClosed && selectedItemIndex !== null ?
      <div
-         className={`rounded-sm w-full mb-1 bg-orange-50 p-2 ${(selectedItemIndex ?? -1) >= 0 && items.length > 1 ? 'cursor-pointer' : ''}`}
+         className={`rounded-sm w-full mb-1 bg-orange-50 dark:bg-yellow-700 p-2 ${(selectedItemIndex ?? -1) >= 0 && items.length > 1 ? 'cursor-pointer' : ''}`}
          onClick={items.length > 1 ? selectedItemClickHandler : undefined}
      >
          {renderSelectedItem(items[selectedItemIndex ?? 0])}
