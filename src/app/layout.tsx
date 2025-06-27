@@ -51,8 +51,16 @@ export default function RootLayout({
               <div id="shelfscan-logo" className="absolute flex flex-row gap-4 top-3 left-2 z-40">
                   <Link href={'/'}>
                       <Image
+                          className="dark:hidden"
                           priority={true}
                           src={'/shelfscan-wordmark.png'}
+                          alt="ShelfScan"
+                          width={64} height={85}
+                      />
+                      <Image
+                          className="hidden dark:block"
+                          priority={true}
+                          src={'/shelfscan-wordmark-dark.png'}
                           alt="ShelfScan"
                           width={64} height={85}
                       />
