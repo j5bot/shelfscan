@@ -182,7 +182,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <div id="game-details" className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3">
-                <h2 className="mb-1 text-center uppercase">{info?.name}</h2>
+                <h2 className="mb-1 text-center uppercase">{info?.name ?? id}</h2>
                 <div className="flex gap-2 items-stretch justify-center">
                     <ThumbnailBox
                         alt={version?.name ?? 'Default Game Image'}
@@ -219,7 +219,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     </div>
                 </div>
             </div>
-            <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
+            {hasInfos && <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
                 <div id="select-game" className="flex gap-2 items-center">
                     <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
                         <Image
@@ -265,7 +265,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         renderSelectedItem={renderSelectedItem}
                     />
                 </div>}
-            </div>
+            </div>}
         </div>
     </>;
 };

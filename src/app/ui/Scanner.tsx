@@ -1,6 +1,6 @@
 'use client';
 
-import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
+import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
 import React, { useMemo, useState } from 'react';
 

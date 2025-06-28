@@ -61,6 +61,10 @@ svg[data-name=nextstep-arrow] > #triangle {
   fill: white;
 }
 
+.dark-mode svg[data-name=nextstep-arrow] > #triangle {
+  fill: black;
+}
+
 @media only screen and (hover: none) and (pointer: coarse) {
   input:focus,
   select:focus,

@@ -1,1 +1,1 @@
-export const gameUPCHost = 'https://api.gameupc.com/test';
+export const gameUPCHost = 'https://api.gameupc.com/v1';

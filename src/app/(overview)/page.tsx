@@ -3,7 +3,7 @@
 import { loader } from '@/app/(overview)/loading';
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { useTailwindBreakpoint } from '@/app/lib/TailwindBreakpointProvider';
+import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -70,7 +70,7 @@ export default function Page() {
                      <BggCollectionForm />
                  </Suspense>
                  <Suspense>
-                     <div id="scanlist" className="relative w-full h-full bg-orange-50 p-2">
+                     <div id="scanlist" className="relative w-full h-full bg-orange-50 dark:bg-yellow-700 p-2">
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
                               ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)
