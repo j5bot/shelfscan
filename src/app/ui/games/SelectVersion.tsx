@@ -11,7 +11,7 @@ import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
-import React, { ReactNode, SyntheticEvent, useLayoutEffect, useMemo, useState } from 'react';
+import React, { ReactNode, SyntheticEvent, useLayoutEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight, FaCheck, FaPlus, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
