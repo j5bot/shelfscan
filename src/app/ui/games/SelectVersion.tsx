@@ -62,11 +62,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
 
     useLayoutEffect(() =>
         setSyncOn(document.body.getAttribute('data-shelfscan-sync') === 'on'), [version]);
-
-    if (!hasInfos) {
-        return null;
-    }
-
+    
     const addToCollection = () => {
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
