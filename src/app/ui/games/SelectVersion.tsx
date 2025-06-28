@@ -11,9 +11,9 @@ import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
-import React, { ReactNode, SyntheticEvent, useState } from 'react';
+import React, { ReactNode, SyntheticEvent, useLayoutEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { FaCaretRight, FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+import { FaCaretRight, FaCheck, FaPlus, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
@@ -58,6 +58,25 @@ export const SelectVersion = ({ id }: { id: string }) => {
     } = useSelectVersion(id);
 
     const [searchString, setSearchString] = useState<string>('');
+    const [syncOn, setSyncOn] = useState<boolean>(false);
+
+    useLayoutEffect(() =>
+        setSyncOn(document.body.getAttribute('data-shelfscan-sync') === 'on'), [version]);
+
+    if (!hasInfos) {
+        return null;
+    }
+
+    const addToCollection = () => {
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                name: version?.name,
+                gameId: info?.id,
+                versionId: version?.version_id,
+            },
+        });
+        document.dispatchEvent(ce);
+    };
 
     const searchBlurHandler = (e: SyntheticEvent<HTMLInputElement>) => {
         const searchString = e.currentTarget.value;
@@ -128,14 +147,23 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     value={confidence}
                 />
                 {showUpdate && (
-                    <button
-                        disabled={isUpdating}
-                        onClick={updateGameUPC}
-                        className="update-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
-                    >
-                        <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
-                        <span className="hidden md:block">Update</span>
-                    </button>
+                    <>
+                        <button
+                            disabled={isUpdating}
+                            onClick={updateGameUPC}
+                            className="update-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                        >
+                            <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
+                            <span className="hidden md:block">Update</span>
+                        </button>
+                        {syncOn && <button
+                            onClick={addToCollection}
+                            className="collection-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                        >
+                            <FaPlus className="md:w-2.5 md:h-2.5" />
+                            <span className="hidden md:block">Add</span>
+                        </button>}
+                    </>
                 )} {showRemove && (
                     <button
                         disabled={isRemoving}
@@ -167,21 +195,21 @@ export const SelectVersion = ({ id }: { id: string }) => {
                             <h4>{version?.published || 'Unknown'}</h4>
                         </div>}
                         <div className="shrink pb-1">
-                            <details className="flex gap-1.5">
-                                <summary className="text-gray-500 btn h-7 p-0">
+                            <details className="inline-flex gap-1.5 items-center">
+                                <summary className="align-middle text-gray-500 btn h-7 w-7 p-0">
                                     <FaSearch className="w-4 m-2" />
                                 </summary>
-                                <div className="flex items-center gap-1">
+                                <div className="align-middle inline-flex items-center gap-1 w-fit">
                                     <input tabIndex={0}
                                            type="text"
-                                           className="input h-7 text-xs w-11/12"
+                                           className="input h-7 text-xs w-fit"
                                            name="search"
                                            defaultValue={searchString}
                                            onBlur={searchBlurHandler}
                                     />
                                     <button tabIndex={0}
                                             onClick={searchClickHandler}
-                                            className="bg-gray-400 p-0.5 rounded-full"
+                                            className="inline-flex bg-gray-400 p-0.5 rounded-full"
                                     >
                                         <FaCaretRight className="text-white"/>
                                     </button>
