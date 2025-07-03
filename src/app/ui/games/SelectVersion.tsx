@@ -117,6 +117,9 @@ export const SelectVersion = ({ id }: { id: string }) => {
     };
 
     const renderSelectedItem = (item: GameUPCBggInfo | GameUPCBggVersion) => {
+        if (!item) {
+            return;
+        }
         const { confidence } = item;
         const confidenceLevelColor = getConfidenceLevelColor(confidence);
 

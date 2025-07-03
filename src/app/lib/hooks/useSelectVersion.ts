@@ -146,15 +146,15 @@ export const useSelectVersion = (id: string) => {
         setCurrentSelection,
     ]);
 
-    const versionsLength = infos?.[currentInfoIndex ?? 0]?.versions.length;
+    const versionsLength = infos?.[currentInfoIndex ?? 0]?.versions?.length;
     useEffect(() => {
         if (currentInfoIndex === null) {
             return;
         }
-        if (infos?.[currentInfoIndex].versions.length === 1) {
+        if (infos?.[currentInfoIndex]?.versions?.length === 1) {
             setCurrentVersionIndex(0);
             setCurrentSelection(currentInfoIndex, 0);
-            setSelectedVersionId(infos?.[currentInfoIndex]?.versions?.[0].version_id);
+            setSelectedVersionId(infos?.[currentInfoIndex]?.versions?.[0]?.version_id);
             return;
         }
         if ((selectedVersionId ?? -1) > -1) {
