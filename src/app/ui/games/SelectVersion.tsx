@@ -157,9 +157,9 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         </button>
                         {syncOn && <button
                             onClick={addToCollection}
-                            className="collection-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                            className="collection-button rounded-full md:rounded-md text-purple-500 h-8 w-8 md:w-fit p-1 btn flex text-xs"
                         >
-                            <FaPlus className="md:w-2.5 md:h-2.5" />
+                            <FaPlus className="md:w-3.5 md:h-3.5" />
                             <span className="hidden md:block">Add</span>
                         </button>}
                     </>
