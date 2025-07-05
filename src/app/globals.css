@@ -72,3 +72,25 @@ svg[data-name=nextstep-arrow] > #triangle {
     font-size: 16px;
   }
 }
+
+@keyframes add-pulse {
+  0% {
+    border-width: 2px;
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+  50% {
+    border-width: 3px;
+    opacity: 0.5;
+    transform: scale(1.4);
+  }
+  100% {
+    border-width: 0;
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+.add-pulse {
+  animation: add-pulse 1s 1;
+}
