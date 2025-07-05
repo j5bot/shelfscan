@@ -130,7 +130,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== -1);
         const showRemove = isInfo ? status === GameUPCStatus.verified : info?.version_status === GameUPCStatus.verified;
 
-        const selectedItemClasses = `flex gap-0.5 items-center relative ${syncOn && showUpdate ? 'pr-10' : ''}`;
+        const selectedItemClasses = `flex gap-1 items-center relative ${syncOn && showUpdate ? 'pr-10' : ''}`;
 
         return <div className="flex gap-1 items-center justify-between">
             <div className="flex items-center gap-3">
@@ -171,10 +171,10 @@ export const SelectVersion = ({ id }: { id: string }) => {
                 {showUpdate && syncOn && <>
                     <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-[-0.25rem] right-0 w-8 h-8"></div>
                     <button
-                        className={`collection-button rounded-full
+                        className={`collection-button cursor-pointer rounded-full
                             bg-[#e07ca4dc] border-[#e07ca4ff] text-white
-                            absolute top-[-0.25rem] right-0 h-8 w-8 p-1
-                            btn flex text-xs`}
+                            absolute top-[-0.25rem] right-0 h-8 w-8 p-2.5 pt-2
+                            flex text-xs`}
                         onClick={(e: SyntheticEvent<HTMLButtonElement>) => {
                             addToCollection();
                             const target = e.currentTarget.previousElementSibling as HTMLDivElement;
