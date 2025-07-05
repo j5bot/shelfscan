@@ -130,6 +130,8 @@ export const SelectVersion = ({ id }: { id: string }) => {
         const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== -1);
         const showRemove = isInfo ? status === GameUPCStatus.verified : info?.version_status === GameUPCStatus.verified;
 
+        const selectedItemClasses = `flex gap-0.5 items-center relative ${syncOn && showUpdate ? 'pr-10' : ''}`;
+
         return <div className="flex gap-1 items-center justify-between">
             <div className="flex items-center gap-3">
                 {item?.name}{
@@ -137,7 +139,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
                 }
             </div>
-            <div className="flex gap-0.5 items-center" data-confidence={item?.confidence}>
+            <div className={selectedItemClasses} data-confidence={item?.confidence}>
                 <SvgCssGauge
                     className="confidence-level m-0.5"
                     duration={0.5}
@@ -155,13 +157,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
                             <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
                             <span className="hidden md:block">Update</span>
                         </button>
-                        {syncOn && <button
-                            onClick={addToCollection}
-                            className="collection-button rounded-full md:rounded-md text-purple-500 h-8 w-8 md:w-fit p-1 btn flex text-xs"
-                        >
-                            <FaPlus className="md:w-3.5 md:h-3.5" />
-                            <span className="hidden md:block">Add</span>
-                        </button>}
                     </>
                 )} {showRemove && (
                     <button
@@ -173,6 +168,24 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         <span className="hidden md:block">Remove</span>
                     </button>
                 )}
+                {showUpdate && syncOn && <>
+                    <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-[-0.25rem] right-0 w-8 h-8"></div>
+                    <button
+                        className={`collection-button rounded-full
+                            bg-[#e07ca4dc] border-[#e07ca4ff] text-white
+                            absolute top-[-0.25rem] right-0 h-8 w-8 p-1
+                            btn flex text-xs`}
+                        onClick={(e: SyntheticEvent<HTMLButtonElement>) => {
+                            addToCollection();
+                            const target = e.currentTarget.previousElementSibling as HTMLDivElement;
+                            void target.offsetWidth;
+                            target.classList.add('add-pulse');
+                            setTimeout(() => target.classList.remove('add-pulse'), 2500);
+                        }}
+                    >
+                        <FaPlus className="md:w-3.5 md:h-3.5" />
+                    </button>
+                </>}
             </div>
         </div>;
     };
