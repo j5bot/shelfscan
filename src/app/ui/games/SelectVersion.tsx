@@ -183,7 +183,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                             setTimeout(() => target.classList.remove('add-pulse'), 2500);
                         }}
                     >
-                        <FaPlus className="md:w-3.5 md:h-3.5" />
+                        <FaPlus className="rounded-full md:w-3.5 md:h-3.5" />
                     </button>
                 </>}
             </div>
