@@ -173,7 +173,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     <button
                         className={`collection-button cursor-pointer rounded-full
                             bg-[#e07ca4dc] border-[#e07ca4ff] text-white
-                            absolute top-[-0.25rem] right-0 h-8 w-8 p-2.5 pt-2
+                            absolute top-[-0.25rem] right-0 h-8 w-8 p-2.5
                             flex text-xs`}
                         onClick={(e: SyntheticEvent<HTMLButtonElement>) => {
                             addToCollection();
