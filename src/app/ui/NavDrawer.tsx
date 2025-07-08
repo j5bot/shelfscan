@@ -8,7 +8,7 @@ import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
 import Link from 'next/link';
-import { useNextStep } from 'nextstepjs';
+import { useRouter } from 'next/navigation';
 import { FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
 import { FaBarcode, FaBars } from 'react-icons/fa6';
 
@@ -18,7 +18,7 @@ const closeOnNavigate = () => {
 
 export const NavDrawer = () => {
     const dispatch = useDispatch();
-    const { setCurrentStep, startNextStep } = useNextStep();
+    const router = useRouter();
 
     const user = useSelector((state: RootState)=> state.bgg.user);
 
@@ -69,7 +69,7 @@ export const NavDrawer = () => {
         }}><FaSignOutAlt className="inline" /> Sign Out</label>
     </li> : null;
 
-    return <div className="drawer drawer-end">
+    return (<div className="drawer drawer-end">
         <input id="nav-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content absolute top-4 right-5">
             <label htmlFor="nav-drawer" className="drawer-button"><FaBars /></label>
@@ -85,21 +85,18 @@ export const NavDrawer = () => {
                     </div>
                 </div>}
                 <ul className="w-full list-none menu text-base-content p-0 pt-2">
-                    <li className="w-full">
-                        <Link className="block w-full" href="/" onNavigate={closeOnNavigate}>
-                            <div className="flex gap-2 w-full">
-                                <div className="grow"><FaBarcode className="inline" /> Scan</div>
-                                {!username &&
-                                    <button className="cursor-pointer" onClick={() => {
-                                        startNextStep('scanner');
-                                        setCurrentStep(1);
-                                    }}><FaQuestionCircle /></button>}
-                            </div>
+                    <li className="w-full flex flex-row justify-between">
+                        <Link className="flex gap-2" href="/" onNavigate={closeOnNavigate}>
+                            <div className="grow"><FaBarcode className="inline" /> Scan</div>
                         </Link>
+                        {!username && <button className="cursor-pointer" onClick={() => {
+                            closeOnNavigate();
+                            router.push('/?scanner-tour=true');
+                        }}><FaQuestionCircle /> Tour</button>}
                     </li>
                     {signOutMenuItem}
                 </ul>
             </div>
         </div>
-    </div>;
+    </div>);
 }

@@ -8,12 +8,14 @@ import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
+import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useEffect } from 'react';
 import { hasSeenTour } from '../lib/tours';
 
 export default function Page() {
     const breakpoint = useTailwindBreakpoint();
+    const searchParams = useSearchParams();
 
     const { startNextStep } = useNextStep();
 
@@ -30,11 +32,14 @@ export default function Page() {
     } = useCodes();
 
     useEffect(() => {
-        if (!breakpoint || hasSeenTour('scanner')) {
+        if (!breakpoint) {
+            return;
+        }
+        if (!searchParams.get('scanner-tour') && hasSeenTour('scanner')) {
             return;
         }
         startNextStep('scanner');
-    }, [breakpoint, startNextStep]);
+    }, [breakpoint, searchParams, startNextStep]);
 
     const hasGameDataMap = !!gameDataMap;
     useEffect(() => {
