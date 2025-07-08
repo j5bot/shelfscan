@@ -11,9 +11,12 @@ import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { ReactNode, SyntheticEvent, useLayoutEffect, useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaSearch } from 'react-icons/fa';
 import { FaCaretRight, FaCheck, FaPlus, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+
+const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgameversion/${versionId}`;
 
 const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
@@ -194,7 +197,11 @@ export const SelectVersion = ({ id }: { id: string }) => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <div id="game-details" className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3">
-                <h2 className="mb-1 text-center uppercase">{info?.name ?? id}</h2>
+                <h2 className="mb-1 text-center uppercase">
+                    {info?.page_url ?
+                        <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id} <FaExternalLinkAlt size={9} className="text-gray-400 inline-block align-super" /></Link> :
+                            info?.name ?? id}
+                </h2>
                 <div className="flex gap-2 items-stretch justify-center">
                     <ThumbnailBox
                         alt={version?.name ?? 'Default Game Image'}
@@ -203,7 +210,11 @@ export const SelectVersion = ({ id }: { id: string }) => {
                     />
                     <div className="flex flex-col gap-2 w-content lg:max-w-2/3">
                         {version?.name && <div className="grow">
-                            <div className="border-b-1 border-b-gray-300">{version?.name}</div>
+                            <div className="border-b-1 border-b-gray-300">
+                                {version?.version_id ?
+                                    <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name} <FaExternalLinkAlt size={8} className="text-gray-400 inline-block align-super" /></Link> :
+                                        version?.name}
+                            </div>
                             <h4>{version?.published || 'Unknown'}</h4>
                         </div>}
                         <div className="shrink pb-1">
