@@ -10,7 +10,7 @@ import { RootState } from '@/app/lib/redux/store';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
-import { FaBarcode, FaBars } from 'react-icons/fa6';
+import { FaBarcode, FaBars, FaNewspaper } from 'react-icons/fa6';
 
 const closeOnNavigate = () => {
     document.getElementById('nav-drawer')?.click?.()
@@ -84,15 +84,23 @@ export const NavDrawer = () => {
                         <div className="text-xs">{name}</div>
                     </div>
                 </div>}
-                <ul className="w-full list-none menu text-base-content p-0 pt-2">
-                    <li className="w-full flex flex-row justify-between">
-                        <Link className="flex gap-2" href="/" onNavigate={closeOnNavigate}>
-                            <div className="grow"><FaBarcode className="inline" /> Scan</div>
+                <ul className="w-full list-none menu text-base-content p-0 pt-2 pb-2">
+                    <li className="w-full flex flex-row">
+                        <Link className="flex gap-2 grow" href="/" onNavigate={closeOnNavigate}>
+                            <FaBarcode className="inline" /> Scan
                         </Link>
-                        {!username && <button className="cursor-pointer" onClick={() => {
+                        {!username && <button className="cursor-pointer flex gap-2" onClick={() => {
                             closeOnNavigate();
                             router.push('/?scanner-tour=true');
                         }}><FaQuestionCircle /> Tour</button>}
+                    </li>
+                </ul>
+                <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">
+                    <li className="w-full flex flex-row">
+                        <Link className="flex gap-2 grow" href="https://boardgamegeek.com/blog/16520/shelfscan-news"
+                              target="_blank" onNavigate={closeOnNavigate}>
+                            <FaNewspaper className="inline" /> Blog
+                        </Link>
                     </li>
                     {signOutMenuItem}
                 </ul>
