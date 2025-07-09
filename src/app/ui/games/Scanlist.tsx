@@ -5,6 +5,7 @@ import {
 } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaCheckCircle, FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
@@ -114,6 +115,17 @@ export function Scanlist(props: ScanlistProps) {
                         size={smallSquareSize}
                         styles={imageContainerStyles}
                     />
+                </Link>
+            </div>
+            <div className="flex gap-2 w-full p-0.5">
+                <Link href={`https://recommend.games/#/?like=${infoId}`} target="_blank">
+                    <div title="Recommend.Games" className="p-1 rounded-full bg-orange-300">
+                        <Image
+                            src="/app-icons/recommend.games.svg"
+                            alt="Recommend.Games"
+                            width={20} height={20}
+                        />
+                    </div>
                 </Link>
             </div>
         </li>;
