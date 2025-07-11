@@ -1,22 +1,14 @@
-import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
+import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import Link from 'next/link';
 import React, { SyntheticEvent, useState } from 'react';
 import { FaExternalLinkAlt, FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
 
-export type GameDetailsProps = {
-    id: string;
-    info?: GameUPCBggInfo;
-    version?: GameUPCBggVersion;
-    defaultImageUrl: string;
-    searchGameUPC: (upc: string) => void;
-};
-
 const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgameversion/${versionId}`;
 
-export const GameDetails = (props: GameDetailsProps) => {
-    const { defaultImageUrl, id, info, searchGameUPC, version } = props;
+export const GameDetails = () => {
+    const { defaultImageUrl, id, info, searchGameUPC, version } = useSelectVersionContext();
 
     const [searchString, setSearchString] = useState<string>('');
 

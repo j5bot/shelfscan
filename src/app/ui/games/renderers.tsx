@@ -1,4 +1,4 @@
-import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import React, { ReactNode } from 'react';
@@ -19,9 +19,9 @@ const getConfidenceLevelColor = (confidence: number) => {
     }
 };
 
-export const ItemRenderer = (info: GameUPCBggInfo, index: number): ReactNode => {
+export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, index: number): ReactNode => {
     const { confidence, name } = info;
-    const { isInfoInCollection } = useSelectVersionContext();
+    const { isInfoInCollection } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
@@ -36,9 +36,9 @@ export const ItemRenderer = (info: GameUPCBggInfo, index: number): ReactNode => 
     </div>;
 };
 
-export const VersionItemRenderer = (item: GameUPCBggVersion, index: number): ReactNode => {
+export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBggVersion, index: number): ReactNode => {
     const { confidence, name, language, published } = item;
-    const { isVersionInCollection } = useSelectVersionContext();
+    const { isVersionInCollection } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
@@ -56,7 +56,11 @@ export const VersionItemRenderer = (item: GameUPCBggVersion, index: number): Rea
     </div>
 };
 
-export const SelectedItemRenderer = (item: GameUPCBggInfo | GameUPCBggVersion) => {
+export const renderSelectedItem = (context: SelectVersionContext, item: GameUPCBggInfo | GameUPCBggVersion) => {
+    if (!item) {
+        return;
+    }
+
     const {
         currentInfoInCollection,
         currentVersionInCollection,
@@ -69,11 +73,8 @@ export const SelectedItemRenderer = (item: GameUPCBggInfo | GameUPCBggVersion) =
         updateGameUPC,
         status,
         syncOn,
-    } = useSelectVersionContext();
+    } = context;
 
-    if (!item) {
-        return;
-    }
     const { confidence } = item;
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 

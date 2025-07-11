@@ -7,19 +7,16 @@ import {
 } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { GameDetails } from '@/app/ui/games/GameDetails';
-import { ItemRenderer, SelectedItemRenderer, VersionItemRenderer } from '@/app/ui/games/renderers';
+import { renderItem, renderSelectedItem, renderVersionItem } from '@/app/ui/games/renderers';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Image from 'next/image';
 
 export const SelectVersion = () => {
+    const selectVersionContext = useSelectVersionContext();
     const {
-        id,
         currentInfoIndex,
         currentVersionIndex,
-        defaultImageUrl,
         hasInfos,
-        info,
-        version,
         infos,
         versions,
         infoClickHandler,
@@ -27,19 +24,16 @@ export const SelectVersion = () => {
         versionClickHandler,
         versionHoverHandler,
         versionNameClickHandler,
-        searchGameUPC,
-    } = useSelectVersionContext();
+    } = selectVersionContext;
+
+    const renderItemFn = renderItem.bind(null, selectVersionContext);
+    const renderVersionItemFn = renderVersionItem.bind(null, selectVersionContext);
+    const renderSelectedItemFn = renderSelectedItem.bind(null, selectVersionContext);
 
     return <>
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
-            <GameDetails
-                defaultImageUrl={defaultImageUrl}
-                searchGameUPC={searchGameUPC}
-                id={id}
-                info={info}
-                version={version}
-            />
+            <GameDetails />
             {hasInfos && <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
                 <div id="select-game" className="flex gap-2 items-center">
                     <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
@@ -56,8 +50,8 @@ export const SelectVersion = () => {
                         onClick={gameClickHandler}
                         onSelect={infoClickHandler}
                         getItemKey={(info: GameUPCBggInfo) => info.id.toString()}
-                        renderItem={ItemRenderer}
-                        renderSelectedItem={SelectedItemRenderer}
+                        renderItem={renderItemFn}
+                        renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>
                 {currentInfoIndex !== null && versions && <div
@@ -80,8 +74,8 @@ export const SelectVersion = () => {
                         onHover={versionHoverHandler}
                         onSelect={versionClickHandler}
                         getItemKey={(version: GameUPCBggVersion) => version.version_id.toString()}
-                        renderItem={VersionItemRenderer}
-                        renderSelectedItem={SelectedItemRenderer}
+                        renderItem={renderVersionItemFn}
+                        renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>}
             </div>}
