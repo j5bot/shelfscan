@@ -7,16 +7,12 @@ import {
     GameUPCStatus
 } from '@/app/lib/types/GameUPCData';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
-import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { GameDetails } from '@/app/ui/games/GameDetails';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { ReactNode, SyntheticEvent, useLayoutEffect, useState } from 'react';
-import { FaExternalLinkAlt, FaSearch } from 'react-icons/fa';
-import { FaCaretRight, FaCheck, FaPlus, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
-
-const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgameversion/${versionId}`;
+import { FaCheck, FaPlus, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
@@ -60,13 +56,12 @@ export const SelectVersion = ({ id }: { id: string }) => {
         isRemoving,
     } = useSelectVersion(id);
 
-    const [searchString, setSearchString] = useState<string>('');
     const [syncOn, setSyncOn] = useState<boolean>(false);
 
     useLayoutEffect(() =>
         setSyncOn(document.body.getAttribute('data-shelfscan-sync') === 'on'), [version]);
-    
-    const addToCollection = () => {
+
+    const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
                 name: version?.name,
@@ -75,15 +70,11 @@ export const SelectVersion = ({ id }: { id: string }) => {
             },
         });
         document.dispatchEvent(ce);
-    };
 
-    const searchBlurHandler = (e: SyntheticEvent<HTMLInputElement>) => {
-        const searchString = e.currentTarget.value;
-        setSearchString(searchString);
-    };
-
-    const searchClickHandler = () => {
-        searchGameUPC(searchString);
+        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
     };
 
     const renderItem = (info: GameUPCBggInfo, index: number): ReactNode => {
@@ -108,7 +99,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
         return <div className="flex flex-col items-start">
             <div className="flex gap-2 items-center">
                 <div className="flex gap-2">{name}{
-                isVersionInCollection(index) && <FaCheck />
+                    isVersionInCollection(index) && <FaCheck />
                 }</div>
                 <SvgCssGauge className="confidence-level shrink-0 m-0.5"
                              color={confidenceLevelColor}
@@ -178,13 +169,7 @@ export const SelectVersion = ({ id }: { id: string }) => {
                             bg-[#e07ca4dc] border-[#e07ca4ff] text-white
                             absolute top-[-0.25rem] right-0 h-8 w-8 p-2.5
                             flex text-xs`}
-                        onClick={(e: SyntheticEvent<HTMLButtonElement>) => {
-                            addToCollection();
-                            const target = e.currentTarget.previousElementSibling as HTMLDivElement;
-                            void target.offsetWidth;
-                            target.classList.add('add-pulse');
-                            setTimeout(() => target.classList.remove('add-pulse'), 2500);
-                        }}
+                        onClick={addToCollection}
                     >
                         <FaPlus className="rounded-full md:w-3.5 md:h-3.5" />
                     </button>
@@ -196,52 +181,13 @@ export const SelectVersion = ({ id }: { id: string }) => {
     return <>
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
-            <div id="game-details" className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3">
-                <h2 className="mb-1 text-center uppercase">
-                    {info?.page_url ?
-                        <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id} <FaExternalLinkAlt size={9} className="text-gray-400 inline-block align-super" /></Link> :
-                            info?.name ?? id}
-                </h2>
-                <div className="flex gap-2 items-stretch justify-center">
-                    <ThumbnailBox
-                        alt={version?.name ?? 'Default Game Image'}
-                        url={version?.thumbnail_url ?? defaultImageUrl}
-                        size={150}
-                    />
-                    <div className="flex flex-col gap-2 w-content lg:max-w-2/3">
-                        {version?.name && <div className="grow">
-                            <div className="border-b-1 border-b-gray-300">
-                                {version?.version_id ?
-                                    <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name} <FaExternalLinkAlt size={8} className="text-gray-400 inline-block align-super" /></Link> :
-                                        version?.name}
-                            </div>
-                            <h4>{version?.published || 'Unknown'}</h4>
-                        </div>}
-                        <div className="shrink pb-1">
-                            <details className="inline-flex gap-1.5 items-center">
-                                <summary className="align-middle text-gray-500 btn h-7 w-7 p-0">
-                                    <FaSearch className="w-4 m-2" />
-                                </summary>
-                                <div className="align-middle inline-flex items-center gap-1 w-fit">
-                                    <input tabIndex={0}
-                                           type="text"
-                                           className="input h-7 text-xs w-fit"
-                                           name="search"
-                                           defaultValue={searchString}
-                                           onBlur={searchBlurHandler}
-                                    />
-                                    <button tabIndex={0}
-                                            onClick={searchClickHandler}
-                                            className="inline-flex bg-gray-400 p-0.5 rounded-full"
-                                    >
-                                        <FaCaretRight className="text-white"/>
-                                    </button>
-                                </div>
-                            </details>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <GameDetails
+                defaultImageUrl={defaultImageUrl}
+                searchGameUPC={searchGameUPC}
+                id={id}
+                info={info}
+                version={version}
+            />
             {hasInfos && <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
                 <div id="select-game" className="flex gap-2 items-center">
                     <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
@@ -249,7 +195,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
                             className="inline-block w-6 h-6 md:w-8 md:h-8"
                             src={'/icons/box-game.png'} alt="Game" width={32} height={32}
                         />
-                        {/*<span className="text-xs">Game</span>*/}
                     </div>
                     <CollapsibleList
                         className="text-sm md:text-md overflow-scroll h-50"
@@ -273,7 +218,6 @@ export const SelectVersion = ({ id }: { id: string }) => {
                         src={'/icons/box-version.png'}
                         alt="Version" width={32} height={32}
                         />
-                        {/*<span className="text-xs">Version</span>*/}
                     </div>
                     <CollapsibleList
                         className="text-sm md:text-md overflow-scroll h-65 md:h-80 lg:h-100"
