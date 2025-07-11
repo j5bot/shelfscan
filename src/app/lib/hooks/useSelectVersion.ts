@@ -4,10 +4,12 @@ import { useSelector } from '@/app/lib/hooks/index';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { SyntheticEvent, useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
 export const useSelectVersion = (id: string) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
+
+    const [syncOn, setSyncOn] = useState<boolean>(false);
 
     const {
         getGameData,
@@ -63,6 +65,9 @@ export const useSelectVersion = (id: string) => {
     } = useSelector(state => getIndexesInCollectionFromInfos(state, infos));
 
     const gameData = gameDataMap[id];
+
+    useLayoutEffect(() =>
+        setSyncOn(document.body.getAttribute('data-shelfscan-sync') === 'on'), [version]);
 
     useEffect(() => {
         if (!id) {
@@ -221,10 +226,27 @@ export const useSelectVersion = (id: string) => {
         setHoverVersionIndex(parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onHover'];
 
+    const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                name: version?.name,
+                gameId: info?.id,
+                versionId: version?.version_id,
+            },
+        });
+        document.dispatchEvent(ce);
+
+        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+    };
+
     const isInfoInCollection = (index: number) => infoIndexesInCollection.includes(index);
     const isVersionInCollection = (index: number) => versionIndexesInCollection.includes(index);
 
     return {
+        id,
         currentInfoIndex,
         currentVersionIndex,
         defaultImageUrl,
@@ -240,6 +262,7 @@ export const useSelectVersion = (id: string) => {
         isVersionInCollection,
         infoIndexesInCollection,
         versionIndexesInCollection,
+        addToCollection,
         infoClickHandler,
         gameClickHandler,
         versionClickHandler,
@@ -253,5 +276,6 @@ export const useSelectVersion = (id: string) => {
         isUpdating: isSubmitPending,
         isRemoving: isRemovePending,
         status,
+        syncOn,
     };
 }
