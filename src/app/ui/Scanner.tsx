@@ -8,30 +8,46 @@ export type ScannerProps = {
     onScan: (code: string) => void;
 };
 
+const SCANNER_SIZES = {
+    NONE: { height: 0, width: 0, cropWidthRatio: 1 },
+    XS: { height: 240, width: 320, cropWidthRatio: 0.9 },
+    SM: { height: 376, width: 480, cropWidthRatio: 0.6 },
+    MD: { height: 376, width: 480, cropWidthRatio: 1 },
+    LG: { height: 480, width: 640, cropWidthRatio: 1 }
+}
+
 export const ScannerSizes = {
-    loading: { height: 0, width: 0, cropWidthRatio: 1 },
-    mobile: { height: 240, width: 320, cropWidthRatio: 0.9 },
-    sm: { height: 376, width: 480, cropWidthRatio: 1 },
-    md: { height: 376, width: 480, cropWidthRatio: 1 },
-    lg: { height: 376, width: 480, cropWidthRatio: 1 },
-    xl: { height: 480, width: 640, cropWidthRatio: 1 },
-    '2xl': { height: 480, width: 640, cropWidthRatio: 1 },
+    loading: SCANNER_SIZES.NONE,
+    mobile: SCANNER_SIZES.SM,
+    sm: SCANNER_SIZES.MD,
+    md: SCANNER_SIZES.MD,
+    lg: SCANNER_SIZES.MD,
+    xl: SCANNER_SIZES.LG,
+    '2xl': SCANNER_SIZES.LG,
+    'forced-xs': SCANNER_SIZES.XS,
+    'forced-sm': SCANNER_SIZES.SM,
+    'forced-md': SCANNER_SIZES.MD,
+    'forced-lg': SCANNER_SIZES.LG,
 } as const;
 
 export function Scanner(props: ScannerProps) {
     const { onScan } = props;
     const breakpoint = useTailwindBreakpoint() ?? 'loading';
 
+    const [forcedSize, setForcedSize] = useState<keyof typeof ScannerSizes>();
+    void setForcedSize;
+
     // usually from props
     const {
         scanLine = 'solid 3px red',
-        canvasHeight = ScannerSizes[breakpoint].height,
-        canvasWidth = ScannerSizes[breakpoint].width,
-        videoHeight = ScannerSizes[breakpoint].height,
-        videoWidth = ScannerSizes[breakpoint].width,
-        videoCropHeight = ScannerSizes[breakpoint].height * 0.5,
-        videoCropWidth= ScannerSizes[breakpoint].width * ScannerSizes[breakpoint].cropWidthRatio,
-        zoom = 1.5,
+        canvasHeight = ScannerSizes[forcedSize ?? breakpoint].height,
+        canvasWidth = ScannerSizes[forcedSize ?? breakpoint].width,
+        videoHeight = ScannerSizes[forcedSize ?? breakpoint].height,
+        videoWidth = ScannerSizes[forcedSize ?? breakpoint].width,
+        videoCropHeight = ScannerSizes[forcedSize ?? breakpoint].height * 0.5,
+        videoCropWidth= ScannerSizes[forcedSize ?? breakpoint].width *
+                        ScannerSizes[forcedSize ?? breakpoint].cropWidthRatio,
+        zoom = 1,
         blur = 0,
     } = {};
 
@@ -44,7 +60,7 @@ export function Scanner(props: ScannerProps) {
                 play: () => Promise.resolve(),
             };
         }
-    }, []);
+    }, [breakpoint]);
 
     const [codes, setCodes] = useState<string[]>([]);
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -70,7 +86,7 @@ export function Scanner(props: ScannerProps) {
             height: `${videoCropHeight}px`,
             borderWidth: breakpoint === 'mobile' ? '0.25rem' : '0.35rem',
         }}
-        className="border-red-300 box-content rounded-2xl bg-red-300"
+        className="relative border-red-300 box-content rounded-2xl bg-red-300"
     >
         <BarcodeScanner
             animate={true}
@@ -90,5 +106,11 @@ export function Scanner(props: ScannerProps) {
             zoom={zoom}
             blur={blur}
         />
+        {/*<div className="absolute top-1 text-xs">*/}
+        {/*    <button className="btn" onClick={() => setForcedSize('forced-xs')}>XS</button>*/}
+        {/*    <button className="btn" onClick={() => setForcedSize('forced-sm')}>SM</button>*/}
+        {/*    <button className="btn" onClick={() => setForcedSize('forced-md')}>MD</button>*/}
+        {/*    <button className="btn" onClick={() => setForcedSize('forced-lg')}>LG</button>*/}
+        {/*</div>*/}
     </div>;
 }
