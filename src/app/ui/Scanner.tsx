@@ -47,7 +47,7 @@ export function Scanner(props: ScannerProps) {
         videoCropHeight = ScannerSizes[forcedSize ?? breakpoint].height * 0.5,
         videoCropWidth= ScannerSizes[forcedSize ?? breakpoint].width *
                         ScannerSizes[forcedSize ?? breakpoint].cropWidthRatio,
-        zoom = 1.5,
+        zoom = 1,
         blur = 0,
     } = {};
 
