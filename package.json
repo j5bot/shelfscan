@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@blakeembrey/template": "^1.2.0",
+    "@loadable/component": "^5.16.7",
     "@react-barcode-scanner/components": "0.0.48-alpha",
     "@reactuses/core": "^6.0.3",
     "@reduxjs/toolkit": "^2.8.2",
@@ -29,6 +31,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/loadable__component": "^5.13.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

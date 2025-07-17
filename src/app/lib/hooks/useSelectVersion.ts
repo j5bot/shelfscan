@@ -229,11 +229,33 @@ export const useSelectVersion = (id: string) => {
     const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
+                type: 'add',
                 name: version?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
             },
         });
+        document.dispatchEvent(ce);
+
+        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+    };
+
+    const addPlay = (e: SyntheticEvent<HTMLButtonElement>) => {
+        const currentDate = new Date();
+        const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                type: 'plays',
+                name: version?.name,
+                gameId: info?.id,
+                versionId: version?.version_id,
+                date: dateString,
+            },
+        });
+        console.log(ce);
         document.dispatchEvent(ce);
 
         const target = e.currentTarget.previousElementSibling as HTMLDivElement;
@@ -262,6 +284,7 @@ export const useSelectVersion = (id: string) => {
         isVersionInCollection,
         infoIndexesInCollection,
         versionIndexesInCollection,
+        addPlay,
         addToCollection,
         infoClickHandler,
         gameClickHandler,
