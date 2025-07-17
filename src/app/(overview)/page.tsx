@@ -83,14 +83,18 @@ export default function Page() {
                               : (
                                   <div className="w-full flex flex-col items-center justify-items-center text-center">
                                       <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                      <div className="mt-4 text-xs">
-                                          <h3>Scan UPCs and Audit Your BGG Collection</h3>
-                                          <h3>Scan UPCs and Update{' '}
+                                      <div className="mt-2 mb-3 text-sm">
+                                          <h3>- Scan UPCs, Then -</h3>
+                                          <span className="badge badge-sm bg-[#e07ca4] text-gray-50">Audit BGG Collection</span>
+                                          <span className="badge badge-sm bg-[#669966] text-gray-50">Update
                                               <Link className="underline" href="https://gameupc.com" target="_blank">GameUPC</Link>
-                                          </h3>
-                                          <h3>Scan UPCs and Add to Your BGG Collection</h3>
-                                          <h3>Scan UPCs and ...{' '}
-                                              <Link className="underline" href="https://boardgamegeek.com/blog/16520/shelfscan-news" target="_blank">More!</Link></h3>
+                                          </span>
+                                          <span className="badge badge-sm bg-[#5107df] text-gray-50">Add to BGG Collection</span>
+                                          <span className="badge badge-sm bg-orange-500 text-gray-50">and ...
+                                              <Link className="underline"
+                                                    href="https://boardgamegeek.com/blog/16520/shelfscan-news"
+                                                    target="_blank">More!</Link>
+                                          </span>
 .                                      </div>
                                       <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
                                   </div>
