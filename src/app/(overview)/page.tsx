@@ -12,6 +12,7 @@ import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useEffect } from 'react';
 import { hasSeenTour } from '../lib/tours';
+import Link from 'next/link';
 
 export default function Page() {
     const breakpoint = useTailwindBreakpoint();
@@ -82,7 +83,16 @@ export default function Page() {
                               : (
                                   <div className="w-full flex flex-col items-center justify-items-center text-center">
                                       <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                      <h4>Check your shelf before you wreck yourself</h4>
+                                      <div className="mt-4 text-xs">
+                                          <h3>Scan UPCs and Audit Your BGG Collection</h3>
+                                          <h3>Scan UPCs and Update{' '}
+                                              <Link className="underline" href="https://gameupc.com" target="_blank">GameUPC</Link>
+                                          </h3>
+                                          <h3>Scan UPCs and Add to Your BGG Collection</h3>
+                                          <h3>Scan UPCs and ...{' '}
+                                              <Link className="underline" href="https://boardgamegeek.com/blog/16520/shelfscan-news" target="_blank">More!</Link></h3>
+.                                      </div>
+                                      <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
                                   </div>
                               )
                              }

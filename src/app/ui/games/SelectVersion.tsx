@@ -34,7 +34,7 @@ export const SelectVersion = () => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <GameDetails />
-            {hasInfos && <div className="bg-overlay w-fit min-w-1/3 lg:min-w-1/4">
+            {hasInfos && <div className="bg-overlay pt-2 w-fit min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
                     <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
                         <Image

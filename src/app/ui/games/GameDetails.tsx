@@ -1,14 +1,18 @@
+import { usePluginMap } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { DynamicReactIcon } from '@/app/ui/DynamicReactIcon';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { template } from '@blakeembrey/template';
 import Link from 'next/link';
 import React, { SyntheticEvent, useState } from 'react';
-import { FaExternalLinkAlt, FaSearch } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
 
 const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgameversion/${versionId}`;
 
 export const GameDetails = () => {
     const { defaultImageUrl, id, info, searchGameUPC, version } = useSelectVersionContext();
+    const detailTemplates = usePluginMap('link.details');
 
     const [searchString, setSearchString] = useState<string>('');
 
@@ -27,8 +31,14 @@ export const GameDetails = () => {
     >
         <h2 className="mb-1 text-center uppercase">
             {info?.page_url ?
-             <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id} <FaExternalLinkAlt size={9} className="text-gray-400 inline-block align-super" /></Link> :
+             <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id}</Link> :
              info?.name ?? id}
+            {info && detailTemplates.game?.map(plugin => {
+                const templateFn = template(plugin.template);
+                return <Link key={plugin.template} title={plugin.title} href={templateFn(info ?? { upc: id })} target="_blank">
+                    <DynamicReactIcon icon={plugin.icon} size={9} className="text-gray-400 inline-block align-super ml-1" />
+                </Link>;
+            })}
         </h2>
         <div className="flex gap-2 items-stretch justify-center">
             <ThumbnailBox
@@ -40,8 +50,17 @@ export const GameDetails = () => {
                 {version?.name && <div className="grow">
                     <div className="border-b-1 border-b-gray-300">
                         {version?.version_id ?
-                         <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name} <FaExternalLinkAlt size={8} className="text-gray-400 inline-block align-super" /></Link> :
+                         <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name}</Link> :
                          version?.name}
+                        {version?.version_id && detailTemplates.version?.map(plugin => {
+                            const templateFn = template(plugin.template);
+                            return <Link key={plugin.template}
+                                         title={plugin.title}
+                                         href={templateFn({ ...version, page_url: getVersionUrl(version.version_id) })}
+                                         target="_blank">
+                                <DynamicReactIcon icon={plugin.icon} size={8} className="text-gray-400 inline-block align-super ml-1" />
+                            </Link>;
+                        })}
                     </div>
                     <h4>{version?.published || 'Unknown'}</h4>
                 </div>}
