@@ -12,11 +12,24 @@ import {
     getCollectionFromCache,
     getCollectionFromXml
 } from '@/app/lib/services/bgg/service';
-import { useTransition } from 'react';
+import { BggCollectionMap } from '@/app/lib/types/bgg';
+import { useEffect, useState, useTransition } from 'react';
 
 export const useLoadUser = () => {
     const dispatch = useDispatch();
     const [isPending, startTransition] = useTransition();
+    const [username, setUsername] = useState<string>();
+    const [items, setItems] = useState<BggCollectionMap>();
+
+    useEffect(() => {
+        if (!(items && username)) {
+            return;
+        }
+        dispatch(updateCollectionItems({
+            username,
+            items,
+        }));
+    }, [items, username]);
 
     const loadUser = (
         username?: string,
@@ -26,6 +39,7 @@ export const useLoadUser = () => {
         if (!username) {
             return;
         }
+        setUsername(username);
         startTransition(async () => {
             const id = `collection|${username}`;
             const userCacheId = `user|${username}`;
@@ -57,10 +71,7 @@ export const useLoadUser = () => {
 
             const items = getCollectionFromXml(xml);
             if (items) {
-                dispatch(updateCollectionItems({
-                    username,
-                    items,
-                }));
+                setItems(items);
             }
         });
     };
