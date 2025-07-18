@@ -1,5 +1,5 @@
 import { getSettings, ShelfScanSettings } from '@/app/lib/database/database';
-import { useLoadUser } from '@/app/lib/utils/user';
+import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export type SettingsProviderContextValue = {

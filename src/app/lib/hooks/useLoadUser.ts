@@ -4,7 +4,7 @@ import {
 } from '@/app/lib/actions';
 import { addResponseToCache, getResponseFromCache } from '@/app/lib/database/cacheDatabase';
 import { removeSetting, setSetting } from '@/app/lib/database/database';
-import { useDispatch } from '@/app/lib/hooks';
+import { useDispatch } from '@/app/lib/hooks/index';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import {
