@@ -106,11 +106,5 @@ export function Scanner(props: ScannerProps) {
             zoom={zoom}
             blur={blur}
         />
-        {/*<div className="absolute top-1 text-xs">*/}
-        {/*    <button className="btn" onClick={() => setForcedSize('forced-xs')}>XS</button>*/}
-        {/*    <button className="btn" onClick={() => setForcedSize('forced-sm')}>SM</button>*/}
-        {/*    <button className="btn" onClick={() => setForcedSize('forced-md')}>MD</button>*/}
-        {/*    <button className="btn" onClick={() => setForcedSize('forced-lg')}>LG</button>*/}
-        {/*</div>*/}
     </div>;
 }

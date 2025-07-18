@@ -34,7 +34,7 @@ export const addPlugin = async (pluginJSON: string) => {
     if (!pluginListSetting) {
         await database.settings.add({ id: 'plugins', value: [id] });
     } else {
-        await database.settings.put({ id: 'plugins', value: [...pluginListSetting.value, id] });
+        await database.settings.put({ id: 'plugins', value: [...(pluginListSetting.value as string[]), id] });
     }
     try {
         await database.plugins.add(plugin);

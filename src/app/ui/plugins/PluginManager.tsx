@@ -44,7 +44,7 @@ export const PluginManager = () => {
             </ul>
             <fieldset className="fieldset relative">
                 <legend className="fieldset-legend">New Plugin JSON</legend>
-                <textarea className="textarea h-24 w-full text-xs" ref={pluginTextAreaRef}></textarea>
+                <textarea className="textarea h-40 inset-shadow-xs/40 inset-shadow-gray-400 w-full text-xs" ref={pluginTextAreaRef}></textarea>
                 <button className="btn absolute top-2 right-1 btn-xs" onClick={onAddPlugin}>
                     <FaPlus />
                 </button>

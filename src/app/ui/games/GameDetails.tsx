@@ -35,7 +35,7 @@ export const GameDetails = () => {
              info?.name ?? id}
             {info && detailTemplates.game?.map(plugin => {
                 const templateFn = template(plugin.template);
-                return <Link key={plugin.template} title={plugin.title} href={templateFn(info ?? { upc: id })} target="_blank">
+                return <Link className="mb-2" key={plugin.template} title={plugin.title} href={templateFn(info ?? { upc: id })} target="_blank">
                     <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? 12} className="text-gray-400 ml-1" />
                 </Link>;
             })}
