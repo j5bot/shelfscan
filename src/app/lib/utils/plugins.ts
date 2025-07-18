@@ -39,6 +39,7 @@ export const addPlugin = async (pluginJSON: string) => {
     try {
         await database.plugins.add(plugin);
     } catch (e) {
+        void e;
         await database.plugins.put(plugin);
     }
 };

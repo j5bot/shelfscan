@@ -1,6 +1,6 @@
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
-import { DynamicReactIcon } from '@/app/ui/DynamicReactIcon';
+import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
@@ -29,14 +29,14 @@ export const GameDetails = () => {
         id="game-details"
         className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3"
     >
-        <h2 className="mb-1 text-center uppercase">
+        <h2 className="mb-1 text-center uppercase flex gap-1 justify-center items-center">
             {info?.page_url ?
              <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id}</Link> :
              info?.name ?? id}
             {info && detailTemplates.game?.map(plugin => {
                 const templateFn = template(plugin.template);
                 return <Link key={plugin.template} title={plugin.title} href={templateFn(info ?? { upc: id })} target="_blank">
-                    <DynamicReactIcon icon={plugin.icon} size={9} className="text-gray-400 inline-block align-super ml-1" />
+                    <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? 12} className="text-gray-400 ml-1" />
                 </Link>;
             })}
         </h2>
@@ -58,7 +58,7 @@ export const GameDetails = () => {
                                          title={plugin.title}
                                          href={templateFn({ ...version, page_url: getVersionUrl(version.version_id) })}
                                          target="_blank">
-                                <DynamicReactIcon icon={plugin.icon} size={8} className="text-gray-400 inline-block align-super ml-1" />
+                                <DynamicIcon icon={plugin.icon} size={8} className="text-gray-400 inline-block align-super ml-1" />
                             </Link>;
                         })}
                     </div>
