@@ -1,0 +1,16 @@
+{
+    "id": "plugin.test.DiceTower",
+    "name": "Dice Tower Links Plugin",
+    "type": "link",
+    "location": "details",
+    "templates": {
+        "game": [
+            {
+                "icon": "fa6/FaDice",
+                "title": "Dice Tower Link",
+                "template": "https://dicetower.com/board-game/{{id}}"
+            }
+        ],
+        "version": []
+    }
+}

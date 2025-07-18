@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
+import { PluginManager } from '@/app/ui/plugins/PluginManager';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
@@ -104,6 +105,7 @@ export const NavDrawer = () => {
                     </li>
                     {signOutMenuItem}
                 </ul>
+                <PluginManager />
             </div>
         </div>
     </div>);

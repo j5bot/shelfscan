@@ -6,16 +6,24 @@ import {
 import { makePluginMap } from '@/app/lib/utils/plugins';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
-export const PluginMapContext =
-    createContext<ShelfScanPluginMap>({} as ShelfScanPluginMap);
+export type PluginMapProviderValue = {
+    loadPlugins: () => PromiseLike<void>;
+    plugins: ShelfScanPluginMap;
+}
 
-export const usePluginMap = (key?: string) => {
-    const pluginMap = useContext<ShelfScanPluginMap>(PluginMapContext);
+export const PluginMapContext =
+    createContext<PluginMapProviderValue>({
+        loadPlugins: async () => undefined,
+        plugins: {} as ShelfScanPluginMap,
+    });
+
+export const usePlugins = (key?: string) => {
+    const { plugins } = useContext<PluginMapProviderValue>(PluginMapContext);
 
     if (!key) {
-        return pluginMap as ShelfScanPluginSection;
+        return plugins as ShelfScanPluginSection;
     }
-    if (Object.keys(pluginMap).length === 0) {
+    if (Object.keys(plugins).length === 0) {
         return {} as ShelfScanPluginSection;
     }
 
@@ -23,20 +31,25 @@ export const usePluginMap = (key?: string) => {
     return segments.reduce(
         (map, segment) =>
             map[segment] as ShelfScanPluginSection,
-        pluginMap as ShelfScanPluginSection,
+        plugins as ShelfScanPluginSection,
     );
 };
 
 export const PluginMapProvider = ({ children }: { children: ReactNode }) => {
-    const [pluginMap, setPluginMap] = useState<ShelfScanPluginMap>({} as ShelfScanPluginMap);
+    const [plugins, setPlugins] = useState<ShelfScanPluginMap>({} as ShelfScanPluginMap);
+
+    const loadPlugins = async () => {
+        setPlugins(await makePluginMap());
+    };
 
     useEffect(() => {
-        (async () => {
-            setPluginMap(await makePluginMap());
-        })();
+        loadPlugins().then();
     }, []);
 
-    return <PluginMapContext.Provider value={pluginMap}>
+    return <PluginMapContext.Provider value={{
+        loadPlugins,
+        plugins
+    }}>
         {children}
     </PluginMapContext.Provider>
 };

@@ -26,12 +26,18 @@ const builtInPlugins: ShelfScanPlugin[] = [
     },
 ];
 
+export const makePluginList = async () => {
+    const enabledPlugins = await getEnabledPlugins();
+    return builtInPlugins.concat(enabledPlugins);
+};
+
 export const makePluginMap = async () => {
-    const plugins = (await getEnabledPlugins()).concat(builtInPlugins);
-    return plugins.reduce((acc, plugin) => {
+    return (await makePluginList()).reduce((acc, plugin) => {
         if (!plugin) {
+            console.log(acc);
             return acc;
         }
+        console.log(JSON.stringify(plugin, undefined, 2));
         const type = acc[plugin.type] ?? {};
         const location = type[plugin.location] ?? {};
         const templateEntries = Object.entries(plugin.templates);

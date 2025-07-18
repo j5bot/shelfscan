@@ -1,4 +1,4 @@
-import { usePluginMap } from '@/app/lib/PluginMapProvider';
+import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { DynamicReactIcon } from '@/app/ui/DynamicReactIcon';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
@@ -12,7 +12,7 @@ const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgam
 
 export const GameDetails = () => {
     const { defaultImageUrl, id, info, searchGameUPC, version } = useSelectVersionContext();
-    const detailTemplates = usePluginMap('link.details');
+    const detailTemplates = usePlugins('link.details');
 
     const [searchString, setSearchString] = useState<string>('');
 
