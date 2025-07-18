@@ -83,18 +83,20 @@ export default function Page() {
                               : (
                                   <div className="w-full flex flex-col items-center justify-items-center text-center">
                                       <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                      <div className="mt-2 mb-3 text-sm">
+                                      <div className="mt-2 mb-2 text-sm">
                                           <h3>- Scan UPCs, Then -</h3>
-                                          <span className="badge badge-sm bg-[#e07ca4] text-gray-50">Audit BGG Collection</span>
-                                          <span className="badge badge-sm bg-[#669966] text-gray-50">Update
-                                              <Link className="underline" href="https://gameupc.com" target="_blank">GameUPC</Link>
-                                          </span>
-                                          <span className="badge badge-sm bg-[#5107df] text-gray-50">Add to BGG Collection</span>
-                                          <span className="badge badge-sm bg-orange-500 text-gray-50">and ...
-                                              <Link className="underline"
-                                                    href="https://boardgamegeek.com/blog/16520/shelfscan-news"
-                                                    target="_blank">More!</Link>
-                                          </span>
+                                          <div className="flex flex-wrap gap-1 justify-center">
+                                              <span className="badge badge-md bg-[#e07ca4aa] text-white">Audit BGG Collection</span>
+                                              <span className="badge badge-md bg-[#66996699] text-white">Update
+                                                  <Link className="underline" href="https://gameupc.com" target="_blank">GameUPC</Link>
+                                              </span>
+                                              <span className="badge badge-md bg-[#5107df55] text-white">Add to BGG Collection</span>
+                                              <span className="badge badge-md bg-[#ff6900aa] text-white">and ...
+                                                  <Link className="underline"
+                                                        href="https://boardgamegeek.com/blog/16520/shelfscan-news"
+                                                        target="_blank">More!</Link>
+                                              </span>
+                                          </div>
 .                                      </div>
                                       <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
                                   </div>
