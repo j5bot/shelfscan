@@ -41,8 +41,8 @@ export const useLoadUser = () => {
         }
         setUsername(username);
         startTransition(async () => {
-            const id = `collection|${username}`;
-            const userCacheId = `user|${username}`;
+            const id = `collection|${username.toLowerCase()}`;
+            const userCacheId = `user|${username.toLowerCase()}`;
 
             if (rememberMe) {
                 setSetting('username', username).then();
@@ -55,7 +55,7 @@ export const useLoadUser = () => {
 
             if (useCache) {
                 xml = await getCollectionFromCache(id);
-                userXml = await getResponseFromCache(`user|${username}`);
+                userXml = await getResponseFromCache(`user|${username.toLowerCase()}`);
             }
             if (!xml) {
                 xml = await bggGetCollectionInner(username, 0);
