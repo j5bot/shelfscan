@@ -3,10 +3,12 @@ import {
     getImageDataFromCache,
     makeImageCacheId
 } from '@/app/lib/database/cacheDatabase';
+import { removeSetting } from '@/app/lib/database/database';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
+import { useSettings } from '@/app/lib/SettingsProvider';
 import { Settings } from '@/app/ui/Settings';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -20,6 +22,7 @@ const closeOnNavigate = () => {
 
 export const NavDrawer = () => {
     const dispatch = useDispatch();
+    const { loadSettings } = useSettings();
 
     const [dialogContent, setDialogContent] = useState<ReactNode>(null);
 
@@ -66,6 +69,8 @@ export const NavDrawer = () => {
 
     const signOutHandler = () => {
         dispatch(setBggUser());
+        removeSetting('username').then();
+        loadSettings().then();
     };
 
     const signOutMenuItem = username ? <li>

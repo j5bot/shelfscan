@@ -86,12 +86,12 @@ export default function Page() {
                                       <div className="mt-2 mb-2 text-sm">
                                           <h3>- Scan UPCs, Then -</h3>
                                           <div className="flex flex-wrap gap-1 justify-center">
-                                              <span className="badge badge-md bg-[#e07ca4aa] text-white">Audit BGG Collection</span>
-                                              <span className="badge badge-md bg-[#66996699] text-white">Update
+                                              <span className="badge badge-sm text-[#e07ca4ee] shadow-sm">Audit BGG Collection</span>
+                                              <span className="badge badge-sm text-[#669966cc] shadow-sm">Update
                                                   <Link className="underline" href="https://gameupc.com" target="_blank">GameUPC</Link>
                                               </span>
-                                              <span className="badge badge-md bg-[#5107df55] text-white">Add to BGG Collection</span>
-                                              <span className="badge badge-md bg-[#ff6900aa] text-white">and ...
+                                              <span className="badge badge-sm text-[#5107df66] shadow-sm">Add to BGG Collection</span>
+                                              <span className="badge badge-sm text-[#ff6900aa] shadow-sm">and ...
                                                   <Link className="underline"
                                                         href="https://boardgamegeek.com/blog/16520/shelfscan-news"
                                                         target="_blank">More!</Link>

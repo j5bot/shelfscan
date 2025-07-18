@@ -60,8 +60,13 @@ export const bggGetUser = async (formData: FormData) => {
         return '';
     }
 
+    return bggGetUserInner(validated.data.username);
+};
+
+export const bggGetUserInner = async (username: string) => {
     const bggUserUrl = new URL(bggUserBaseURL);
-    bggUserUrl.searchParams.append('name', validated.data.username);
+    bggUserUrl.searchParams.append('name', username);
+    bggUserUrl.searchParams.append('buddies', '1');
 
     return await fetchFromBggWithToken(bggUserUrl.toString(), {}).then(r => r.text());
 };
