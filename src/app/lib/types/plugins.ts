@@ -2,6 +2,7 @@ import { ValueOf } from 'next/constants';
 
 export type Template = {
     icon: string;
+    iconSize?: number;
     title: string;
     template: string;
 };

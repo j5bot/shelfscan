@@ -6,10 +6,7 @@ export type SettingEntity = {
     value: string | string[];
 };
 
-export type PluginEntity = {
-    id: string;
-    plugin: ShelfScanPlugin;
-};
+export type PluginEntity = ShelfScanPlugin;
 
 export const database = new Dexie('db') as Dexie & {
     settings: EntityTable<SettingEntity, 'id'>;
@@ -25,9 +22,4 @@ export const getSetting = async (id: string) =>
     (await database.settings.get(id))?.value;
 
 export const getPlugin = async (id: string) =>
-    (await database.plugins.get(id))?.plugin;
-
-export const getEnabledPlugins = async () => {
-    const pluginList = (await getSetting('plugins') as string[]) ?? [];
-    return await Promise.all(pluginList.map(pluginId => getPlugin(pluginId)));
-};
+    (await database.plugins.get(id));

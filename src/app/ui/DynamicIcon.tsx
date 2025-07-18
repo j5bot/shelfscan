@@ -1,5 +1,5 @@
 import loadable from '@loadable/component';
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { useEffect, useState, ReactNode, SVGAttributes } from 'react';
 
 type ImportFn = Parameters<typeof loadable>[0];
 
@@ -35,6 +35,35 @@ const IconLibraryImportMap: Record<string, Parameters<typeof loadable>[0]> = {
     ti: (() => import('react-icons/ti') as unknown) as ImportFn,
     vsc: (() => import('react-icons/vsc') as unknown) as ImportFn,
     wi: (() => import('react-icons/wi') as unknown) as ImportFn,
+};
+
+export const DynamicIcon = <T extends SVGAttributes<unknown> & {
+    icon: string; size: number;
+}>(props: T) => {
+    const [libraryOrViewBox, iconNameOrPath] = props.icon.split('/');
+
+    // we assume this is an SVG viewBox/path if library isn't mapped
+    return IconLibraryImportMap[libraryOrViewBox] ?
+           <DynamicReactIcon {...props} /> :
+           <DynamicSvgIcon
+               path={iconNameOrPath}
+               viewBox={libraryOrViewBox}
+               className={props.className}
+               size={props.size}
+               fill="currentColor"
+           />;
+};
+
+export const DynamicSvgIcon = (props: SVGAttributes<unknown> & {
+    path: string;
+    size: number;
+}) => {
+    const { path, size, ...svgProps} = props;
+    return <svg xmlns="http://www.w3.org/2000/svg" {...svgProps} height={size} width={size}>
+        <path
+            d={path}
+        />
+    </svg>;
 };
 
 export const DynamicReactIcon = <T extends { icon: string; }>(props: T) => {
