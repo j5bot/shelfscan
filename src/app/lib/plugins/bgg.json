@@ -1,0 +1,22 @@
+{
+    "id": "plugin.internal2.BGGLink",
+    "name": "BGG Links Plugin2",
+    "type": "link",
+    "location": "details",
+    "templates": {
+        "game": [
+            {
+                "icon": "fa/FaExternalLinkAlt",
+                "title": "Game Link",
+                "template": "{{page_url}}"
+            }
+        ],
+        "version": [
+            {
+                "icon": "fa/FaExternalLinkAlt",
+                "title": "Version Link",
+                "template": "{{page_url}}"
+            }
+        ]
+    }
+}
