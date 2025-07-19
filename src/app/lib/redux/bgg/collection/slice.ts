@@ -66,7 +66,8 @@ export const bggCollectionSlice = createSlice({
             state,
             action: PayloadAction<{username: string; items: BggCollectionMap}>,
         ) => {
-            const { username, items } = action.payload;
+            const { username: user, items } = action.payload;
+            const username = user.toLowerCase();
             if (!state.users[username]) {
                 state.users[username] = {
                     items: {},

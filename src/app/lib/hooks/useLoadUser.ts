@@ -19,7 +19,15 @@ export const useLoadUser = () => {
     const dispatch = useDispatch();
     const [isPending, startTransition] = useTransition();
     const [username, setUsername] = useState<string>();
+    const [userXml, setUserXml] = useState<string>();
     const [items, setItems] = useState<BggCollectionMap>();
+
+    useEffect(() => {
+        if (!userXml) {
+            return;
+        }
+        dispatch(setBggUser(getBggUser(userXml)));
+    }, [userXml]);
 
     useEffect(() => {
         if (!(items && username)) {
@@ -55,7 +63,7 @@ export const useLoadUser = () => {
 
             if (useCache) {
                 xml = await getCollectionFromCache(id);
-                userXml = await getResponseFromCache(`user|${username.toLowerCase()}`);
+                userXml = await getResponseFromCache(userCacheId);
             }
             if (!xml) {
                 xml = await bggGetCollectionInner(username, 0);
@@ -65,9 +73,7 @@ export const useLoadUser = () => {
                 userXml = await bggGetUserInner(username);
                 addResponseToCache({ id: userCacheId, method: 'GET', response: userXml }).then();
             }
-            if (userXml) {
-                dispatch(setBggUser(getBggUser(userXml)));
-            }
+            setUserXml(userXml);
 
             const items = getCollectionFromXml(xml);
             if (items) {
