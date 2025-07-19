@@ -65,7 +65,7 @@ export const GameDetails = () => {
                     <h4>{version?.published || 'Unknown'}</h4>
                 </div>}
                 <div className="shrink pb-1">
-                    <details className="inline-flex gap-1.5 items-center">
+                    <details className="inline-flex gap-1.5 items-center" open={!info}>
                         <summary className="align-middle text-gray-500 btn h-7 w-7 p-0">
                             <FaSearch className="w-4 m-2" />
                         </summary>
@@ -74,6 +74,7 @@ export const GameDetails = () => {
                                    type="text"
                                    className="input h-7 text-xs w-fit"
                                    name="search"
+                                   placeholder="Search for game"
                                    defaultValue={searchString}
                                    onBlur={searchBlurHandler}
                             />
