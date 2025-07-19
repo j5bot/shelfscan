@@ -6,6 +6,7 @@ import {
 import { removeSetting } from '@/app/lib/database/database';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
+import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { useSettings } from '@/app/lib/SettingsProvider';
@@ -13,7 +14,7 @@ import { Settings } from '@/app/ui/Settings';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useRef, useState } from 'react';
-import { FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaQuestionCircle, FaSignOutAlt, FaSync } from 'react-icons/fa';
 import { FaBarcode, FaBars, FaGear, FaNewspaper } from 'react-icons/fa6';
 
 const closeOnNavigate = () => {
@@ -22,7 +23,9 @@ const closeOnNavigate = () => {
 
 export const NavDrawer = () => {
     const dispatch = useDispatch();
-    const { loadSettings } = useSettings();
+    const { loadSettings, settings } = useSettings();
+    const { username: settingsUsername, rememberMe } = settings;
+    const { isPending: refreshCollectionPending, loadUser } = useLoadUser();
 
     const [dialogContent, setDialogContent] = useState<ReactNode>(null);
 
@@ -73,11 +76,28 @@ export const NavDrawer = () => {
         loadSettings().then();
     };
 
+    const refreshCollectionHandler = () => {
+        if (!(username && settingsUsername)) {
+            return;
+        }
+        loadUser(settingsUsername as string, rememberMe as boolean, false);
+    };
+
     const signOutMenuItem = username ? <li>
         <label htmlFor="nav-drawer" onClick={() => {
             signOutHandler();
             closeOnNavigate();
         }}><FaSignOutAlt className="inline" /> Sign Out</label>
+    </li> : null;
+
+    const refreshCollectionItem = settingsUsername ? <li>
+        <label htmlFor="nav-drawer" onClick={() => {
+            if (refreshCollectionPending) {
+                return;
+            }
+            refreshCollectionHandler();
+            closeOnNavigate();
+        }}><FaSync className={`inline ${refreshCollectionPending ? 'animate-spin' : ''}`} /> Refresh Collection </label>
     </li> : null;
 
     return (<>
@@ -114,6 +134,7 @@ export const NavDrawer = () => {
                                 router.push('/?scanner-tour=true');
                             }}><FaQuestionCircle /> Tour</button>}
                         </li>
+                        {refreshCollectionItem}
                     </ul>
                     <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">
                         <li className="w-full flex flex-row">
