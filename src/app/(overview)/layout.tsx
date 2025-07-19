@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <GameUPCDataProvider>
                                 <NextStepProvider>
                                     <div style={{
-                                        minHeight: 'calc(100vh - 10em)'
+                                        minHeight: 'calc(100dvh - 10em)'
                                     }}>
                                         {children}
                                     </div>
