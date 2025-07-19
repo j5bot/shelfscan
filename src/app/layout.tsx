@@ -1,10 +1,9 @@
-import { PoweredByBGGLogo } from '@/app/ui/PoweredByBGGLogo';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Share_Tech } from 'next/font/google';
 import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { type CSSProperties } from 'react';
+import React from 'react';
 
 const shareTech = Share_Tech({
     variable: '--font-share-tech',
@@ -41,7 +40,7 @@ export default function RootLayout({
               <link rel="manifest" href="/site.webmanifest" />
           </head>
           <body className={`
-          h-screen w-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased
+          w-full min-h-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased
           bg-[image:url(/images/flair-bg.png)]
           md:bg-[image:url(/images/flair-bg-md.png)]
           lg:bg-[image:url(/images/flair-bg-lg.png)]
@@ -67,21 +66,7 @@ export default function RootLayout({
                       />
                   </Link>
               </div>
-              <div className="z-0">
-                  {children}
-              </div>
-              <div className="absolute bottom-4 flex justify-center w-full">
-                  <Link href={'https://boardgamegeek.com'} target="_blank">
-                    <PoweredByBGGLogo
-                        width={114}
-                        height={25}
-                        style={{
-                            '--bgg-head-fill': 'currentColor',
-                            '--bgg-text-fill': 'currentColor',
-                        } as CSSProperties}
-                    />
-                  </Link>
-              </div>
+              {children}
           </body>
       </html>
   );
