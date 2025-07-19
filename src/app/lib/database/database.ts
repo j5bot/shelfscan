@@ -23,7 +23,7 @@ export const getSetting = async (id: string) =>
     (await database.settings.get(id))?.value;
 
 export const setSetting = async (id: string, value: SettingEntity['value']) => {
-    const hasSetting = await getSetting(id);
+    const hasSetting = await database.settings.get(id);
     if (hasSetting) {
         await database.settings.put({ id, value });
     } else {
