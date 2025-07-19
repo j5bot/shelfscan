@@ -1,21 +1,38 @@
 # ShelfScan
 
-This app is a demo / implementation app for the
+See the app at https://ShelfScan.io!
+
+Read about what you can
+do with it - and watch demo videos - on the
+[BGG blog](https://boardgamegeek.com/blog/16520/shelfscan-news).
+
+This app began as a demo / implementation app for the
 https://gameupc.com APIs.
 
 Its purpose is to allow someone to scan
-board game UPCs and display BGG game info for the
-scanned games.
+board game UPCs and work with the associated games
+returned by GameUPC.
 
-Future extensions will allow you to add a
-game to your BGG collection by scanning it,
-including assigning the correct version when
-possible.
+With just the app, you can help update the GameUPC database
+and audit your BoardGameGeek game collection.
 
-The app is built with `Next.js` and utilizes
-my library
+A browser extension (in testing) which works along with
+the app allows you to do things like:
+
+- Add the game to your BoardGameGeek collection
+- Post a copy of the game for sale in the BGG GeekMarket
+- Log a basic game play on BoardGameGeek
+
+A 'plugin' manager allows you to integrate other web apps with
+ShelfScan using simple JSON.
+
+The app is built with `TypeScript`, `React`, `Next.js`,
+`tailwindcss`, and more, and utilizes my library
 `@react-barcode-scanner/components` for barcode
 scanning using a webcam or phone camera.
+
+At this time the app is not licensed for modification.  Message me
+if you'd like to discuss contributing or forking the app.
 
 ### Barcode Images
 - [Sample barcodes to scan](./assets/game-barcodes/UPCs.md)
