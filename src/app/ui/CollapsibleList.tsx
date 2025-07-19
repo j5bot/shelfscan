@@ -8,6 +8,7 @@ export const makeListItemClassName = (current: number, selected: number | null) 
     }`;
 
 export type CollapsibleListProps<T> = {
+    title?: ReactNode;
     type: string;
     selectedItemIndex: number | null;
     items: T[],
@@ -23,6 +24,7 @@ export type CollapsibleListProps<T> = {
 export const CollapsibleList =
     <T,>(props: CollapsibleListProps<T>) => {
     const {
+        title = <h4 className="uppercase tracking-widest text-center block">Select</h4>,
         type,
         selectedItemIndex,
         items,
@@ -58,8 +60,8 @@ export const CollapsibleList =
      >
          {renderSelectedItem(items[selectedItemIndex ?? 0])}
      </div> :
-     <div>
-         <h4>Select</h4>
+     <div className="w-full mt-1">
+         {title}
          <ul className={`menu pl-0 ml-0 mr-0 bg-base-100 rounded-box w-full lg:min-w-64 shadow-sm ${className}`}>
              {items.map((item: T, index: number) => {
                  const itemProps = {

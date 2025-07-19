@@ -10,6 +10,10 @@ import { GameDetails } from '@/app/ui/games/GameDetails';
 import { renderItem, renderSelectedItem, renderVersionItem } from '@/app/ui/games/renderers';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Image from 'next/image';
+import React from 'react';
+
+const gameTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Game</h4>
+const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Version</h4>
 
 export const SelectVersion = () => {
     const selectVersionContext = useSelectVersionContext();
@@ -43,7 +47,8 @@ export const SelectVersion = () => {
                         />
                     </div>
                     <CollapsibleList
-                        className="text-sm md:text-md overflow-scroll h-50"
+                        title={gameTitle}
+                        className="text-sm md:text-md overflow-x-scroll h-50"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
@@ -66,7 +71,8 @@ export const SelectVersion = () => {
                         />
                     </div>
                     <CollapsibleList
-                        className="text-sm md:text-md overflow-scroll h-65 md:h-80 lg:h-100"
+                        title={versionTitle}
+                        className="text-sm md:text-md overflow-x-scroll h-65 md:h-80 lg:h-100"
                         type="version"
                         items={versions}
                         selectedItemIndex={currentVersionIndex}
