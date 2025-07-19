@@ -2,7 +2,7 @@ import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import React, { ReactNode } from 'react';
-import { FaCheck, FaDice, FaPlus, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
@@ -65,8 +65,7 @@ export const renderSelectedItem = (context: SelectVersionContext, item: GameUPCB
         currentInfoInCollection,
         currentVersionInCollection,
         currentVersionIndex,
-        addPlay,
-        addToCollection,
+        extensionRenderBlock,
         info,
         isRemoving,
         removeGameUPC,
@@ -115,41 +114,16 @@ export const renderSelectedItem = (context: SelectVersionContext, item: GameUPCB
                     </button>
                 </>
             )} {showRemove && (
-            <button
-                disabled={isRemoving}
-                onClick={removeGameUPC}
-                className="remove-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
-            >
-                <FaThumbsDown className="md:w-2.5 md:h-2.5" />
-                <span className="hidden md:block">Remove</span>
-            </button>
-        )}
-            {showUpdate && syncOn && <div className="absolute flex gap-0.5 md:gap-1.5 top-[-0.25rem] right-0 h-7.5 md:h-8.5">
-                <div className="relative w-7.5 md:8.5">
-                    <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5"></div>
-                    <button
-                        className={`collection-button cursor-pointer rounded-full
-                                bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-2
-                                absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5
-                                text-xs inline-block`}
-                        onClick={addToCollection}
-                    >
-                        <FaPlus className="rounded-full w-3.5 h-3.5 md:w-4.5 md:h-4.5" />
-                    </button>
-                </div>
-                <div className="relative w-8.5">
-                    <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5"></div>
-                    <button
-                        className={`collection-button cursor-pointer rounded-full
-                                bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-1.5
-                                absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5
-                                text-xs inline-block`}
-                        onClick={addPlay}
-                    >
-                        <FaDice className="rounded-full w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                </div>
-            </div>}
+                <button
+                    disabled={isRemoving}
+                    onClick={removeGameUPC}
+                    className="remove-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                >
+                    <FaThumbsDown className="md:w-2.5 md:h-2.5" />
+                    <span className="hidden md:block">Remove</span>
+                </button>
+            )}
+            {showUpdate && extensionRenderBlock}
         </div>
     </div>;
 };

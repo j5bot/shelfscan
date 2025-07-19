@@ -1,15 +1,14 @@
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks/index';
+import { useExtension } from '@/app/lib/hooks/useExtension';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
-import React, { SyntheticEvent, useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 export const useSelectVersion = (id: string) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
-
-    const [syncOn, setSyncOn] = useState<boolean>(false);
 
     const {
         getGameData,
@@ -45,6 +44,8 @@ export const useSelectVersion = (id: string) => {
     const versions = info?.versions;
     const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
 
+    const { syncOn, extensionRenderBlock } = useExtension(info, version);
+
     const updateGameUPC = () => {
         if (!selectedInfoId || isSubmitPending) {
             return;
@@ -65,9 +66,6 @@ export const useSelectVersion = (id: string) => {
     } = useSelector(state => getIndexesInCollectionFromInfos(state, infos));
 
     const gameData = gameDataMap[id];
-
-    useLayoutEffect(() =>
-        setSyncOn(document.body.getAttribute('data-shelfscan-sync') === 'on'), [version]);
 
     useEffect(() => {
         if (!id) {
@@ -226,43 +224,6 @@ export const useSelectVersion = (id: string) => {
         setHoverVersionIndex(parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onHover'];
 
-    const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: {
-                type: 'add',
-                name: version?.name,
-                gameId: info?.id,
-                versionId: version?.version_id,
-            },
-        });
-        document.dispatchEvent(ce);
-
-        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
-    };
-
-    const addPlay = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const currentDate = new Date();
-        const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: {
-                type: 'plays',
-                name: version?.name,
-                gameId: info?.id,
-                versionId: version?.version_id,
-                date: dateString,
-            },
-        });
-        document.dispatchEvent(ce);
-
-        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
-    };
-
     const isInfoInCollection = (index: number) => infoIndexesInCollection.includes(index);
     const isVersionInCollection = (index: number) => versionIndexesInCollection.includes(index);
 
@@ -283,8 +244,7 @@ export const useSelectVersion = (id: string) => {
         isVersionInCollection,
         infoIndexesInCollection,
         versionIndexesInCollection,
-        addPlay,
-        addToCollection,
+        extensionRenderBlock,
         infoClickHandler,
         gameClickHandler,
         versionClickHandler,

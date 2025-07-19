@@ -49,38 +49,12 @@ const fetchFromBggWithToken = async (url: string, args: RequestInit, attempts: n
     return response;
 };
 
-export const bggGetUser = async (formData: FormData) => {
-    const formDataObject = Object.fromEntries(formData);
-
-    const validated = BggFormSchema
-        .safeParse(formDataObject);
-
-    if (!validated.success) {
-        return '';
-    }
-
-    return bggGetUserInner(validated.data.username);
-};
-
 export const bggGetUserInner = async (username: string) => {
     const bggUserUrl = new URL(bggUserBaseURL);
     bggUserUrl.searchParams.append('name', username);
     bggUserUrl.searchParams.append('buddies', '1');
 
     return await fetchFromBggWithToken(bggUserUrl.toString(), {}).then(r => r.text());
-};
-
-export const bggGetCollection = async (formData: FormData)=> {
-    const formDataObject = Object.fromEntries(formData);
-
-    const validated = BggFormSchema
-        .safeParse(formDataObject);
-
-    if (!validated.success) {
-        return '';
-    }
-
-    return await bggGetCollectionInner(validated.data.username, 0);
 };
 
 export const bggGetCollectionInner =

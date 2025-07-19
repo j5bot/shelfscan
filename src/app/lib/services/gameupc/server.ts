@@ -1,6 +1,8 @@
 'use server';
 
-import { gameUPCHost } from '@/app/lib/services/gameupc/constants';
+import { makeGameUPCHost } from '@/app/lib/services/gameupc/constants';
+
+const useTestHost = !process.env.GAME_UPC_TOKEN;
 
 const gameUPCFetchOptions = {
     headers: new Headers({
@@ -9,11 +11,11 @@ const gameUPCFetchOptions = {
 };
 
 export const warmupGameUPCApi = async () => {
-    await fetch(`${gameUPCHost}/warmup`, gameUPCFetchOptions);
+    await fetch(`${makeGameUPCHost(useTestHost)}/warmup`, gameUPCFetchOptions);
 };
 
 export const fetchGameDataForUpc = async (upc: string, search?: string) => {
-    const url = new URL(`${gameUPCHost}/upc/${upc}`);
+    const url = new URL(`${makeGameUPCHost(useTestHost)}/upc/${upc}`);
     if (search && search.length > 0) {
         url.searchParams.append('search', search);
     }
@@ -24,9 +26,13 @@ export const fetchGameDataForUpc = async (upc: string, search?: string) => {
 const postOrDeleteGameUPCMatch = async (
     upc: string, bggId: number, version: number = -1, body: string,
     del: boolean = false) => {
-    const postOrDeleteVersion = version >= 0 ? `/version/${version}` : '';
+    if (isNaN(bggId)) {
+        return;
+    }
+
+    const postOrDeleteVersion = !isNaN(version) && version >= 0 ? `/version/${version}` : '';
     return await fetch(
-        `${gameUPCHost}/upc/${upc}/bgg_id/${bggId}${postOrDeleteVersion}`,
+        `${makeGameUPCHost(useTestHost)}/upc/${upc}/bgg_id/${bggId}${postOrDeleteVersion}`,
         Object.assign(
             { body, method: del ? 'DELETE' : 'POST' },
             gameUPCFetchOptions
