@@ -40,7 +40,6 @@ const fetchFromBggWithToken = async (url: string, args: RequestInit, attempts: n
     };
     // precedence given to existing headers
     args.headers = Object.assign({}, headerToAdd, args.headers);
-    // console.log(JSON.stringify(args, undefined, 2));
     const response = await fetch(url, args);
 
     if (response.status === 202 && attempts < MAX_ATTEMPTS) {

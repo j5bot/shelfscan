@@ -23,21 +23,15 @@ export const useLoadUser = () => {
     const [items, setItems] = useState<BggCollectionMap>();
 
     useEffect(() => {
-        if (!userXml) {
+        if (!(items && username && userXml)) {
             return;
         }
         dispatch(setBggUser(getBggUser(userXml)));
-    }, [userXml]);
-
-    useEffect(() => {
-        if (!(items && username)) {
-            return;
-        }
         dispatch(updateCollectionItems({
             username,
             items,
         }));
-    }, [items, username]);
+    }, [items, username, userXml]);
 
     const loadUser = (
         username?: string,

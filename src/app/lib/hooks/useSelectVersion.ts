@@ -255,7 +255,6 @@ export const useSelectVersion = (id: string) => {
                 date: dateString,
             },
         });
-        console.log(ce);
         document.dispatchEvent(ce);
 
         const target = e.currentTarget.previousElementSibling as HTMLDivElement;

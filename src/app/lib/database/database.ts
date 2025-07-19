@@ -38,7 +38,6 @@ export const getSettings = async () => {
     const settings = (
         await database.settings.toArray()
     ).reduce((acc, setting) => {
-        console.log('gs', setting.id, setting.value);
         return Object.assign(acc, { [setting.id]: setting.value });
     }, {} as Record<string, SettingEntity['value']>);
     settings.loaded = true;

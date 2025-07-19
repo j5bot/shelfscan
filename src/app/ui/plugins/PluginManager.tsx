@@ -7,7 +7,6 @@ import { FaMinus, FaPlus } from 'react-icons/fa6';
 export const PluginManager = () => {
     const [enabledPlugins, setEnabledPlugins] = useState<ShelfScanPlugin[]>([]);
     const { loadPlugins, plugins } = useContext(PluginMapContext);
-    console.log(plugins);
 
     const pluginTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
