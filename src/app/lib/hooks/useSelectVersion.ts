@@ -1,7 +1,6 @@
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks/index';
-import { useExtension } from '@/app/lib/hooks/useExtension';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
@@ -43,8 +42,6 @@ export const useSelectVersion = (id: string) => {
     const info = infos?.[currentInfoIndex ?? -1];
     const versions = info?.versions;
     const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
-
-    const { syncOn, extensionRenderBlock } = useExtension(info, version);
 
     const updateGameUPC = () => {
         if (!selectedInfoId || isSubmitPending) {
@@ -244,7 +241,6 @@ export const useSelectVersion = (id: string) => {
         isVersionInCollection,
         infoIndexesInCollection,
         versionIndexesInCollection,
-        extensionRenderBlock,
         infoClickHandler,
         gameClickHandler,
         versionClickHandler,
@@ -258,6 +254,5 @@ export const useSelectVersion = (id: string) => {
         isUpdating: isSubmitPending,
         isRemoving: isRemovePending,
         status,
-        syncOn,
     };
 }

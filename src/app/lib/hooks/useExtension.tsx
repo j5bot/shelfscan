@@ -2,6 +2,8 @@ import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import React, { SyntheticEvent, useLayoutEffect, useState } from 'react';
 import { FaDice, FaPlus } from 'react-icons/fa6';
 
+export type UseExtensionReturn = ReturnType<typeof useExtension>;
+
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
 
@@ -45,20 +47,23 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
     };
 
-    const extensionRenderBlock = syncOn && <div className="absolute flex gap-0.5 md:gap-1.5 top-[-0.25rem] right-0 h-7.5 md:h-8.5">
-        <div className="relative w-7.5 md:8.5">
+    const addToCollectionBlock = syncOn && (
+        <div key="atcb" className="relative w-7.5 md:8.5">
             <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
-                                bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-2
-                                absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5
-                                text-xs inline-block`}
+                                    bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-2
+                                    absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5
+                                    text-xs inline-block`}
                 onClick={addToCollection}
             >
-                <FaPlus className="rounded-full w-3.5 h-3.5 md:w-4.5 md:h-4.5" />
+                <FaPlus className="w-3.5 h-3.5 md:w-4.5 md:h-4.5" />
             </button>
         </div>
-        <div className="relative w-8.5">
+    );
+
+    const addPlayBlock = syncOn && (
+        <div key="apb" className="relative w-7.5 md:w-8.5">
             <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
@@ -67,10 +72,18 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                                 text-xs inline-block`}
                 onClick={addPlay}
             >
-                <FaDice className="rounded-full w-4 h-4 md:w-5 md:h-5" />
+                <FaDice className="w-4 h-4 md:w-5 md:h-5" />
             </button>
         </div>
-    </div>;
+    );
 
-    return { syncOn, addToCollection, addPlay, extensionRenderBlock };
+    const blocks = [addToCollectionBlock, addPlayBlock];
+
+    const renderBlock = syncOn ? <div className="absolute flex gap-0.5 md:gap-1.5 top-[-0.25rem] right-0 h-7.5 md:h-8.5">
+        {blocks}
+    </div> : null;
+
+    const renderItemClassName = syncOn ? `pr-${blocks.length * 9 + 1}` : '';
+
+    return { syncOn, addToCollection, addPlay, renderBlock, renderItemClassName };
 };

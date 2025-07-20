@@ -1,3 +1,4 @@
+import { UseExtensionReturn } from '@/app/lib/hooks/useExtension';
 import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
@@ -56,7 +57,11 @@ export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBg
     </div>
 };
 
-export const renderSelectedItem = (context: SelectVersionContext, item: GameUPCBggInfo | GameUPCBggVersion) => {
+export const renderSelectedItem = (
+    extension: UseExtensionReturn,
+    context: SelectVersionContext,
+    item: GameUPCBggInfo | GameUPCBggVersion
+) => {
     if (!item) {
         return;
     }
@@ -65,15 +70,18 @@ export const renderSelectedItem = (context: SelectVersionContext, item: GameUPCB
         currentInfoInCollection,
         currentVersionInCollection,
         currentVersionIndex,
-        extensionRenderBlock,
         info,
         isRemoving,
         removeGameUPC,
         isUpdating,
         updateGameUPC,
         status,
-        syncOn,
     } = context;
+
+    const {
+        renderBlock: extensionRenderBlock,
+        renderItemClassName,
+    } = extension;
 
     const { confidence } = item;
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
@@ -85,7 +93,7 @@ export const renderSelectedItem = (context: SelectVersionContext, item: GameUPCB
     const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== -1);
     const showRemove = isInfo ? status === GameUPCStatus.verified : info?.version_status === GameUPCStatus.verified;
 
-    const selectedItemClasses = `flex gap-1 items-center relative ${syncOn && showUpdate ? 'pr-19' : ''}`;
+    const selectedItemClasses = `flex gap-1 items-center relative ${showUpdate ? renderItemClassName : ''}`;
 
     return <div className="flex gap-1 items-center justify-between text-sm">
         <div className="flex items-center gap-3">

@@ -66,10 +66,10 @@ export const GameDetails = () => {
                 </div>}
                 <div className="shrink pb-1">
                     <details className="inline-flex gap-1.5 items-center" open={!info}>
-                        <summary className="align-middle text-gray-500 btn h-7 w-7 p-0">
+                        <summary className="align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
                             <FaSearch className="w-4 m-2" />
                         </summary>
-                        <div className="align-middle inline-flex items-center gap-1 w-fit">
+                        <div className="align-middle inline-flex items-center gap-1.5 w-fit">
                             <input tabIndex={0}
                                    type="text"
                                    className="input h-7 text-xs w-fit"

@@ -1,5 +1,6 @@
 'use client';
 
+import { useExtension } from '@/app/lib/hooks/useExtension';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import {
     GameUPCBggInfo,
@@ -23,16 +24,20 @@ export const SelectVersion = () => {
         hasInfos,
         infos,
         versions,
+        info,
+        version,
         infoClickHandler,
         gameClickHandler,
         versionClickHandler,
         versionHoverHandler,
         versionNameClickHandler,
     } = selectVersionContext;
+    const extension = useExtension(info, version);
 
     const renderItemFn = renderItem.bind(null, selectVersionContext);
     const renderVersionItemFn = renderVersionItem.bind(null, selectVersionContext);
-    const renderSelectedItemFn = renderSelectedItem.bind(null, selectVersionContext);
+    const renderSelectedItemFn =
+        renderSelectedItem.bind(null, extension, selectVersionContext);
 
     return <>
         <NavDrawer />

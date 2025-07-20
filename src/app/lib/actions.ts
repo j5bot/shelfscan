@@ -2,27 +2,9 @@
 
 import { bggHost } from '@/app/lib/services/bgg/constants';
 import sleep from 'sleep-promise';
-import { z } from 'zod';
 
 const bggCollectionBaseURL = `${bggHost}/xmlapi2/collection`;
 const bggUserBaseURL = `${bggHost}/xmlapi2/user`;
-
-export type BggUserState = {
-    data: {
-        username?: string;
-    };
-    message?: string;
-    errors: {
-        login?: string[];
-        username?: string[];
-    }
-};
-
-const BggFormSchema = z.object({
-    username: z.string({
-        required_error: 'Please enter a BGG username',
-    }),
-});
 
 const MAX_ATTEMPTS = 20;
 
