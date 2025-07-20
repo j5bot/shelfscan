@@ -8,11 +8,11 @@ import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
+import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useEffect } from 'react';
 import { hasSeenTour } from '../lib/tours';
-import Link from 'next/link';
 
 export default function Page() {
     const breakpoint = useTailwindBreakpoint();
@@ -85,18 +85,7 @@ export default function Page() {
                                       <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
                                       <div className="mt-2 mb-2 text-sm">
                                           <h3>- Scan UPCs, Then -</h3>
-                                          <div className="flex flex-wrap gap-1 justify-center">
-                                              <span className="badge badge-sm text-[#e07ca4ee] shadow-sm">Audit BGG Collection</span>
-                                              <span className="badge badge-sm text-[#669966cc] shadow-sm">Update
-                                                  <Link className="underline" href="https://gameupc.com" target="_blank">GameUPC</Link>
-                                              </span>
-                                              <span className="badge badge-sm text-[#5107df66] shadow-sm">Add to BGG Collection</span>
-                                              <span className="badge badge-sm text-[#ff6900aa] shadow-sm">and ...
-                                                  <Link className="underline"
-                                                        href="https://boardgamegeek.com/blog/16520/shelfscan-news"
-                                                        target="_blank">More!</Link>
-                                              </span>
-                                          </div>
+                                          <UseCaseBadges />
 .                                      </div>
                                       <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
                                   </div>
