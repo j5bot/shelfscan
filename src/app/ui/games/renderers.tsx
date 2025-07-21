@@ -1,6 +1,7 @@
 import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
+import Image from 'next/image';
 import React, { ReactNode } from 'react';
 import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
@@ -20,20 +21,37 @@ const getConfidenceLevelColor = (confidence: number) => {
 };
 
 export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, index: number): ReactNode => {
-    const { confidence, name } = info;
+    const { confidence, name, thumbnail_url } = info;
     const { isInfoInCollection } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="flex items-center justify-start gap-2">
-        <div>{name}{
-            isInfoInCollection(index) && <FaCheck />
-        }</div>
-        <SvgCssGauge className="confidence-level shrink-0 m-0.5"
-                     color={confidenceLevelColor}
-                     fill={confidenceLevelColor}
-                     value={confidence} />
+    return <div className="relative w-fit flex justify-center items-center">
+        <Image className="w-fit h-fit" src={thumbnail_url} alt={name} width={150} height={150} />
+        <div className="absolute top-0 left-0 bottom-0 right-0 flex gap-1 justify-center items-center">
+            {isInfoInCollection(index) && (
+                <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                    <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
+                </div>
+            )}
+            <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                <SvgCssGauge className={`w-6 h-6 confidence-level shrink-0 m-1`}
+                             color={confidenceLevelColor}
+                             fill={confidenceLevelColor}
+                             value={confidence} />
+            </div>
+        </div>
     </div>;
+
+    // return <div className="flex items-center justify-start gap-2">
+    //     <div>{name}{
+    //         isInfoInCollection(index) && <FaCheck />
+    //     }</div>
+    //     <SvgCssGauge className="confidence-level shrink-0 m-0.5"
+    //                  color={confidenceLevelColor}
+    //                  fill={confidenceLevelColor}
+    //                  value={confidence} />
+    // </div>;
 };
 
 export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBggVersion, index: number): ReactNode => {

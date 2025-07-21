@@ -13,7 +13,6 @@ import { GameDetails } from '@/app/ui/games/GameDetails';
 import { renderItem, renderSelectedItem, renderVersionItem } from '@/app/ui/games/renderers';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { template } from '@blakeembrey/template';
-import Image from 'next/image';
 import Link from 'next/link';
 import React, { SyntheticEvent } from 'react';
 
@@ -86,15 +85,9 @@ export const SelectVersion = () => {
             </GameDetails>
             {hasInfos && <div className="bg-overlay pt-2 w-fit min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
-                    <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
-                        <Image
-                            className="inline-block w-6 h-6 md:w-8 md:h-8"
-                            src={'/icons/box-game.png'} alt="Game" width={32} height={32}
-                        />
-                    </div>
                     <CollapsibleList
                         title={gameTitle}
-                        className="text-sm md:text-md overflow-x-scroll h-50"
+                        className="text-sm w-full flex justify-center md:text-md overflow-x-scroll overflow-y-hidden max-h-50"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
@@ -109,13 +102,6 @@ export const SelectVersion = () => {
                     id="select-version"
                     className="flex items-center gap-1.5"
                 >
-                    <div id="version-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Version">
-                        <Image
-                            className="inline-block w-6 h-6 md:w-8 md:h-8"
-                        src={'/icons/box-version.png'}
-                        alt="Version" width={32} height={32}
-                        />
-                    </div>
                     <CollapsibleList
                         title={versionTitle}
                         className="text-sm md:text-md overflow-x-scroll h-65 md:h-80 lg:h-100"
