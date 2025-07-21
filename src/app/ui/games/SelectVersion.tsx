@@ -32,29 +32,22 @@ export const SelectVersion = () => {
         versionHoverHandler,
         versionNameClickHandler,
     } = selectVersionContext;
-    const extension = useExtension(info, version);
+    const { primaryActions, secondaryActions } = useExtension(info, version);
 
     const renderItemFn = renderItem.bind(null, selectVersionContext);
     const renderVersionItemFn = renderVersionItem.bind(null, selectVersionContext);
     const renderSelectedItemFn =
-        renderSelectedItem.bind(null, extension, selectVersionContext);
+        renderSelectedItem.bind(null, selectVersionContext);
 
     return <>
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
-            <GameDetails />
-            {hasInfos && <div className="bg-overlay pt-2 w-fit min-w-1/2 lg:min-w-1/3">
-                <div id="select-game" className="flex gap-2 items-center">
-                    <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
-                        <Image
-                            className="inline-block w-6 h-6 md:w-8 md:h-8"
-                            src={'/icons/box-game.png'} alt="Game" width={32} height={32}
-                        />
-                    </div>
             <GameDetails>{primaryActions}</GameDetails>
+            {hasInfos && <div className="bg-overlay pt-2 w-11/12">
+                <div id="select-game" className="flex gap-2 items-center w-full">
                     <CollapsibleList
                         title={gameTitle}
-                        className="text-sm md:text-md overflow-x-scroll h-50"
+                        className="text-sm w-full flex justify-center md:text-md overflow-x-scroll overflow-y-hidden max-h-50"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
