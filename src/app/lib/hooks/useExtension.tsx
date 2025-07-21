@@ -48,42 +48,48 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const addToCollectionBlock = syncOn && (
-        <div key="atcb" className="relative w-7.5 md:8.5">
-            <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5"></div>
+        <div key="atcb" className="relative w-19">
+            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 w-19"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
-                                    bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-2
-                                    absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5
-                                    text-xs inline-block`}
+                    relative
+                    flex justify-start items-center
+                    bg-[#e07ca4] text-white
+                    p-2 h-8.5
+                    text-sm`}
                 onClick={addToCollection}
             >
-                <FaPlus className="w-3.5 h-3.5 md:w-4.5 md:h-4.5" />
+                <FaPlus className="w-4.5 h-4.5" />
+                <div className="p-1.5 font-semibold uppercase">Add</div>
             </button>
         </div>
     );
 
     const addPlayBlock = syncOn && (
-        <div key="apb" className="relative w-7.5 md:w-8.5">
-            <div className="rounded-full border-0 border-[#e07ca4ff] absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5"></div>
+        <div key="apb" className="relative w-29">
+            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 w-29"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
-                                bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-1.5
-                                absolute top-0 left-0 h-7.5 w-7.5 md:h-8.5 md:w-8.5
-                                text-xs inline-block`}
+                    relative
+                    flex justify-start items-center                            
+                    bg-[#e07ca4] text-white
+                    p-2 h-8.5
+                    text-sm`}
                 onClick={addPlay}
             >
-                <FaDice className="w-4 h-4 md:w-5 md:h-5" />
+                <FaDice className="w-5 h-5" />
+                <div className="p-1.5 font-semibold uppercase">Log Play</div>
             </button>
         </div>
     );
 
-    const blocks = [addToCollectionBlock, addPlayBlock];
+    const primaries = [addToCollectionBlock, addPlayBlock];
 
-    const renderBlock = syncOn ? <div className="absolute flex gap-0.5 md:gap-1.5 top-[-0.25rem] right-0 h-7.5 md:h-8.5">
-        {blocks}
-    </div> : null;
+    const primaryActions = syncOn ? <div className="flex gap-1.5 h-8.5">
+        {primaries}
+    </div> : null
 
-    const renderItemClassName = syncOn ? `pr-${blocks.length * 9 + 1}` : '';
+    const secondaryActions = null;
 
-    return { syncOn, addToCollection, addPlay, renderBlock, renderItemClassName };
+    return { syncOn, addToCollection, addPlay, primaryActions, secondaryActions };
 };
