@@ -1,4 +1,3 @@
-import { UseExtensionReturn } from '@/app/lib/hooks/useExtension';
 import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
@@ -58,7 +57,6 @@ export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBg
 };
 
 export const renderSelectedItem = (
-    extension: UseExtensionReturn,
     context: SelectVersionContext,
     item: GameUPCBggInfo | GameUPCBggVersion
 ) => {
@@ -78,11 +76,6 @@ export const renderSelectedItem = (
         status,
     } = context;
 
-    const {
-        renderBlock: extensionRenderBlock,
-        renderItemClassName,
-    } = extension;
-
     const { confidence } = item;
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
@@ -93,7 +86,7 @@ export const renderSelectedItem = (
     const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== -1);
     const showRemove = isInfo ? status === GameUPCStatus.verified : info?.version_status === GameUPCStatus.verified;
 
-    const selectedItemClasses = `flex gap-1 items-center relative ${showUpdate ? renderItemClassName : ''}`;
+    const selectedItemClasses = `flex gap-1 items-center relative`;
 
     return <div className="flex gap-1 items-center justify-between text-sm">
         <div className="flex items-center gap-3">
@@ -131,7 +124,6 @@ export const renderSelectedItem = (
                     <span className="hidden md:block">Remove</span>
                 </button>
             )}
-            {showUpdate && extensionRenderBlock}
         </div>
     </div>;
 };
