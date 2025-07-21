@@ -4,13 +4,15 @@ import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
-import React, { SyntheticEvent, useState } from 'react';
+import React, { ReactNode, SyntheticEvent, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
 
 const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgameversion/${versionId}`;
 
-export const GameDetails = () => {
+export const GameDetails = (
+    { children }: { children: ReactNode }
+) => {
     const { defaultImageUrl, id, info, searchGameUPC, version } = useSelectVersionContext();
     const detailTemplates = usePlugins('link.details');
 
@@ -63,6 +65,9 @@ export const GameDetails = () => {
                         })}
                     </div>
                     <h4>{version?.published || 'Unknown'}</h4>
+                </div>}
+                {children && <div className="grow max-w-50">
+                    {info?.id && children}
                 </div>}
                 <div className="shrink pb-1">
                     <details className="inline-flex gap-1.5 items-center" open={!info}>

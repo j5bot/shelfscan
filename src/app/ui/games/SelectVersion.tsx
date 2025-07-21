@@ -51,6 +51,7 @@ export const SelectVersion = () => {
                             src={'/icons/box-game.png'} alt="Game" width={32} height={32}
                         />
                     </div>
+            <GameDetails>{primaryActions}</GameDetails>
                     <CollapsibleList
                         title={gameTitle}
                         className="text-sm md:text-md overflow-x-scroll h-50"
@@ -89,6 +90,7 @@ export const SelectVersion = () => {
                         renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>}
+                {secondaryActions && <div className="flex justify-center h-17 items-center">{secondaryActions}</div>}
             </div>}
         </div>
     </>;
