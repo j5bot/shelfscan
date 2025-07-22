@@ -1,0 +1,17 @@
+{
+    "id": "plugin.external.BoardGameStats",
+    "name": "Board Game Stats Log Play Plugin",
+    "type": "link",
+    "location": "details",
+    "templates": {
+        "game": [
+            {
+                "icon": "gi/GiChessPawn",
+                "iconSize": 15,
+                "title": "Log Play on Board Game Stats",
+                "template": "https://app.bgstatsapp.com/addPlay.html?gameId={{id}}"
+            }
+        ],
+        "version": []
+    }
+}
