@@ -1,6 +1,6 @@
 import { PluginMapContext } from '@/app/lib/PluginMapProvider';
 import { ShelfScanPlugin } from '@/app/lib/types/plugins';
-import { addPlugin, makePluginList, removePlugin } from '@/app/lib/utils/plugins';
+import { addPlugin, makePluginList, removePlugin } from '@/app/lib/plugins/plugins';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 

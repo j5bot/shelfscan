@@ -1,10 +1,12 @@
 import { ValueOf } from 'next/constants';
 
 export type Template = {
+    id?: string;
     icon: string;
     iconSize?: number;
     title: string;
     template: string;
+    className?: string;
 };
 
 export const TemplateTypes = {
@@ -18,7 +20,7 @@ export type ShelfScanPlugin = {
     id: string;
     name?: string;
     type: 'link';
-    location: 'details';
+    location: 'details' | 'actions';
     templates: Templates;
 };
 
