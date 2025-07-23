@@ -18,6 +18,7 @@ export type Templates = Record<TemplateType, Template[]>;
 
 export type ShelfScanPlugin = {
     id: string;
+    defaultDisabled?: boolean;
     name?: string;
     type: 'link';
     location: 'details' | 'actions';
