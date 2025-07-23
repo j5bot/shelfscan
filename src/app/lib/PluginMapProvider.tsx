@@ -3,7 +3,7 @@ import {
     ShelfScanPluginMap,
     ShelfScanPluginSection,
 } from '@/app/lib/types/plugins';
-import { makePluginMap } from '@/app/lib/utils/plugins';
+import { makePluginMap } from '@/app/lib/plugins/plugins';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 export type PluginMapProviderValue = {

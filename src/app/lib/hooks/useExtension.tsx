@@ -48,7 +48,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const addToCollectionBlock = syncOn && (
-        <div key="atcb" className="relative w-19">
+        <div key="atcb" className="relative shrink-0 w-19">
             <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 w-19"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
@@ -66,7 +66,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     );
 
     const addPlayBlock = syncOn && (
-        <div key="apb" className="relative w-29">
+        <div key="apb" className="relative shrink-0 w-29">
             <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 w-29"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
@@ -85,9 +85,9 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const primaries = [addToCollectionBlock, addPlayBlock];
 
-    const primaryActions = syncOn ? <div className="flex gap-1.5 h-8.5">
+    const primaryActions = syncOn ? <>
         {primaries}
-    </div> : null
+    </> : null
 
     const secondaryActions = null;
 
