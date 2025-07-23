@@ -44,6 +44,26 @@ export const addPlugin = async (pluginJSON: string) => {
     }
 };
 
+export const enableOrDisablePlugin = async (id: string, enable: boolean = true) => {
+    const fromList = enable ? 'disabledPlugins' : 'plugins';
+    const toList = enable ? 'plugins' : 'disabledPlugins';
+    const fromListSetting = (await database.settings.get(fromList)) ?? { id: 'plugins', value: [] };
+    await database.settings.put({
+        id: fromList, value: (fromListSetting.value as string[])
+            .filter((plugin: string) => plugin !== id)
+    });
+    const toListSetting = (await database.settings.get(toList)) ?? { id: 'disabledPlugins', value: [] };
+    if (toListSetting) {
+        await database.settings.put({
+            id: toList, value: [...toListSetting.value as string[], id]
+        });
+    } else {
+        await database.settings.add({
+            id: toList, value: [id]
+        });
+    }
+};
+
 export const removePlugin = async (id: string) => {
     const pluginListSetting = (await database.settings.get('plugins')) ?? { id: 'plugins', value: [] };
     await database.settings.put({
@@ -57,10 +77,10 @@ export const removePlugin = async (id: string) => {
     }
 };
 
-export const getEnabledPlugins = async (): Promise<ShelfScanPlugin[]> => {
+export const getEnabledOrDisabledPlugins = async (enabled: boolean = true): Promise<ShelfScanPlugin[]> => {
     const pluginList = (
-                           await getSetting('plugins') as string[]
-                       ) ?? [];
+           await getSetting(enabled ? 'plugins' : 'disabledPlugins') as string[]
+       ) ?? [];
     return (
         await Promise
             .all(
@@ -69,11 +89,12 @@ export const getEnabledPlugins = async (): Promise<ShelfScanPlugin[]> => {
     ).filter((x: unknown) => x) as ShelfScanPlugin[];
 };
 
-export const makePluginList = async () =>
-    builtInPlugins.concat(await getEnabledPlugins());
+export const makeEnabledOrDisabledPluginList =
+    async (enabled: boolean = true) =>
+        (enabled ? builtInPlugins : []).concat(await getEnabledOrDisabledPlugins(enabled));
 
 export const makePluginMap = async () => {
-    return (await makePluginList()).reduce((acc, plugin) => {
+    return (await makeEnabledOrDisabledPluginList(true)).reduce((acc, plugin) => {
         if (!plugin) {
             return acc;
         }

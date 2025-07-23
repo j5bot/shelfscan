@@ -1,17 +1,27 @@
 import { PluginMapContext } from '@/app/lib/PluginMapProvider';
 import { ShelfScanPlugin } from '@/app/lib/types/plugins';
-import { addPlugin, makePluginList, removePlugin } from '@/app/lib/plugins/plugins';
+import {
+    addPlugin,
+    enableOrDisablePlugin,
+    makeEnabledOrDisabledPluginList,
+    removePlugin
+} from '@/app/lib/plugins/plugins';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 
 export const PluginManager = () => {
     const [enabledPlugins, setEnabledPlugins] = useState<ShelfScanPlugin[]>([]);
+    const [disabledPlugins, setDisabledPlugins] = useState<ShelfScanPlugin[]>([]);
+
     const { loadPlugins, plugins } = useContext(PluginMapContext);
 
     const pluginTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        (async () => setEnabledPlugins(await makePluginList()))();
+        (async () => {
+            setEnabledPlugins(await makeEnabledOrDisabledPluginList(true));
+            setDisabledPlugins(await makeEnabledOrDisabledPluginList(false));
+        })();
     }, [plugins]);
 
     const onAddPlugin = () => {
@@ -27,8 +37,38 @@ export const PluginManager = () => {
         <div className="collapse-content text-xs">
             <ul className="list-none">
                 {enabledPlugins.map(plugin => {
+                    return <li key={plugin.id} className="flex justify-between gap-1 mb-1">
+                        <label>
+                            <input
+                                type="checkbox" className="checkbox w-3.5 h-3.5 rounded-sm"
+                                disabled={plugin.id.startsWith('plugin.internal')}
+                                onChange={() => enableOrDisablePlugin(plugin.id, false).then(loadPlugins)}
+                                defaultChecked={true}
+                            />{' '}
+                            {plugin.name} ({plugin.type}/{plugin.location})
+                        </label>
+                        <button
+                            disabled={plugin.id.startsWith('plugin.internal')}
+                            onClick={() => {
+                                removePlugin(plugin.id).then(loadPlugins);
+                            }}
+                            className="remove-button text-gray-500 h-5 w-5 md:w-fit p-1 btn flex text-xs"
+                        >
+                            <FaMinus className="md:w-2.5 md:h-2.5" />
+                        </button>
+                    </li>;
+                })}
+                {disabledPlugins.map(plugin => {
                     return <li key={plugin.id} className="flex justify-between mb-1">
-                        {plugin.name} ({plugin.type}/{plugin.location})
+                        <label>
+                            <input
+                                type="checkbox" className="checkbox w-3.5 h-3.5 rounded-sm"
+                                disabled={plugin.id.startsWith('plugin.internal')}
+                                onChange={() => enableOrDisablePlugin(plugin.id, true).then(loadPlugins)}
+                                defaultChecked={false}
+                            />{' '}
+                            {plugin.name} ({plugin.type}/{plugin.location})
+                        </label>
                         <button
                             disabled={plugin.id.startsWith('plugin.internal')}
                             onClick={() => {
