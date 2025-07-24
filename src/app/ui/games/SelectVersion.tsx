@@ -21,7 +21,7 @@ const gameTitle = <h4 className="uppercase tracking-[0.25rem] text-center block"
 const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Version</h4>
 
 const actionTemplateOnClick = (e: SyntheticEvent<HTMLButtonElement>)=> {
-    const target = e.currentTarget.previousElementSibling as HTMLDivElement;
+    const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
     void target.offsetWidth;
     target.classList.add('add-pulse');
     setTimeout(() => target.classList.remove('add-pulse'), 2500);

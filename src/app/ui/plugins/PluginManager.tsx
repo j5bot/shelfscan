@@ -3,7 +3,7 @@ import { ShelfScanPlugin } from '@/app/lib/types/plugins';
 import {
     addPlugin,
     enableOrDisablePlugin,
-    makeEnabledOrDisabledPluginList,
+    getEnabledOrDisabledPlugins,
     removePlugin
 } from '@/app/lib/plugins/plugins';
 import React, { useContext, useEffect, useRef, useState } from 'react';
@@ -14,14 +14,15 @@ export const PluginManager = () => {
     const [disabledPlugins, setDisabledPlugins] = useState<ShelfScanPlugin[]>([]);
 
     const { loadPlugins, plugins } = useContext(PluginMapContext);
+    const reloadPlugins = async () => {
+        setEnabledPlugins(await getEnabledOrDisabledPlugins(true));
+        setDisabledPlugins(await getEnabledOrDisabledPlugins(false));
+    };
 
     const pluginTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        (async () => {
-            setEnabledPlugins(await makeEnabledOrDisabledPluginList(true));
-            setDisabledPlugins(await makeEnabledOrDisabledPluginList(false));
-        })();
+        reloadPlugins().then();
     }, [plugins]);
 
     const onAddPlugin = () => {
@@ -41,8 +42,11 @@ export const PluginManager = () => {
                         <label>
                             <input
                                 type="checkbox" className="checkbox w-3.5 h-3.5 rounded-sm"
-                                disabled={plugin.id.startsWith('plugin.internal')}
-                                onChange={() => enableOrDisablePlugin(plugin.id, false).then(loadPlugins)}
+                                onChange={() =>
+                                    enableOrDisablePlugin(plugin.id, false)
+                                        .then(loadPlugins)
+                                        .then(reloadPlugins)
+                                }
                                 defaultChecked={true}
                             />{' '}
                             {plugin.name} ({plugin.type}/{plugin.location})
@@ -63,8 +67,11 @@ export const PluginManager = () => {
                         <label>
                             <input
                                 type="checkbox" className="checkbox w-3.5 h-3.5 rounded-sm"
-                                disabled={plugin.id.startsWith('plugin.internal')}
-                                onChange={() => enableOrDisablePlugin(plugin.id, true).then(loadPlugins)}
+                                onChange={() =>
+                                    enableOrDisablePlugin(plugin.id, true)
+                                        .then(loadPlugins)
+                                        .then(reloadPlugins)
+                                }
                                 defaultChecked={false}
                             />{' '}
                             {plugin.name} ({plugin.type}/{plugin.location})
