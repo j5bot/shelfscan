@@ -36,4 +36,10 @@ if you'd like to discuss contributing or forking the app.
 
 ### Barcode Images
 - [Sample barcodes to scan](./assets/game-barcodes/UPCs.md)
-- [Official testing barcodes](./assets/game-barcodes/testing/UPCs.md)
+
+### Barcode Links
+
+- [Sample verified game link](https://shelfscan.io/upc/111111111111)
+- [Sample needs-verification game link](https://shelfscan.io/upc/222222222222)
+- [Sample no information game link](https://shelfscan.io/upc/333333333333)
+<!-- - [Official testing barcodes](./assets/game-barcodes/testing/UPCs.md) -->
