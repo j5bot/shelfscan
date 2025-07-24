@@ -73,8 +73,12 @@ svg[data-name=nextstep-arrow] > #triangle {
   }
 }
 
-.collection-button.collapse:has(>input:is([type="checkbox"]:checked)) > .collapse-title > svg {
+.collapse:has(>input:is([type="checkbox"]:checked)) > .collapse-title.collection-button > svg {
   transform: rotate(180deg);
+}
+
+.collapse:has(>input:is([type="checkbox"]:checked)) > .collapse-content.collapse-content.collapse-content {
+  padding-bottom: 0.25rem;
 }
 
 @keyframes add-pulse {

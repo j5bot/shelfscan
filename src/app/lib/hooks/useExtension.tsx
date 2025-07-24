@@ -1,28 +1,104 @@
+import { getSetting, setSetting } from '@/app/lib/database/database';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
-import React, { SyntheticEvent, useLayoutEffect, useState } from 'react';
-import { FaChevronDown, FaDice, FaPlus } from 'react-icons/fa6';
-
-export type UseExtensionReturn = ReturnType<typeof useExtension>;
+import React, { ReactNode, SyntheticEvent, useEffect, useLayoutEffect, useState } from 'react';
+import {
+    FaChevronDown,
+    FaDice,
+    FaHeart,
+    FaPlus,
+    FaRecycle
+} from 'react-icons/fa6';
 
 export type Modes = {
-    addToCollection: 'own' | 'trade' | 'wishlist';
+    addToCollection: 'add' | 'trade' | 'wishlist';
     addPlay: 'quick' | 'detailed';
+};
+
+export type ModeSetting = {
+    label: ReactNode;
+    icon: ReactNode;
+    width: string;
+    form?: ReactNode;
+    validator?: (formData: FormData) => boolean;
+}
+export type ModeSettings = Record<Modes['addToCollection'], ModeSetting>;
+
+const addToCollectionModeSettings: ModeSettings = {
+    add: {
+        label: 'Add',
+        icon: <FaPlus className="w-4.5 h-4.5" />,
+        width: 'w-26',
+    },
+    trade: {
+        label: 'Trade',
+        icon: <FaRecycle className="w-4 h-4" />,
+        width: 'w-29',
+        form: <form name="trade">
+            <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
+        </form>,
+        validator: (formData: FormData)=> {
+            const formValues = Object.fromEntries(formData ?? []);
+            return !!(formValues['condition'] as string | undefined)?.length;
+        }
+    },
+    wishlist: {
+        label: 'Wish',
+        icon: <FaHeart className="w-4 h-4.5" />,
+        width: 'w-27',
+    },
 };
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
-    const [modes, setModes] = useState<Modes>({ addToCollection: 'own', addPlay: 'quick' });
+    const [modes, setModes] = useState<Modes>({ addToCollection: 'add', addPlay: 'quick' });
 
-    useLayoutEffect(() =>
-        setSyncOn(document.body.getAttribute('data-shelfscan-sync') === 'on'), [version]);
+    const atcMode = addToCollectionModeSettings[modes.addToCollection];
+
+    useEffect(() => {
+        (async () => {
+            setModes(await getSetting('extensionModes') as Modes ?? modes);
+        })();
+    }, []);
+
+    useLayoutEffect(() => {
+        const newValue = document.body.getAttribute('data-shelfscan-sync') === 'on';
+        if (syncOn === newValue) {
+            return;
+        }
+        setSyncOn(newValue);
+    }, [info, version]);
+
+    const updateModes = async (
+        event: SyntheticEvent<HTMLElement>,
+        modes: Modes
+    ) => {
+        // close mode collapse
+        const collapse = document
+            .querySelector(`[data-collapse=${
+                event.currentTarget
+                    .parentElement?.getAttribute('data-collapse-key')
+            }]`);
+        (collapse?.querySelector('input[type=checkbox]') as HTMLInputElement | undefined)?.click();
+
+        await setSetting('extensionModes', modes);
+        setModes(modes);
+    }
 
     const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
+        const form = document.forms.namedItem(modes.addToCollection);
+        const formData = form ? new FormData(form) : undefined;
+        if (atcMode.validator && formData && !atcMode.validator(formData)) {
+            // TODO: handle invalid cases
+            return;
+        }
+
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
-                type: 'add',
+                type: modes.addToCollection,
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
+                formValues: Object.fromEntries(formData ?? []),
             },
         });
         document.dispatchEvent(ce);
@@ -55,9 +131,9 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const addToCollectionBlock = syncOn && (
         <>
-            <div key="atcb" className="relative flex justify-start gap-0.5 shrink-0 w-25">
-                <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 w-25"></div>
-                <div className="relative collapse w-25 min-h-8.5 rounded-none">
+            <div key="atcb" data-collapse="atcb" className={`relative shrink-0 ${atcMode.width}`}>
+                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 ${atcMode.width}`}></div>
+                <div className={`relative collapse min-h-8.5 rounded-none overflow-visible ${atcMode.width}`}>
                     <input type="checkbox" />
                     <button className={`collapse-title
                         absolute right-0 top-0
@@ -69,24 +145,39 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                     </button>
                     <button
                         className={`collection-button cursor-pointer rounded-l-full
-                            absolute top-0 left-0
-                            flex justify-start items-center
+                            absolute top-0 left-0 right-7
+                            flex justify-center items-center
                             bg-[#e07ca4] text-white
-                            p-2 h-8.5 w-18
+                            p-1.5 pl-2 h-8.5
                             z-40
                             text-sm`}
                         onClick={addToCollection}
                     >
-                        <FaPlus className="w-4.5 h-4.5" />
-                        <div className="p-1.5 font-semibold uppercase">Add</div>
+                        {atcMode.icon}
+                        <div className="p-1.5 font-semibold uppercase">
+                            {atcMode.label}
+                        </div>
                     </button>
-                    <div className="collapse-content p-0 w-25">
-                        Add as Owned
+                    <div className={`collapse-content p-0 min-w-29`}>
+                        <div className={`mt-1
+                            border-1 border-[#e07ca4] rounded-md
+                            text-xs leading-5.5`}>
+                            <ul className="menu w-full p-0 m-0" data-collapse-key="atcb">
+                                <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'add' }))}
+                                    className="p-1 pl-1.5 border-b-1 border-[#e07ca433]"
+                                >Add as Owned</li>
+                                <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'trade' }))}
+                                    className="p-1 pl-1.5 border-b-1 border-[#e07ca433]"
+                                >Add for Trade</li>
+                                <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'wishlist' }))}
+                                    className="p-1 pl-1.5"
+                                >Add to Wishlist</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="collapse w-7 rounded-none">
-            </div>
+            {atcMode.form}
         </>
     );
 

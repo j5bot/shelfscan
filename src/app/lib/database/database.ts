@@ -3,7 +3,7 @@ import { type ShelfScanPlugin } from '../types/plugins';
 
 export type SettingEntity = {
     id: string;
-    value: string | string[] | boolean;
+    value: string | string[] | boolean | unknown;
 };
 
 export type PluginEntity = ShelfScanPlugin;
