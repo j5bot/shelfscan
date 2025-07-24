@@ -66,7 +66,7 @@ export const GameDetails = (
                     </div>
                     <h4>{version?.published || 'Unknown'}</h4>
                 </div>}
-                {children && <div className="grow max-w-50">
+                {children && <div className="grow max-w-60">
                     {info?.id && children}
                 </div>}
                 <div className="shrink pb-1">

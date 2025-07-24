@@ -51,7 +51,7 @@ export const SelectVersion = () => {
         const { className, icon, template: pluginTemplate, title } = actionPlugin;
         const templateFn = template(pluginTemplate);
 
-        return <div key={index} className={`relative shrink-0 ${className}`}>
+        return <div key={index} className={`relative shrink-0 h-8.5 ${className}`}>
             <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 ${className}`}></div>
             <Link title={title} href={templateFn(info ?? { id })} target="_blank">
                 <button
@@ -79,7 +79,7 @@ export const SelectVersion = () => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <GameDetails>
-                <div className="flex flex-wrap justify-start gap-1.5 h-8.5">
+                <div className="flex flex-wrap justify-start gap-1.5">
                     {primaryActions}
                     {pluginActions}
                 </div>
