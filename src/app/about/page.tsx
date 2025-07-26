@@ -1,6 +1,6 @@
 const AboutPage = () => {
     return <div
-        className="flex flex-col items-center justify-center">
+        className="flex flex-col mt-20 w-10/12 md:w-2/3 bg-base-100 items-center justify-center">
         <h3>
             About ShelfScan
         </h3>
