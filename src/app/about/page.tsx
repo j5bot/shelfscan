@@ -21,7 +21,7 @@ const AboutPage = () => {
         </p>
         <p>
             My hope, though, was to help people add games to their collections.
-            Whether they have just gotten a new game or find that they've
+            Whether they have just gotten a new game or find that they&apos;ve
             missed one while taking inventory, how much easier could it get?
         </p>
         <p>
