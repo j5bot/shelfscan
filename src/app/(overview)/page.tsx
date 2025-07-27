@@ -55,7 +55,7 @@ export default function Page() {
 
     const onScan = (code: string) => {
         if (!codes.includes(code)) {
-            codes.push(code);
+            codes.unshift(code);
             setCodes(codes);
         }
         getGameData(code).then();

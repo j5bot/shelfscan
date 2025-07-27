@@ -47,6 +47,11 @@ details summary::-webkit-details-marker {
   display:none;
 }
 
+/* there's a style declared inline on safari mobile that makes this block */
+details.inline-flex::details-content {
+  display: inline-flex;
+}
+
 @supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
   details.inline-flex {
     display: block;
