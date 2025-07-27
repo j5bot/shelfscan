@@ -132,7 +132,6 @@ export const SelectVersion = () => {
                     </button>
                 </Link>
             </div>
-
         </div>
     </>;
 };
