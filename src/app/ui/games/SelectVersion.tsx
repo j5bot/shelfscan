@@ -118,7 +118,7 @@ export const SelectVersion = () => {
                 </div>}
                 {secondaryActions && <div className="flex justify-center min-h-17 items-center">{secondaryActions}</div>}
             </div>}
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-10">
                 <Link title={'Scan More Games'} href="/">
                     <button
                         className={`scan-button cursor-pointer rounded-2xl
