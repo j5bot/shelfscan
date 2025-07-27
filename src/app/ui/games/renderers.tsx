@@ -1,6 +1,8 @@
 import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
+import { Thumbnail } from '@/app/ui/games/Thumbnail';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
+import Image from 'next/image';
 import React, { ReactNode } from 'react';
 import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
@@ -20,40 +22,57 @@ const getConfidenceLevelColor = (confidence: number) => {
 };
 
 export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, index: number): ReactNode => {
-    const { confidence, name } = info;
+    const { confidence, name, thumbnail_url } = info;
     const { isInfoInCollection } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="flex items-center justify-start gap-2">
-        <div>{name}{
-            isInfoInCollection(index) && <FaCheck />
-        }</div>
-        <SvgCssGauge className="confidence-level shrink-0 m-0.5"
-                     color={confidenceLevelColor}
-                     fill={confidenceLevelColor}
-                     value={confidence} />
+    return <div className="relative w-[100px] flex justify-center items-center">
+        <Thumbnail alt={name} url={thumbnail_url} size={100} />
+        <div className="absolute top-0 left-0 bottom-0 right-0 flex gap-1 justify-center items-center">
+            {isInfoInCollection(index) && (
+                <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                    <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
+                </div>
+            )}
+            <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                <SvgCssGauge className={`w-6 h-6 confidence-level shrink-0 m-1`}
+                             color={confidenceLevelColor}
+                             fill={confidenceLevelColor}
+                             value={confidence} />
+            </div>
+        </div>
     </div>;
 };
 
 export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBggVersion, index: number): ReactNode => {
-    const { confidence, name, language, published } = item;
+    const { confidence, name, language, published, thumbnail_url } = item;
     const { isVersionInCollection } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="flex flex-col items-start">
-        <div className="flex gap-2 items-center">
-            <div className="flex gap-2">{name}{
-                isVersionInCollection(index) && <FaCheck />
-            }</div>
-            <SvgCssGauge className="confidence-level shrink-0 m-0.5"
-                         color={confidenceLevelColor}
-                         fill={confidenceLevelColor}
-                         value={confidence} />
+    return <div className="relative w-[210px] h-[80px] flex justify-center items-center">
+        <Thumbnail alt={name} url={thumbnail_url} size={75} />
+        <div className="absolute top-0 left-0 bottom-0 right-[135px]">
+            <div className="flex gap-1 justify-center items-center w-full h-full">
+                {isVersionInCollection(index) && (
+                    <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                        <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
+                    </div>
+                )}
+                <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                    <SvgCssGauge className={`w-6 h-6 confidence-level shrink-0 m-1`}
+                                 color={confidenceLevelColor}
+                                 fill={confidenceLevelColor}
+                                 value={confidence} />
+                </div>
+            </div>
         </div>
-        <div className="text-accent">{language} {published}</div>
-    </div>
+        <div className="flex flex-col border-l-1 border-base-300 w-[135px] pl-1.5 pr-1">
+            <div className="text-xs">{name}</div>
+            <div className="text-accent text-xs pt-1.5">{language} {published}</div>
+        </div>
+    </div>;
 };
 
 export const renderSelectedItem = (
@@ -104,23 +123,27 @@ export const renderSelectedItem = (
                 value={confidence}
             />
             {showUpdate && (
-                <>
-                    <button
-                        disabled={isUpdating}
-                        onClick={updateGameUPC}
-                        className="update-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
-                    >
-                        <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
-                        <span className="hidden md:block">Update</span>
-                    </button>
-                </>
+                <button
+                    disabled={isUpdating}
+                    onClick={updateGameUPC}
+                    className="update-button rounded-lg bg-[#e07ca4] text-white h-8 w-8 md:w-fit p-1 md:pl-2 md:pr-2 btn flex text-xs"
+                >
+                    {isUpdating ?
+                        <span className="loading loading-bars loading-xs" /> :
+                        <FaThumbsUp  className="md:w-4 md:h-4" />
+                    }
+                    <span className="hidden md:block">Update</span>
+                </button>
             )} {showRemove && (
                 <button
                     disabled={isRemoving}
                     onClick={removeGameUPC}
-                    className="remove-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                    className="remove-button rounded-lg h-8 w-8 bg-gray-400 text-white md:w-fit p-1 md:pl-2 md:pr-2 btn flex text-xs"
                 >
-                    <FaThumbsDown className="md:w-2.5 md:h-2.5" />
+                    {isRemoving ?
+                        <span className="loading loading-bars loading-xs" /> :
+                        <FaThumbsDown  className="md:w-4 md:h-4" />
+                    }
                     <span className="hidden md:block">Remove</span>
                 </button>
             )}

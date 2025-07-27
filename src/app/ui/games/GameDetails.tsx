@@ -1,7 +1,7 @@
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
-import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
 import React, { ReactNode, SyntheticEvent, useState } from 'react';
@@ -29,7 +29,7 @@ export const GameDetails = (
 
     return <div
         id="game-details"
-        className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3"
+        className="mt-25 md:mt-30 pt-3 bg-overlay min-w-2/3"
     >
         <h2 className="mb-1 text-center uppercase flex gap-1 justify-center items-center">
             {info?.page_url ?
@@ -70,11 +70,11 @@ export const GameDetails = (
                     {info?.id && children}
                 </div>}
                 <div className="shrink pb-1">
-                    <details className="inline-flex gap-1.5 items-center" open={!info}>
+                    <details className="inline-flex flex-wrap gap-1.5 items-center" open={!info}>
                         <summary className="align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
                             <FaSearch className="w-4 m-2" />
                         </summary>
-                        <div className="align-middle inline-flex items-center gap-1.5 w-fit">
+                        <div className="align-middle inline-flex flex-wrap items-center gap-1.5 w-fit">
                             <input tabIndex={0}
                                    type="text"
                                    className="input h-7 text-xs w-fit"

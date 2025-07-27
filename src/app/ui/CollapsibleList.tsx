@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 
 export const makeListItemClassName = (current: number, selected: number | null) =>
-    `cursor-pointer max-w-3/4 ml-0.5 mr-1 rounded-sm ${
+    `cursor-pointer ml-0.5 mr-1 rounded-sm ${
         current === selected ?
         'p-1 pl-1.5 bg-orange-50 dark:bg-yellow-700' :
         'pl-1.5'
@@ -60,9 +60,9 @@ export const CollapsibleList =
      >
          {renderSelectedItem(items[selectedItemIndex ?? 0])}
      </div> :
-     <div className="w-full mt-1">
+     <div className="w-full mt-1 flex flex-col items-center">
          {title}
-         <ul className={`menu pl-0 ml-0 mr-0 bg-base-100 rounded-box w-full lg:min-w-64 shadow-sm ${className}`}>
+         <ul className={`pl-0 pt-2 ml-0 mr-0 bg-base-100 rounded-box max-w-full lg:min-w-64 shadow-sm ${className}`}>
              {items.map((item: T, index: number) => {
                  const itemProps = {
                     [`data-${type}-index`]: index,

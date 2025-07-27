@@ -1,6 +1,7 @@
 import { addImageDataToCache, getImageDataFromCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
-import { CSSProperties } from 'react';
+import Image from 'next/image';
+import React, { CSSProperties } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 
 export type ThumbnailBoxProps = {
@@ -8,6 +9,22 @@ export type ThumbnailBoxProps = {
     url: string;
     styles?: CSSProperties;
     size: number;
+};
+
+export const Thumbnail = (props: ThumbnailBoxProps) => {
+    const {alt = props.url, url, size} = props;
+
+    const imageProps = useImagePropsWithCache({
+        alt,
+        src: url,
+        getImageId: makeImageCacheId,
+        getImageDataFromCache,
+        addImageDataToCache,
+        width: size,
+        height: size,
+    }, [url]);
+
+    return <img className="object-contain" {...imageProps} />;
 };
 
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {

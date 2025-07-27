@@ -13,9 +13,9 @@ import { GameDetails } from '@/app/ui/games/GameDetails';
 import { renderItem, renderSelectedItem, renderVersionItem } from '@/app/ui/games/renderers';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { template } from '@blakeembrey/template';
-import Image from 'next/image';
 import Link from 'next/link';
 import React, { SyntheticEvent } from 'react';
+import { FaBarcode } from 'react-icons/fa6';
 
 const gameTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Game</h4>
 const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Version</h4>
@@ -84,17 +84,11 @@ export const SelectVersion = () => {
                     {pluginActions}
                 </div>
             </GameDetails>
-            {hasInfos && <div className="bg-overlay pt-2 w-fit min-w-1/2 lg:min-w-1/3">
+            {hasInfos && <div className="bg-overlay pt-2 w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
-                    <div id="game-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Game">
-                        <Image
-                            className="inline-block w-6 h-6 md:w-8 md:h-8"
-                            src={'/icons/box-game.png'} alt="Game" width={32} height={32}
-                        />
-                    </div>
                     <CollapsibleList
                         title={gameTitle}
-                        className="text-sm md:text-md overflow-x-scroll h-50"
+                        className="text-sm flex justify-start items-center md:text-md overflow-x-scroll overflow-y-visible min-h-[125px]"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
@@ -107,18 +101,11 @@ export const SelectVersion = () => {
                 </div>
                 {currentInfoIndex !== null && versions && <div
                     id="select-version"
-                    className="flex items-center gap-1.5"
+                    className="flex items-center gap-2"
                 >
-                    <div id="version-symbol" className="tooltip shrink-0 flex flex-col items-center w-fit" data-tip="Version">
-                        <Image
-                            className="inline-block w-6 h-6 md:w-8 md:h-8"
-                        src={'/icons/box-version.png'}
-                        alt="Version" width={32} height={32}
-                        />
-                    </div>
                     <CollapsibleList
                         title={versionTitle}
-                        className="text-sm md:text-md overflow-x-scroll h-65 md:h-80 lg:h-100"
+                        className="text-sm flex justify-start md:text-md overflow-x-scroll overflow-y-visible min-h-[110px]"
                         type="version"
                         items={versions}
                         selectedItemIndex={currentVersionIndex}
@@ -129,8 +116,23 @@ export const SelectVersion = () => {
                         renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>}
-                {secondaryActions && <div className="flex justify-center h-17 items-center">{secondaryActions}</div>}
+                {secondaryActions && <div className="flex justify-center min-h-17 items-center">{secondaryActions}</div>}
             </div>}
+            <div className="flex justify-center pt-4">
+                <Link title={'Scan More Games'} href="/">
+                    <button
+                        className={`scan-button cursor-pointer rounded-2xl
+                        flex justify-start items-center
+                        bg-gray-400 text-white
+                        p-6 pt-2 pb-2
+                        text-4xl`}
+                    >
+                        <FaBarcode className="w-12 h-9" />
+                        <div className="p-1.5 font-semibold uppercase">Scan</div>
+                    </button>
+                </Link>
+            </div>
+
         </div>
     </>;
 };
