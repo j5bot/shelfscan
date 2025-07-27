@@ -4,6 +4,7 @@ import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import React, { ReactNode, SyntheticEvent, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
@@ -13,13 +14,20 @@ const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgam
 export const GameDetails = (
     { children }: { children: ReactNode }
 ) => {
+    const searchParams = useSearchParams();
     const { defaultImageUrl, id, info, searchGameUPC, version } = useSelectVersionContext();
     const detailTemplates = usePlugins('link.details');
 
-    const [searchString, setSearchString] = useState<string>('');
+    const searchQuery = searchParams.get('q');
+
+    const [searchFormOpen, setSearchFormOpen] = useState<boolean>(!info || !!searchQuery);
+    const [searchString, setSearchString] = useState<string>(searchQuery ?? '');
 
     const searchBlurHandler = (e: SyntheticEvent<HTMLInputElement>) => {
         const searchString = e.currentTarget.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('q', searchString);
+        window.history.pushState(undefined, '', url.toString());
         setSearchString(searchString);
     };
 
@@ -69,28 +77,28 @@ export const GameDetails = (
                 {children && <div className="grow max-w-60">
                     {info?.id && children}
                 </div>}
-                <div id="search-game-form" className="shrink pb-1">
-                    <details className="flex gap-1.5 items-center" open={!info}>
-                        <summary className="shrink align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
-                            <FaSearch className="w-4 m-2" />
-                        </summary>
-                        <div className="align-middle flex items-center gap-1.5">
-                            <input tabIndex={0}
-                                   type="text"
-                                   className="input h-7 text-xs"
-                                   name="search"
-                                   placeholder="Search for game"
-                                   defaultValue={searchString}
-                                   onBlur={searchBlurHandler}
-                            />
-                            <button tabIndex={0}
-                                    onClick={searchClickHandler}
-                                    className="bg-gray-400 p-0.5 rounded-full"
-                            >
-                                <FaCaretRight className="text-white"/>
-                            </button>
-                        </div>
-                    </details>
+                <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
+                    <div className="cursor-pointer align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
+                        <FaSearch className="w-4 m-2" onClick={() => {
+                            setSearchFormOpen(!searchFormOpen);
+                        }} />
+                    </div>
+                    <div className={`align-middle items-center gap-1 ${searchFormOpen ? 'flex' : 'hidden'}`}>
+                        <input tabIndex={0}
+                               type="text"
+                               className="input h-7 text-xs w-fit"
+                               name="search"
+                               placeholder="Search for game"
+                               defaultValue={searchString}
+                               onBlur={searchBlurHandler}
+                        />
+                        <button tabIndex={0}
+                                onClick={searchClickHandler}
+                                className="bg-gray-400 p-0.5 rounded-full"
+                        >
+                            <FaCaretRight className="text-white"/>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

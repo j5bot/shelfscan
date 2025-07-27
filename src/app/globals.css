@@ -47,17 +47,6 @@ details summary::-webkit-details-marker {
   display:none;
 }
 
-/* there's a style declared inline on safari mobile that makes this block */
-details.flex::details-content {
-  display: flex;
-}
-
-@supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {
-  details.inline-flex {
-    display: block;
-  }
-}
-
 .react-barcode-scanner-container {
   border-radius: var(--radius-2xl);
 }
