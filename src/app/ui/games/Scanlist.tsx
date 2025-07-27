@@ -4,7 +4,7 @@ import {
     GameUPCVersionStatusText
 } from '@/app/lib/types/GameUPCData';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
-import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaCheckCircle, FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';

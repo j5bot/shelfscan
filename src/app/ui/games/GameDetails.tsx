@@ -1,7 +1,7 @@
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
-import { ThumbnailBox } from '@/app/ui/games/ThumbnailBox';
+import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
 import React, { ReactNode, SyntheticEvent, useState } from 'react';
