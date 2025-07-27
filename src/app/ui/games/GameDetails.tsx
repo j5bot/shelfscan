@@ -42,7 +42,7 @@ export const GameDetails = (
                 </Link>;
             })}
         </h2>
-        <div className="flex gap-2 items-stretch justify-center">
+        <div className="flex flex-wrap gap-2 items-stretch justify-center">
             <ThumbnailBox
                 alt={version?.name ?? 'Default Game Image'}
                 url={version?.thumbnail_url ?? defaultImageUrl}

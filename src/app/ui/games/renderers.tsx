@@ -26,8 +26,11 @@ export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, 
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="relative w-fit flex justify-center items-center">
-        <Image className="w-fit h-fit" src={thumbnail_url} alt={name} width={150} height={150} />
+    return <div className="relative w-[100px] flex justify-center items-center">
+        <Image className="object-contain" style={{
+                height: '100px',
+                width: '100px',
+            }} src={thumbnail_url} alt={name} width={100} height={100} />
         <div className="absolute top-0 left-0 bottom-0 right-0 flex gap-1 justify-center items-center">
             {isInfoInCollection(index) && (
                 <div className="bg-[#000000aa] h-8 w-8 rounded-full">
@@ -42,36 +45,39 @@ export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, 
             </div>
         </div>
     </div>;
-
-    // return <div className="flex items-center justify-start gap-2">
-    //     <div>{name}{
-    //         isInfoInCollection(index) && <FaCheck />
-    //     }</div>
-    //     <SvgCssGauge className="confidence-level shrink-0 m-0.5"
-    //                  color={confidenceLevelColor}
-    //                  fill={confidenceLevelColor}
-    //                  value={confidence} />
-    // </div>;
 };
 
 export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBggVersion, index: number): ReactNode => {
-    const { confidence, name, language, published } = item;
+    const { confidence, name, language, published, thumbnail_url } = item;
     const { isVersionInCollection } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="flex flex-col items-start">
-        <div className="flex gap-2 items-center">
-            <div className="flex gap-2">{name}{
-                isVersionInCollection(index) && <FaCheck />
-            }</div>
-            <SvgCssGauge className="confidence-level shrink-0 m-0.5"
-                         color={confidenceLevelColor}
-                         fill={confidenceLevelColor}
-                         value={confidence} />
+    return <div className="relative w-[210px] h-[80px] flex justify-center items-center">
+        <Image className="object-contain" style={{
+            height: '75px',
+            width: '75px',
+        }} src={thumbnail_url} alt={name} width={75} height={75} />
+        <div className="absolute top-0 left-0 bottom-0 right-[135px]">
+            <div className="flex gap-1 justify-center items-center w-full h-full">
+                {isVersionInCollection(index) && (
+                    <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                        <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
+                    </div>
+                )}
+                <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                    <SvgCssGauge className={`w-6 h-6 confidence-level shrink-0 m-1`}
+                                 color={confidenceLevelColor}
+                                 fill={confidenceLevelColor}
+                                 value={confidence} />
+                </div>
+            </div>
         </div>
-        <div className="text-accent">{language} {published}</div>
-    </div>
+        <div className="flex flex-col border-l-1 border-base-300 w-[135px] pl-1.5 pr-1">
+            <div className="text-xs">{name}</div>
+            <div className="text-accent text-xs pt-1.5">{language} {published}</div>
+        </div>
+    </div>;
 };
 
 export const renderSelectedItem = (

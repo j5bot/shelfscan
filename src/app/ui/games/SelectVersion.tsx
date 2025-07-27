@@ -83,11 +83,11 @@ export const SelectVersion = () => {
                     {pluginActions}
                 </div>
             </GameDetails>
-            {hasInfos && <div className="bg-overlay pt-2 w-fit min-w-1/2 lg:min-w-1/3">
+            {hasInfos && <div className="bg-overlay pt-2 w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
                     <CollapsibleList
                         title={gameTitle}
-                        className="text-sm w-full flex justify-center md:text-md overflow-x-scroll overflow-y-hidden max-h-50"
+                        className="text-sm flex justify-center items-center md:text-md overflow-x-scroll overflow-y-visible min-h-[125px]"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
@@ -100,11 +100,11 @@ export const SelectVersion = () => {
                 </div>
                 {currentInfoIndex !== null && versions && <div
                     id="select-version"
-                    className="flex items-center gap-1.5"
+                    className="flex items-center gap-2"
                 >
                     <CollapsibleList
                         title={versionTitle}
-                        className="text-sm md:text-md overflow-x-scroll h-65 md:h-80 lg:h-100"
+                        className="text-sm flex justify-center md:text-md overflow-x-scroll overflow-y-visible min-h-[110px]"
                         type="version"
                         items={versions}
                         selectedItemIndex={currentVersionIndex}
