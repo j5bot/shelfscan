@@ -121,7 +121,7 @@ export const SelectVersion = () => {
             <div className="flex justify-center pt-4">
                 <Link title={'Scan More Games'} href="/">
                     <button
-                        className={`collection-button cursor-pointer rounded-2xl
+                        className={`scan-button cursor-pointer rounded-2xl
                         flex justify-start items-center
                         bg-gray-400 text-white
                         p-6 pt-2 pb-2

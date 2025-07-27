@@ -3,7 +3,7 @@ import { Tour, TourStep } from '@/app/lib/types/tour';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
 import React from 'react';
-import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+import { FaBarcode, FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const steps: TourStep[] = [
     {
@@ -17,19 +17,6 @@ const steps: TourStep[] = [
         ...pointer,
     },
     {
-        icon: <Image
-            className="inline-block w-6 h-6 md:w-8 md:h-8"
-            src={'/icons/box-game.png'} alt="Game" width={32} height={32}
-        />,
-        title: 'Game Symbol',
-        content: `This is ShelfScan's game symbol, differentiating game selection from version selection`,
-        selector: '#game-symbol',
-        side: 'right',
-        showControls: true,
-        showSkip: true,
-        ...pointer,
-    },
-    {
         icon: <SvgCssGauge className="confidence-level shrink-0 m-0.5"
                            color={'lightgreen'}
                            fill={'lightgreen'}
@@ -38,7 +25,7 @@ const steps: TourStep[] = [
         content: `These are confidence level gauges.  The fuller the ring is, the higher confidence we have
         that we know the correct matching game or version`,
         selector: '.confidence-level',
-        side: 'bottom',
+        side: 'right',
         showControls: true,
         showSkip: true,
         ...pointer,
@@ -62,20 +49,6 @@ const steps: TourStep[] = [
         content: `A checkmark appears next to the game's name if it is already in your collection`,
         selector: '#select-game',
         side: 'top',
-        showControls: true,
-        showSkip: true,
-        ...pointer,
-    },
-    {
-        icon:  <Image
-            className="inline-block w-6 h-6 md:w-8 md:h-8"
-            src={'/icons/box-version.png'}
-            alt="Version" width={32} height={32}
-        />,
-        title: 'Version Symbol',
-        content: `This is ShelfScan's version symbol, differentiating version selection from game selection`,
-        selector: '#version-symbol',
-        side: 'right',
         showControls: true,
         showSkip: true,
         ...pointer,
@@ -133,6 +106,16 @@ const steps: TourStep[] = [
         GameUPC to undo the update.  Click it now`,
         selector: '.remove-button:nth-of-type(2)',
         side: 'top-right',
+        showControls: true,
+        showSkip: true,
+        ...pointer,
+    },
+    {
+        icon: <FaBarcode />,
+        title: 'Scan More',
+        content: `Click on the 'Scan' button to scan more games`,
+        selector: '.scan-button',
+        side: 'top',
         showControls: true,
         showSkip: true,
         ...pointer,
