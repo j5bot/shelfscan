@@ -31,7 +31,7 @@ export const GameDetails = (
         id="game-details"
         className="mt-25 md:mt-30 pt-3 bg-overlay min-w-2/3"
     >
-        <h2 className="mb-1 text-center uppercase flex gap-1 justify-center items-center">
+        <h2 className="mb-1 text-center text-balance uppercase flex gap-1 justify-center items-center">
             {info?.page_url ?
              <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id}</Link> :
              info?.name ?? id}
@@ -50,7 +50,7 @@ export const GameDetails = (
             />
             <div className="flex flex-col gap-2 w-content lg:max-w-2/3">
                 {version?.name && <div className="grow">
-                    <div className="border-b-1 border-b-gray-300">
+                    <div className="border-b-1 border-b-gray-300 text-balance">
                         {version?.version_id ?
                          <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name}</Link> :
                          version?.name}
@@ -69,15 +69,16 @@ export const GameDetails = (
                 {children && <div className="grow max-w-60">
                     {info?.id && children}
                 </div>}
-                <div className="shrink pb-1">
+                <div id="search-game-form" className="shrink pb-1">
                     <details className="inline-flex flex-wrap gap-1.5 items-center" open={!info}>
-                        <summary className="align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
+                        <summary className="inline-flex shrink align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
                             <FaSearch className="w-4 m-2" />
                         </summary>
-                        <div className="align-middle inline-flex flex-wrap items-center gap-1.5 w-fit">
+                        <div style={{ width: 'calc(100% - 60px)' }}
+                             className="align-middle inline-flex items-center gap-1.5">
                             <input tabIndex={0}
                                    type="text"
-                                   className="input h-7 text-xs w-fit"
+                                   className="input h-7 text-xs min-w-fit"
                                    name="search"
                                    placeholder="Search for game"
                                    defaultValue={searchString}

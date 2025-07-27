@@ -107,7 +107,7 @@ export const renderSelectedItem = (
     const selectedItemClasses = `flex gap-1 items-center relative`;
 
     return <div className="flex gap-1 items-center justify-between text-sm">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 text-balance">
             {item?.name}{
             inCollection &&
             <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />

@@ -3,6 +3,7 @@ import { Tour, TourStep } from '@/app/lib/types/tour';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';
 import React from 'react';
+import { FaSearch } from 'react-icons/fa';
 import { FaBarcode, FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
 const steps: TourStep[] = [
@@ -11,6 +12,17 @@ const steps: TourStep[] = [
         title: 'Game Details',
         content: 'Basic details about the game you scanned will appear here',
         selector: '#game-details',
+        side: 'bottom',
+        showControls: true,
+        showSkip: true,
+        ...pointer,
+    },
+    {
+        icon: <FaSearch />,
+        title: 'Search Game',
+        content: `Use this search box to find a different game or when there are no
+            results.  Click the triangle button to execute the search.`,
+        selector: '#search-game-form',
         side: 'bottom',
         showControls: true,
         showSkip: true,
