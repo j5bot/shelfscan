@@ -128,23 +128,27 @@ export const renderSelectedItem = (
                 value={confidence}
             />
             {showUpdate && (
-                <>
-                    <button
-                        disabled={isUpdating}
-                        onClick={updateGameUPC}
-                        className="update-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
-                    >
-                        <FaThumbsUp  className="md:w-2.5 md:h-2.5" />
-                        <span className="hidden md:block">Update</span>
-                    </button>
-                </>
+                <button
+                    disabled={isUpdating}
+                    onClick={updateGameUPC}
+                    className="update-button rounded-lg bg-[#e07ca4] text-white h-8 w-8 md:w-fit p-1 md:pl-2 md:pr-2 btn flex text-xs"
+                >
+                    {isUpdating ?
+                        <span className="loading loading-bars loading-xs" /> :
+                        <FaThumbsUp  className="md:w-4 md:h-4" />
+                    }
+                    <span className="hidden md:block">Update</span>
+                </button>
             )} {showRemove && (
                 <button
                     disabled={isRemoving}
                     onClick={removeGameUPC}
-                    className="remove-button text-gray-500 h-6 w-6 md:w-fit p-1 btn flex text-xs"
+                    className="remove-button rounded-lg h-8 w-8 bg-gray-400 text-white md:w-fit p-1 md:pl-2 md:pr-2 btn flex text-xs"
                 >
-                    <FaThumbsDown className="md:w-2.5 md:h-2.5" />
+                    {isRemoving ?
+                        <span className="loading loading-bars loading-xs" /> :
+                        <FaThumbsDown  className="md:w-4 md:h-4" />
+                    }
                     <span className="hidden md:block">Remove</span>
                 </button>
             )}
