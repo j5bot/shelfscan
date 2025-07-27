@@ -2,7 +2,6 @@ import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
 import { Thumbnail } from '@/app/ui/games/Thumbnail';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
-import Image from 'next/image';
 import React, { ReactNode } from 'react';
 import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 

@@ -1,6 +1,5 @@
 import { addImageDataToCache, getImageDataFromCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
-import Image from 'next/image';
 import React, { CSSProperties } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 

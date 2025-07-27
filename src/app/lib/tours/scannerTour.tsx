@@ -90,8 +90,9 @@ an application for scanning board game UPCs`,
         icon: <FaCloudArrowDown className="h-5 w-5" />,
         title: 'BGG Collection',
         content: `Click 'Get Collection' to get BGG collection info.
-        Uncheck 'Use Cache' to get a fresh copy`,
-        selector: '#bgg-get-collection',
+        Uncheck 'Use Cache' to get a fresh copy.  Check 'Remember Me' to stay
+        logged in.`,
+        selector: '.get-collection-section',
         side: 'bottom',
         showControls: true,
         showSkip: true,

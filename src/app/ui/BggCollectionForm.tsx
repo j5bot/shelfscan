@@ -58,27 +58,28 @@ export const BggCollectionForm = ()=> {
                        autoComplete={'autocomplete'}
                        defaultValue={username}
                 />
-                <button
-                    className="grow p-2 rounded-md bg-gray-200 dark:bg-gray-500 cursor-pointer whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
-                    name="getCollection"
-                    id="bgg-get-collection"
-                    disabled={isPending} aria-disabled={isPending}
-                    type="submit"
-                >{isPending ? <span className="loading loading-bars loading-xs" />
-                     : <>Get Collection</>}
-                </button>
-                <div className="flex flex-col gap-1">
-                    <label style={labelStyle} htmlFor="useCache" className="flex items-center gap-1">
-                        <input disabled={isPending} aria-disabled={isPending}
-                               type="checkbox" value="true" defaultChecked={true} id="useCache"
-                               name="useCache" className="checkbox h-3 w-3 rounded-sm p-0.5" /> Use Cache
-                    </label>
-                    <label style={labelStyle} htmlFor="rememberMe" className="flex items-center gap-1">
-                        <input type="checkbox" value="true" defaultChecked={!!rememberMe} id="rememberMe"
-                               name="rememberMe" className="checkbox h-3 w-3 rounded-sm p-0.5"
-                               onChange={setRememberMe}
-                        /> Remember Me
-                    </label>
+                <div className="get-collection-section flex gap-2 items-center">
+                    <button
+                        className="grow p-2 rounded-md bg-gray-200 dark:bg-gray-500 cursor-pointer whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
+                        name="getCollection"
+                        disabled={isPending} aria-disabled={isPending}
+                        type="submit"
+                    >{isPending ? <span className="loading loading-bars loading-xs" />
+                         : <>Get Collection</>}
+                    </button>
+                    <div className="flex flex-col gap-1">
+                        <label style={labelStyle} htmlFor="useCache" className="flex items-center gap-1">
+                            <input disabled={isPending} aria-disabled={isPending}
+                                   type="checkbox" value="true" defaultChecked={true} id="useCache"
+                                   name="useCache" className="checkbox h-3 w-3 rounded-sm p-0.5" /> Use Cache
+                        </label>
+                        <label style={labelStyle} htmlFor="rememberMe" className="flex items-center gap-1">
+                            <input type="checkbox" value="true" defaultChecked={!!rememberMe} id="rememberMe"
+                                   name="rememberMe" className="checkbox h-3 w-3 rounded-sm p-0.5"
+                                   onChange={setRememberMe}
+                            /> Remember Me
+                        </label>
+                    </div>
                 </div>
             </fieldset>
         </form>;
