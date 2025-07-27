@@ -48,8 +48,8 @@ details summary::-webkit-details-marker {
 }
 
 /* there's a style declared inline on safari mobile that makes this block */
-details.inline-flex::details-content {
-  display: inline-flex;
+details.flex::details-content {
+  display: flex;
 }
 
 @supports (hanging-punctuation: first) and (font: -apple-system-body) and (-webkit-appearance: none) {

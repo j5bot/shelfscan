@@ -70,15 +70,14 @@ export const GameDetails = (
                     {info?.id && children}
                 </div>}
                 <div id="search-game-form" className="shrink pb-1">
-                    <details className="inline-flex flex-wrap gap-1.5 items-center" open={!info}>
-                        <summary className="inline-flex shrink align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
+                    <details className="flex gap-1.5 items-center" open={!info}>
+                        <summary className="shrink align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
                             <FaSearch className="w-4 m-2" />
                         </summary>
-                        <div style={{ width: 'calc(100% - 60px)' }}
-                             className="align-middle inline-flex items-center gap-1.5">
+                        <div className="align-middle flex items-center gap-1.5">
                             <input tabIndex={0}
                                    type="text"
-                                   className="input h-7 text-xs min-w-fit"
+                                   className="input h-7 text-xs"
                                    name="search"
                                    placeholder="Search for game"
                                    defaultValue={searchString}
@@ -86,7 +85,7 @@ export const GameDetails = (
                             />
                             <button tabIndex={0}
                                     onClick={searchClickHandler}
-                                    className="inline-flex bg-gray-400 p-0.5 rounded-full"
+                                    className="bg-gray-400 p-0.5 rounded-full"
                             >
                                 <FaCaretRight className="text-white"/>
                             </button>
