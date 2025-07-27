@@ -29,7 +29,7 @@ export const GameDetails = (
 
     return <div
         id="game-details"
-        className="mt-20 md:mt-30 pt-3 bg-overlay min-w-2/3"
+        className="mt-25 md:mt-30 pt-3 bg-overlay min-w-2/3"
     >
         <h2 className="mb-1 text-center uppercase flex gap-1 justify-center items-center">
             {info?.page_url ?

@@ -15,6 +15,7 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
 import React, { SyntheticEvent } from 'react';
+import { FaBarcode } from 'react-icons/fa6';
 
 const gameTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Game</h4>
 const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Version</h4>
@@ -115,8 +116,23 @@ export const SelectVersion = () => {
                         renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>}
-                {secondaryActions && <div className="flex justify-center h-17 items-center">{secondaryActions}</div>}
+                {secondaryActions && <div className="flex justify-center min-h-17 items-center">{secondaryActions}</div>}
             </div>}
+            <div className="flex justify-center pt-4">
+                <Link title={'Scan More Games'} href="/">
+                    <button
+                        className={`collection-button cursor-pointer rounded-2xl
+                        flex justify-start items-center
+                        bg-gray-400 text-white
+                        p-6 pt-2 pb-2
+                        text-4xl`}
+                    >
+                        <FaBarcode className="w-12 h-9" />
+                        <div className="p-1.5 font-semibold uppercase">Scan</div>
+                    </button>
+                </Link>
+            </div>
+
         </div>
     </>;
 };
