@@ -4,10 +4,13 @@ import { useSelector } from '@/app/lib/hooks/index';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
+import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 
 export const useSelectVersion = (id: string) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
+    const searchParams = useSearchParams();
+    const searchQuery = searchParams.get('q');
 
     const {
         getGameData,
@@ -111,11 +114,26 @@ export const useSelectVersion = (id: string) => {
         if (gameSelectionIndex > -1) {
             setCurrentInfoIndex(gameSelectionIndex);
             setSelectedInfoId(gameSelections[id][0]);
+        } else {
+            setCurrentInfoIndex(null);
+            setSelectedInfoId(undefined);
         }
         if (versionSelectionIndex > -1) {
             setCurrentVersionIndex(versionSelectionIndex);
             setSelectedVersionId(gameSelections[id][1]);
+        } else {
+            setCurrentVersionIndex(null);
+            setSelectedVersionId(undefined);
         }
+
+        console.log(
+            selection,
+            id,
+            info,
+            infos,
+            gameSelectionIndex,
+            versionSelectionIndex,
+        );
     }
 
     const infosLength = infos?.length;
@@ -175,7 +193,7 @@ export const useSelectVersion = (id: string) => {
 
     useEffect(() => {
         restorePreviousSelection();
-    }, [id]);
+    }, [id, infos, searchQuery]);
 
     const infoClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {
         const index = e.currentTarget.getAttribute('data-info-index') ?? null;

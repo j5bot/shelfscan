@@ -26,13 +26,13 @@ export type ModeSettings = Record<Modes['addToCollection'], ModeSetting>;
 const addToCollectionModeSettings: ModeSettings = {
     add: {
         label: 'Add',
-        icon: <FaPlus className="w-4.5 h-4.5" />,
-        width: 'w-26',
+        icon: <FaPlus className="w-4 h-4 shrink-0" />,
+        width: 'w-20',
     },
     trade: {
         label: 'Trade',
-        icon: <FaRecycle className="w-4 h-4" />,
-        width: 'w-29',
+        icon: <FaRecycle className="w-4 h-4 shrink-0" />,
+        width: 'w-25',
         form: <form name="trade">
             <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
         </form>,
@@ -43,8 +43,8 @@ const addToCollectionModeSettings: ModeSettings = {
     },
     wishlist: {
         label: 'Wish',
-        icon: <FaHeart className="w-4 h-4.5" />,
-        width: 'w-27',
+        icon: <FaHeart className="w-3.5 h-4 shrink-0" />,
+        width: 'w-21',
     },
 };
 
@@ -131,30 +131,30 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const addToCollectionBlock = syncOn && (
         <>
-            <div key="atcb" data-collapse="atcb" className={`relative shrink-0 ${atcMode.width}`}>
-                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 ${atcMode.width}`}></div>
-                <div className={`relative collapse min-h-8.5 rounded-none overflow-visible ${atcMode.width}`}>
+            <div key="atcb" data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
+                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${atcMode.width}`}></div>
+                <div className={`relative collapse min-h-7 rounded-none overflow-visible ${atcMode.width}`}>
                     <input type="checkbox" />
                     <button className={`collapse-title
                         absolute right-0 top-0
                         collection-button cursor-pointer rounded-r-full
                         flex items-center
                         bg-[#e07ca4bb] text-white
-                        p-1.5 h-8.5 w-6.5`}>
-                        <FaChevronDown className="w-2.5 h-2.5" />
+                        p-1 h-7 w-4.5`}>
+                        <FaChevronDown className="w-2 h-2" />
                     </button>
                     <button
                         className={`collection-button cursor-pointer rounded-l-full
-                            absolute top-0 left-0 right-7
+                            absolute top-0 left-0 right-5
                             flex justify-center items-center
                             bg-[#e07ca4] text-white
-                            p-1.5 pl-2 h-8.5
+                            p-1 pl-1.5 h-7
                             z-40
                             text-sm`}
                         onClick={addToCollection}
                     >
                         {atcMode.icon}
-                        <div className="p-1.5 font-semibold uppercase">
+                        <div className="p-0.5 font-semibold uppercase">
                             {atcMode.label}
                         </div>
                     </button>
@@ -182,19 +182,19 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     );
 
     const addPlayBlock = syncOn && (
-        <div key="apb" className="relative shrink-0 w-29 h-8.5">
-            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 w-29"></div>
+        <div key="apb" className="relative shrink-0 w-27 h-7">
+            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-27"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
                     relative
                     flex justify-start items-center                            
                     bg-[#e07ca4] text-white
-                    p-2 h-8.5
+                    p-1 h-7
                     text-sm`}
                 onClick={addPlay}
             >
-                <FaDice className="w-5 h-5" />
-                <div className="p-1.5 font-semibold uppercase">Log Play</div>
+                <FaDice className="w-4 h-4" />
+                <div className="p-1 font-semibold uppercase">Log Play</div>
             </button>
         </div>
     );

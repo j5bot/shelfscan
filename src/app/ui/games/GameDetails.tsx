@@ -5,7 +5,7 @@ import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { ReactNode, SyntheticEvent, useState } from 'react';
+import React, { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
 
@@ -15,13 +15,17 @@ export const GameDetails = (
     { children }: { children: ReactNode }
 ) => {
     const searchParams = useSearchParams();
-    const { defaultImageUrl, id, info, searchGameUPC, version } = useSelectVersionContext();
+    const { defaultImageUrl, id, info, infos, searchGameUPC, version } = useSelectVersionContext();
     const detailTemplates = usePlugins('link.details');
 
     const searchQuery = searchParams.get('q');
 
-    const [searchFormOpen, setSearchFormOpen] = useState<boolean>(!info || !!searchQuery);
+    const [searchFormOpen, setSearchFormOpen] = useState<boolean>(!infos?.length || !!searchQuery);
     const [searchString, setSearchString] = useState<string>(searchQuery ?? '');
+
+    useEffect(() => {
+        setSearchFormOpen(!infos || !!searchQuery);
+    }, [infos, searchQuery]);
 
     const searchBlurHandler = (e: SyntheticEvent<HTMLInputElement>) => {
         const searchString = e.currentTarget.value;
@@ -50,13 +54,15 @@ export const GameDetails = (
                 </Link>;
             })}
         </h2>
-        <div className="flex gap-2 items-stretch justify-center">
-            <ThumbnailBox
-                alt={version?.name ?? 'Default Game Image'}
-                url={version?.thumbnail_url ?? defaultImageUrl}
-                size={150}
-            />
-            <div className="flex flex-col gap-2 w-content lg:max-w-2/3">
+        <div className="flex gap-2 items-stretch justify-center pb-2">
+            <div className="flex items-center">
+                <ThumbnailBox
+                    alt={version?.name ?? 'Default Game Image'}
+                    url={version?.thumbnail_url ?? defaultImageUrl}
+                    size={150}
+                />
+            </div>
+            <div className="flex flex-col gap-1 w-full grow lg:max-w-2/3">
                 {version?.name && <div className="grow">
                     <div className="border-b-1 border-b-gray-300 text-balance">
                         {version?.version_id ?

@@ -79,12 +79,12 @@ export const SelectVersion = () => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <GameDetails>
-                <div className="flex flex-wrap justify-start gap-1.5">
+                <div className="flex flex-wrap justify-start gap-1">
                     {primaryActions}
                     {pluginActions}
                 </div>
             </GameDetails>
-            {hasInfos && <div className="bg-overlay pt-2 w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">
+            {hasInfos && <div className="bg-overlay w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
                     <CollapsibleList
                         title={gameTitle}
