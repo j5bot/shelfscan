@@ -125,15 +125,6 @@ export const useSelectVersion = (id: string) => {
             setCurrentVersionIndex(null);
             setSelectedVersionId(undefined);
         }
-
-        console.log(
-            selection,
-            id,
-            info,
-            infos,
-            gameSelectionIndex,
-            versionSelectionIndex,
-        );
     }
 
     const infosLength = infos?.length;

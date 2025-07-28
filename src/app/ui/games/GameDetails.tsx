@@ -9,7 +9,8 @@ import React, { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
 
-const getVersionUrl = (versionId: number) => `https://boardgamegeek.com/boardgameversion/${versionId}`;
+const getVersionUrl = (versionId: number) =>
+    `https://boardgamegeek.com/boardgameversion/${versionId}`;
 
 export const GameDetails = (
     { children }: { children: ReactNode }
@@ -49,7 +50,12 @@ export const GameDetails = (
              info?.name ?? id}
             {info && detailTemplates.game?.map(plugin => {
                 const templateFn = template(plugin.template);
-                return <Link className="mb-2" key={plugin.template} title={plugin.title} href={templateFn(info ?? { upc: id })} target="_blank">
+                return <Link className="mb-2"
+                             key={plugin.template}
+                             title={plugin.title}
+                             href={templateFn(info ?? { upc: id })}
+                             target="_blank"
+                >
                     <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? 12} className="text-gray-400 ml-1" />
                 </Link>;
             })}
@@ -64,21 +70,32 @@ export const GameDetails = (
             </div>
             <div className="flex flex-col gap-1 w-full grow lg:max-w-2/3">
                 {version?.name && <div className="grow">
-                    <div className="border-b-1 border-b-gray-300 text-balance">
-                        {version?.version_id ?
-                         <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name}</Link> :
-                         version?.name}
-                        {version?.version_id && detailTemplates.version?.map(plugin => {
-                            const templateFn = template(plugin.template);
-                            return <Link key={plugin.template}
-                                         title={plugin.title}
-                                         href={templateFn({ ...version, page_url: getVersionUrl(version.version_id) })}
-                                         target="_blank">
-                                <DynamicIcon icon={plugin.icon} size={8} className="text-gray-400 inline-block align-super ml-1" />
-                            </Link>;
-                        })}
+                    <div className="border-b-1 border-b-gray-200 pb-1 flex gap-1 text-balance">
+                        <span className="grow">
+                            {version?.version_id ?
+                             <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name}</Link> :
+                                   version?.name}
+                        </span>
+                        {version?.version_id && detailTemplates.version?.length && <div className="shrink">
+                            {detailTemplates.version?.map(plugin => {
+                                const templateFn = template(plugin.template);
+                                return <Link key={plugin.template}
+                                             title={plugin.title}
+                                             href={templateFn({
+                                                 ...version,
+                                                 page_url: getVersionUrl(version.version_id),
+                                             })}
+                                             target="_blank">
+                                    <DynamicIcon
+                                        icon={plugin.icon}
+                                        size={8}
+                                        className="text-gray-400 inline-block align-super ml-1"
+                                    />
+                                </Link>;
+                            })}
+                        </div>}
                     </div>
-                    <h4>{version?.published || 'Unknown'}</h4>
+                    <h4 className="pb-0.5">{version?.published || 'Unknown'}</h4>
                 </div>}
                 {children && <div className="grow max-w-60">
                     {info?.id && children}
