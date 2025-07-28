@@ -51,20 +51,20 @@ export const SelectVersion = () => {
         const { className, icon, template: pluginTemplate, title } = actionPlugin;
         const templateFn = template(pluginTemplate);
 
-        return <div key={index} className={`relative shrink-0 h-8.5 ${className}`}>
-            <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-8.5 ${className}`}></div>
+        return <div key={index} className={`relative shrink-0 h-7.5 ${className} mr-0.5`}>
+            <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7.5 ${className}`}></div>
             <Link title={title} href={templateFn(info ?? { id })} target="_blank">
                 <button
                     className={`collection-button cursor-pointer rounded-full
                         relative
                         flex justify-start items-center
                         bg-[#e07ca4] text-white
-                        p-2 h-8.5
+                        p-1 pl-1.5 pr-1.5 h-7.5
                         text-sm`}
                     onClick={actionTemplateOnClick}
                 >
-                    <DynamicIcon icon={icon} size={20} className="w-4.5 h-4.5" />
-                    <div className="p-1.5 font-semibold uppercase">{title}</div>
+                    <DynamicIcon icon={icon} size={20} className="w-4 h-4" />
+                    <div className="p-0.5 font-semibold uppercase">{title}</div>
                 </button>
             </Link>
         </div>;

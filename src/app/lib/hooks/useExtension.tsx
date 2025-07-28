@@ -31,7 +31,7 @@ const addToCollectionModeSettings: ModeSettings = {
     },
     trade: {
         label: 'Trade',
-        icon: <FaRecycle className="w-4 h-4 shrink-0" />,
+        icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
         width: 'w-25',
         form: <form name="trade">
             <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
@@ -43,7 +43,7 @@ const addToCollectionModeSettings: ModeSettings = {
     },
     wishlist: {
         label: 'Wish',
-        icon: <FaHeart className="w-3.5 h-4 shrink-0" />,
+        icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
         width: 'w-21',
     },
 };
@@ -189,7 +189,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                     relative
                     flex justify-start items-center                            
                     bg-[#e07ca4] text-white
-                    p-1 h-7
+                    p-1 pl-1.5 h-7
                     text-sm`}
                 onClick={addPlay}
             >
