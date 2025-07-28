@@ -32,9 +32,9 @@ export const PluginManager = () => {
         addPlugin(pluginTextAreaRef.current.value).then(loadPlugins);
     };
 
-    return <div className="collapse collapse-arrow bg-base-100 border-base-300 text-sm">
-        <input type="checkbox" />
-        <div className="collapse-title font-semibold">Installed Plugins</div>
+    return <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">
+        <input type="radio" name="settings" />
+        <h3 className="collapse-title font-semibold">Installed Plugins</h3>
         <div className="collapse-content text-xs">
             <ul className="list-none">
                 {enabledPlugins.map(plugin => {
