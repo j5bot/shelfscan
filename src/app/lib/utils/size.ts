@@ -10,6 +10,6 @@ export const formatBytes =
 
         const sizeFactor = Math.floor(Math.log(bytes) / Math.log(bytesInKilo));
 
-        return `${parseFloat((bytes / Math.pow(bytesInKilo, sizeFactor))
-                .toFixed(resolvedDecimals))} ${sizes[sizeFactor]}`;
+        return `${(bytes / Math.pow(bytesInKilo, sizeFactor))
+                .toFixed(resolvedDecimals)} ${sizes[sizeFactor]}`;
 };
