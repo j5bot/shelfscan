@@ -97,11 +97,11 @@ export const GameDetails = (
                     </div>
                     <h4 className="pb-0.5">{version?.published || 'Unknown'}</h4>
                 </div>}
-                {children && <div className="grow max-w-60">
+                {children && <div className="grow max-w-60 pb-0.5">
                     {info?.id && children}
                 </div>}
                 <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
-                    <div className="cursor-pointer align-middle text-gray-500 btn h-7 w-7 p-0 mr-1">
+                    <div className="cursor-pointer align-middle text-gray-500 border-base-300 btn h-7 w-7 p-0 mr-1">
                         <FaSearch className="w-4 m-2" onClick={() => {
                             setSearchFormOpen(!searchFormOpen);
                         }} />
