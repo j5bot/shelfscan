@@ -14,8 +14,9 @@ import { Settings } from '@/app/ui/Settings';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useRef, useState } from 'react';
-import { FaQuestionCircle, FaSignOutAlt, FaSync } from 'react-icons/fa';
+import { FaSignOutAlt, FaSync } from 'react-icons/fa';
 import { FaBarcode, FaBars, FaGear, FaNewspaper } from 'react-icons/fa6';
+import { MdQuestionAnswer, MdTour } from 'react-icons/md';
 
 const closeOnNavigate = () => {
     document.getElementById('nav-drawer')?.click?.()
@@ -90,7 +91,7 @@ export const NavDrawer = () => {
         }}><FaSignOutAlt className="inline" /> Sign Out</label>
     </li> : null;
 
-    const refreshCollectionItem = settingsUsername ? <li>
+    const refreshCollectionItem = (settingsUsername || username) ? <li>
         <label htmlFor="nav-drawer" onClick={() => {
             if (refreshCollectionPending) {
                 return;
@@ -132,18 +133,23 @@ export const NavDrawer = () => {
                             {!username && <button className="cursor-pointer flex gap-2" onClick={() => {
                                 closeOnNavigate();
                                 router.push('/?scanner-tour=true');
-                            }}><FaQuestionCircle /> Tour</button>}
+                            }}><MdTour /> Tour</button>}
                         </li>
                         {refreshCollectionItem}
                     </ul>
                     <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">
-                        <li className="w-full flex flex-row">
+                        <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/about/" onNavigate={closeOnNavigate}>
+                                <MdQuestionAnswer className="inline" /> About
+                            </Link>
+                        </li>
+                        <li className="w-full">
                             <Link className="flex gap-2 grow" href="https://boardgamegeek.com/blog/16520/shelfscan-news"
                                   target="_blank" onNavigate={closeOnNavigate}>
                                 <FaNewspaper className="inline" /> Blog
                             </Link>
                         </li>
-                        <li className="w-full flex flex-row mt-6">
+                        <li className="w-full mt-6">
                             <div className="flex gap-2 grow"
                                  onClick={() => {
                                      setDialogContent(<>
