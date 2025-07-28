@@ -33,7 +33,7 @@ body {
   background-color: var(--background);
 }
 
-h1, h2, h3, h4, h5, h6, h7 {
+.font-sharetech, h1, h2, h3, h4, h5, h6, h7 {
   font-family: var(--font-share-tech);
 }
 h2 {
@@ -95,4 +95,34 @@ svg[data-name=nextstep-arrow] > #triangle {
 
 .add-pulse {
   animation: add-pulse 1s 1;
+}
+
+.about-content p {
+  padding-top: 1em;
+}
+
+.about-content h2 + p,
+.about-content h3 + p {
+  padding-top: 0.5em;
+}
+
+.about-content p + h2,
+.about-content p + h3 {
+  padding-top: 1.25em;
+}
+
+.about-content h3 {
+  text-align: left;
+  font-size: 1.25em;
+  padding-top: 0.5em;
+}
+
+.about-content p + ul,
+.about-content ul + p {
+  padding-top: 0.5em;
+}
+
+.about-content li {
+  display: flex;
+  align-items: center;
 }
