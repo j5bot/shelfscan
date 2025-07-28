@@ -50,7 +50,7 @@ export const BggCollectionForm = ()=> {
 
     return !(currentUsername || (settingsUsername && rememberMe)) && settingsLoaded &&
         <form action={getCollectionAction} className="w-full">
-            <fieldset style={formStyle} className={`bg-gray-100 dark:bg-gray-900 rounded-lg flex flex-wrap gap-2 p-2 justify-center items-center`}>
+            <fieldset style={formStyle} className={`bg-gray-100 dark:bg-gray-900 rounded-t-lg flex flex-wrap gap-2 p-2 justify-center items-center`}>
                 <input className="grow bg-white inset-shadow-xs/40 inset-shadow-gray-400 dark:bg-gray-700 p-2 rounded-md max-w-3/8 md:max-w-64"
                        type="text" name="username"
                        id="bgg-username"
@@ -71,11 +71,11 @@ export const BggCollectionForm = ()=> {
                         <label style={labelStyle} htmlFor="useCache" className="flex items-center gap-1">
                             <input disabled={isPending} aria-disabled={isPending}
                                    type="checkbox" value="true" defaultChecked={true} id="useCache"
-                                   name="useCache" className="checkbox h-3 w-3 rounded-sm p-0.5" /> Use Cache
+                                   name="useCache" className="checkbox h-3 w-3 rounded-sm p-0.5 bg-base-100 checked:bg-base-100" /> Use Cache
                         </label>
                         <label style={labelStyle} htmlFor="rememberMe" className="flex items-center gap-1">
                             <input type="checkbox" value="true" defaultChecked={!!rememberMe} id="rememberMe"
-                                   name="rememberMe" className="checkbox h-3 w-3 rounded-sm p-0.5"
+                                   name="rememberMe" className="checkbox h-3 w-3 rounded-sm p-0.5 bg-base-100 checked:bg-base-100"
                                    onChange={setRememberMe}
                             /> Remember Me
                         </label>

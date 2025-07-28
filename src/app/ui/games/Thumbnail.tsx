@@ -6,12 +6,13 @@ import { FaQuestion } from 'react-icons/fa6';
 export type ThumbnailBoxProps = {
     alt: string;
     url: string;
+    className?: string;
     styles?: CSSProperties;
     size: number;
 };
 
 export const Thumbnail = (props: ThumbnailBoxProps) => {
-    const {alt = props.url, url, size} = props;
+    const {alt = props.url, className, url, size} = props;
 
     const imageProps = useImagePropsWithCache({
         alt,
@@ -23,7 +24,7 @@ export const Thumbnail = (props: ThumbnailBoxProps) => {
         height: size,
     }, [url]);
 
-    return <img className="object-contain" {...imageProps} />;
+    return <img className={`object-contain ${className}`} {...imageProps} />;
 };
 
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {
