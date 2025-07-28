@@ -5,7 +5,7 @@ import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import React, { ReactNode } from 'react';
 import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
 
-const getConfidenceLevelColor = (confidence: number) => {
+export const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
         case confidence >= 90:
             return 'lightgreen';
@@ -26,8 +26,8 @@ export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, 
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="relative w-[100px] flex justify-center items-center">
-        <Thumbnail alt={name} url={thumbnail_url} size={100} />
+    return <div className="relative w-[100px] h-[100px] flex justify-center items-center">
+        <Thumbnail alt={name} url={thumbnail_url} size={100} className="h-full" />
         <div className="absolute top-0 left-0 bottom-0 right-0 flex gap-1 justify-center items-center">
             {isInfoInCollection(index) && (
                 <div className="bg-[#000000aa] h-8 w-8 rounded-full">
@@ -51,7 +51,7 @@ export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBg
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
     return <div className="relative w-[210px] h-[80px] flex justify-center items-center">
-        <Thumbnail alt={name} url={thumbnail_url} size={75} />
+        <Thumbnail alt={name} url={thumbnail_url} size={75} className="h-full" />
         <div className="absolute top-0 left-0 bottom-0 right-[135px]">
             <div className="flex gap-1 justify-center items-center w-full h-full">
                 {isVersionInCollection(index) && (

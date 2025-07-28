@@ -7,10 +7,10 @@ import { FaCheck, FaDice, FaHeart, FaPlus, FaRecycle, FaTag, FaThumbsUp } from '
 const AboutPage = () => {
     return <>
         <NavDrawer />
-        <div className="about-content w-screen min-h-screen pt-15 flex justify-center">
+        <div className="about-content w-screen pt-15 flex justify-center">
             <div className={`flex flex-col flex-wrap w-10/12 md:w-2/3
-                p-4 rounded-xl
-                bg-base-100 justify-center text-sm`}>
+                p-4 pb-10 rounded-xl
+                bg-base-100 text-sm`}>
                 <h1 className="text-3xl text-center">
                     About ShelfScan
                 </h1>

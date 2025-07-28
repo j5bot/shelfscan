@@ -3,6 +3,8 @@
 import { loader } from '@/app/(overview)/loading';
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
+import { useSelector } from '@/app/lib/hooks';
+import { RootState } from '@/app/lib/redux/store';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
@@ -17,6 +19,7 @@ import { hasSeenTour } from '../lib/tours';
 export default function Page() {
     const breakpoint = useTailwindBreakpoint();
     const searchParams = useSearchParams();
+    const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
 
     const { startNextStep } = useNextStep();
 
@@ -76,7 +79,9 @@ export default function Page() {
                      <BggCollectionForm />
                  </Suspense>
                  <Suspense>
-                     <div id="scanlist" className="relative w-full h-full bg-orange-50 dark:bg-yellow-700 p-2">
+                     <div id="scanlist" className={`relative w-full h-full
+                        bg-orange-50 dark:bg-yellow-700 p-2
+                        ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
                               ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)

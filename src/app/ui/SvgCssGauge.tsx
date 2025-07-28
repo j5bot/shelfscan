@@ -32,7 +32,10 @@ export const SvgCssGauge = (props: SvgCssGaugeProps) => {
     } as CSSProperties;
 
     return <div
-        className={`svg-css-gauge w-4 h-4 ${className}`}
+        className={`svg-css-gauge
+            ${className.includes('w-') ? '' : 'w-4'}
+            ${className.includes('h-') ? '' : 'h-4'}
+            ${className}`}
         style={style}
     >
         <svg fill="none" viewBox="0 0 256 256">
