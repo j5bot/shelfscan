@@ -70,7 +70,7 @@ export const UseCaseBadges = () => {
             </BadgeWithHelpTip>
             <BadgeWithHelpTip
                 tooltipContent={<AddToBGGCollectionTooltipContent />}
-                className="badge badge-sm text-[#5107df66] shadow-sm"
+                className="badge badge-sm text-[#5107df66] dark:text-[#dd07dfee] shadow-sm"
             >
                 Add to BGG Collection*
             </BadgeWithHelpTip>
