@@ -3,20 +3,17 @@
 import { CodesProvider } from '@/app/lib/CodesProvider';
 import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
-import { useExtension } from '@/app/lib/hooks/useExtension';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { SettingsProvider } from '@/app/lib/SettingsProvider';
 import { TailwindProvider } from '@/app/lib/TailwindProvider';
 import { Provider } from '@/app/Provider';
+import { GetExtensionLink } from '@/app/ui/GetExtensionLink';
 import { PoweredByBGGLogo } from '@/app/ui/PoweredByBGGLogo';
 import Link from 'next/link';
-import React, { type CSSProperties, ReactNode } from 'react';
-import { FaFirefox, FaSafari } from 'react-icons/fa6';
+import React, { type CSSProperties, ReactNode, Suspense } from 'react';
 
 export default function Layout({ children }: { children: ReactNode }) {
-    const { syncOn } = useExtension();
-
     return <Provider>
         <SettingsProvider>
             <TailwindProvider>
@@ -31,16 +28,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                         {children}
                                     </div>
                                     <div className="h-[8em] flex flex-col justify-end">
-                                        {!syncOn && <div className="flex justify-center pb-4">
-                                            <Link className={`btn max-w-2/3 rounded-full
-                                                    bg-[#e07ca4] text-white
-                                                    flex items-center justify-center gap-1
-                                                    uppercase text-md font-sharetech`}
-                                                 href="/extension">
-                                            <FaFirefox className="w-4 h-4" />
-                                            <FaSafari className="w-4 h-4" />
-                                            Get the Extension
-                                        </Link></div>}
+                                        <Suspense><GetExtensionLink /></Suspense>
                                         <div className="flex pb-2 justify-center items-center w-full">
                                             <Link href={'https://boardgamegeek.com'} target="_blank">
                                                 <PoweredByBGGLogo

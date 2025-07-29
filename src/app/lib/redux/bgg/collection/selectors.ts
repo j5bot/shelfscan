@@ -31,6 +31,23 @@ export const getItemsInCollectionById = createSelector(
         id !== undefined ? collection?.objects[id]?.map(collectionId => collection.items[collectionId]) : [],
 );
 
+export const getRatingInCollectionById = createSelector(
+    [
+        getUserCollection,
+        (_state: RootState, id?: number) => id,
+    ],
+    (collection, id) => {
+        if (id === undefined) {
+            return;
+        }
+        const collectionIdWithRating = collection?.objects[id]?.find(collectionId => {
+            return (collection?.items[collectionId]?.rating ?? 0) > 0;
+        }) ?? -1;
+
+        return collection?.items[collectionIdWithRating]?.rating;
+    }
+);
+
 export const getVersionsInCollectionById = createSelector(
     [
         getUserCollection,
@@ -113,3 +130,4 @@ export const getIndexesInCollectionFromInfos = createSelector(
         };
     },
 );
+

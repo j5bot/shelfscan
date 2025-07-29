@@ -1,12 +1,16 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
+import { useSelector } from '@/app/lib/hooks/index';
+import { getRatingInCollectionById } from '@/app/lib/redux/bgg/collection/selectors';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import React, { ReactNode, SyntheticEvent, useEffect, useLayoutEffect, useState } from 'react';
+import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
     FaDice,
     FaHeart,
     FaPlus,
-    FaRecycle
+    FaRecycle,
+    FaStar
 } from 'react-icons/fa6';
 
 export type Modes = {
@@ -50,7 +54,12 @@ const addToCollectionModeSettings: ModeSettings = {
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
+    const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
+    const [newRating, setNewRating] = useState<number>(-1);
     const [modes, setModes] = useState<Modes>({ addToCollection: 'add', addPlay: 'quick' });
+
+    const collectionRating = useSelector((state) => getRatingInCollectionById(state, info?.id));
+    const userRating = newRating ?? collectionRating ?? -1;
 
     const atcMode = addToCollectionModeSettings[modes.addToCollection];
 
@@ -98,12 +107,35 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
+                timestamp: new Date().valueOf(),
                 formValues: Object.fromEntries(formData ?? []),
             },
         });
         document.dispatchEvent(ce);
 
         const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+    };
+
+    const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
+        const form = document.forms.namedItem('ratings');
+        const formData = form ? new FormData(form) : undefined;
+
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                type: 'ratings',
+                name: version?.name ?? info?.name,
+                gameId: info?.id,
+                versionId: version?.version_id,
+                timestamp: new Date().valueOf(),
+                formValues: Object.fromEntries(formData ?? []),
+            },
+        });
+        document.dispatchEvent(ce);
+
+        const target = e.currentTarget?.previousElementSibling as HTMLDivElement;
         void target.offsetWidth;
         target.classList.add('add-pulse');
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
@@ -118,6 +150,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
+                timestamp: new Date().valueOf(),
                 date: dateString,
             },
         });
@@ -199,7 +232,74 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         </div>
     );
 
-    const primaries = [addToCollectionBlock, addPlayBlock];
+    const toggleRatingForm = () => {
+        setRatingFormOpen(!ratingFormOpen);
+    };
+
+    const addRatingBlock = syncOn && (
+        <>
+            <div className="flex shrink relative items-center">
+                <div key="apb" className="relative shrink-0 w-20 h-7">
+                    <button
+                        className={`collection-button cursor-pointer rounded-full
+                            relative
+                            flex justify-start items-center                            
+                            bg-[#e07ca4] text-white
+                            p-1 pl-1.5 h-7
+                            text-sm`}
+                        onClick={toggleRatingForm}
+                    >
+                        <FaStar className="w-4 h-4" />
+                        <div className="p-1 pr-2 font-semibold uppercase">Rate</div>
+                    </button>
+                </div>
+                <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 right-0 h-7 w-7"></div>
+                {ratingFormOpen && newRating > 0 && <button className={`flex mr-0.5 gap-0.5 h-7 items-center
+                `} onClick={addRating}>
+                    <FaSave className="w-6 h-6 text-[#e07ca4]" />
+                </button>}
+            </div>
+            {ratingFormOpen && <form name="rating-form">
+                <div className="rating rating-sm rating-half">
+                    <input type="radio" name="rating" className="rating-hidden" checked={userRating <= 0} />
+                    {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+                        .map((rating, index, array) => {
+                            let bgClassName = 'bg-green-400';
+
+                            switch (true) {
+                                case newRating < 3:
+                                    bgClassName = 'bg-red-400';
+                                    break;
+                                case newRating < 4:
+                                    bgClassName = 'bg-orange-400';
+                                    break;
+                                case newRating < 5.5:
+                                    bgClassName = 'bg-yellow-400';
+                                    break;
+                                case newRating < 7:
+                                    bgClassName = 'bg-lime-400';
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            return <input type="radio" name="rating"
+                                          className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'}
+                                          ${bgClassName}`} aria-label={rating.toString()}
+                                          checked={userRating >= rating && userRating < (array[index + 1] ?? 11)}
+                                          onClick={() => setNewRating(rating)}
+                            />
+                        })}
+                </div>
+            </form>}
+        </>
+    );
+
+    const primaries = [
+        addToCollectionBlock,
+        addPlayBlock,
+        addRatingBlock,
+    ];
 
     const primaryActions = syncOn ? <>
         {primaries}
@@ -207,5 +307,5 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const secondaryActions = null;
 
-    return { syncOn, addToCollection, addPlay, primaryActions, secondaryActions };
+    return { syncOn, primaryActions, secondaryActions };
 };

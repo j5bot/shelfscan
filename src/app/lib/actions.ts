@@ -51,6 +51,7 @@ export const bggGetCollectionInner =
         cuParams.append('username', username);
         cuParams.append('own', '1');
         cuParams.append('version', '1');
+        cuParams.append('stats', '1');
 
         return await fetchFromBggWithToken(collectionUrl.toString(), {}).then(r => r.text());
  };

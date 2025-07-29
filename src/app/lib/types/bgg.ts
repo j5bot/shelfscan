@@ -58,6 +58,7 @@ export type BggCollectionItem = {
     versionId?: number;
     version?: BggVersion;
     statuses: BggCollectionStatuses;
+    rating?: number;
 };
 
 export type BggCollectionId = number;

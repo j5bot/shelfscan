@@ -54,17 +54,6 @@ export const getBggUser = (response: string) => {
     } as BggUser;
 };
 
-export const getCacheIdForCollection = (formData: FormData) => {
-    const data = Object.fromEntries(formData);
-
-    if (!data.username) {
-        return undefined;
-    }
-
-    return `collection|${data.username}`;
-};
-
-
 export const getCollectionFromCache = async (id: string) => {
     return await getResponseFromCache(id);
 };
@@ -122,6 +111,7 @@ export const getCollectionFromXml = (xml?: string) => {
             const collectionId = elementGetter(item, true, undefined, 'collid');
             const version = getVersionDetails(item);
             const status = item.getElementsByTagName('status')?.[0];
+            const rating = elementGetter(item, false, 'stats > rating', 'value');
 
             const statuses = status ? PossibleStatuses.reduce((acc: BggCollectionStatuses, attributeName: string) => {
                 return Object.assign(acc, {[attributeName]: status.getAttribute(attributeName) === '1'})
@@ -139,6 +129,7 @@ export const getCollectionFromXml = (xml?: string) => {
                 collectionId,
                 version,
                 statuses,
+                rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
             } as BggCollectionItem;
         })
         .filter(x => x !== undefined);
