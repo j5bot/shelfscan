@@ -131,7 +131,7 @@ export default function Page() {
                          </div>
                      </div>
                  </Suspense>
-                 {compressedCodes.length && <div className={`pr-3 text-right text-xs font-sharetech
+                 {compressedCodes.length > 0 && <div className={`pr-3 text-right text-xs font-sharetech
                                                             underline self-stretch`}>
                      <Link href={sessionLink.toString()}>session link</Link>
                  </div>}
