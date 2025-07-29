@@ -30,7 +30,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                     }}>
                                         {children}
                                     </div>
-                                    <div className="h-[8em] mt-6 flex flex-col justify-end">
+                                    <div className="h-[8em] flex flex-col justify-end">
                                         {!syncOn && <div className="flex justify-center pb-4">
                                             <Link className={`btn max-w-2/3 rounded-full
                                                     bg-[#e07ca4] text-white
