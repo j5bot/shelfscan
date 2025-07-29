@@ -16,7 +16,7 @@ returned by GameUPC.
 With just the app, you can help update the GameUPC database
 and audit your BoardGameGeek game collection.
 
-A browser extension (in testing) which works along with
+A browser extension which works along with
 the app allows you to do things like:
 
 - Add the game to your BoardGameGeek collection

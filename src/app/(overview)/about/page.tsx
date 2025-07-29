@@ -3,7 +3,17 @@
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { FaCheck, FaDice, FaHeart, FaPlus, FaRecycle, FaTag, FaThumbsUp } from 'react-icons/fa6';
+import {
+    FaCheck,
+    FaDice,
+    FaFirefox,
+    FaHeart,
+    FaPlus,
+    FaRecycle,
+    FaSafari,
+    FaTag,
+    FaThumbsUp
+} from 'react-icons/fa6';
 
 const AboutPage = () => {
     useTitle('ShelfScan | About');
@@ -17,6 +27,13 @@ const AboutPage = () => {
                 <h1 className="text-3xl text-center">
                     About ShelfScan
                 </h1>
+
+                <p><Link className="flex items-center justify-center gap-2 uppercase text-lg font-sharetech"
+                         href="/extension">
+                    <FaFirefox className="w-6 h-6" />
+                    <FaSafari className="w-6 h-6" />
+                    Get the Extension!
+                </Link></p>
 
                 <h2 className="text-lg pt-2">What You Can Do</h2>
 
@@ -34,6 +51,11 @@ const AboutPage = () => {
                     scanned — click that{' '}
                     <FaThumbsUp className="ml-1 mr-1 align-baseline inline-block" /> thumbs up!
                 </p>
+                <ul className="text-xs">
+                    <li><Link className="underline" href="/?u=1f1koq13">Sample verified game</Link></li>
+                    <li><Link className="underline" href="/?u=2u35dg26">Sample unverified game</Link></li>
+                    <li><Link className="underline" href="/?u=494q2639">Sample unknown game</Link></li>
+                </ul>
 
                 <h3>[ Audit Your Collection ]</h3>
                 <p>Enter your <Link className="underline"
@@ -43,6 +65,10 @@ const AboutPage = () => {
                     After you scan a game, click on it in the list and verify that
                     there is a <FaCheck className="inline-block align-middle" /> checkmark.
                 </p>
+                <p><Link className="text-md underline"
+                         href="/?u=auhgeaaf.a6qhsifv.8xpr0k48.19ep3ngxq.1wa2w78td.bcpzlcgs.2ui4plrn9.1bzdy84iq.1c3wzemki.8ejpqxn5.auib8nrk.9azysvve">
+                    Sample Audit Session
+                </Link></p>
 
                 <h3 className="font-semibold">Get the Browser Extension and Do More!</h3>
                 <p>
@@ -50,17 +76,13 @@ const AboutPage = () => {
                     lots of extra features to bring together BGG and the web app with a
                     low-cost subscription.
                 </p>
-                <ul className="font-sharetech text-md">
+                <ul className="font-sharetech text-md pb-4">
                     <li>[ <FaPlus className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Your Collection ]</li>
                     <li>[ <FaRecycle className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games For Trade ]</li>
                     <li>[ <FaHeart className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Wishlist ]</li>
                     <li>[ <FaTag className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games to GeekMarket ]</li>
                     <li>[ <FaDice className="h-2.5 w-3 inline-block mr-1" /> Log Plays on BGG ]</li>
                 </ul>
-                <p>Contact <Link className="underline"
-                                 href="https://boardgamegeek.com/users/thecookiecats" target="_blank"
-                    >Cookie@BGG</Link> through GeekMail to request to get or test the extension.
-                </p>
 
                 <h2 className="text-lg">History of ShelfScan</h2>
                 <p>

@@ -75,7 +75,7 @@ export default function Page() {
             return;
         }
         updateCodes(
-            upc.includes('.') ?
+            upc.includes('.') || upc.length < 12 ?
                 convertFromCompressedCodes(upc.split('.')) :
                 upc.split(',')
         );

@@ -107,8 +107,10 @@ svg[data-name=nextstep-arrow] > #triangle {
 }
 
 .about-content p + h2,
-.about-content p + h3 {
-  padding-top: 1.25em;
+.about-content p + h3,
+.about-content ul + h2,
+.about-content ul + h3 {
+  padding-top: 1.5em;
 }
 
 .about-content h3 {
@@ -119,7 +121,7 @@ svg[data-name=nextstep-arrow] > #triangle {
 
 .about-content p + ul,
 .about-content ul + p {
-  padding-top: 0.5em;
+  padding-top: 1.5em;
 }
 
 .about-content li {
