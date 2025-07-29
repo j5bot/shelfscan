@@ -11,8 +11,8 @@ import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
+import { SessionLink } from '@/app/ui/SessionLink';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useCallback, useEffect, useState } from 'react';
@@ -93,9 +93,6 @@ export default function Page() {
         getGameData(code).then();
     };
 
-    const sessionLink = new URL(window.location.href);
-    sessionLink.searchParams.set('u', compressedCodes.join(''));
-
     return <>
         <NavDrawer />
         {breakpoint ? (
@@ -131,10 +128,9 @@ export default function Page() {
                          </div>
                      </div>
                  </Suspense>
-                 {compressedCodes.length > 0 && <div className={`pr-3 text-right text-xs font-sharetech
-                                                            underline self-stretch`}>
-                     <Link href={sessionLink.toString()}>session link</Link>
-                 </div>}
+                 <Suspense>
+                     <SessionLink compressedCodes={compressedCodes} />
+                 </Suspense>
              </div>
          ) : (
              <div className="absolute top-0 w-screen h-screen right-0 bottom-0 left-0 flex justify-center items-center">
