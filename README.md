@@ -34,6 +34,10 @@ scanning using a webcam or phone camera.
 At this time the app is not licensed for modification.  Message me
 if you'd like to discuss contributing or forking the app.
 
+### Sample Session
+
+- [Sample scanning session](https://shelfscan.io/?u=auhgeaaf.a6qhsifv.8xpr0k48.19ep3ngxq.1wa2w78td.bcpzlcgs.2ui4plrn9.1bzdy84iq.1c3wzemki.8ejpqxn5.auib8nrk.9azysvve)
+
 ### Barcode Images
 - [Sample barcodes to scan](./assets/game-barcodes/UPCs.md)
 
