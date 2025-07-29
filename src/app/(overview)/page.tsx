@@ -4,6 +4,7 @@ import { loader } from '@/app/(overview)/loading';
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks';
+import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
@@ -17,6 +18,8 @@ import React, { Suspense, useEffect } from 'react';
 import { hasSeenTour } from '../lib/tours';
 
 export default function Page() {
+    useTitle('ShelfScan | Scanner');
+
     const breakpoint = useTailwindBreakpoint();
     const searchParams = useSearchParams();
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);

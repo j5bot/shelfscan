@@ -1,10 +1,13 @@
 'use client';
 
+import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import { FaCheck, FaDice, FaHeart, FaPlus, FaRecycle, FaTag, FaThumbsUp } from 'react-icons/fa6';
 
 const AboutPage = () => {
+    useTitle('ShelfScan | About');
+
     return <>
         <NavDrawer />
         <div className="about-content w-screen pt-15 flex justify-center">

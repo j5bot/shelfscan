@@ -1,6 +1,7 @@
 'use client';
 
 import { useExtension } from '@/app/lib/hooks/useExtension';
+import { useTitle } from '@/app/lib/hooks/useTitle';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import {
@@ -43,6 +44,8 @@ export const SelectVersion = () => {
         versionClickHandler,
         versionNameClickHandler,
     } = selectVersionContext;
+
+    useTitle(`${version?.name ?? info?.name ?? id} | ShelfScan`);
 
     const { primaryActions, secondaryActions } = useExtension(info, version);
     const actionTemplates = usePlugins('link.actions');
