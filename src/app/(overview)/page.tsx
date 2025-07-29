@@ -12,10 +12,14 @@ import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
 import { hasSeenTour } from '../lib/tours';
+
+const convertToCompressedCodes = (codes: string[]) => codes
+    .map(code => parseInt(code, 10).toString(36));
 
 export default function Page() {
     useTitle('ShelfScan | Scanner');
@@ -23,6 +27,7 @@ export default function Page() {
     const breakpoint = useTailwindBreakpoint();
     const searchParams = useSearchParams();
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
+    const [compressedCodes, setCompressedCodes] = useState<string[]>([]);
 
     const { startNextStep } = useNextStep();
 
@@ -37,6 +42,11 @@ export default function Page() {
         codes,
         setCodes,
     } = useCodes();
+
+    const updateCodes = useCallback((codes: string[]) => {
+        setCodes(codes);
+        setCompressedCodes(convertToCompressedCodes(codes));
+    }, [setCodes, setCompressedCodes]);
 
     useEffect(() => {
         if (!breakpoint) {
@@ -53,8 +63,24 @@ export default function Page() {
         if (!gameDataMap) {
             return;
         }
-        setCodes(Object.keys(gameDataMap));
-    }, [setCodes, hasGameDataMap]);
+        updateCodes(Object.keys(gameDataMap));
+    }, [updateCodes, hasGameDataMap]);
+
+    useEffect(() => {
+        const upc = searchParams.get('u');
+        if (!upc) {
+            return;
+        }
+        if (upc.length === 8 || !upc.includes(',')) {
+            const codes = [];
+            for (let i = 0, l = upc.length; i < l; i += 8) {
+                codes.push(parseInt(upc.slice(i, i + 8), 36).toString(10));
+            }
+            updateCodes(codes);
+            return;
+        }
+        updateCodes(upc.split(','));
+    }, [searchParams, updateCodes]);
 
     void submitOrVerifyGame;
     void removeGame;
@@ -62,10 +88,13 @@ export default function Page() {
     const onScan = (code: string) => {
         if (!codes.includes(code)) {
             codes.unshift(code);
-            setCodes(codes);
+            updateCodes(codes);
         }
         getGameData(code).then();
     };
+
+    const sessionLink = new URL(window.location.href);
+    sessionLink.searchParams.set('u', compressedCodes.join(''));
 
     return <>
         <NavDrawer />
@@ -102,6 +131,10 @@ export default function Page() {
                          </div>
                      </div>
                  </Suspense>
+                 {compressedCodes.length && <div className={`pr-3 text-right text-xs font-sharetech
+                                                            underline self-stretch`}>
+                     <Link href={sessionLink.toString()}>session link</Link>
+                 </div>}
              </div>
          ) : (
              <div className="absolute top-0 w-screen h-screen right-0 bottom-0 left-0 flex justify-center items-center">
