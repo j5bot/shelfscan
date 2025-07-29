@@ -113,7 +113,7 @@ export const NavDrawer = () => {
         <div className="drawer drawer-end">
             <input id="nav-drawer" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content absolute top-4 right-5">
-                <label htmlFor="nav-drawer" className="drawer-button"><FaBars /></label>
+                <label htmlFor="nav-drawer" className="drawer-button"><FaBars className="w-5.5 h-5.5" /></label>
             </div>
             <div className="drawer-side z-[100]">
                 <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
