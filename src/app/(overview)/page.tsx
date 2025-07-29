@@ -21,6 +21,9 @@ import { hasSeenTour } from '../lib/tours';
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
 
+const convertFromCompressedCodes = (codes: string[]) => codes
+    .map(code => parseInt(code, 36).toString(10));
+
 export default function Page() {
     useTitle('ShelfScan | Scanner');
 
@@ -71,15 +74,11 @@ export default function Page() {
         if (!upc) {
             return;
         }
-        if (upc.length === 8 || !upc.includes(',')) {
-            const codes = [];
-            for (let i = 0, l = upc.length; i < l; i += 8) {
-                codes.push(parseInt(upc.slice(i, i + 8), 36).toString(10));
-            }
-            updateCodes(codes);
-            return;
-        }
-        updateCodes(upc.split(','));
+        updateCodes(
+            upc.includes('.') ?
+                convertFromCompressedCodes(upc.split('.')) :
+                upc.split(',')
+        );
     }, [searchParams, updateCodes]);
 
     void submitOrVerifyGame;
@@ -127,8 +126,6 @@ export default function Page() {
                              }
                          </div>
                      </div>
-                 </Suspense>
-                 <Suspense>
                      <SessionLink compressedCodes={compressedCodes} />
                  </Suspense>
              </div>
