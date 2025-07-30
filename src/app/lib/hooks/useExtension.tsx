@@ -147,6 +147,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 formValues: Object.fromEntries(formData ?? []),
             },
         });
+        window.alert(JSON.stringify(ce.detail, undefined, 2));
         document.dispatchEvent(ce);
 
         const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
