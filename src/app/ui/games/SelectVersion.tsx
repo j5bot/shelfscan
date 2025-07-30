@@ -47,7 +47,7 @@ export const SelectVersion = () => {
 
     useTitle(`${version?.name ?? info?.name ?? id} | ShelfScan`);
 
-    const { primaryActions, secondaryActions } = useExtension(info, version);
+    const { primaryActions, secondaryActions, settings } = useExtension(info, version);
     const actionTemplates = usePlugins('link.actions');
 
     const pluginActions = actionTemplates?.game?.map(((actionPlugin, index) => {
@@ -85,6 +85,7 @@ export const SelectVersion = () => {
                 <div className="flex flex-wrap justify-start gap-1">
                     {primaryActions}
                     {pluginActions}
+                    {settings}
                 </div>
             </GameDetails>
             {hasInfos && <div className="bg-overlay w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">

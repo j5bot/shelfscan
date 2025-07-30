@@ -40,9 +40,9 @@ export const getRatingInCollectionById = createSelector(
         if (id === undefined) {
             return {};
         }
-        const collectionId = collection?.objects[id]?.find(collectionId => {
+        const collectionId = collection?.objects[id]?.filter(collectionId => {
             return (collection?.items[collectionId]?.rating ?? 0) > 0;
-        }) ?? collection?.objects[id]?.[0];
+        })?.sort()[0] ?? collection?.objects[id]?.sort()[0];
 
         return {
             collectionId,
