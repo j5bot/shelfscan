@@ -1,8 +1,16 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks/index';
 import { getRatingInCollectionById } from '@/app/lib/redux/bgg/collection/selectors';
+import { BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
-import React, { ReactNode, SyntheticEvent, useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+    Fragment,
+    ReactNode,
+    SyntheticEvent,
+    useEffect,
+    useLayoutEffect,
+    useState
+} from 'react';
 import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
@@ -57,9 +65,10 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
     const [newRating, setNewRating] = useState<number>(-1);
     const [modes, setModes] = useState<Modes>({ addToCollection: 'add', addPlay: 'quick' });
+    const [players, setPlayers] = useState<BGGPlayer[]>();
 
-    const collectionRating = useSelector((state) => getRatingInCollectionById(state, info?.id));
-    const userRating = newRating ?? collectionRating ?? -1;
+    const { collectionId, collectionRating } = useSelector((state) => getRatingInCollectionById(state, info?.id));
+    const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
 
     const atcMode = addToCollectionModeSettings[modes.addToCollection];
 
@@ -67,6 +76,12 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         (async () => {
             setModes(await getSetting('extensionModes') as Modes ?? modes);
         })();
+
+        window.addEventListener('message', (event) => {
+            if (!players && event.data.players) {
+                setPlayers(event.data.players);
+            }
+        });
     }, []);
 
     useLayoutEffect(() => {
@@ -120,7 +135,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document.forms.namedItem('ratings');
+        const form = document.forms.namedItem('rating-form');
         const formData = form ? new FormData(form) : undefined;
 
         const ce = new CustomEvent('shelfscan-sync', {
@@ -163,8 +178,8 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const addToCollectionBlock = syncOn && (
-        <>
-            <div key="atcb" data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
+        <Fragment key="atcb">
+            <div data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
                 <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${atcMode.width}`}></div>
                 <div className={`relative collapse min-h-7 rounded-none overflow-visible ${atcMode.width}`}>
                     <input type="checkbox" />
@@ -211,7 +226,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 </div>
             </div>
             {atcMode.form}
-        </>
+        </Fragment>
     );
 
     const addPlayBlock = syncOn && (
@@ -237,9 +252,9 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const addRatingBlock = syncOn && (
-        <>
+        <Fragment key="arb">
             <div className="flex shrink relative items-center">
-                <div key="apb" className="relative shrink-0 w-20 h-7">
+                <div className="relative shrink-0 w-20 h-7">
                     <button
                         className={`collection-button cursor-pointer rounded-full
                             relative
@@ -254,14 +269,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                     </button>
                 </div>
                 <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 right-0 h-7 w-7"></div>
-                {ratingFormOpen && newRating > 0 && <button className={`flex mr-0.5 gap-0.5 h-7 items-center
+                {ratingFormOpen && newRating > 0 && <button className={`cursor-pointer relative flex mr-0.5 gap-0.5 h-7 items-center
                 `} onClick={addRating}>
                     <FaSave className="w-6 h-6 text-[#e07ca4]" />
                 </button>}
             </div>
             {ratingFormOpen && <form name="rating-form">
                 <div className="rating rating-sm rating-half">
-                    <input type="radio" name="rating" className="rating-hidden" checked={userRating <= 0} />
+                    <input type="hidden" name="collectionId" value={collectionId} />
+                    <input type="radio" name="rating" className="rating-hidden" defaultChecked={userRating <= 0} />
                     {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
                         .map((rating, index, array) => {
                             let bgClassName = 'bg-green-400';
@@ -283,16 +299,17 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                                     break;
                             }
 
-                            return <input type="radio" name="rating"
+                            return <input key={index} type="radio" name="rating"
                                           className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'}
                                           ${bgClassName}`} aria-label={rating.toString()}
-                                          checked={userRating >= rating && userRating < (array[index + 1] ?? 11)}
+                                          value={rating}
+                                          defaultChecked={userRating >= rating && userRating < (array[index + 1] ?? 11)}
                                           onClick={() => setNewRating(rating)}
                             />
                         })}
                 </div>
             </form>}
-        </>
+        </Fragment>
     );
 
     const primaries = [

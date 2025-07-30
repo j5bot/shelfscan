@@ -38,13 +38,16 @@ export const getRatingInCollectionById = createSelector(
     ],
     (collection, id) => {
         if (id === undefined) {
-            return;
+            return {};
         }
-        const collectionIdWithRating = collection?.objects[id]?.find(collectionId => {
+        const collectionId = collection?.objects[id]?.find(collectionId => {
             return (collection?.items[collectionId]?.rating ?? 0) > 0;
-        }) ?? -1;
+        }) ?? collection?.objects[id]?.[0];
 
-        return collection?.items[collectionIdWithRating]?.rating;
+        return {
+            collectionId,
+            collectionRating: collection?.items[collectionId]?.rating
+        };
     }
 );
 

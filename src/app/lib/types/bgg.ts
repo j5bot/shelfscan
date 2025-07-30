@@ -77,3 +77,12 @@ export type BggCollection = {
     objects: BggCollectionObjectMap;
     versions: BggCollectionVersionMap;
 };
+
+export type BGGPlayer = {
+    name: string;
+    userid: number;
+    username: string;
+    repeat: boolean;
+    avatar?: string;
+    avatarfile?: string;
+};
