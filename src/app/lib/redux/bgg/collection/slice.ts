@@ -1,5 +1,10 @@
-import { BggCollection, BggCollectionMap } from '@/app/lib/types/bgg';
-import { conditionalAddToArray, removeFromArray } from '@/app/lib/utils/array';
+import {
+    BggCollection,
+    BggCollectionMap,
+    BggObjectsByStatus, BggVersionsByStatus,
+    PossibleStatuses
+} from '@/app/lib/types/bgg';
+import { conditionalAddToArray } from '@/app/lib/utils/array';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 /*
@@ -23,25 +28,33 @@ const innerUpdateCollectionItems = (
         const item = payload[id];
 
         const {
-            objectId: previousObjectId,
-            versionId: previousVersionId,
-        } = state.items[id] ?? {};
-
-        const {
             objectId,
             versionId,
+            statuses,
         } = item;
 
-        if (previousObjectId && objectId !== previousObjectId) {
-            state.objects[previousObjectId] = removeFromArray(id, state.objects[previousObjectId]);
-        } else if (objectId) {
-            state.objects[objectId] = conditionalAddToArray(id, state.objects[objectId]);
-        }
-        if (previousVersionId && versionId !== previousVersionId) {
-            state.versions[previousVersionId] = removeFromArray(id,
-                state.versions[previousVersionId]);
-        } else if (versionId) {
-            state.versions[versionId] = conditionalAddToArray(id, state.versions[versionId]);
+        PossibleStatuses.forEach(status => {
+            const statusObjects = state.objects[status] ?? {};
+            const statusVersions = state.versions[status] ?? {};
+            if (!statuses[status]) {
+                return;
+            }
+            statusObjects[objectId] = conditionalAddToArray(id, statusObjects[objectId]);
+            state.objects[status] = statusObjects;
+            if (!versionId) {
+                return;
+            }
+            statusVersions[versionId] = conditionalAddToArray(id, statusVersions[versionId]);
+            state.versions[status] = statusVersions;
+        });
+
+        const allObjects = state.objects.all ?? {};
+        const allVersions = state.versions.all ?? {};
+        allObjects[objectId] = conditionalAddToArray(id, allObjects[objectId]);
+        state.objects.all = allObjects;
+        if (versionId) {
+            allVersions[versionId] = conditionalAddToArray(id, allVersions[versionId]);
+            state.versions.all = allVersions;
         }
 
         state.items[id] = item;
@@ -68,14 +81,15 @@ export const bggCollectionSlice = createSlice({
         ) => {
             const { username: user, items } = action.payload;
             const username = user.toLowerCase();
-            if (!state.users[username]) {
-                state.users[username] = {
-                    items: {},
-                    images: {},
-                    objects: {},
-                    versions: {},
-                };
-            }
+            // // if (!state.users[username]) {
+            // for now we are always starting from scratch instead of a real update
+            state.users[username] = {
+                items: {},
+                images: {},
+                objects: {} as BggObjectsByStatus,
+                versions: {} as BggVersionsByStatus,
+            };
+            // // }
             innerUpdateCollectionItems(state.users[username], items);
         },
     },

@@ -3,6 +3,7 @@ import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks/index';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
+import { PossibleStatusWithAll } from '@/app/lib/types/bgg';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -63,7 +64,8 @@ export const useSelectVersion = (id: string) => {
     const {
         infoIndexes: infoIndexesInCollection,
         versionIndexes: versionIndexesInCollection,
-    } = useSelector(state => getIndexesInCollectionFromInfos(state, infos));
+    } = useSelector(state =>
+        getIndexesInCollectionFromInfos(state, infos, ['own', 'fortrade', 'wishlist', 'all']));
 
     const gameData = gameDataMap[id];
 
@@ -230,8 +232,13 @@ export const useSelectVersion = (id: string) => {
         setHoverVersionIndex(parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onHover'];
 
-    const isInfoInCollection = (index: number) => infoIndexesInCollection.includes(index);
-    const isVersionInCollection = (index: number) => versionIndexesInCollection.includes(index);
+    const isInfoInCollection = (index: number, status: PossibleStatusWithAll = 'own') => infoIndexesInCollection[status].includes(index);
+    const isVersionInCollection = (index: number, status: PossibleStatusWithAll = 'own') => versionIndexesInCollection[status].includes(index);
+
+    const isCurrentInfoInCollection = (status: PossibleStatusWithAll = 'own') =>
+        currentInfoIndex !== null && infoIndexesInCollection[status].includes(currentInfoIndex);
+    const isCurrentVersionInCollection = (status: PossibleStatusWithAll = 'own') =>
+        currentVersionIndex !== null && versionIndexesInCollection[status].includes(currentVersionIndex);
 
     return {
         id,
@@ -239,8 +246,8 @@ export const useSelectVersion = (id: string) => {
         currentVersionIndex,
         defaultImageUrl,
         hasInfos: infos?.length > 0,
-        currentInfoInCollection: currentInfoIndex !== null && infoIndexesInCollection.includes(currentInfoIndex),
-        currentVersionInCollection: currentVersionIndex !== null && versionIndexesInCollection.includes(currentVersionIndex),
+        isCurrentInfoInCollection,
+        isCurrentVersionInCollection,
         info,
         infos,
         version,

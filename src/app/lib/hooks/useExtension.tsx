@@ -1,21 +1,36 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
+import { useSelector } from '@/app/lib/hooks/index';
+import { getItemInCollectionByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
+import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
-import React, { ReactNode, SyntheticEvent, useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+    Fragment,
+    ReactNode,
+    SyntheticEvent,
+    useEffect,
+    useLayoutEffect,
+    useState
+} from 'react';
+import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
+    FaCloudArrowUp,
     FaDice,
     FaHeart,
     FaPlus,
-    FaRecycle
+    FaRecycle,
+    FaStar,
+    FaTag,
 } from 'react-icons/fa6';
 
 export type Modes = {
-    addToCollection: 'add' | 'trade' | 'wishlist';
+    addToCollection: 'add' | 'trade' | 'wishlist' | 'sell';
     addPlay: 'quick' | 'detailed';
 };
 
 export type ModeSetting = {
     label: ReactNode;
+    listText?: string;
     icon: ReactNode;
     width: string;
     form?: ReactNode;
@@ -23,41 +38,91 @@ export type ModeSetting = {
 }
 export type ModeSettings = Record<Modes['addToCollection'], ModeSetting>;
 
-const addToCollectionModeSettings: ModeSettings = {
-    add: {
-        label: 'Add',
-        icon: <FaPlus className="w-4 h-4 shrink-0" />,
-        width: 'w-20',
-    },
-    trade: {
-        label: 'Trade',
-        icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
-        width: 'w-25',
-        form: <form name="trade">
-            <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
-        </form>,
-        validator: (formData: FormData)=> {
-            const formValues = Object.fromEntries(formData ?? []);
-            return !!(formValues['condition'] as string | undefined)?.length;
-        }
-    },
-    wishlist: {
-        label: 'Wish',
-        icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
-        width: 'w-21',
-    },
-};
+const makeAddToCollectionModeSettings = (
+    collectionId: number | undefined,
+    update: boolean,
+    statuses?: BggCollectionStatuses,
+): ModeSettings =>
+    ({
+        add: {
+            label: update && (statuses?.own || collectionId !== undefined) ? 'Set' : 'Add',
+            listText: update ?
+                      statuses?.own ? 'Set Info' :
+                        collectionId !== undefined ? 'Set as Owned' : 'Add to Owned'
+                      : 'Add to Owned',
+            icon: update && (statuses?.own || collectionId !== undefined) ? <FaCloudArrowUp className="w-4 h-4 mr-0.5 shrink-0" /> : <FaPlus className="w-4 h-4 shrink-0" />,
+            width: 'w-20',
+        },
+        trade: {
+            label: 'Trade',
+            listText: update && (statuses?.fortrade || collectionId !== undefined) ?
+                      'Set Trade Info' :
+                      'Add for Trade',
+            icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
+            width: 'w-25',
+            form: <form name="trade">
+                <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
+            </form>,
+            validator: (formData: FormData)=> {
+                const formValues = Object.fromEntries(formData ?? []);
+                return !!(formValues['condition'] as string | undefined)?.length;
+            }
+        },
+        wishlist: {
+            label: 'Wish',
+            icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
+            width: 'w-21',
+        },
+        sell: {
+            label: 'Sell',
+            icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
+            width: 'w-22',
+            form: <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
+                <input type="text" name="price" className="input text-sm h-7 pl-1.5 pt-1 pb-1" placeholder="Price" />
+                <textarea name="notes" rows={2} className="textarea text-xs pl-1.5 p-1" placeholder="Seller Notes"/>
+            </form>,
+            validator: (formData: FormData)=> {
+                const formValues = Object.fromEntries(formData ?? []);
+                const hasPrice = !!(formValues['price'] as string | undefined)?.length;
+                const hasNotes = !!(formValues['notes'] as string | undefined)?.length;
+
+                return hasPrice && hasNotes;
+            }
+        },
+    });
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
+    const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
+    const [newRating, setNewRating] = useState<number>(-1);
     const [modes, setModes] = useState<Modes>({ addToCollection: 'add', addPlay: 'quick' });
+    const [players, setPlayers] = useState<BGGPlayer[]>();
+    const [update, setUpdate] = useState<boolean>(true);
 
+    const { collectionId, collectionItem } =
+        useSelector((state) =>
+            getItemInCollectionByObjectId(state, info?.id));
+
+    const { rating: collectionRating, statuses } = collectionItem ?? {};
+
+    const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
+    const addToCollectionModeSettings =
+        makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
     const atcMode = addToCollectionModeSettings[modes.addToCollection];
 
     useEffect(() => {
         (async () => {
             setModes(await getSetting('extensionModes') as Modes ?? modes);
         })();
+
+        window.addEventListener('message', (event) => {
+            if (!players && event.data.players) {
+                setPlayers(event.data.players);
+            }
+            if (event.data.log) {
+                console.log('extension', ...event.data.log);
+            }
+        });
     }, []);
 
     useLayoutEffect(() => {
@@ -95,15 +160,41 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
                 type: modes.addToCollection,
+                collectionId: update ? collectionId : undefined,
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
+                timestamp: new Date().valueOf(),
+                formValues: Object.fromEntries(formData ?? []),
+            },
+        });
+        window.alert(JSON.stringify(ce.detail, undefined, 2));
+        document.dispatchEvent(ce);
+
+        const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+    };
+
+    const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
+        const form = document.forms.namedItem('rating-form');
+        const formData = form ? new FormData(form) : undefined;
+
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                type: 'ratings',
+                collectionId,
+                name: version?.name ?? info?.name,
+                gameId: info?.id,
+                versionId: version?.version_id,
+                timestamp: new Date().valueOf(),
                 formValues: Object.fromEntries(formData ?? []),
             },
         });
         document.dispatchEvent(ce);
 
-        const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
+        const target = e.currentTarget?.previousElementSibling as HTMLDivElement;
         void target.offsetWidth;
         target.classList.add('add-pulse');
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
@@ -118,6 +209,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
+                timestamp: new Date().valueOf(),
                 date: dateString,
             },
         });
@@ -130,8 +222,8 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const addToCollectionBlock = syncOn && (
-        <>
-            <div key="atcb" data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
+        <Fragment key="atcb">
+            <div data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
                 <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${atcMode.width}`}></div>
                 <div className={`relative collapse min-h-7 rounded-none overflow-visible ${atcMode.width}`}>
                     <input type="checkbox" />
@@ -158,27 +250,31 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                             {atcMode.label}
                         </div>
                     </button>
-                    <div className={`collapse-content p-0 min-w-29`}>
+                    <div className={`collapse-content p-0 min-w-33`}>
                         <div className={`mt-1
                             border-1 border-[#e07ca4] rounded-md
                             text-xs leading-5.5`}>
                             <ul className="menu w-full p-0 m-0" data-collapse-key="atcb">
                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'add' }))}
-                                    className="p-1 pl-1.5 border-b-1 border-[#e07ca433]"
-                                >Add as Owned</li>
+                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
+                                >{addToCollectionModeSettings['add'].listText}</li>
                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'trade' }))}
-                                    className="p-1 pl-1.5 border-b-1 border-[#e07ca433]"
-                                >Add for Trade</li>
-                                <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'wishlist' }))}
-                                    className="p-1 pl-1.5"
-                                >Add to Wishlist</li>
+                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
+                                >{addToCollectionModeSettings['trade'].listText}</li>
+                                {statuses?.wishlist && update ? null :
+                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'wishlist' }))}
+                                        className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
+                                    >Add to Wishlist</li>}
+                                {/*<li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'sell' }))}*/}
+                                {/*    className="p-1 pl-1.5 cursor-pointer"*/}
+                                {/*>Add to Market</li>*/}
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
             {atcMode.form}
-        </>
+        </Fragment>
     );
 
     const addPlayBlock = syncOn && (
@@ -199,7 +295,84 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         </div>
     );
 
-    const primaries = [addToCollectionBlock, addPlayBlock];
+    const toggleRatingForm = () => {
+        setRatingFormOpen(!ratingFormOpen);
+    };
+
+    const addRatingBlock = syncOn && (
+        <Fragment key="arb">
+            <div className="flex shrink relative items-center">
+                <div className="relative shrink-0 w-20 h-7">
+                    <button
+                        className={`collection-button cursor-pointer rounded-full
+                            relative
+                            flex justify-start items-center                            
+                            bg-[#e07ca4] text-white
+                            p-1 pl-1.5 h-7
+                            text-sm`}
+                        onClick={toggleRatingForm}
+                    >
+                        <FaStar className="w-4 h-4" />
+                        <div className="p-1 pr-2 font-semibold uppercase">Rate</div>
+                    </button>
+                </div>
+                <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 right-0 h-7 w-7"></div>
+                {ratingFormOpen && newRating > 0 &&
+                    <button className={`cursor-pointer relative mr-0.5 h-7 items-center`}
+                            onClick={addRating}>
+                        <FaSave className="w-6 h-6 text-[#e07ca4]" />
+                    </button>}
+            </div>
+            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2">
+                <div className="rating rating-sm rating-half">
+                    <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
+                    {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
+                        .map((rating, index, array) => {
+                            let bgClassName = 'bg-green-400';
+
+                            switch (true) {
+                                case newRating < 3:
+                                    bgClassName = 'bg-red-400';
+                                    break;
+                                case newRating < 4:
+                                    bgClassName = 'bg-orange-400';
+                                    break;
+                                case newRating < 5.5:
+                                    bgClassName = 'bg-yellow-400';
+                                    break;
+                                case newRating < 7:
+                                    bgClassName = 'bg-lime-400';
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            return <input key={index} type="radio" name="rating"
+                                          className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'}
+                                          ${bgClassName}`} aria-label={rating.toString()}
+                                          value={rating}
+                                          defaultChecked={userRating >= rating && userRating < (array[index + 1] ?? 11)}
+                                          onClick={() => setNewRating(rating)}
+                            />
+                        })}
+                </div>
+            </form>}
+        </Fragment>
+    );
+
+    const settings = syncOn && <div>
+        <label className="flex gap-1 justify-start items-center p-2 pl-0.5 text-xs">
+            <input className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" type="checkbox"
+                   defaultChecked={update} onClick={() => setUpdate(!update)} />
+            Update in Collection
+        </label>
+    </div>;
+
+    const primaries = [
+        addToCollectionBlock,
+        addPlayBlock,
+        addRatingBlock,
+    ];
 
     const primaryActions = syncOn ? <>
         {primaries}
@@ -207,5 +380,5 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const secondaryActions = null;
 
-    return { syncOn, addToCollection, addPlay, primaryActions, secondaryActions };
+    return { syncOn, primaryActions, secondaryActions, settings };
 };

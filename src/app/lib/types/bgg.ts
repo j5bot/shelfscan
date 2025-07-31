@@ -37,8 +37,13 @@ export const PossibleStatuses = [
     'preordered'
 ] as const;
 export type PossibleStatuses = typeof PossibleStatuses;
+export type PossibleStatus = PossibleStatuses[number];
+export type PossibleStatusWithAll = PossibleStatus | 'all';
 
-export type BggCollectionStatuses = Record<PossibleStatuses[number], boolean>;
+export type BggCollectionStatuses = Record<PossibleStatus, boolean>;
+
+export type BggObjectsByStatus = Record<PossibleStatusWithAll, BggCollectionObjectMap>;
+export type BggVersionsByStatus = Record<PossibleStatusWithAll, BggCollectionVersionMap>;
 
 export type BggVersion = {
     id: number;
@@ -58,6 +63,7 @@ export type BggCollectionItem = {
     versionId?: number;
     version?: BggVersion;
     statuses: BggCollectionStatuses;
+    rating?: number;
 };
 
 export type BggCollectionId = number;
@@ -71,8 +77,17 @@ export type BggCollectionObjectMap = Record<BggObjectId, BggCollectionId[]>;
 export type BggCollectionVersionMap = Record<BggVersionId, BggCollectionId[]>;
 
 export type BggCollection = {
-    items: BggCollectionMap;
     images: BggCollectionImageMap;
-    objects: BggCollectionObjectMap;
-    versions: BggCollectionVersionMap;
+    items: BggCollectionMap;
+    objects: BggObjectsByStatus;
+    versions: BggVersionsByStatus;
+};
+
+export type BGGPlayer = {
+    name: string;
+    userid: number;
+    username: string;
+    repeat: boolean;
+    avatar?: string;
+    avatarfile?: string;
 };

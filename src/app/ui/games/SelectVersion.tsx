@@ -47,22 +47,22 @@ export const SelectVersion = () => {
 
     useTitle(`${version?.name ?? info?.name ?? id} | ShelfScan`);
 
-    const { primaryActions, secondaryActions } = useExtension(info, version);
+    const { primaryActions, secondaryActions, settings } = useExtension(info, version);
     const actionTemplates = usePlugins('link.actions');
 
     const pluginActions = actionTemplates?.game?.map(((actionPlugin, index) => {
         const { className, icon, template: pluginTemplate, title } = actionPlugin;
         const templateFn = template(pluginTemplate);
 
-        return <div key={index} className={`relative shrink-0 h-7.5 ${className} mr-0.5`}>
-            <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7.5 ${className}`}></div>
+        return <div key={index} className={`relative shrink-0 h-7 ${className} mr-0.5`}>
+            <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${className}`}></div>
             <Link title={title} href={templateFn(info ?? { id })} target="_blank">
                 <button
                     className={`collection-button cursor-pointer rounded-full
                         relative
                         flex justify-start items-center
                         bg-[#e07ca4] text-white
-                        p-1 pl-1.5 pr-1.5 h-7.5
+                        p-1 pl-1 pr-1.5 h-7
                         text-sm`}
                     onClick={actionTemplateOnClick}
                 >
@@ -85,6 +85,7 @@ export const SelectVersion = () => {
                 <div className="flex flex-wrap justify-start gap-1">
                     {primaryActions}
                     {pluginActions}
+                    {settings}
                 </div>
             </GameDetails>
             {hasInfos && <div className="bg-overlay w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">

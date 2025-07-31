@@ -61,7 +61,7 @@ export const GameDetails = (
             })}
         </h2>
         <div className="flex gap-2 items-stretch justify-center pb-2">
-            <div className="flex items-center">
+            <div className="flex items-start">
                 <ThumbnailBox
                     alt={version?.name ?? 'Default Game Image'}
                     url={version?.thumbnail_url ?? defaultImageUrl}
@@ -97,7 +97,7 @@ export const GameDetails = (
                     </div>
                     <h4 className="pb-0.5">{version?.published || 'Unknown'}</h4>
                 </div>}
-                {children && <div className="grow max-w-60 pb-0.5">
+                {children && <div className={`grow max-w-60 pb-0.5 ${version ? '' : 'pt-1'}`}>
                     {info?.id && children}
                 </div>}
                 <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
