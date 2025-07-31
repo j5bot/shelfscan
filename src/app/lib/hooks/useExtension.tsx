@@ -1,7 +1,7 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks/index';
-import { getRatingInCollectionById } from '@/app/lib/redux/bgg/collection/selectors';
-import { BGGPlayer } from '@/app/lib/types/bgg';
+import { getItemInCollectionByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
+import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import React, {
     Fragment,
@@ -14,12 +14,13 @@ import React, {
 import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
+    FaCloudArrowUp,
     FaDice,
     FaHeart,
     FaPlus,
     FaRecycle,
     FaStar,
-    FaTag
+    FaTag,
 } from 'react-icons/fa6';
 
 export type Modes = {
@@ -29,6 +30,7 @@ export type Modes = {
 
 export type ModeSetting = {
     label: ReactNode;
+    listText?: string;
     icon: ReactNode;
     width: string;
     form?: ReactNode;
@@ -36,46 +38,58 @@ export type ModeSetting = {
 }
 export type ModeSettings = Record<Modes['addToCollection'], ModeSetting>;
 
-const addToCollectionModeSettings: ModeSettings = {
-    add: {
-        label: 'Add',
-        icon: <FaPlus className="w-4 h-4 shrink-0" />,
-        width: 'w-20',
-    },
-    trade: {
-        label: 'Trade',
-        icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
-        width: 'w-25',
-        form: <form name="trade">
-            <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
-        </form>,
-        validator: (formData: FormData)=> {
-            const formValues = Object.fromEntries(formData ?? []);
-            return !!(formValues['condition'] as string | undefined)?.length;
-        }
-    },
-    wishlist: {
-        label: 'Wish',
-        icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
-        width: 'w-21',
-    },
-    sell: {
-        label: 'Sell',
-        icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
-        width: 'w-22',
-        form: <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
-            <input type="text" name="price" className="input text-sm h-7 pl-1.5 pt-1 pb-1" placeholder="Price" />
-            <textarea name="notes" rows={2} className="textarea text-xs pl-1.5 p-1" placeholder="Seller Notes"/>
-        </form>,
-        validator: (formData: FormData)=> {
-            const formValues = Object.fromEntries(formData ?? []);
-            const hasPrice = !!(formValues['price'] as string | undefined)?.length;
-            const hasNotes = !!(formValues['notes'] as string | undefined)?.length;
+const makeAddToCollectionModeSettings = (
+    collectionId: number | undefined,
+    update: boolean,
+    statuses?: BggCollectionStatuses,
+): ModeSettings =>
+    ({
+        add: {
+            label: update && (statuses?.own || collectionId !== undefined) ? 'Set' : 'Add',
+            listText: update ?
+                      statuses?.own ? 'Set Info' :
+                        collectionId !== undefined ? 'Set as Owned' : 'Add to Owned'
+                      : 'Add to Owned',
+            icon: update && (statuses?.own || collectionId !== undefined) ? <FaCloudArrowUp className="w-4 h-4 mr-0.5 shrink-0" /> : <FaPlus className="w-4 h-4 shrink-0" />,
+            width: 'w-20',
+        },
+        trade: {
+            label: 'Trade',
+            listText: update && (statuses?.fortrade || collectionId !== undefined) ?
+                      'Set Trade Info' :
+                      'Add for Trade',
+            icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
+            width: 'w-25',
+            form: <form name="trade">
+                <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
+            </form>,
+            validator: (formData: FormData)=> {
+                const formValues = Object.fromEntries(formData ?? []);
+                return !!(formValues['condition'] as string | undefined)?.length;
+            }
+        },
+        wishlist: {
+            label: 'Wish',
+            icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
+            width: 'w-21',
+        },
+        sell: {
+            label: 'Sell',
+            icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
+            width: 'w-22',
+            form: <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
+                <input type="text" name="price" className="input text-sm h-7 pl-1.5 pt-1 pb-1" placeholder="Price" />
+                <textarea name="notes" rows={2} className="textarea text-xs pl-1.5 p-1" placeholder="Seller Notes"/>
+            </form>,
+            validator: (formData: FormData)=> {
+                const formValues = Object.fromEntries(formData ?? []);
+                const hasPrice = !!(formValues['price'] as string | undefined)?.length;
+                const hasNotes = !!(formValues['notes'] as string | undefined)?.length;
 
-            return hasPrice && hasNotes;
-        }
-    },
-};
+                return hasPrice && hasNotes;
+            }
+        },
+    });
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
@@ -85,11 +99,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const [players, setPlayers] = useState<BGGPlayer[]>();
     const [update, setUpdate] = useState<boolean>(true);
 
-    const { collectionId, collectionRating } =
+    const { collectionId, collectionItem } =
         useSelector((state) =>
-            getRatingInCollectionById(state, info?.id));
-    const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
+            getItemInCollectionByObjectId(state, info?.id));
 
+    const { rating: collectionRating, statuses } = collectionItem ?? {};
+
+    const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
+    const addToCollectionModeSettings =
+        makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
     const atcMode = addToCollectionModeSettings[modes.addToCollection];
 
     useEffect(() => {
@@ -100,6 +118,9 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         window.addEventListener('message', (event) => {
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
+            }
+            if (event.data.log) {
+                console.log('extension', ...event.data.log);
             }
         });
     }, []);
@@ -229,20 +250,21 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                             {atcMode.label}
                         </div>
                     </button>
-                    <div className={`collapse-content p-0 min-w-29`}>
+                    <div className={`collapse-content p-0 min-w-33`}>
                         <div className={`mt-1
                             border-1 border-[#e07ca4] rounded-md
                             text-xs leading-5.5`}>
                             <ul className="menu w-full p-0 m-0" data-collapse-key="atcb">
                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'add' }))}
                                     className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >Add as Owned</li>
+                                >{addToCollectionModeSettings['add'].listText}</li>
                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'trade' }))}
                                     className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >Add for Trade</li>
-                                <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'wishlist' }))}
-                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >Add to Wishlist</li>
+                                >{addToCollectionModeSettings['trade'].listText}</li>
+                                {statuses?.wishlist && update ? null :
+                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'wishlist' }))}
+                                        className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
+                                    >Add to Wishlist</li>}
                                 {/*<li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'sell' }))}*/}
                                 {/*    className="p-1 pl-1.5 cursor-pointer"*/}
                                 {/*>Add to Market</li>*/}

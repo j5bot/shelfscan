@@ -11,7 +11,7 @@ import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
-import { FaBarcode, FaCheck } from 'react-icons/fa6';
+import { FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
 
 type ScanItemProps = {
     code: string;
@@ -97,6 +97,24 @@ export const ScanItem = (props: ScanItemProps) => {
             break;
     }
 
+    let cornerIcon: ReactNode = <FaBarcode title={code} size={15} className="shrink-0" />;
+    switch (true) {
+        case infoIndexesInCollection.own.includes(infoIndex ?? 0):
+            cornerIcon = <FaCheck title={code} className="shrink-0" />;
+            break;
+        case infoIndexesInCollection.fortrade.includes(infoIndex ?? 0):
+            cornerIcon = <FaRecycle title={code} className="shrink-0" />;
+            break;
+        case infoIndexesInCollection.wishlist.includes(infoIndex ?? 0):
+            cornerIcon = <FaHeart title={code} className="shrink-0" />;
+            break;
+        case infoIndexesInCollection.all.includes(infoIndex ?? 0):
+            cornerIcon = <FaEye title={code} size={15} className="shrink-0" />;
+            break;
+        default:
+            break;
+    }
+
     return <li className="relative rounded-md bg-orange-100 dark:bg-orange-900" key={code}>
         <Link
             href={`/upc/${code}`}
@@ -107,9 +125,7 @@ export const ScanItem = (props: ScanItemProps) => {
         </Link>
         <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
             <div className="flex justify-center items-center gap-1.5 tooltip" data-tip={combinedName}>
-                {infoIndexesInCollection.includes(infoIndex ?? 0) ?
-                 <FaCheck title={code} className="shrink-0" /> :
-                 <FaBarcode title={code} size={15} className="shrink-0"/>}
+                {cornerIcon}
                 <div
                     className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
                     title={combinedName}

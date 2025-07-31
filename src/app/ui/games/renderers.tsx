@@ -3,7 +3,14 @@ import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/type
 import { Thumbnail } from '@/app/ui/games/Thumbnail';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import React, { ReactNode } from 'react';
-import { FaCheck, FaThumbsDown, FaThumbsUp } from 'react-icons/fa6';
+import {
+    FaCheck,
+    FaEye,
+    FaHeart,
+    FaRecycle,
+    FaThumbsDown,
+    FaThumbsUp
+} from 'react-icons/fa6';
 
 export const getConfidenceLevelColor = (confidence: number) => {
     switch (true) {
@@ -28,10 +35,14 @@ export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, 
 
     return <div className="relative w-[100px] h-[100px] flex justify-center items-center">
         <Thumbnail alt={name} url={thumbnail_url} size={100} className="h-full" />
-        <div className="absolute top-0 left-0 bottom-0 right-0 flex gap-1 justify-center items-center">
-            {isInfoInCollection(index) && (
+        <div className="absolute top-0 left-0 bottom-0 right-0 flex flex-wrap gap-1 justify-center items-center">
+            {isInfoInCollection(index, 'own') ? (
                 <div className="bg-[#000000aa] h-8 w-8 rounded-full">
                     <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
+                </div>
+            ) : isInfoInCollection(index, 'all') && (
+                <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                    <FaEye size={24} className={`text-white mt-1 ml-1`} title="Found" />
                 </div>
             )}
             <div className="bg-[#000000aa] h-8 w-8 rounded-full">
@@ -54,9 +65,13 @@ export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBg
         <Thumbnail alt={name} url={thumbnail_url} size={75} className="h-full" />
         <div className="absolute top-0 left-0 bottom-0 right-[135px]">
             <div className="flex gap-1 justify-center items-center w-full h-full">
-                {isVersionInCollection(index) && (
+                {isVersionInCollection(index, 'own') ? (
                     <div className="bg-[#000000aa] h-8 w-8 rounded-full">
                         <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
+                    </div>
+                ) : isVersionInCollection(index, 'all') && (
+                    <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                        <FaEye size={24} className={`text-white mt-1 ml-1`} title="Found" />
                     </div>
                 )}
                 <div className="bg-[#000000aa] h-8 w-8 rounded-full">
@@ -83,8 +98,8 @@ export const renderSelectedItem = (
     }
 
     const {
-        currentInfoInCollection,
-        currentVersionInCollection,
+        isCurrentInfoInCollection,
+        isCurrentVersionInCollection,
         currentVersionIndex,
         info,
         isRemoving,
@@ -98,20 +113,30 @@ export const renderSelectedItem = (
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
     const isInfo = (item as GameUPCBggInfo)?.id >= 0;
-    const inCollection = isInfo ?
-                         currentInfoInCollection :
-                         currentVersionInCollection;
+    const isInCollection = isInfo ?
+                         isCurrentInfoInCollection :
+                         isCurrentVersionInCollection;
     const showUpdate = (isInfo && currentVersionIndex === -1 ) || (!isInfo && currentVersionIndex !== -1);
     const showRemove = isInfo ? status === GameUPCStatus.verified : info?.version_status === GameUPCStatus.verified;
 
     const selectedItemClasses = `flex gap-1 items-center relative`;
 
     return <div className="flex gap-1 items-center justify-between text-sm">
-        <div className="flex items-center gap-3 text-balance">
-            {item?.name}{
-            inCollection &&
-            <FaCheck className="tooltip inline-block" data-tooltip="In Collection" />
-        }
+        <div className="flex items-center gap-2 text-balance">
+            {item?.name}
+            {
+                isInCollection() ?
+                    <FaCheck className="tooltip inline-block" data-tooltip="In Collection" /> :
+                    isInCollection('all') && <FaEye className="tooltip inline-block" data-tooltip="Found" />
+            }
+            {
+                isInCollection('fortrade') &&
+                <FaRecycle className="w-3 h-3 tooltip inline-block" data-tooltip="In Tradelist" />
+            }
+            {
+                isInCollection('wishlist') &&
+                <FaHeart className="w-3 h-3 tooltip inline-block" data-tooltip="In Wishlist" />
+            }
         </div>
         <div className={selectedItemClasses} data-confidence={item?.confidence}>
             <SvgCssGauge

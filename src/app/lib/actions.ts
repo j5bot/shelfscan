@@ -49,7 +49,6 @@ export const bggGetCollectionInner =
         const cuParams = collectionUrl.searchParams;
 
         cuParams.append('username', username);
-        cuParams.append('own', '1');
         cuParams.append('version', '1');
         cuParams.append('stats', '1');
 
