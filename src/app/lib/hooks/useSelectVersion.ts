@@ -232,13 +232,13 @@ export const useSelectVersion = (id: string) => {
         setHoverVersionIndex(parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onHover'];
 
-    const isInfoInCollection = (index: number, status: PossibleStatusWithAll = 'own') => infoIndexesInCollection[status].includes(index);
-    const isVersionInCollection = (index: number, status: PossibleStatusWithAll = 'own') => versionIndexesInCollection[status].includes(index);
+    const isInfoInCollection = (index: number, status: PossibleStatusWithAll = 'own') => infoIndexesInCollection[status]?.includes(index);
+    const isVersionInCollection = (index: number, status: PossibleStatusWithAll = 'own') => versionIndexesInCollection[status]?.includes(index);
 
     const isCurrentInfoInCollection = (status: PossibleStatusWithAll = 'own') =>
-        currentInfoIndex !== null && infoIndexesInCollection[status].includes(currentInfoIndex);
+        currentInfoIndex !== null && infoIndexesInCollection[status]?.includes(currentInfoIndex);
     const isCurrentVersionInCollection = (status: PossibleStatusWithAll = 'own') =>
-        currentVersionIndex !== null && versionIndexesInCollection[status].includes(currentVersionIndex);
+        currentVersionIndex !== null && versionIndexesInCollection[status]?.includes(currentVersionIndex);
 
     return {
         id,

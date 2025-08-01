@@ -99,16 +99,16 @@ export const ScanItem = (props: ScanItemProps) => {
 
     let cornerIcon: ReactNode = <FaBarcode title={code} size={15} className="shrink-0" />;
     switch (true) {
-        case infoIndexesInCollection.own.includes(infoIndex ?? 0):
+        case infoIndexesInCollection.own?.includes(infoIndex ?? 0):
             cornerIcon = <FaCheck title={code} className="shrink-0" />;
             break;
-        case infoIndexesInCollection.fortrade.includes(infoIndex ?? 0):
+        case infoIndexesInCollection.fortrade?.includes(infoIndex ?? 0):
             cornerIcon = <FaRecycle title={code} className="shrink-0" />;
             break;
-        case infoIndexesInCollection.wishlist.includes(infoIndex ?? 0):
+        case infoIndexesInCollection.wishlist?.includes(infoIndex ?? 0):
             cornerIcon = <FaHeart title={code} className="shrink-0" />;
             break;
-        case infoIndexesInCollection.all.includes(infoIndex ?? 0):
+        case infoIndexesInCollection.all?.includes(infoIndex ?? 0):
             cornerIcon = <FaEye title={code} size={15} className="shrink-0" />;
             break;
         default:
