@@ -79,7 +79,7 @@ an application for scanning board game UPCs`,
         icon: <FaUser className="h-5 w-5" />,
         title: 'BoardGameGeek User',
         content: `Enter your BGG username to integrate your collection info with ShelfScan.  If you
-        don't have a BGG account, just enter 'j5bot'`,
+        don't have a BGG account, just enter 'ShelfScan'`,
         selector: '#bgg-username',
         side: 'bottom-left',
         showControls: true,
