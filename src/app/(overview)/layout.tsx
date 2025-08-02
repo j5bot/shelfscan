@@ -3,6 +3,7 @@
 import { CodesProvider } from '@/app/lib/CodesProvider';
 import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
+import { ExtensionResponse } from '@/app/lib/hooks/useExtension';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { SettingsProvider } from '@/app/lib/SettingsProvider';
@@ -22,6 +23,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                         <GameSelectionsProvider>
                             <GameUPCDataProvider>
                                 <NextStepProvider>
+                                    <Suspense><ExtensionResponse /></Suspense>
                                     <div style={{
                                         minHeight: 'calc(100dvh - 8em)'
                                     }}>

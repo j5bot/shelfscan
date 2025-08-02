@@ -1,3 +1,4 @@
+import { BggCollectionMap } from '@/app/lib/types/bgg';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
 
@@ -6,17 +7,24 @@ export type SettingEntity = {
     value: string | string[] | boolean | unknown;
 };
 
+export type CollectionEntity = {
+    id: string;
+    value: BggCollectionMap;
+};
+
 export type PluginEntity = ShelfScanPlugin;
 export type ShelfScanSettings = Record<string, SettingEntity['value']>;
 
 export const database = new Dexie('db') as Dexie & {
     settings: EntityTable<SettingEntity, 'id'>;
     plugins: EntityTable<PluginEntity, 'id'>;
+    collections: EntityTable<CollectionEntity, 'id'>;
 };
 
 database.version(1).stores({
     settings: '++id',
     plugins: '++id',
+    collections: '++id',
 });
 
 export const getSetting = async (id: string) =>
@@ -43,6 +51,18 @@ export const getSettings = async () => {
     settings.loaded = true;
 
     return settings;
+};
+
+export const getCollection = async (id: string) =>
+    (await database.collections.get(id))?.value;
+
+export const setCollection = async (id: string, value: BggCollectionMap) => {
+    const hasCollection = await database.collections.get(id);
+    if (hasCollection) {
+        await database.collections.put({ id, value });
+    } else {
+        await database.collections.add({ id, value });
+    }
 };
 
 export const getPlugin = async (id: string) =>
