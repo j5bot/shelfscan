@@ -125,7 +125,7 @@ export const renderSelectedItem = (
         <div className="flex items-center gap-2 text-balance">
             {item?.name}
             {
-                isInCollection() ?
+                isInCollection('own') ?
                     <FaCheck className="tooltip inline-block" data-tooltip="In Collection" /> :
                     isInCollection('all') && <FaEye className="tooltip inline-block" data-tooltip="Found" />
             }

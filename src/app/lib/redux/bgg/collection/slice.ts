@@ -48,18 +48,23 @@ const innerUpdateCollectionItems = (
                     statusObjects[objectId] = removeFromArray(id, statusObjects[objectId]);
                     state.objects[status] = statusObjects;
                 }
-            } else {
-                statusObjects[objectId] = conditionalAddToArray(id, statusObjects[objectId]);
-                state.objects[status] = statusObjects;
-            }
-            if (!versionId) {
                 if (previousVersionId) {
                     statusVersions[previousVersionId] = removeFromArray(id, statusVersions[previousVersionId]);
                     state.versions[status] = statusVersions;
                 }
             } else {
-                statusVersions[versionId] = conditionalAddToArray(id, statusVersions[versionId]);
-                state.versions[status] = statusVersions;
+                statusObjects[objectId] = conditionalAddToArray(id, statusObjects[objectId]);
+                state.objects[status] = statusObjects;
+
+                if (!versionId) {
+                    if (previousVersionId) {
+                        statusVersions[previousVersionId] = removeFromArray(id, statusVersions[previousVersionId]);
+                        state.versions[status] = statusVersions;
+                    }
+                } else {
+                    statusVersions[versionId] = conditionalAddToArray(id, statusVersions[versionId]);
+                    state.versions[status] = statusVersions;
+                }
             }
         });
 
