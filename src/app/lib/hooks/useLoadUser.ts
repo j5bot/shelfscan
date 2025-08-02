@@ -3,7 +3,7 @@ import {
     bggGetUserInner
 } from '@/app/lib/actions';
 import { addResponseToCache, getResponseFromCache } from '@/app/lib/database/cacheDatabase';
-import { removeSetting, setSetting } from '@/app/lib/database/database';
+import { getCollection, removeSetting, setSetting } from '@/app/lib/database/database';
 import { useDispatch } from '@/app/lib/hooks/index';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
@@ -69,7 +69,13 @@ export const useLoadUser = () => {
             }
             setUserXml(userXml);
 
-            const items = getCollectionFromXml(xml);
+            let items: BggCollectionMap | undefined;
+            if (useCache) {
+                items = await getCollection(username.toLowerCase());
+            }
+            if (!items) {
+                items = getCollectionFromXml(xml);
+            }
             if (items) {
                 setItems(items);
             }

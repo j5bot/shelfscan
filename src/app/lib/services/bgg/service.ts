@@ -69,6 +69,16 @@ export const getCommonDetails = (item: Element | null) => {
     return { name, yearPublished };
 };
 
+export const getCommonDetailsFromObject = (object: Record<string, unknown>) => {
+    if (!object) {
+        return;
+    }
+    const name = object.name;
+    const yearPublished = object.yearpublished
+
+    return { name, yearPublished };
+};
+
 export const getVersionDetails = (item: Element | null) => {
     if (!item) {
         return;
@@ -92,6 +102,20 @@ export const getVersionDetails = (item: Element | null) => {
         image,
         languages,
         productCode,
+    };
+};
+
+export const getVersionDetailsFromObject = (version: Record<string, unknown>) => {
+    const commonDetails = getCommonDetailsFromObject(version);
+    const id = version?.objectid;
+
+    if (!id) {
+        return undefined;
+    }
+    return {
+        ...commonDetails,
+        id,
+        image: '',
     };
 };
 
@@ -137,4 +161,20 @@ export const getCollectionFromXml = (xml?: string) => {
     return items.reduce((acc: BggCollectionMap, item: BggCollectionItem) => {
         return Object.assign(acc, {[item.collectionId]: item});
     }, {} as BggCollectionMap);
+};
+
+export const getCollectionItemFromObject = (object: Record<string, unknown>) => {
+    const commonDetails = getCommonDetailsFromObject(object);
+    const version = getVersionDetailsFromObject(object.version as Record<string, unknown>);
+
+    return {
+        ...commonDetails,
+        objectId: object.objectid,
+        versionId: version?.id,
+        subType: object.subtype ?? 'boardgame',
+        collectionId: object.collid,
+        version,
+        statuses: object.status,
+        rating: object.rating,
+    } as BggCollectionItem;
 };

@@ -39,7 +39,7 @@ const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
                     iconSize: 15,
                     title: 'Log Play',
                     template: 'bgstats://app.bgstatsapp.com/addPlay.html?gameId={{id}}',
-                    className: 'min-w-29'
+                    className: 'min-w-26'
                 }
             ],
             version: []

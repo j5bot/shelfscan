@@ -1,6 +1,8 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
-import { useSelector } from '@/app/lib/hooks/index';
+import { useDispatch, useSelector } from '@/app/lib/hooks/index';
 import { getItemInCollectionByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
+import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
+import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import React, {
@@ -103,6 +105,10 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         useSelector((state) =>
             getItemInCollectionByObjectId(state, info?.id));
 
+    const userId = useSelector(
+        state => state.bgg.user?.id
+    );
+
     const { rating: collectionRating, statuses } = collectionItem ?? {};
 
     const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
@@ -118,9 +124,6 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         window.addEventListener('message', (event) => {
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
-            }
-            if (event.data.log) {
-                console.log('extension', ...event.data.log);
             }
         });
     }, []);
@@ -159,6 +162,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
+                userId,
                 type: modes.addToCollection,
                 collectionId: update ? collectionId : undefined,
                 name: version?.name ?? info?.name,
@@ -182,6 +186,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
+                userId,
                 type: 'ratings',
                 collectionId,
                 name: version?.name ?? info?.name,
@@ -204,6 +209,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
+                userId,
                 type: 'plays',
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
@@ -220,7 +226,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
     };
 
-    const addToCollectionBlock = syncOn && (
+    const addToCollectionBlock = syncOn && userId && (
         <Fragment key="atcb">
             <div data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
                 <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${atcMode.width}`}></div>
@@ -276,7 +282,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         </Fragment>
     );
 
-    const addPlayBlock = syncOn && (
+    const addPlayBlock = syncOn && userId && (
         <div key="apb" className="relative shrink-0 w-27 h-7">
             <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-27"></div>
             <button
@@ -298,7 +304,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         setRatingFormOpen(!ratingFormOpen);
     };
 
-    const addRatingBlock = syncOn && (
+    const addRatingBlock = syncOn && userId && (
         <Fragment key="arb">
             <div className="flex shrink relative items-center">
                 <div className="relative shrink-0 w-20 h-7">
@@ -359,7 +365,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         </Fragment>
     );
 
-    const settings = syncOn && <div>
+    const settings = syncOn && userId && <div>
         <label className="flex gap-1 justify-start items-center p-2 pl-0.5 text-xs">
             <input className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" type="checkbox"
                    defaultChecked={update} onClick={() => setUpdate(!update)} />
@@ -373,11 +379,60 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         addRatingBlock,
     ];
 
-    const primaryActions = syncOn ? <>
+    const primaryActions = syncOn && userId ? <>
         {primaries}
     </> : null
 
     const secondaryActions = null;
 
-    return { syncOn, primaryActions, secondaryActions, settings };
+    return { userId, syncOn, primaryActions, secondaryActions, settings };
+};
+
+export const useExtensionResponse = () => {
+    const dispatch = useDispatch();
+    const username = useSelector(state => state.bgg.user?.user);
+
+    const [listening, setListening] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (!username || listening) {
+            return;
+        }
+        if (!username) {
+            return;
+        }
+        window.addEventListener('message', event => {
+            if (event.origin !== 'https://boardgamegeek.com') {
+                return;
+            }
+
+            const { data: detail } = event;
+
+            const ce = new CustomEvent('shelfscan-sync', {
+                detail,
+            });
+            document.dispatchEvent(ce);
+
+            if (!(username &&
+                  detail.type.endsWith('response') &&
+                    detail.response.collid)) {
+                return;
+            }
+            dispatch(updateCollectionItems({
+                username,
+                items: {
+                    [detail.response.collid]:
+                        getCollectionItemFromObject(
+                            detail.response as Record<string, unknown>),
+                },
+                update: true,
+            }));
+        });
+        setListening(true);
+    }, [username, listening, setListening]);
+};
+
+export const ExtensionResponse = () => {
+    useExtensionResponse();
+    return <></>;
 };
