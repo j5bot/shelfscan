@@ -52,9 +52,9 @@ export const getImageDataFromCache = async (id: string) =>
 export const addImageDataToCache = async (id: string, blob: Blob) => {
     const previousImage = await cacheDatabase.images.get(id);
     if (previousImage) {
-        return cacheDatabase.images.put({ id, data: blob, size: blob.size, timestamp: new Date().valueOf() });
+        return cacheDatabase.images.put({ id, data: blob, size: blob.size, timestamp: Date.now() });
     } else {
-        return cacheDatabase.images.add({ id, data: blob, size: blob.size, timestamp: new Date().valueOf() });
+        return cacheDatabase.images.add({ id, data: blob, size: blob.size, timestamp: Date.now() });
     }
 };
 

@@ -1,4 +1,3 @@
-import { getUsername } from '@/app/lib/redux/bgg/user/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import {
     BggCollectionStatuses,
@@ -6,31 +5,21 @@ import {
     PossibleStatusWithAll
 } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo } from '@/app/lib/types/GameUPCData';
-import { createSelector } from '@reduxjs/toolkit';
-
-export const getCollectionsState = (state: RootState) =>
-    state.bgg.collection;
-
-export const getUserCollection = createSelector(
-    [
-        getCollectionsState,
-        getUsername
-    ],
-    (collections, username = '') => collections.users[username],
-);
+import { memoize } from 'proxy-memoize';
 
 // prefers rated item
-export const getItemInCollectionByObjectId = createSelector(
-    [
-        getUserCollection,
-        (_state: RootState, id?: number) => id,
-    ],
-    (collection, id) => {
+export const getItemInCollectionByObjectId =
+    memoize(([state, id]: [RootState, number | undefined]) => {
         if (id === undefined) {
             return {};
         }
+        const collection = state.bgg.collection
+            .users[state.bgg.user?.user ?? ''];
+        if (!collection) {
+            return {};
+        }
 
-        const allCollectionItems = collection?.objects.all[id];
+        const allCollectionItems = collection.objects.all[id];
 
         const collectionId = allCollectionItems?.filter(collectionId => {
             return (collection?.items[collectionId]?.rating ?? 0) > 0;
@@ -55,7 +44,8 @@ export const getItemInCollectionByObjectId = createSelector(
             allCollectionItems,
             collectionStatuses,
         };
-    }
+    },
+    { size: 2000 }
 );
 
 export type InfosAndVersionsInCollection = {
@@ -63,16 +53,26 @@ export type InfosAndVersionsInCollection = {
     versionIndexes: Record<PossibleStatusWithAll, number[]>;
 };
 
-export const getIndexesInCollectionFromInfos = createSelector(
-    [
-        getUserCollection,
-        (_state: RootState, infos: GameUPCBggInfo[]) => infos,
-        (_state: RootState, _infos: GameUPCBggInfo[], statuses: PossibleStatusWithAll[]) => statuses,
-    ],
-    (collection, infos, statuses) => {
-        if (!(collection && infos)) {
-            return { infoIndexes: {}, versionIndexes: {} } as InfosAndVersionsInCollection;
+const emptyCollectionFromInfos = { infoIndexes: {}, versionIndexes: {} } as
+    InfosAndVersionsInCollection;
+
+export const getIndexesInCollectionFromInfos =
+    memoize((
+        [state, infos, statuses]:
+        [RootState, GameUPCBggInfo[], PossibleStatusWithAll[]]
+    ) => {
+        if (!(infos?.length && statuses.length)) {
+            return emptyCollectionFromInfos;
         }
+        const username = state.bgg.user.user;
+        if (!username) {
+            return emptyCollectionFromInfos;
+        }
+        const collection = state.bgg.collection.users[username];
+        if (!collection) {
+            return emptyCollectionFromInfos;
+        }
+
         return infos?.reduce((acc: InfosAndVersionsInCollection, info, index) => {
             statuses.forEach(status => {
                 acc.versionIndexes[status] = acc.versionIndexes[status] ?? [];
@@ -104,9 +104,5 @@ export const getIndexesInCollectionFromInfos = createSelector(
             return acc;
         }, {
             infoIndexes: {}, versionIndexes: {}
-        } as InfosAndVersionsInCollection) ?? {
-            infoIndexes: {}, versionIndexes: {},
-        } as InfosAndVersionsInCollection;
-    },
-);
-
+        } as InfosAndVersionsInCollection) ?? emptyCollectionFromInfos;
+    }, { size: 2000 });
