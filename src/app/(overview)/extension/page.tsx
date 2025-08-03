@@ -42,10 +42,14 @@ const ExtensionPage = () => {
                 </ul>
 
                 <p><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/">
-                    <FaFirefox className="w-6 h-6" /> <span>Download for Firefox on Android</span>
+                    <FaFirefox className="w-6 h-6" /> <span className="underline">
+                        Download for Firefox on Android
+                    </span>
                 </Link></p>
                 <p><Link className="flex items-center gap-2" href="https://testflight.apple.com/join/rhZAHudK">
-                    <FaSafari className="w-6 h-6" /> <span>Join the Safari on iOS beta</span>
+                    <FaSafari className="w-6 h-6" /> <span className="underline">
+                        Join the Safari on iOS beta
+                    </span>
                 </Link></p>
             </div>
         </div>

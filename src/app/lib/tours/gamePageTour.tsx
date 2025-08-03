@@ -58,7 +58,9 @@ const steps: TourStep[] = [
     {
         icon: <FaCheck />,
         title: 'In Collection',
-        content: `A checkmark appears next to the game's name if it is already in your collection`,
+        content: `A checkmark appears next to the game's name if it is already
+        in your collection.  Other icons may show if the game is in your trade
+        list, wishlist, etc.`,
         selector: '#select-game',
         side: 'top',
         showControls: true,
@@ -83,7 +85,9 @@ const steps: TourStep[] = [
     {
         icon: <FaCheck />,
         title: 'Version In Collection',
-        content: `A checkmark appears next to the version's name if it is already in your collection`,
+        content: `A checkmark appears next to the version's name if it is already
+        in your collection. Other icons may show if the game is in your trade
+        list, wishlist, etc.`,
         selector: '#select-version',
         side: 'top',
         showControls: true,
@@ -103,8 +107,8 @@ const steps: TourStep[] = [
     {
         icon: <FaThumbsUp />,
         title: 'Update GameUPC',
-        content: `Once you're sure you have the right game and version, click this button to update
-        the GameUPC database. Click it now.  The confidence level will go up`,
+        content: `Once you're sure you have the right game and version, click this button to verify
+        for the GameUPC database. Click it now.  The confidence level will go up`,
         selector: '.update-button',
         side: 'top-right',
         showControls: true,
@@ -134,7 +138,7 @@ const steps: TourStep[] = [
     }
 ];
 
-export const selectVersionTour: Tour = {
-    tour: 'selectVersion',
+export const gamePageTour: Tour = {
+    tour: 'gamePage',
     steps,
 };

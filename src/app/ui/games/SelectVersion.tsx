@@ -4,6 +4,7 @@ import { useExtension } from '@/app/lib/hooks/useExtension';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { PossibleStatusWithAll } from '@/app/lib/types/bgg';
 import {
     GameUPCBggInfo,
     GameUPCBggVersion,
@@ -16,7 +17,22 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
 import React, { SyntheticEvent } from 'react';
-import { FaBarcode } from 'react-icons/fa6';
+import { IconType } from 'react-icons';
+import { FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
+
+type HeaderCollectionIcon = {
+    title: string;
+    Icon: IconType;
+};
+
+type HeaderCollectionIconMap = Record<PossibleStatusWithAll, HeaderCollectionIcon>;
+
+const HeaderCollectionIconMap = {
+    own: { title: 'Own', Icon: FaCheck },
+    fortrade: { title: 'For Trade', Icon: FaRecycle },
+    wishlist: { title: 'Wishlist', Icon: FaHeart },
+    all: { title: 'Found', Icon: FaEye },
+} as HeaderCollectionIconMap;
 
 const gameTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Game</h4>
 const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Version</h4>
@@ -34,6 +50,8 @@ export const SelectVersion = () => {
         id,
         currentInfoIndex,
         currentVersionIndex,
+        isInfoInCollection,
+        isVersionInCollection,
         hasInfos,
         infos,
         versions,
@@ -78,10 +96,47 @@ export const SelectVersion = () => {
     const renderSelectedItemFn =
         renderSelectedItem.bind(null, selectVersionContext);
 
+    const collectionStatusChecks = [
+        [isVersionInCollection, currentVersionIndex, version],
+        [isInfoInCollection, currentInfoIndex, info],
+    ] as Array<[
+            (index: number, status: PossibleStatusWithAll) => boolean,
+            number | null,
+            GameUPCBggVersion | GameUPCBggInfo
+        ]>;
+
+    const collectionStatusIcons = info ?
+        (['own', 'fortrade', 'wishlist'] as PossibleStatusWithAll[])
+            .reduce((acc: HeaderCollectionIcon[], status: PossibleStatusWithAll) => {
+                collectionStatusChecks.find(([fn, index, item]) => {
+                    if (item && index !== null && fn(index, status)) {
+                        acc.push(HeaderCollectionIconMap[status]);
+                        return true;
+                    } else if (status === 'own' &&
+                        item && index !== null && fn(index, 'all')) {
+                        acc.push(HeaderCollectionIconMap.all);
+                    }
+                });
+
+                return acc;
+        }, []) : [];
+
+    const header = collectionStatusIcons.length > 0 ? <>
+        {collectionStatusIcons.map(icon => {
+            const { title, Icon } = icon;
+            return <div key={title} className={`tooltip bg-gray-400 scale-80 md:scale-none
+                flex items-center justify-center h-12 w-12 rounded-full`}
+                        data-tooltip={title}>
+                <Icon size={34} className={`tooltip text-white`}
+                      title={title} />
+            </div>
+        })}
+    </> : null;
+
     return <>
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
-            <GameDetails>
+            <GameDetails header={header}>
                 <div className="flex flex-wrap justify-start gap-1">
                     {primaryActions}
                     {pluginActions}

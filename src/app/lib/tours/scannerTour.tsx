@@ -29,8 +29,8 @@ const PresentList = (props: TourCardProps) => {
 
     return <div className="flex flex-col gap-2">
         <div>
-            Click on an item in the scanned game list to view details and select
-            the game version that matches what you scanned.
+            Click on an item in the scanned game list to view details and take
+            more actions.
         </div>
         <Link
             href={`/upc/${testUPC}`}
@@ -39,7 +39,7 @@ const PresentList = (props: TourCardProps) => {
                 skipTour?.();
                 closeNextStep();
                 setTimeout(() => {
-                    startNextStep('selectVersion');
+                    startNextStep('gamePage');
                 }, 1000);
             }}
         >Go to Select Version Tour</Link>

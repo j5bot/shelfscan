@@ -156,7 +156,7 @@ export const renderSelectedItem = (
                         <span className="loading loading-bars loading-xs" /> :
                         <FaThumbsUp  className="md:w-4 md:h-4" />
                     }
-                    <span className="hidden md:block">Update</span>
+                    <span className="hidden md:block">Verify</span>
                 </button>
             )} {showRemove && (
                 <button
@@ -168,7 +168,7 @@ export const renderSelectedItem = (
                         <span className="loading loading-bars loading-xs" /> :
                         <FaThumbsDown  className="md:w-4 md:h-4" />
                     }
-                    <span className="hidden md:block">Remove</span>
+                    <span className="hidden md:block">Reject</span>
                 </button>
             )}
         </div>

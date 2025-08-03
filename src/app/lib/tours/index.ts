@@ -1,5 +1,5 @@
 import { scannerTour } from '@/app/lib/tours/scannerTour';
-import { selectVersionTour } from '@/app/lib/tours/selectVersionTour';
+import { gamePageTour } from '@/app/lib/tours/gamePageTour';
 import { Tour } from '@/app/lib/types/tour';
 
 const getTourInfo = (tourName: string = 'default') => {
@@ -43,5 +43,5 @@ export const hasSeenTour = (tourName: string) => {
 
 export const tours: Tour[] = [
     scannerTour,
-    selectVersionTour,
+    gamePageTour,
 ];
