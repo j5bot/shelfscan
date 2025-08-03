@@ -103,7 +103,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const { collectionId, collectionItem } =
         useSelector((state) =>
-            getItemInCollectionByObjectId(state, info?.id));
+            getItemInCollectionByObjectId([state, info?.id]));
 
     const userId = useSelector(
         state => state.bgg.user?.id
@@ -168,7 +168,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
-                timestamp: new Date().valueOf(),
+                timestamp: Date.now(),
                 formValues: Object.fromEntries(formData ?? []),
             },
         });
@@ -192,7 +192,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
-                timestamp: new Date().valueOf(),
+                timestamp: Date.now(),
                 formValues: Object.fromEntries(formData ?? []),
             },
         });
@@ -214,7 +214,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                 name: version?.name ?? info?.name,
                 gameId: info?.id,
                 versionId: version?.version_id,
-                timestamp: new Date().valueOf(),
+                timestamp: Date.now(),
                 date: dateString,
             },
         });

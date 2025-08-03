@@ -1,4 +1,4 @@
-export const removeFromArray = <T>(id: T, array: T[]) =>
+export const removeFromArray = <T>(id: T, array: T[] = []) =>
     array.filter(x => x === id);
 
 export const conditionalAddToArray = <T>(id: T, array: T[] = []) => {

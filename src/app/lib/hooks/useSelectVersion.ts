@@ -65,7 +65,7 @@ export const useSelectVersion = (id: string) => {
         infoIndexes: infoIndexesInCollection,
         versionIndexes: versionIndexesInCollection,
     } = useSelector(state =>
-        getIndexesInCollectionFromInfos(state, infos, ['own', 'fortrade', 'wishlist', 'all']));
+        getIndexesInCollectionFromInfos([state, infos, ['own', 'fortrade', 'wishlist', 'all']]));
 
     const gameData = gameDataMap[id];
 
