@@ -25,11 +25,11 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 <NextStepProvider>
                                     <Suspense><ExtensionResponse /></Suspense>
                                     <div style={{
-                                        minHeight: 'calc(100dvh - 8em)'
+                                        minHeight: 'calc(100dvh - 7.5em)'
                                     }}>
                                         {children}
                                     </div>
-                                    <div className="h-[8em] flex flex-col justify-end">
+                                    <div className="h-[7.5em] flex flex-col justify-end">
                                         <Suspense><GetExtensionLink /></Suspense>
                                         <div className="flex pb-2 justify-center items-center w-full">
                                             <Link href={'https://boardgamegeek.com'} target="_blank">
