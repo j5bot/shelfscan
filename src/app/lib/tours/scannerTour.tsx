@@ -42,14 +42,14 @@ const PresentList = (props: TourCardProps) => {
                     startNextStep('gamePage');
                 }, 1000);
             }}
-        >Go to Select Version Tour</Link>
+        >Go to Game Details Tour</Link>
     </div>;
 };
 
 const generateListStep = (params: TourCardProps): Step => {
     return {
         icon: <FaList className="h-5 w-5" />,
-            title: 'Select Version',
+            title: 'Game Details',
         content: <PresentList {...params} />,
         selector: '#scanlist',
         side: 'top',
