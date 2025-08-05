@@ -109,7 +109,6 @@ export default function Page() {
                  <Suspense>
                      <div id="scanlist" className={`relative w-full h-full
                         bg-orange-50 dark:bg-yellow-700 p-2
-                        overflow-visible
                         ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0

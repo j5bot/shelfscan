@@ -118,13 +118,13 @@ export const ScanItem = (props: ScanItemProps) => {
     return <li className="relative rounded-md bg-orange-100 dark:bg-orange-900" key={code}>
         <Link
             href={`/upc/${code}`}
-            className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1 tooltip"
-            data-tip={statusText}
+            className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
+            title={statusText}
         >
             {statusIcon}
         </Link>
         <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
-            <div className="flex justify-center items-center gap-1.5 tooltip" data-tip={combinedName}>
+            <div className="flex justify-center items-center gap-1.5">
                 {cornerIcon}
                 <div
                     className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
@@ -149,7 +149,7 @@ export const Scanlist = (props: ScanlistProps) => {
     const { codes, gameUPCResults } = props;
     const { gameSelections } = useGameSelections();
 
-    return <ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg-grid-cols-6">
+    return <ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
                 <ScanItem code={code}
