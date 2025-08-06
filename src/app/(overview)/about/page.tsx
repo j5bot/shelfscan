@@ -118,9 +118,7 @@ const AboutPage = () => {
                     you can do on the BoardGameGeek website with the help of the app.
                 </p>
                 <p>
-                    Development continues on the web app and the browser extension.
-                    Soon the extension will be released to the public.  In the
-                    meantime, check out the <Link className="underline"
+                    Check out the <Link className="underline"
                         href="https://boardgamegeek.com/blog/16520/shelfscan-news" target="_blank"
                     >blog</Link> and <Link className="underline"
                         href="https://www.facebook.com/groups/1371928150537745" target="_blank"
