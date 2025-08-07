@@ -1,13 +1,17 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
-import { useDispatch, useSelector } from '@/app/lib/hooks/index';
+import { Modes, ModeSettings } from '@/app/lib/extension/types';
+import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { getItemInCollectionByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
+import { ConditionSelect } from '@/app/ui/forms/ConditionSelect';
+import { CountrySelect } from '@/app/ui/forms/CountrySelect';
+import { CurrencySelect } from '@/app/ui/forms/CurrencySelect';
+import { ShipSelect } from '@/app/ui/forms/ShipSelect';
 import React, {
     Fragment,
-    ReactNode,
     SyntheticEvent,
     useEffect,
     useLayoutEffect,
@@ -24,21 +28,6 @@ import {
     FaStar,
     FaTag,
 } from 'react-icons/fa6';
-
-export type Modes = {
-    addToCollection: 'add' | 'trade' | 'wishlist' | 'sell';
-    addPlay: 'quick' | 'detailed';
-};
-
-export type ModeSetting = {
-    label: ReactNode;
-    listText?: string;
-    icon: ReactNode;
-    width: string;
-    form?: ReactNode;
-    validator?: (formData: FormData) => boolean;
-}
-export type ModeSettings = Record<Modes['addToCollection'], ModeSetting>;
 
 const makeAddToCollectionModeSettings = (
     collectionId: number | undefined,
@@ -62,12 +51,22 @@ const makeAddToCollectionModeSettings = (
                       'Add for Trade',
             icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
             width: 'w-25',
-            form: <form name="trade">
-                <input type="text" name="condition" className="input text-sm p-2" placeholder="Trade Condition"/>
-            </form>,
+            form: ({ formValues, setFormValues }) => {
+                return <form name="trade" className="pb-2">
+                    <input type="text"
+                           name="tradeCondition"
+                           className="input text-sm p-2"
+                           placeholder="Trade Condition"
+                           defaultValue={formValues?.['tradeCondition']}
+                           onChange={event => setFormValues(
+                               Object.assign(formValues, { tradeCondition: event.currentTarget.value })
+                           )}
+                    />
+                </form>;
+            },
             validator: (formData: FormData)=> {
                 const formValues = Object.fromEntries(formData ?? []);
-                return !!(formValues['condition'] as string | undefined)?.length;
+                return !!(formValues['tradeCondition'] as string | undefined)?.length;
             }
         },
         wishlist: {
@@ -79,19 +78,62 @@ const makeAddToCollectionModeSettings = (
             label: 'Sell',
             icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
             width: 'w-22',
-            form: <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
-                <input type="text" name="price" className="input text-sm h-7 pl-1.5 pt-1 pb-1" placeholder="Price" />
-                <textarea name="notes" rows={2} className="textarea text-xs pl-1.5 p-1" placeholder="Seller Notes"/>
-            </form>,
-            validator: (formData: FormData)=> {
+            form: ({ formValues, setFormValues }) => {
+                const setValue = (field: string, value: string) => {
+                    setFormValues(Object.assign(formValues, { [field]: value }));
+                };
+                return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
+                    <div className="flex gap-0.5">
+                        <CurrencySelect currency={formValues?.['currency'] ?? 'USD'}
+                                        setValue={setValue}
+                        />
+                        <input type="text"
+                               name="price"
+                               className="input text-sm h-7 pl-1.5 pt-1 pb-1"
+                               placeholder="Price"
+                               defaultValue={formValues?.['price'] ?? ''}
+                               onBlur={event =>
+                                   setValue('price', event.currentTarget.value)
+                               }
+                        />
+                    </div>
+                    <ConditionSelect condition={formValues?.['condition'] ?? 'verygood'}
+                                     setValue={setValue}
+                    />
+                    <textarea name="notes"
+                              rows={2}
+                              className="textarea text-xs pl-1.5 p-1"
+                              placeholder="Seller Notes"
+                              defaultValue={formValues?.['notes'] ?? ''}
+                              onBlur={event =>
+                                  setValue('notes', event.currentTarget.value)
+                              }
+                    />
+                    <CountrySelect country={formValues?.['country'] ?? 'United States'}
+                                   setValue={setValue}
+                    />
+                    <ShipSelect shipLocation={formValues?.['shipLocation'] ?? 'usonly'}
+                                shipAreas={formValues?.['shipAreas']?.split(',')}
+                                setValue={setValue}
+                    />
+                </form>;
+            },
+            validator: (formData: FormData) => {
                 const formValues = Object.fromEntries(formData ?? []);
-                const hasPrice = !!(formValues['price'] as string | undefined)?.length;
-                const hasNotes = !!(formValues['notes'] as string | undefined)?.length;
-
-                return hasPrice && hasNotes;
+                const required = [
+                    'currency', 'price',
+                    'condition', 'notes',
+                    'country', 'shipLocation',
+                ];
+                if (formValues['shipLocation'] === 'usandothers') {
+                    required.push('shipAreas');
+                }
+                return required.every(field =>
+                    !!((formValues[field] as string | undefined))?.length);
             }
         },
-    });
+    }
+    );
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
@@ -100,6 +142,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const [modes, setModes] = useState<Modes>({ addToCollection: 'add', addPlay: 'quick' });
     const [players, setPlayers] = useState<BGGPlayer[]>();
     const [update, setUpdate] = useState<boolean>(true);
+    const [formValues, setFormValues] = useState<Record<string, string>>({});
 
     const { collectionId, collectionItem } =
         useSelector((state) =>
@@ -226,6 +269,8 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
     };
 
+    const ATCForm = atcMode.form;
+
     const addToCollectionBlock = syncOn && userId && (
         <Fragment key="atcb">
             <div data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
@@ -270,21 +315,21 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                                  <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'wishlist' }))}
                                         className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
                                     >Add to Wishlist</li>}
-                                {/*<li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'sell' }))}*/}
-                                {/*    className="p-1 pl-1.5 cursor-pointer"*/}
-                                {/*>Add to Market</li>*/}
+                                <li onClick={e => updateModes(e, Object.assign({}, modes, { addToCollection: 'sell' }))}
+                                    className="p-1 pl-1.5 cursor-pointer"
+                                >Add to Market</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-            {atcMode.form}
+            {ATCForm && <ATCForm formValues={formValues} setFormValues={setFormValues} />}
         </Fragment>
     );
 
     const addPlayBlock = syncOn && userId && (
-        <div key="apb" className="relative shrink-0 w-27 h-7">
-            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-27"></div>
+        <div key="apb" className="relative shrink-0 w-25.5 h-7">
+            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-25.5"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
                     relative
@@ -368,7 +413,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const settings = syncOn && userId && <div>
         <label className="flex gap-1 justify-start items-center p-2 pl-0.5 text-xs">
             <input className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" type="checkbox"
-                   defaultChecked={update} onClick={() => setUpdate(!update)} />
+                   defaultChecked={collectionId !== undefined ? update : false} onClick={() => setUpdate(!update)} />
             Update in Collection
         </label>
     </div>;
@@ -415,13 +460,16 @@ export const useExtensionResponse = () => {
 
             if (!(username &&
                   detail.type.endsWith('response') &&
-                    detail.response.collid)) {
+                    detail.response?.collid)) {
+                return;
+            }
+            if (detail.type.startsWith('sell')) {
                 return;
             }
             dispatch(updateCollectionItems({
                 username,
                 items: {
-                    [detail.response.collid]:
+                    [detail.response?.collid]:
                         getCollectionItemFromObject(
                             detail.response as Record<string, unknown>),
                 },

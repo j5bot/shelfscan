@@ -1,6 +1,6 @@
 'use client';
 
-import { useExtension } from '@/app/lib/hooks/useExtension';
+import { useExtension } from '@/app/lib/extension/useExtension';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
@@ -73,12 +73,12 @@ export const SelectVersion = () => {
         const templateFn = template(pluginTemplate);
 
         return <div key={index} className={`relative shrink-0 h-7 ${className} mr-0.5`}>
-            <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${className}`}></div>
+            <div className={`rounded-full ${className} border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${className}`}></div>
             <Link title={title} href={templateFn(info ?? { id })} target="_blank">
                 <button
                     className={`collection-button cursor-pointer rounded-full
-                        relative
-                        flex justify-start items-center
+                        relative w-full
+                        flex justify-center items-center
                         bg-[#e07ca4] text-white
                         p-1 pl-1 pr-1.5 h-7
                         text-sm`}

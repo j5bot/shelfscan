@@ -3,7 +3,7 @@
 import { CodesProvider } from '@/app/lib/CodesProvider';
 import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
-import { ExtensionResponse } from '@/app/lib/hooks/useExtension';
+import { ExtensionResponse } from '@/app/lib/extension/useExtension';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { SettingsProvider } from '@/app/lib/SettingsProvider';
