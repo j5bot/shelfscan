@@ -27,6 +27,23 @@ const builtInPlugins: Record<string, ShelfScanPlugin> = {
 };
 
 const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
+    'plugin.internal.BGGMarket': {
+        id: 'plugin.internal.BGGMarket',
+        name: 'BoardGameGeek Market Plugin',
+        type: 'link',
+        location: 'actions',
+        templates: {
+            game: [
+                {
+                    icon: 'fa6/FaTag',
+                    title: 'Sell on BGG',
+                    template: 'https://boardgamegeek.com/market/sell?objecttype=thing&objectid={{id}}',
+                    className: 'min-w-32'
+                }
+            ],
+            version: [],
+        }
+    },
     'plugin.internal.BoardGameStats': {
         id: 'plugin.internal.BoardGameStats',
         name: 'Board Game Stats Log Play Plugin',
