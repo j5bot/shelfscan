@@ -275,8 +275,10 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         <Fragment key="atcb">
             <div data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
                 <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${atcMode.width}`}></div>
-                <div className={`relative collapse min-h-7 rounded-none overflow-visible ${atcMode.width}`}>
-                    <input type="checkbox" />
+                <div className={`collapse min-h-7 rounded-none overflow-visible ${atcMode.width}`}>
+                    <input type="checkbox" className="h-7" style={{
+                        padding: 0,
+                    }}/>
                     <button className={`collapse-title
                         absolute right-0 top-0
                         collection-button cursor-pointer rounded-r-full
