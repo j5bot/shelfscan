@@ -42,7 +42,7 @@ const makeAddToCollectionModeSettings = (
                         collectionId !== undefined ? 'Set as Owned' : 'Add to Owned'
                       : 'Add to Owned',
             icon: update && (statuses?.own || collectionId !== undefined) ? <FaCloudArrowUp className="w-4 h-4 mr-0.5 shrink-0" /> : <FaPlus className="w-4 h-4 shrink-0" />,
-            width: 'w-20',
+            width: 'w-19',
         },
         trade: {
             label: 'Trade',
@@ -50,7 +50,7 @@ const makeAddToCollectionModeSettings = (
                       'Set Trade Info' :
                       'Add for Trade',
             icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
-            width: 'w-25',
+            width: 'w-23',
             form: ({ formValues, setFormValues }) => {
                 return <form name="trade" className="pb-2">
                     <input type="text"
@@ -72,12 +72,12 @@ const makeAddToCollectionModeSettings = (
         wishlist: {
             label: 'Wish',
             icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
-            width: 'w-21',
+            width: 'w-19.5',
         },
         sell: {
             label: 'Sell',
             icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
-            width: 'w-22',
+            width: 'w-20.5',
             form: ({ formValues, setFormValues }) => {
                 const setValue = (field: string, value: string) => {
                     setFormValues(Object.assign(formValues, { [field]: value }));
@@ -294,6 +294,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                             bg-[#e07ca4] text-white
                             p-1 pl-1.5 h-7
                             z-40
+                            font-stretch-semi-condensed tracking-tight
                             text-sm`}
                         onClick={addToCollection}
                     >
@@ -330,14 +331,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     );
 
     const addPlayBlock = syncOn && userId && (
-        <div key="apb" className="relative shrink-0 w-25.5 h-7">
-            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-25.5"></div>
+        <div key="apb" className="relative shrink-0 w-24 h-7">
+            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-24"></div>
             <button
                 className={`collection-button cursor-pointer rounded-full
                     relative
                     flex justify-start items-center                            
                     bg-[#e07ca4] text-white
                     p-1 pl-1.5 h-7
+                    font-stretch-condensed tracking-tight
                     text-sm`}
                 onClick={addPlay}
             >
@@ -354,17 +356,18 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const addRatingBlock = syncOn && userId && (
         <Fragment key="arb">
             <div className="flex shrink relative items-center">
-                <div className="relative shrink-0 w-20 h-7">
+                <div className="relative shrink-0 w-17 h-7">
                     <button
                         className={`collection-button cursor-pointer rounded-full
                             relative
                             flex justify-start items-center                            
                             bg-[#e07ca4] text-white
                             p-1 pl-1.5 h-7
+                            font-stretch-semi-condensed tracking-tight
                             text-sm`}
                         onClick={toggleRatingForm}
                     >
-                        <FaStar className="w-4 h-4" />
+                        <FaStar className="w-3.5 h-3.5" />
                         <div className="p-1 pr-2 font-semibold uppercase">Rate</div>
                     </button>
                 </div>

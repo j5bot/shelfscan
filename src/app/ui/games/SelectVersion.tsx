@@ -81,6 +81,7 @@ export const SelectVersion = () => {
                         flex justify-center items-center
                         bg-[#e07ca4] text-white
                         p-1 pl-1 pr-1.5 h-7
+                        font-stretch-semi-condensed tracking-tight
                         text-sm`}
                     onClick={actionTemplateOnClick}
                 >
@@ -137,7 +138,7 @@ export const SelectVersion = () => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <GameDetails header={header}>
-                <div className="flex flex-wrap justify-start gap-1">
+                <div className="flex flex-wrap justify-start gap-1.5">
                     {primaryActions}
                     {pluginActions}
                     {settings}
