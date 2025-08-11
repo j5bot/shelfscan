@@ -29,12 +29,16 @@ const currencies = [
     { value: 'THB', label: '฿' },
 ];
 
-export const CurrencySelect = ({ currency, setValue }:
-    { currency: string; setValue: SetFormValue }
+export const CurrencySelect = ({
+    currency, disabled, setValue
+}:
+    { currency: string; disabled?: boolean, setValue: SetFormValue }
 ) =>
-    <select name="currency" className={`text-center select select-sm
+    <select name="currency" className={`text-left select select-sm
+            select-condensed
             h-7 w-24 pl-1.5 p-0`}
-            defaultValue={currency}
+            value={currency}
+            disabled={disabled}
             onChange={event =>
                 setValue('currency', event.currentTarget.value)}
     >

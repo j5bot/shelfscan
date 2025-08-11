@@ -6,10 +6,7 @@ import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
-import { ConditionSelect } from '@/app/ui/forms/ConditionSelect';
-import { CountrySelect } from '@/app/ui/forms/CountrySelect';
-import { CurrencySelect } from '@/app/ui/forms/CurrencySelect';
-import { ShipSelect } from '@/app/ui/forms/ShipSelect';
+import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import React, {
     Fragment,
     SyntheticEvent,
@@ -78,46 +75,7 @@ const makeAddToCollectionModeSettings = (
             label: 'Sell',
             icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
             width: 'w-20.5',
-            form: ({ formValues, setFormValues }) => {
-                const setValue = (field: string, value: string) => {
-                    setFormValues(Object.assign(formValues, { [field]: value }));
-                };
-                return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
-                    <div className="flex gap-0.5">
-                        <CurrencySelect currency={formValues?.['currency'] ?? 'USD'}
-                                        setValue={setValue}
-                        />
-                        <input type="text"
-                               name="price"
-                               className="input text-sm h-7 pl-1.5 pt-1 pb-1"
-                               placeholder="Price"
-                               defaultValue={formValues?.['price'] ?? ''}
-                               onBlur={event =>
-                                   setValue('price', event.currentTarget.value)
-                               }
-                        />
-                    </div>
-                    <ConditionSelect condition={formValues?.['condition'] ?? 'verygood'}
-                                     setValue={setValue}
-                    />
-                    <textarea name="notes"
-                              rows={2}
-                              className="textarea text-xs pl-1.5 p-1"
-                              placeholder="Seller Notes"
-                              defaultValue={formValues?.['notes'] ?? ''}
-                              onBlur={event =>
-                                  setValue('notes', event.currentTarget.value)
-                              }
-                    />
-                    <CountrySelect country={formValues?.['country'] ?? 'United States'}
-                                   setValue={setValue}
-                    />
-                    <ShipSelect shipLocation={formValues?.['shipLocation'] ?? 'usonly'}
-                                shipAreas={formValues?.['shipAreas']?.split(',')}
-                                setValue={setValue}
-                    />
-                </form>;
-            },
+            form: AddToMarketForm,
             validator: (formData: FormData) => {
                 const formValues = Object.fromEntries(formData ?? []);
                 const required = [
