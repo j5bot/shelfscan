@@ -2,6 +2,7 @@ import { SetFormValue } from '@/app/lib/extension/types';
 import { useState } from "react";
 
 const shipLocations = [
+    { value: '', label: 'Ship Location' },
     { value: 'usonly', label: 'US Only' },
     { value: 'worldwide', label: 'Worldwide' },
     { value: 'usandothers', label: 'US and Others' },
@@ -35,8 +36,8 @@ export const ShipSelect = (
 
     return <>
         <select name="shipLocation"
-                className="select select-sm h-7 pl-1.5 p-1 pr-0"
-                defaultValue={shipLocationValue}
+                className="select select-sm select-condensed h-7 pl-1.5 p-1 pr-0"
+                value={shipLocationValue}
                 onChange={event => {
                     setValue('shipLocation', event.currentTarget.value);
                     setShipLocationValue(event.currentTarget.value);
@@ -52,8 +53,8 @@ export const ShipSelect = (
                 <input type="hidden" name="shipAreas"
                        value={shipAreasValue?.join(',')} />
                 <select multiple={true}
-                        className="text-xs w-full input h-15 p-1"
-                        defaultValue={shipAreasValue}
+                        className="select select-condensed text-xs w-full input h-15 ios-safari:h-6 p-1 pl-1.5"
+                        value={shipAreasValue}
                         onChange={event => {
                             const values = Array.from(event.currentTarget
                                 .selectedOptions)?.map(option => option.value);

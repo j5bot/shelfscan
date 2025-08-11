@@ -1,10 +1,13 @@
 import { BggCollectionMap } from '@/app/lib/types/bgg';
+import { MarketPreferences } from '@/app/lib/types/market';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
 
+export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;
+
 export type SettingEntity = {
     id: string;
-    value: string | string[] | boolean | unknown;
+    value: ShelfScanSetting;
 };
 
 export type CollectionEntity = {

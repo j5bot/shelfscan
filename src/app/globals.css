@@ -32,6 +32,12 @@
   }
 }
 
+@custom-variant ios-safari {
+  @supports (-webkit-touch-callout: none) {
+    @slot;
+  }
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -83,6 +89,22 @@ svg[data-name=nextstep-arrow] > #triangle {
 
 .collapse:has(>input:is([type="checkbox"]:checked)) > .collapse-content.collapse-content.collapse-content {
   padding-bottom: 0.25rem;
+}
+
+.collapse-arrow.collapse-xs > .collapse-title:after {
+  top: 0.85rem;
+  height: 0.35rem;
+  width: 0.35rem;
+  inset-inline-end: 0.75rem;
+}
+
+.collapse-arrow.collapse-xs > input:is([type="checkbox"], [type="radio"]) {
+  min-height: unset;
+  padding: unset;
+}
+
+.select.select-condensed {
+  background-position: calc(100% - 10px) calc(1px + 50%), calc(100% - 6.1px) calc(1px + 50%);
 }
 
 @keyframes add-pulse {
