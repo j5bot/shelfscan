@@ -21,9 +21,11 @@ export const getItemInCollectionByObjectId =
 
         const allCollectionItems = collection.objects.all[id];
 
-        const collectionId = allCollectionItems?.filter(collectionId => {
+        const collectionIdArray = allCollectionItems?.filter(collectionId => {
             return (collection?.items[collectionId]?.rating ?? 0) > 0;
-        })?.sort()[0] ?? allCollectionItems?.sort()[0];
+        })?.sort() ?? allCollectionItems?.sort();
+
+        const collectionId = collectionIdArray.length > 0 ? collectionIdArray[0] : undefined;
 
         const collectionStatuses = allCollectionItems?.reduce((acc, collectionId) => {
             const collectionItem = collection?.items[collectionId];
