@@ -21,7 +21,7 @@ export const getItemInCollectionByObjectId =
 
         const allCollectionItems = collection.objects.all[id];
 
-        if (!allCollectionItems.length) {
+        if (!allCollectionItems?.length) {
             return {};
         }
 
