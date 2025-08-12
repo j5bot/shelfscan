@@ -1,11 +1,15 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 export const NotesTextArea = ({ notes, setValue }: {
     notes: string;
     setValue: SetFormValue;
 }) => {
     const [tempValue, setTempValue] = useState<string>(notes);
+
+    useEffect(() => {
+        setTempValue(notes);
+    }, [notes]);
 
     const changeHandler = (event: ChangeEvent<HTMLTextAreaElement>) =>
         setTempValue(event.currentTarget.value);

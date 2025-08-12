@@ -25,7 +25,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
 
     const makeShouldShowField = (field: keyof MarketPreferences) =>
         !preferences[field] ||
-            preferences[field] !== formValues?.[field];
+            preferences[field] !== (values[field] ?? '');
 
     const setValue = (field: string, value: string) => {
         setFormValues(Object.assign(values, { [field]: value }));
@@ -38,7 +38,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     const showShipLocation = makeShouldShowField('shipLocation');
     const showShipAreas = makeShouldShowField('shipAreas');
     const showShipSelect = (showShipLocation && showShipAreas) || (
-        formValues?.['shipLocation'] !== 'usandothers' &&
+        values?.['shipLocation'] !== 'usandothers' &&
         !showShipAreas
     );
 
@@ -64,33 +64,39 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     </>;
 
     const condition = <ConditionSelect
-        condition={formValues?.['condition'] ?? 'verygood'}
+        condition={values?.['condition'] ?? 'verygood'}
         setValue={setValue}
     />;
     const notes = <NotesTextArea notes={values?.['notes'] ?? ''} setValue={setValue} />;
-    const paymentMethod = (showIcon: boolean) => (<div className="flex gap-0.5 items-center">
-        {showIcon && <FaCreditCard className="h-4 w-4 mr-0.5" />}
-        <PaymentMethodSelect
-            paymentMethod={values?.['paymentMethod']?.split(',') ?? ['other']}
-            setValue={setValue} />
-    </div>);
-    const country = (showIcon: boolean) => (<div className="flex gap-0.5 items-center">
-        {showIcon && <FaMapMarkerAlt className="h-4 w-3.5 mr-0.5" />}
-        <CountrySelect
-            country={values?.['country'] ?? 'United States'}
-            setValue={setValue}
-        />
-    </div>);
-    const shipSelect = (showIcon: boolean) => (<div className="flex gap-0.5 items-start">
-        {showIcon && <FaBox size={13} className="mt-2 mr-0.5" />}
-        <div className="flex flex-wrap gap-0.5">
-            <ShipSelect
-                shipLocation={values?.['shipLocation'] ?? 'usonly'}
-                shipAreas={values?.['shipAreas']?.split(',')}
+    const paymentMethod = (showIcon: boolean) => (
+        <div className="flex gap-0.5 items-center w-full">
+            {showIcon && <FaCreditCard className="h-4 w-4 mr-0.5" />}
+            <PaymentMethodSelect
+                paymentMethod={values?.['paymentMethod']?.split(',') ?? ['other']}
+                setValue={setValue} />
+        </div>
+    );
+    const country = (showIcon: boolean) => (
+        <div className="flex gap-0.5 items-center w-full">
+            {showIcon && <FaMapMarkerAlt className="h-4 w-3.5 mr-0.5" />}
+            <CountrySelect
+                country={values?.['country'] ?? 'United States'}
                 setValue={setValue}
             />
         </div>
-    </div>);
+    );
+    const shipSelect = (showIcon: boolean) => (
+        <div className="flex gap-0.5 items-start w-full">
+            {showIcon && <FaBox className="mt-2 h-4 w-4 mr-0.5" />}
+            <div className="flex flex-wrap gap-0.5 w-full">
+                <ShipSelect
+                    shipLocation={values?.['shipLocation'] ?? 'usonly'}
+                    shipAreas={values?.['shipAreas']?.split(',')}
+                    setValue={setValue}
+                />
+            </div>
+        </div>
+    );
 
     return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
         <div className="flex gap-0.5">
@@ -101,7 +107,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
         {showPaymentMethod && paymentMethod(true)}
         {showCountry && country(true)}
         {showShipSelect && shipSelect(true)}
-        {hasPreferences && <div className="collapse collapse-arrow collapse-xs text-xs">
+        {hasPreferences ? <div className="collapse collapse-arrow collapse-xs text-xs">
             <input type="checkbox" />
             <div className="collapse-title p-1.5 m-0">More Fields</div>
             <div className="collapse-content flex flex-wrap gap-1 pr-1 pl-1">
@@ -114,6 +120,8 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
                 {!showCountry && country(false)}
                 {!showShipSelect && shipSelect(false)}
             </div>
+        </div> : <div className="text-xs italic">
+            Change Defaults in Settings
         </div>}
     </form>;
 };
