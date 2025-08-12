@@ -22,7 +22,7 @@ export const PaymentMethodSelect = ({
 
     useEffect(() => {
         setPaymentMethodValues(paymentMethod);
-    }, [paymentMethod]);
+    }, [paymentMethod.join(',')]);
 
     return <>
         <input type="hidden" name="paymentMethod"

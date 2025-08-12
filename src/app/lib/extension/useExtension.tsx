@@ -81,6 +81,7 @@ const makeAddToCollectionModeSettings = (
                 const required = [
                     'currency', 'price',
                     'condition', 'notes',
+                    'paymentMethod',
                     'country', 'shipLocation',
                 ];
                 if (formValues['shipLocation'] === 'usandothers') {

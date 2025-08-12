@@ -72,7 +72,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
         <div className="flex gap-0.5 items-center w-full">
             {showIcon && <FaCreditCard className="h-4 w-4 mr-0.5" />}
             <PaymentMethodSelect
-                paymentMethod={values?.['paymentMethod']?.split(',') ?? ['other']}
+                paymentMethod={values?.['paymentMethod']?.split(',') ?? []}
                 setValue={setValue} />
         </div>
     );
