@@ -1,5 +1,5 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
 export const PriceInput = ({
     disabled,
@@ -11,6 +11,10 @@ export const PriceInput = ({
     setValue: SetFormValue
 }) => {
     const [tempValue, setTempValue] = useState<string>(price.toString());
+
+    useEffect(() => {
+        setTempValue(price.toString());
+    }, [price]);
 
     const changeHandler = (event: ChangeEvent<HTMLInputElement>) =>
         setTempValue(event.currentTarget.value);

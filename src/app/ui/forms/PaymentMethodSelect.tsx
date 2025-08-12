@@ -1,5 +1,5 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const paymentMethodOptions = [
     { value: 'paypal', label: 'PayPal' },
@@ -20,11 +20,15 @@ export const PaymentMethodSelect = ({
     const [paymentMethodValues, setPaymentMethodValues] =
         useState<string[] | undefined>(paymentMethod);
 
+    useEffect(() => {
+        setPaymentMethodValues(paymentMethod);
+    }, [paymentMethod]);
+
     return <>
         <input type="hidden" name="paymentMethod"
                value={paymentMethodValues?.join(',')} />
         <select multiple={true}
-                className="select select-condensed text-xs w-full input h-10 ios-safari:h-6 pl-1.5 p-1"
+                className="grow select select-condensed text-xs w-full input h-10 ios-safari:h-6 pl-1.5 p-1"
                 value={paymentMethodValues}
                 onChange={event => {
                     const values = Array.from(event.currentTarget

@@ -1,5 +1,5 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import { useState } from "react";
+import { useEffect, useState } from 'react';
 
 const shipLocations = [
     { value: '', label: 'Ship Location' },
@@ -33,10 +33,17 @@ export const ShipSelect = (
     const [shipAreasValue, setShipAreasValue] =
         useState<string[] | undefined>(shipAreas);
 
+    useEffect(() => {
+        setShipLocationValue(shipLocation);
+    }, [shipLocation]);
+
+    useEffect(() => {
+        setShipAreasValue(shipAreas);
+    }, [shipAreas]);
 
     return <>
         <select name="shipLocation"
-                className="select select-sm select-condensed h-7 pl-1.5 p-1 pr-0"
+                className="grow select select-sm select-condensed h-7 pl-1.5 p-1 pr-0"
                 value={shipLocationValue}
                 onChange={event => {
                     setValue('shipLocation', event.currentTarget.value);
