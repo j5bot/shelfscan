@@ -337,7 +337,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                         <FaSave className="w-6 h-6 text-[#e07ca4]" />
                     </button>}
             </div>
-            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2">
+            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2 xs:scale-95 relative xs:left-[-10px]">
                 <div className="rating rating-sm rating-half">
                     <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
                     {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
@@ -370,6 +370,13 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                             />
                         })}
                 </div>
+                <textarea name="comment"
+                          className={`mt-2 textarea textarea-sm w-full min-h-8 h-8 text-xs
+                            overflow-hidden
+                            overflow-ellipsis
+                            pl-1.5 pr-1.5
+                            focus:h-16 focus:overflow-auto`}
+                          placeholder="Comment/Review" />
             </form>}
         </Fragment>
     );

@@ -48,6 +48,7 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
                     rounded-md overflow-clip
                     focus:overflow-visible focus:scale-150
                     hover:overflow-visible hover:scale-150
+                    hover:z-40
                 `}
                 style={{
                     width: `${size}px`,

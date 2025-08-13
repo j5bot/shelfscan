@@ -71,7 +71,7 @@ export const GameDetails = (
                         size={150}
                     />
                 </div>
-                <div className="flex flex-col gap-1 w-full grow lg:max-w-2/3">
+                <div className="flex flex-col gap-1 w-full grow xs:max-w-[185px] lg:max-w-2/3">
                     {version?.name && <div className="grow">
                         <div className="border-b-1 border-b-gray-200 pb-1 flex gap-1 text-balance">
                             <span className="grow">

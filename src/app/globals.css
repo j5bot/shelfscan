@@ -38,6 +38,12 @@
   }
 }
 
+@custom-variant xs {
+  @media screen and (max-width: 375px) {
+    @slot;
+  }
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
