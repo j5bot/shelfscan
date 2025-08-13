@@ -14,7 +14,7 @@ export const getItemInCollectionByObjectId =
             return {};
         }
         const collection = state.bgg.collection
-            .users[state.bgg.user?.user ?? ''];
+            .users[state.bgg.user?.user?.toLowerCase() ?? ''];
         if (!collection) {
             return {};
         }
@@ -25,11 +25,13 @@ export const getItemInCollectionByObjectId =
             return {};
         }
 
-        const collectionIdArray = allCollectionItems?.filter(collectionId => {
+        const collectionIdArray = Array.from(allCollectionItems?.filter(collectionId => {
             return (collection?.items[collectionId]?.rating ?? 0) > 0;
-        })?.sort() ?? allCollectionItems?.sort();
+        }))?.sort();
 
-        const collectionId = collectionIdArray[0];
+        const collectionId = collectionIdArray.length > 0 ?
+            collectionIdArray[0] :
+                Array.from(allCollectionItems).sort()[0];
 
         const collectionStatuses = allCollectionItems?.reduce((acc, collectionId) => {
             const collectionItem = collection?.items[collectionId];
