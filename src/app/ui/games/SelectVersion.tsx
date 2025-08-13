@@ -109,15 +109,22 @@ export const SelectVersion = () => {
     const collectionStatusIcons = info ?
         (['own', 'fortrade', 'wishlist'] as PossibleStatusWithAll[])
             .reduce((acc: HeaderCollectionIcon[], status: PossibleStatusWithAll) => {
-                collectionStatusChecks.find(([fn, index, item]) => {
+                const matchingCheck = collectionStatusChecks
+                    .find(([fn, index, item]) => {
+                        return (item && index !== null && fn(index, status)) ||
+                               (status === 'own' &&
+                                item && index !== null && fn(index, 'all'));
+                    });
+
+                if (matchingCheck) {
+                    const [fn, index, item] = matchingCheck;
                     if (item && index !== null && fn(index, status)) {
                         acc.push(HeaderCollectionIconMap[status]);
-                        return true;
                     } else if (status === 'own' &&
-                        item && index !== null && fn(index, 'all')) {
+                               item && index !== null && fn(index, 'all')) {
                         acc.push(HeaderCollectionIconMap.all);
                     }
-                });
+                }
 
                 return acc;
         }, []) : [];
