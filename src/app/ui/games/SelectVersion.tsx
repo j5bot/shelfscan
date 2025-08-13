@@ -72,16 +72,16 @@ export const SelectVersion = () => {
         const { className, icon, template: pluginTemplate, title } = actionPlugin;
         const templateFn = template(pluginTemplate);
 
-        return <div key={index} className={`relative shrink-0 h-7 ${className} mr-0.5`}>
-            <div className={`rounded-full ${className} border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${className}`}></div>
+        return <div key={index} className={`relative shrink-0 xs:h-7 h-8 ${className} mr-0.5`}>
+            <div className={`rounded-full ${className} border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${className}`}></div>
             <Link title={title} href={templateFn(info ?? { id })} target="_blank">
                 <button
                     className={`collection-button cursor-pointer rounded-full
                         relative w-full
-                        flex justify-center items-center
+                        flex justify-start items-center
                         bg-[#e07ca4] text-white
-                        p-1 pl-1 pr-1.5 h-7
-                        font-stretch-semi-condensed tracking-tight
+                        p-1 xs:pl-1.5 pl-2 pr-1.5 xs:h-7 h-8
+                        xs:font-stretch-semi-condensed xs:tracking-tight
                         text-sm`}
                     onClick={actionTemplateOnClick}
                 >

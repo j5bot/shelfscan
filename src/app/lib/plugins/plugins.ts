@@ -36,9 +36,9 @@ const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
             game: [
                 {
                     icon: 'fa6/FaTags',
-                    title: 'Sell on BGG',
+                    title: 'Sell',
                     template: 'https://boardgamegeek.com/market/sell?objecttype=thing&objectid={{id}}',
-                    className: 'min-w-29'
+                    className: 'xs:min-w-16 min-w-18'
                 }
             ],
             version: [],
@@ -56,7 +56,7 @@ const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
                     iconSize: 15,
                     title: 'Log Play',
                     template: 'bgstats://app.bgstatsapp.com/addPlay.html?gameId={{id}}',
-                    className: 'min-w-22'
+                    className: 'xs:min-w-22 min-w-24'
                 }
             ],
             version: []

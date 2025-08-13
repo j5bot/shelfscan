@@ -38,8 +38,10 @@ const makeAddToCollectionModeSettings = (
                       statuses?.own ? 'Set Info' :
                         collectionId !== undefined ? 'Set as Owned' : 'Add to Owned'
                       : 'Add to Owned',
-            icon: update && (statuses?.own || collectionId !== undefined) ? <FaCloudArrowUp className="w-4 h-4 mr-0.5 shrink-0" /> : <FaPlus className="w-4 h-4 shrink-0" />,
-            width: 'w-19',
+            icon: update && (statuses?.own || collectionId !== undefined) ?
+                  <FaCloudArrowUp className="w-4 h-4 mr-0.5 shrink-0" /> :
+                    <FaPlus className="w-4 h-4 shrink-0" />,
+            width: 'xs:w-19 w-21',
         },
         trade: {
             label: 'Trade',
@@ -47,7 +49,7 @@ const makeAddToCollectionModeSettings = (
                       'Set Trade Info' :
                       'Add for Trade',
             icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
-            width: 'w-23',
+            width: 'xs:w-23 w-25',
             form: ({ formValues, setFormValues }) => {
                 return <form name="trade" className="pb-2">
                     <input type="text"
@@ -69,12 +71,12 @@ const makeAddToCollectionModeSettings = (
         wishlist: {
             label: 'Wish',
             icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
-            width: 'w-19.5',
+            width: 'xs:w-19.5 w-21.5',
         },
         sell: {
             label: 'Sell',
             icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
-            width: 'w-20.5',
+            width: 'xs:w-20.5 w-22.5',
             form: AddToMarketForm,
             validator: (formData: FormData) => {
                 const formValues = Object.fromEntries(formData ?? []);
@@ -233,9 +235,9 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const addToCollectionBlock = syncOn && userId && (
         <Fragment key="atcb">
             <div data-collapse="atcb" className={`relative shrink-0 ${atcMode.width} mr-0.5`}>
-                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 ${atcMode.width}`}></div>
-                <div className={`collapse min-h-7 rounded-none overflow-visible ${atcMode.width}`}>
-                    <input type="checkbox" className="h-7" style={{
+                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${atcMode.width}`}></div>
+                <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${atcMode.width}`}>
+                    <input type="checkbox" className="xs:h-7 h-8" style={{
                         padding: 0,
                     }}/>
                     <button className={`collapse-title
@@ -243,17 +245,17 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                         collection-button cursor-pointer rounded-r-full
                         flex items-center
                         bg-[#e07ca4bb] text-white
-                        p-1 h-7 w-4.5`}>
+                        p-1 xs:h-7 h-8 w-4.5`}>
                         <FaChevronDown className="w-2 h-2" />
                     </button>
                     <button
                         className={`collection-button cursor-pointer rounded-l-full
                             absolute top-0 left-0 right-5
-                            flex justify-center items-center
+                            flex justify-start items-center
                             bg-[#e07ca4] text-white
-                            p-1 pl-1.5 h-7
+                            p-1 pl-1.5 xs:h-7 h-8
                             z-40
-                            font-stretch-semi-condensed tracking-tight
+                            xs:font-stretch-semi-condensed xs:tracking-tight
                             text-sm`}
                         onClick={addToCollection}
                     >
@@ -290,15 +292,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     );
 
     const addPlayBlock = syncOn && userId && (
-        <div key="apb" className="relative shrink-0 w-24 h-7">
-            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 h-7 w-24"></div>
+        <div key="apb" className="relative shrink-0 xs:w-24 w-26 xs:h-7 h-8">
+            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-24 w-26" />
             <button
                 className={`collection-button cursor-pointer rounded-full
                     relative
                     flex justify-start items-center                            
                     bg-[#e07ca4] text-white
-                    p-1 pl-1.5 h-7
-                    font-stretch-condensed tracking-tight
+                    p-1 pl-1.5 xs:h-7 h-8
+                    xs:font-stretch-condensed xs:tracking-tight
                     text-sm`}
                 onClick={addPlay}
             >
@@ -315,24 +317,24 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const addRatingBlock = syncOn && userId && (
         <Fragment key="arb">
             <div className="flex shrink relative items-center">
-                <div className="relative shrink-0 w-17 h-7">
+                <div className="relative shrink-0 xs:w-17 w-19 xs:h-7 h-8">
                     <button
                         className={`collection-button cursor-pointer rounded-full
                             relative
                             flex justify-start items-center                            
                             bg-[#e07ca4] text-white
-                            p-1 pl-1.5 h-7
-                            font-stretch-semi-condensed tracking-tight
+                            p-1 pl-1.5  xs:h-7 h-8
+                            xs:font-stretch-semi-condensed xs:tracking-tight
                             text-sm`}
                         onClick={toggleRatingForm}
                     >
-                        <FaStar className="w-3.5 h-3.5" />
+                        <FaStar className="w-4 h-4" />
                         <div className="p-1 pr-2 font-semibold uppercase">Rate</div>
                     </button>
                 </div>
-                <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 right-0 h-7 w-7"></div>
+                <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 right-0 xs:h-7 h-8 w-7"></div>
                 {ratingFormOpen && newRating > 0 &&
-                    <button className={`cursor-pointer relative mr-0.5 h-7 items-center`}
+                    <button className={`cursor-pointer relative mr-0.5 xs:h-7 h-8 items-center`}
                             onClick={addRating}>
                         <FaSave className="w-6 h-6 text-[#e07ca4]" />
                     </button>}
