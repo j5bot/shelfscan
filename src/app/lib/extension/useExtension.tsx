@@ -339,8 +339,8 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                         <FaSave className="w-6 h-6 text-[#e07ca4]" />
                     </button>}
             </div>
-            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2 xs:scale-95 relative xs:left-[-10px]">
-                <div className="rating xs:rating-sm rating-md rating-half">
+            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2 xs:scale-90 relative xs:left-[-10px]">
+                <div className="rating rating-sm rating-half">
                     <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
                     {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
                         .map((rating, index, array) => {
