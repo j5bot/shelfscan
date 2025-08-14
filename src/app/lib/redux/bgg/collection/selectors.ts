@@ -1,15 +1,13 @@
 import { RootState } from '@/app/lib/redux/store';
 import {
-    BggCollectionStatuses,
-    PossibleStatuses,
     PossibleStatusWithAll
 } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo } from '@/app/lib/types/GameUPCData';
 import { memoize } from 'proxy-memoize';
 
 // prefers rated item
-export const getItemInCollectionByObjectId =
-    ([state, id]: [RootState, number | undefined]) => {
+export const getCollectionInfoByObjectId =
+    memoize(([state, id]: [RootState, number | undefined]) => {
         if (id === undefined) {
             return {};
         }
@@ -30,29 +28,14 @@ export const getItemInCollectionByObjectId =
         }))?.sort();
 
         const collectionId = collectionIdArray.length > 0 ?
-            collectionIdArray[0] :
-                Array.from(allCollectionItems).sort()[0];
-
-        const collectionStatuses = allCollectionItems?.reduce((acc, collectionId) => {
-            const collectionItem = collection?.items[collectionId];
-            PossibleStatuses.forEach(status => {
-                if (acc[status]) {
-                    return;
-                }
-                if (collectionItem?.statuses[status]) {
-                    acc[status] = true;
-                }
-            })
-            return acc;
-        }, {} as BggCollectionStatuses);
+                             collectionIdArray[0] :
+                             Array.from(allCollectionItems).sort()[0];
 
         return {
             collectionId,
-            collectionItem: collection?.items[collectionId],
-            allCollectionItems,
-            collectionStatuses,
+            collection,
         };
-    };
+    }, { size: 2000 });
 
 export type InfosAndVersionsInCollection = {
     infoIndexes: Record<PossibleStatusWithAll, number[]>;
