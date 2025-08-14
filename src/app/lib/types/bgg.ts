@@ -63,7 +63,13 @@ export type BggCollectionItem = {
     versionId?: number;
     version?: BggVersion;
     statuses: BggCollectionStatuses;
+    tradeCondition?: string;
     rating?: number;
+};
+
+export type BggRawObject = {
+    [index: string]: string | undefined | unknown;
+    ['textfield']?: Record<string, Record<string, string>>;
 };
 
 export type BggCollectionId = number;

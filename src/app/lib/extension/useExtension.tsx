@@ -1,7 +1,9 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import { Modes, ModeSettings } from '@/app/lib/extension/types';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
-import { getItemInCollectionByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
+import {
+    getCollectionInfoByObjectId,
+} from '@/app/lib/redux/bgg/collection/selectors';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
@@ -105,9 +107,11 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const [update, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
 
-    const { collectionId, collectionItem } =
+    const { collectionId, collection } =
         useSelector((state) =>
-            getItemInCollectionByObjectId([state, info?.id]));
+            getCollectionInfoByObjectId([state, info?.id]));
+
+    const collectionItem = collection?.items[collectionId];
 
     const userId = useSelector(
         state => state.bgg.user?.id
@@ -119,6 +123,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const addToCollectionModeSettings =
         makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
     const atcMode = addToCollectionModeSettings[modes.addToCollection];
+
+    useEffect(() => {
+        if (formValues?.['tradeCondition'] === collectionItem?.tradeCondition) {
+            return;
+        }
+        setFormValues(Object.assign(formValues, {
+            tradeCondition: collectionItem?.tradeCondition
+        }));
+    }, [collectionItem?.tradeCondition]);
 
     useEffect(() => {
         (async () => {

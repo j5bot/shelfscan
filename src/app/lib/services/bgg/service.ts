@@ -3,6 +3,7 @@ import {
     BggCollectionItem,
     BggCollectionMap,
     BggCollectionStatuses,
+    BggRawObject,
     BggUser,
     PossibleStatuses
 } from '@/app/lib/types/bgg';
@@ -69,7 +70,7 @@ export const getCommonDetails = (item: Element | null) => {
     return { name, yearPublished };
 };
 
-export const getCommonDetailsFromObject = (object: Record<string, unknown>) => {
+export const getCommonDetailsFromObject = (object: BggRawObject) => {
     if (!object) {
         return;
     }
@@ -105,7 +106,7 @@ export const getVersionDetails = (item: Element | null) => {
     };
 };
 
-export const getVersionDetailsFromObject = (version: Record<string, unknown>) => {
+export const getVersionDetailsFromObject = (version: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(version);
     const id = version?.objectid;
 
@@ -136,6 +137,7 @@ export const getCollectionFromXml = (xml?: string) => {
             const version = getVersionDetails(item);
             const status = item.getElementsByTagName('status')?.[0];
             const rating = elementGetter(item, false, 'stats > rating', 'value');
+            const tradeCondition = elementGetter(item, false, 'conditiontext');
 
             const statuses = status ? PossibleStatuses.reduce((acc: BggCollectionStatuses, attributeName: string) => {
                 return Object.assign(acc, {[attributeName]: status.getAttribute(attributeName) === '1'})
@@ -154,6 +156,7 @@ export const getCollectionFromXml = (xml?: string) => {
                 version,
                 statuses,
                 rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
+                tradeCondition,
             } as BggCollectionItem;
         })
         .filter(x => x !== undefined);
@@ -163,9 +166,9 @@ export const getCollectionFromXml = (xml?: string) => {
     }, {} as BggCollectionMap);
 };
 
-export const getCollectionItemFromObject = (object: Record<string, unknown>) => {
+export const getCollectionItemFromObject = (object: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(object);
-    const version = getVersionDetailsFromObject(object.version as Record<string, unknown>);
+    const version = getVersionDetailsFromObject(object.version as BggRawObject);
 
     return {
         ...commonDetails,
@@ -176,5 +179,6 @@ export const getCollectionItemFromObject = (object: Record<string, unknown>) => 
         version,
         statuses: object.status,
         rating: object.rating,
+        tradeCondition: object.textfield?.conditiontext?.value,
     } as BggCollectionItem;
 };
