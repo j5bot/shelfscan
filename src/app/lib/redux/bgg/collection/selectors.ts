@@ -9,7 +9,7 @@ import { memoize } from 'proxy-memoize';
 
 // prefers rated item
 export const getItemInCollectionByObjectId =
-    memoize(([state, id]: [RootState, number | undefined]) => {
+    ([state, id]: [RootState, number | undefined]) => {
         if (id === undefined) {
             return {};
         }
@@ -52,9 +52,7 @@ export const getItemInCollectionByObjectId =
             allCollectionItems,
             collectionStatuses,
         };
-    },
-    { size: 2000 }
-);
+    };
 
 export type InfosAndVersionsInCollection = {
     infoIndexes: Record<PossibleStatusWithAll, number[]>;
