@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
-import { FaBarcode, FaBars, FaGear, FaGlobe, FaNewspaper } from 'react-icons/fa6';
+import { FaBarcode, FaBars, FaCompass, FaGear, FaNewspaper } from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
 
 const closeOnNavigate = () => {
@@ -140,7 +140,7 @@ export const NavDrawer = () => {
                     <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">
                         <li className="w-full">
                             <Link className="flex gap-2 grow" href="/extension/" onNavigate={closeOnNavigate}>
-                                <FaGlobe className="inline" /> Extension
+                                <FaCompass className="inline" /> Extension
                             </Link>
                         </li>
                         <li className="w-full">

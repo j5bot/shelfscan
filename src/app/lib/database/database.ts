@@ -2,6 +2,7 @@ import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { MarketPreferences } from '@/app/lib/types/market';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
+import { AuditEntry } from '../types/audit';
 
 export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;
 
@@ -15,6 +16,8 @@ export type CollectionEntity = {
     value: BggCollectionMap;
 };
 
+export type AuditEntity = AuditEntry;
+
 export type PluginEntity = ShelfScanPlugin;
 export type ShelfScanSettings = Record<string, SettingEntity['value']>;
 
@@ -22,12 +25,20 @@ export const database = new Dexie('db') as Dexie & {
     settings: EntityTable<SettingEntity, 'id'>;
     plugins: EntityTable<PluginEntity, 'id'>;
     collections: EntityTable<CollectionEntity, 'id'>;
+    audits: EntityTable<AuditEntity, 'id'>;
 };
 
 database.version(1).stores({
     settings: '++id',
     plugins: '++id',
     collections: '++id',
+});
+
+database.version(2).stores({
+    settings: 'id',
+    plugins: 'id',
+    collections: 'id',
+    audits: '++id, gameId, collectionId',
 });
 
 export const getSetting = async (id: string) =>
@@ -69,4 +80,7 @@ export const setCollection = async (id: string, value: BggCollectionMap) => {
 };
 
 export const getPlugin = async (id: string) =>
-    (await database.plugins.get(id));
+    await database.plugins.get(id);
+
+export const addAudit = async (auditEntry: AuditEntry) =>
+    await database.audits.add(auditEntry);
