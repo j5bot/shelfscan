@@ -4,15 +4,16 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
-    FaCheck,
+    FaCheck, FaClock,
     FaDice,
     FaFirefox,
     FaHeart,
     FaPlus,
     FaRecycle,
     FaSafari,
-    FaTag,
-    FaThumbsUp
+    FaTags,
+    FaThumbsUp,
+    FaXmark
 } from 'react-icons/fa6';
 
 const AboutPage = () => {
@@ -72,15 +73,17 @@ const AboutPage = () => {
 
                 <h3 className="font-semibold">Get the Browser Extension and Do More!</h3>
                 <p>
-                    ShelfScan works together with a browser extension to bring you
-                    lots of extra features to bring together BGG and the web app with a
+                    ShelfScan works together with a browser extension to add
+                    lots of extra features that bring together BGG and the web app with a
                     low-cost subscription.
                 </p>
                 <ul className="font-sharetech text-md pb-4">
                     <li>[ <FaPlus className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Your Collection ]</li>
                     <li>[ <FaRecycle className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games For Trade ]</li>
+                    <li>[ <FaClock className="h-2.5 w-3.5 inline-block mr-0.5" /> Set Previously Owned ]</li>
+                    <li>[ <FaXmark className="h-2.5 w-3.5 inline-block mr-0.5" /> Clear / Remove ]</li>
                     <li>[ <FaHeart className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Wishlist ]</li>
-                    <li>[ <FaTag className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games to GeekMarket ]</li>
+                    <li>[ <FaTags className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games to GeekMarket ]</li>
                     <li>[ <FaDice className="h-2.5 w-3 inline-block mr-1" /> Log Plays on BGG ]</li>
                 </ul>
 
@@ -112,8 +115,9 @@ const AboutPage = () => {
                     But necessity is the mother of invention.
                 </p>
                 <p>
-                    I developed a browser extension, primarily targeted at mobile
-                    users — Safari/iOS and Firefox/Android — that bridges the gap
+                    I developed a <Link href="/extension">browser extension</Link>,
+                    primarily targeted at mobile users —
+                    Safari/iOS and Firefox/Android — that bridges the gap
                     between BGG and ShelfScan.  It opens the door to doing anything
                     you can do on the BoardGameGeek website with the help of the app.
                 </p>

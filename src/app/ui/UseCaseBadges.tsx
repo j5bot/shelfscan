@@ -29,7 +29,7 @@ const UpdateGameUPCTooltipContent = () => {
 const AddToBGGCollectionTooltipContent = () => {
     return <div className="text-left p-2">
         <ol>
-            <li>* Install extension (coming soon)</li>
+            <li>* Install <Link href="/extension">extension</Link></li>
             <li>Sign in</li>
             <li>Scan game UPC</li>
             <li>Click game in list</li>
@@ -76,7 +76,7 @@ export const UseCaseBadges = () => {
             </BadgeWithHelpTip>
             <span className="cursor-pointer badge badge-sm text-[#ff6900aa] shadow-sm">and ...
                 <Link className="underline"
-                      href="https://boardgamegeek.com/blog/16520/shelfscan-news"
+                      href="/about"
                       target="_blank">More!</Link>
             </span>
         </div>
