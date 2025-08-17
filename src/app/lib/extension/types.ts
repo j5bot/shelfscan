@@ -5,8 +5,13 @@ export type SetFormValues = (formValues: FormValues) => void;
 export type SetFormValue = (field: string, value: string) => void;
 
 export type Modes = {
-    addToCollection: 'add' | 'trade' | 'wishlist' | 'sell';
-    addPlay: 'quick' | 'detailed';
+    collection: 'add' | 'trade' | 'previous' | 'clear' | 'wishlist' | 'sell';
+    play: 'quick' | 'detailed';
+};
+
+export type DisabledModes = {
+    collection: boolean;
+    play: boolean;
 };
 
 export type ModeSettingFormProps = {
@@ -14,7 +19,7 @@ export type ModeSettingFormProps = {
     setFormValues: SetFormValues;
 };
 
-export type ModeSetting = {
+export type CollectionModeSetting = {
     label: ReactNode;
     listText?: string;
     icon: ReactNode;
@@ -22,4 +27,4 @@ export type ModeSetting = {
     form?: (props: ModeSettingFormProps) => ReactNode;
     validator?: (formData: FormData) => boolean;
 }
-export type ModeSettings = Record<Modes['addToCollection'], ModeSetting>;
+export type CollectionModeSettings = Record<Modes['collection'], CollectionModeSetting>;
