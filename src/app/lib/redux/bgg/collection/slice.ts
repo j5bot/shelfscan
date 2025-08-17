@@ -22,11 +22,16 @@ import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
  */
 const innerUpdateCollectionItems = (
     state: BggCollection,
-    payload: BggCollectionMap,
+    payload: {
+        items: BggCollectionMap;
+        remove: boolean;
+    },
 ) => {
-    const ids = (Object.keys(payload) as unknown[]) as number[];
+    const { items, remove } = payload;
+    const ids = (Object.keys(items) as unknown[]) as number[];
+
     for (const id of ids) {
-        const item = payload[id];
+        const item = items[id];
         const previousItem = state.items[id] ?? {};
 
         const {
@@ -43,8 +48,8 @@ const innerUpdateCollectionItems = (
         PossibleStatuses.forEach(status => {
             const statusObjects = state.objects[status] ?? {};
             const statusVersions = state.versions[status] ?? {};
-            if (!statuses[status]) {
-                if (previousStatuses?.[status]) {
+            if (!statuses[status] || remove) {
+                if (previousStatuses?.[status] || statusObjects[objectId]?.includes(id)) {
                     statusObjects[objectId] = removeFromArray(id, statusObjects[objectId]);
                     state.objects[status] = statusObjects;
                 }
@@ -70,13 +75,22 @@ const innerUpdateCollectionItems = (
 
         const allObjects = state.objects.all ?? {};
         const allVersions = state.versions.all ?? {};
-        allObjects[objectId] = conditionalAddToArray(id, allObjects[objectId]);
-        state.objects.all = allObjects;
-        if (versionId) {
-            allVersions[versionId] = conditionalAddToArray(id, allVersions[versionId]);
-            state.versions.all = allVersions;
+
+        if (remove) {
+            allObjects[objectId] = removeFromArray(id, allObjects[objectId]);
+            if (versionId) {
+                allVersions[versionId] = removeFromArray(versionId, allVersions[versionId]);
+            }
+            delete state.items[id];
+        } else {
+            allObjects[objectId] = conditionalAddToArray(id, allObjects[objectId]);
+            if (versionId) {
+                allVersions[versionId] = conditionalAddToArray(id, allVersions[versionId]);
+            }
+            state.items[id] = item;
         }
-        state.items[id] = item;
+        state.objects.all = allObjects;
+        state.versions.all = allVersions;
     }
     return state.items;
 };
@@ -101,9 +115,10 @@ export const bggCollectionSlice = createSlice({
                 username: string;
                 items: BggCollectionMap;
                 update?: boolean;
+                remove?: boolean;
             }>,
         ) => {
-            const { username: user, items, update = false } = action.payload;
+            const { username: user, items, update = false, remove = false } = action.payload;
             const username = user.toLowerCase();
 
             if (!update) {
@@ -114,7 +129,7 @@ export const bggCollectionSlice = createSlice({
                     versions: {} as BggVersionsByStatus,
                 };
             }
-            innerUpdateCollectionItems(state.users[username], items);
+            innerUpdateCollectionItems(state.users[username], { items, remove });
             const newState =
                 current<BggCollectionSliceState>(state);
 
