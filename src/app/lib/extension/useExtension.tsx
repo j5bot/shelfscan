@@ -148,7 +148,8 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
     const addToCollectionModeSettings =
         makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
-    const atcMode = addToCollectionModeSettings[modes.collection];
+    const atcMode =
+        addToCollectionModeSettings[modes.collection ?? 'add'];
 
     useEffect(() => {
         if (collectionId) {
@@ -220,7 +221,8 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     }
 
     const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document.forms.namedItem(modes.collection);
+        const form = document
+            .forms.namedItem(modes.collection ?? 'add');
         const formData = form ? new FormData(form) : undefined;
         if (atcMode.validator && formData && !atcMode.validator(formData)) {
             // TODO: handle invalid cases
