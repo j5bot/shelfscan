@@ -94,7 +94,7 @@ const makeAddToCollectionModeSettings = (
                         <input name="shouldRemove"
                                value="remove"
                                type="checkbox"
-                               className="toggle toggle-xs" />
+                               className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" />
                         Remove
                     </label>
                 </form>;
@@ -461,9 +461,10 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const settings = syncOn && userId && <div>
         <label className="flex gap-1 justify-start items-center p-2 pl-0.5 text-xs">
-            <input className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" type="checkbox"
-                   checked={collectionId !== undefined ? update : false} onClick={
-                () => setUpdate(!update)
+            <input disabled={!collectionId}
+                   className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" type="checkbox"
+                   checked={collectionId !== undefined ? update : false} onChange={
+                (event) => setUpdate(event.currentTarget.checked)
             } />
             Update in Collection
         </label>

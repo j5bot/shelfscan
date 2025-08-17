@@ -53,6 +53,10 @@ const innerUpdateCollectionItems = (
                     statusObjects[objectId] = removeFromArray(id, statusObjects[objectId]);
                     state.objects[status] = statusObjects;
                 }
+                if (versionId && statusVersions[versionId]?.includes(id)) {
+                    statusVersions[versionId] = removeFromArray(id, statusVersions[versionId]);
+                    state.versions[status] = statusVersions;
+                }
                 if (previousVersionId) {
                     statusVersions[previousVersionId] = removeFromArray(id, statusVersions[previousVersionId]);
                     state.versions[status] = statusVersions;
@@ -80,6 +84,9 @@ const innerUpdateCollectionItems = (
             allObjects[objectId] = removeFromArray(id, allObjects[objectId]);
             if (versionId) {
                 allVersions[versionId] = removeFromArray(versionId, allVersions[versionId]);
+            }
+            if (previousVersionId) {
+                allVersions[previousVersionId] = removeFromArray(previousVersionId, allVersions[versionId]);
             }
             delete state.items[id];
         } else {
