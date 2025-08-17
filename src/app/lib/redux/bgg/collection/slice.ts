@@ -83,10 +83,10 @@ const innerUpdateCollectionItems = (
         if (remove) {
             allObjects[objectId] = removeFromArray(id, allObjects[objectId]);
             if (versionId) {
-                allVersions[versionId] = removeFromArray(versionId, allVersions[versionId]);
+                allVersions[versionId] = removeFromArray(id, allVersions[versionId]);
             }
             if (previousVersionId) {
-                allVersions[previousVersionId] = removeFromArray(previousVersionId, allVersions[previousVersionId]);
+                allVersions[previousVersionId] = removeFromArray(id, allVersions[previousVersionId]);
             }
             delete state.items[id];
         } else {
