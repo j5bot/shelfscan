@@ -169,7 +169,12 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     useEffect(() => {
         (async () => {
-            setModes(await getSetting('extensionModes') as Modes ?? modes);
+            const extensionModes = await getSetting('extensionModes') as Modes ?? modes
+            if (!extensionModes.collection) {
+                setModes({ collection: 'add', play: 'quick' });
+                return;
+            }
+            setModes(extensionModes);
         })();
 
         window.addEventListener('message', (event) => {
@@ -222,7 +227,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
         const form = document
-            .forms.namedItem(modes.collection ?? 'add');
+            .forms.namedItem(modes.collection);
         const formData = form ? new FormData(form) : undefined;
         if (atcMode.validator && formData && !atcMode.validator(formData)) {
             // TODO: handle invalid cases
