@@ -173,7 +173,7 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
     return {
         ...commonDetails,
         objectId: object.objectid,
-        versionId: version?.id,
+        versionId: version?.id ?? object.versionid,
         subType: object.subtype ?? 'boardgame',
         collectionId: object.collid,
         version,

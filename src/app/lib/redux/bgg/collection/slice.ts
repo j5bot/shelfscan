@@ -2,10 +2,14 @@ import { setCollection } from '@/app/lib/database/database';
 import {
     BggCollection,
     BggCollectionMap,
-    BggObjectsByStatus, BggVersionsByStatus,
+    BggObjectsByStatus,
+    BggVersionsByStatus,
     PossibleStatuses
 } from '@/app/lib/types/bgg';
-import { conditionalAddToArray, removeFromArray } from '@/app/lib/utils/array';
+import {
+    conditionalAddToArray,
+    removeAndDeletePropertyIfArrayEmpty,
+} from '@/app/lib/utils/array';
 import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 
 /*
@@ -50,15 +54,15 @@ const innerUpdateCollectionItems = (
             const statusVersions = state.versions[status] ?? {};
             if (!statuses[status] || remove) {
                 if (previousStatuses?.[status] || statusObjects[objectId]?.includes(id)) {
-                    statusObjects[objectId] = removeFromArray(id, statusObjects[objectId]);
+                    removeAndDeletePropertyIfArrayEmpty(id, statusObjects, objectId);
                     state.objects[status] = statusObjects;
                 }
                 if (versionId && statusVersions[versionId]?.includes(id)) {
-                    statusVersions[versionId] = removeFromArray(id, statusVersions[versionId]);
+                    removeAndDeletePropertyIfArrayEmpty(id, statusVersions, versionId);
                     state.versions[status] = statusVersions;
                 }
                 if (previousVersionId) {
-                    statusVersions[previousVersionId] = removeFromArray(id, statusVersions[previousVersionId]);
+                    removeAndDeletePropertyIfArrayEmpty(id, statusVersions, previousVersionId);
                     state.versions[status] = statusVersions;
                 }
             } else {
@@ -67,7 +71,7 @@ const innerUpdateCollectionItems = (
 
                 if (!versionId) {
                     if (previousVersionId) {
-                        statusVersions[previousVersionId] = removeFromArray(id, statusVersions[previousVersionId]);
+                        removeAndDeletePropertyIfArrayEmpty(id, statusVersions, previousVersionId);
                         state.versions[status] = statusVersions;
                     }
                 } else {
@@ -81,12 +85,9 @@ const innerUpdateCollectionItems = (
         const allVersions = state.versions.all ?? {};
 
         if (remove) {
-            allObjects[objectId] = removeFromArray(id, allObjects[objectId]);
+            removeAndDeletePropertyIfArrayEmpty(id, allObjects, objectId);
             if (versionId) {
-                allVersions[versionId] = removeFromArray(id, allVersions[versionId]);
-            }
-            if (previousVersionId) {
-                allVersions[previousVersionId] = removeFromArray(id, allVersions[previousVersionId]);
+                removeAndDeletePropertyIfArrayEmpty(id, allVersions, versionId);
             }
             delete state.items[id];
         } else {
