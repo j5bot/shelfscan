@@ -1,5 +1,11 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
-import { Modes, CollectionModeSettings, DisabledModes } from '@/app/lib/extension/types';
+import {
+    CollectionModeSettings,
+    DisabledModes,
+    Modes,
+    ModeSetting,
+    PlayModeSettings,
+} from '@/app/lib/extension/types';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -29,6 +35,7 @@ import {
     FaTag,
     FaXmark,
 } from 'react-icons/fa6';
+import { GiChessPawn } from 'react-icons/gi';
 
 const makeAddToCollectionModeSettings = (
     collectionId: number | undefined,
@@ -120,8 +127,40 @@ const makeAddToCollectionModeSettings = (
                     !!((formValues[field] as string | undefined))?.length);
             }
         },
-    }
-    );
+    });
+
+const makeAddPlayModeSettings = (): PlayModeSettings =>
+    ({
+        quick: {
+            label: 'Play',
+            listText: 'Quick Log',
+            icon: <FaDice className="w-4 h-4 mr-0.5 shrink-0" />,
+            width: 'xs:w-20.5 w-22.5',
+        },
+        detailed: {
+            label: 'Play',
+            listText: 'Detailed Log',
+            icon: <GiChessPawn className="w-4.5 h-4.5 mb-1 shrink-0" />,
+            width: 'xs:w-20.5 w-22.5',
+            form: ({ formValues, setFormValues }) => {
+                return <form name="plays" className="pb-2">
+                    <input type="text"
+                           name="tradeCondition"
+                           className="input text-sm p-2"
+                           placeholder="Trade Condition"
+                           defaultValue={formValues?.['tradeCondition']}
+                           onChange={event => setFormValues(
+                               Object.assign(formValues, { tradeCondition: event.currentTarget.value })
+                           )}
+                    />
+                </form>;
+            },
+            validator: (formData: FormData)=> {
+                const formValues = Object.fromEntries(formData ?? []);
+                return !!(formValues['tradeCondition'] as string | undefined)?.length;
+            }
+        },
+    });
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
@@ -149,7 +188,11 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const addToCollectionModeSettings =
         makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
     const atcMode =
-        addToCollectionModeSettings[modes.collection ?? 'add'];
+        addToCollectionModeSettings[modes.collection ?? 'add'] as ModeSetting;
+    const addPlayModeSettings =
+        makeAddPlayModeSettings();
+    const apMode =
+        addPlayModeSettings[modes.play ?? 'quick'] as ModeSetting;
 
     useEffect(() => {
         if (collectionId) {
@@ -374,7 +417,64 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         </Fragment>
     );
 
-    const addPlayBlock = syncOn && userId && (
+    const addPlayBlock = apMode && syncOn && userId && (
+        <Fragment key="apb">
+            <div data-collapse="apb" className={`relative z-40 shrink-0 ${apMode.width} mr-0.5`}>
+                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${apMode.width}`}></div>
+                <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${apMode.width}`}>
+                    <input type="checkbox" className="xs:h-7 h-8" style={{
+                        padding: 0,
+                    }}/>
+                    <button disabled={disabledModes.collection}
+                            className={`collapse-title
+                                absolute right-0 top-0
+                                collection-button cursor-pointer rounded-r-full
+                                flex items-center
+                                bg-[#e07ca4bb] text-white
+                                p-1 xs:h-7 h-8 w-4.5`}>
+                        <FaChevronDown className="w-2 h-2" />
+                    </button>
+                    <button disabled={disabledModes.collection}
+                            className={`collection-button cursor-pointer rounded-l-full
+                            absolute top-0 left-0 right-5
+                            flex justify-start items-center
+                            ${disabledModes.collection ? 'bg-gray-300' : 'bg-[#e07ca4]'}
+                            text-white
+                            p-1 pl-1.5 xs:h-7 h-8
+                            z-40
+                            xs:font-stretch-semi-condensed xs:tracking-tight
+                            text-sm`}
+                            onClick={addToCollection}
+                    >
+                        {apMode.icon}
+                        <div className="p-0.5 font-semibold uppercase">
+                            {apMode.label}
+                        </div>
+                    </button>
+                    <div className={`collapse-content p-0 min-w-33`}>
+                        <div className={`mt-1
+                            border-1 border-[#e07ca4] rounded-md
+                            bg-overlay
+                            text-xs leading-5.5`}>
+                            <ul className="menu w-full p-0 m-0" data-collapse-key="apb">
+                                <li onClick={e =>
+                                    updateModes(e, Object.assign({}, modes, { play: 'quick' }))}
+                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
+                                >{addPlayModeSettings['quick'].listText}</li>
+                                <li onClick={e =>
+                                    updateModes(e, Object.assign({}, modes, { play: 'detailed' }))}
+                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
+                                >{addPlayModeSettings['detailed'].listText}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {/*{ATCForm && <ATCForm formValues={formValues} setFormValues={setFormValues} />}*/}
+        </Fragment>
+    );
+
+    const addPlayBlockX = syncOn && userId && (
         <div key="apb" className="relative shrink-0 xs:w-24 w-26 xs:h-7 h-8">
             <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-24 w-26" />
             <button

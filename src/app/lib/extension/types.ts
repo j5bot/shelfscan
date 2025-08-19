@@ -19,7 +19,7 @@ export type ModeSettingFormProps = {
     setFormValues: SetFormValues;
 };
 
-export type CollectionModeSetting = {
+export type ModeSetting = {
     label: ReactNode;
     listText?: string;
     icon: ReactNode;
@@ -27,4 +27,5 @@ export type CollectionModeSetting = {
     form?: (props: ModeSettingFormProps) => ReactNode;
     validator?: (formData: FormData) => boolean;
 }
-export type CollectionModeSettings = Record<Modes['collection'], CollectionModeSetting>;
+export type CollectionModeSettings = Record<Modes['collection'], ModeSetting>;
+export type PlayModeSettings = Record<Modes['play'], ModeSetting>;
