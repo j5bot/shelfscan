@@ -15,6 +15,7 @@ import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
+import { DetailedPlayForm } from '@/app/ui/extension/DetailedPlayForm';
 import React, {
     Fragment,
     SyntheticEvent,
@@ -142,19 +143,7 @@ const makeAddPlayModeSettings = (): PlayModeSettings =>
             listText: 'Detailed Log',
             icon: <GiChessPawn className="w-4.5 h-4.5 mb-1 shrink-0" />,
             width: 'xs:w-20.5 w-22.5',
-            form: ({ formValues, setFormValues }) => {
-                return <form name="plays" className="pb-2">
-                    <input type="text"
-                           name="tradeCondition"
-                           className="input text-sm p-2"
-                           placeholder="Trade Condition"
-                           defaultValue={formValues?.['tradeCondition']}
-                           onChange={event => setFormValues(
-                               Object.assign(formValues, { tradeCondition: event.currentTarget.value })
-                           )}
-                    />
-                </form>;
-            },
+            form: DetailedPlayForm,
             validator: (formData: FormData)=> {
                 const formValues = Object.fromEntries(formData ?? []);
                 return !!(formValues['tradeCondition'] as string | undefined)?.length;
@@ -344,6 +333,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     };
 
     const ATCForm = atcMode?.form;
+    const APForm = apMode?.form;
 
     const addToCollectionBlock = atcMode && syncOn && userId && (
         <Fragment key="atcb">
@@ -470,7 +460,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                     </div>
                 </div>
             </div>
-            {/*{ATCForm && <ATCForm formValues={formValues} setFormValues={setFormValues} />}*/}
+            {APForm && <APForm formValues={formValues} setFormValues={setFormValues} />}
         </Fragment>
     );
 

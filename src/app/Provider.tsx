@@ -7,6 +7,13 @@ export function Provider({ children }: { children: React.ReactNode }) {
     if (!storeRef.current) {
         storeRef.current = makeStore();
     }
+    try {
+        const storeWindow = (
+            window as typeof window & { store: ReturnType<typeof makeStore> }
+        );
+        if (storeWindow && !storeWindow.store)
+            storeWindow.store = storeRef.current;
+    } catch (e) { console.log(e); }
 
     return <ReduxProvider store={storeRef.current}>{children}</ReduxProvider>;
 }
