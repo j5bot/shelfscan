@@ -11,7 +11,7 @@
   "dependencies": {
     "@blakeembrey/template": "^1.2.0",
     "@loadable/component": "^5.16.7",
-    "@react-barcode-scanner/components": "0.0.48-alpha",
+    "@react-barcode-scanner/components": "0.0.59",
     "@reactuses/core": "^6.0.3",
     "@reduxjs/toolkit": "^2.8.2",
     "@vercel/analytics": "^1.5.0",
@@ -19,7 +19,7 @@
     "dexie": "^4.0.11",
     "jsdom": "^26.1.0",
     "motion": "^12.19.1",
-    "next": "15.3.3",
+    "next": "15.5.0",
     "nextstepjs": "^2.1.1",
     "png-compressor": "^2.0.0",
     "proxy-memoize": "^3.0.1",
