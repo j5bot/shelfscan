@@ -11,7 +11,7 @@
   "dependencies": {
     "@blakeembrey/template": "^1.2.0",
     "@loadable/component": "^5.16.7",
-    "@react-barcode-scanner/components": "0.0.60",
+    "@react-barcode-scanner/components": "0.0.68",
     "@reactuses/core": "^6.0.3",
     "@reduxjs/toolkit": "^2.8.2",
     "@vercel/analytics": "^1.5.0",
