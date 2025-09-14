@@ -3,6 +3,7 @@
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
 import React, { useMemo, useState } from 'react';
+import { FaCamera } from 'react-icons/fa6';
 
 export type ScannerProps = {
     onScan: (code: string) => void;
@@ -64,6 +65,14 @@ export function Scanner(props: ScannerProps) {
 
     const [codes, setCodes] = useState<string[]>([]);
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+    const [deviceId, setDeviceId] = useState<string>();
+
+    const deviceChoiceOptions = useMemo(() => {
+        if (!deviceId) {
+            return undefined;
+        }
+        return { deviceId: { exact: deviceId } };
+    }, [deviceId]);
 
     const doScan = (code: string) => {
         if (codes.includes(code)) {
@@ -79,32 +88,68 @@ export function Scanner(props: ScannerProps) {
         setDevices(devices);
     };
 
-    return <div
-        id="scan-barcodes"
-        style={{
-            width: `${videoCropWidth}px`,
-            height: `${videoCropHeight}px`,
-            borderWidth: breakpoint === 'mobile' ? '0.25rem' : '0.35rem',
-        }}
-        className="relative border-red-300 box-content rounded-2xl bg-red-300"
-    >
-        <BarcodeScanner
-            animate={true}
-            className="rounded-none"
-            devices={devices}
-            onDevices={onDevices}
-            onScan={doScan}
-            settings={{
-                scanLine,
+    const handleCameraChange = (deviceId: string)=> {
+        setDeviceId(deviceId);
+    };
+
+    return <>
+        <div
+            id="scan-barcodes"
+            style={{
+                width: `${videoCropWidth}px`,
+                height: `${videoCropHeight}px`,
+                borderWidth: breakpoint === 'mobile' ? '0.25rem' : '0.35rem',
             }}
-            canvasWidth={canvasWidth}
-            canvasHeight={canvasHeight}
-            videoWidth={videoWidth}
-            videoHeight={videoHeight}
-            videoCropHeight={videoCropHeight}
-            videoCropWidth={videoCropWidth}
-            zoom={zoom}
-            blur={blur}
-        />
-    </div>;
+            className="relative border-red-300 box-content rounded-2xl bg-red-300"
+        >
+            <BarcodeScanner
+                animate={true}
+                className="rounded-none"
+                devices={devices}
+                deviceChoiceOptions={deviceChoiceOptions}
+                onDevices={onDevices}
+                onScan={doScan}
+                settings={{
+                    scanLine,
+                }}
+                canvasWidth={canvasWidth}
+                canvasHeight={canvasHeight}
+                videoWidth={videoWidth}
+                videoHeight={videoHeight}
+                videoCropHeight={videoCropHeight}
+                videoCropWidth={videoCropWidth}
+                zoom={zoom}
+                blur={blur}
+            />
+            {devices.length > 1 && <div className="absolute top-1 right-2 text-white shadow-black">
+                <button onClick={() => {
+                    (document.getElementById('camera-dialog') as
+                        HTMLDialogElement).showModal();
+                }}>
+                    <FaCamera />
+                </button>
+            </div>}
+        </div>
+        <dialog id="camera-dialog" className="modal">
+            <div className="modal-box">
+                <form method="dialog">
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-0.5 top-0.5">
+                        ✕
+                    </button>
+                    <h3 className="pb-1 pl-0.5">Choose Camera</h3>
+                    <div className="join join-vertical text-left">
+                        {devices.map((device) => {
+                            return <button
+                                key={device.deviceId}
+                                className="btn btn-sm join-item flex justify-start"
+                                onClick={() => handleCameraChange(device.deviceId)}
+                            >
+                                <FaCamera /> {device.label}
+                            </button>
+                        })}
+                    </div>
+                </form>
+            </div>
+        </dialog>
+    </>;
 }
