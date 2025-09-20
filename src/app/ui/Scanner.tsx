@@ -11,10 +11,10 @@ export type ScannerProps = {
 
 const SCANNER_SIZES = {
     NONE: { height: 0, width: 0, cropWidthRatio: 1 },
-    XS: { height: 240, width: 320, cropWidthRatio: 0.9 },
-    SM: { height: 376, width: 480, cropWidthRatio: 0.6 },
-    MD: { height: 376, width: 480, cropWidthRatio: 1 },
-    LG: { height: 480, width: 640, cropWidthRatio: 1 }
+    XS: { width: 240, height: 320, cropWidthRatio: 0.9 },
+    SM: { height: 480, width: 376, cropWidthRatio: 0.6 },
+    MD: { height: 480, width: 376, cropWidthRatio: 1 },
+    LG: { height: 640, width: 480, cropWidthRatio: 1 }
 }
 
 export const ScannerSizes = {
@@ -45,8 +45,10 @@ export function Scanner(props: ScannerProps) {
         canvasWidth = ScannerSizes[forcedSize ?? breakpoint].width,
         videoHeight = ScannerSizes[forcedSize ?? breakpoint].height,
         videoWidth = ScannerSizes[forcedSize ?? breakpoint].width,
-        videoCropHeight = ScannerSizes[forcedSize ?? breakpoint].height * 0.5,
-        videoCropWidth= ScannerSizes[forcedSize ?? breakpoint].width *
+        // the width/height are reversed here to take a portrait video and crop
+        // to landscape
+        videoCropHeight = ScannerSizes[forcedSize ?? breakpoint].width * 0.5,
+        videoCropWidth= ScannerSizes[forcedSize ?? breakpoint].height *
                         ScannerSizes[forcedSize ?? breakpoint].cropWidthRatio,
         zoom = 1,
         blur = 0,
