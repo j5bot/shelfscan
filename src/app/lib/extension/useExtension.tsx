@@ -8,6 +8,7 @@ import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
+import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import React, {
     Fragment,
@@ -19,6 +20,7 @@ import React, {
 import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
+    FaCircleInfo,
     FaClock,
     FaCloudArrowUp,
     FaDice,
@@ -119,6 +121,12 @@ const makeAddToCollectionModeSettings = (
                 return required.every(field =>
                     !!((formValues[field] as string | undefined))?.length);
             }
+        },
+        info: {
+            label: 'Info',
+            icon: <FaCircleInfo className="w-4 h-4 mr-0.5 shrink-0" />,
+            width: 'xs:w-23 w-25',
+            form: AddInfoForm,
         },
     }
     );
@@ -365,6 +373,9 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                                 <li onClick={e => updateModes(e, Object.assign({}, modes, { collection: 'sell' }))}
                                     className="p-1 pl-1.5 cursor-pointer"
                                 >Add to Market</li>
+                                <li onClick={e => updateModes(e, Object.assign({}, modes, { collection: 'info' }))}
+                                    className="p-1 pl-1.5 cursor-pointer"
+                                >Private Info</li>
                             </ul>
                         </div>
                     </div>

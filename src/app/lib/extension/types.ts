@@ -5,7 +5,7 @@ export type SetFormValues = (formValues: FormValues) => void;
 export type SetFormValue = (field: string, value: string) => void;
 
 export type Modes = {
-    collection: 'add' | 'trade' | 'previous' | 'clear' | 'wishlist' | 'sell';
+    collection: 'add' | 'trade' | 'previous' | 'clear' | 'wishlist' | 'sell' | 'info';
     play: 'quick' | 'detailed';
 };
 

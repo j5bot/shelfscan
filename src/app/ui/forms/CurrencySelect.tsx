@@ -30,17 +30,17 @@ const currencies = [
 ];
 
 export const CurrencySelect = ({
-    currency, disabled, setValue
+    currency, disabled, setValue, field = 'currency'
 }:
-    { currency: string; disabled?: boolean, setValue: SetFormValue }
+    { currency: string; disabled?: boolean; setValue: SetFormValue; field?: string }
 ) =>
-    <select name="currency" className={`text-left select select-sm
+    <select name={field} className={`text-left select select-sm
             select-condensed
             h-7 w-24 pl-1.5 p-0`}
             value={currency}
             disabled={disabled}
             onChange={event =>
-                setValue('currency', event.currentTarget.value)}
+                setValue(field, event.currentTarget.value)}
     >
         {currencies.map(currency =>
             <option key={currency.value}
