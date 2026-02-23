@@ -124,7 +124,13 @@ export const getCollectionFromXml = (xml?: string) => {
     if (!xml || xml.length === 0) {
         return;
     }
-    const rawItems = getPageDOM(xml, true).querySelector('items');
+    const pageDOM = getPageDOM(xml, true);
+    const error = pageDOM.querySelector('error');
+    if (error) {
+        return;
+    }
+
+    const rawItems = pageDOM.querySelector('items');
     if (!rawItems) {
         return;
     }

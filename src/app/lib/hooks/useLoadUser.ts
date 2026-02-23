@@ -14,6 +14,7 @@ import {
 } from '@/app/lib/services/bgg/service';
 import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { useEffect, useState, useTransition } from 'react';
+import sleep from 'sleep-promise';
 
 export const useLoadUser = () => {
     const dispatch = useDispatch();
@@ -61,7 +62,13 @@ export const useLoadUser = () => {
             }
             if (!xml) {
                 xml = await bggGetCollectionInner(username, 0);
-                addResponseToCache({ id, method: 'GET', response: xml }).then();
+                if (!xml.startsWith('<error>')) {
+                    addResponseToCache({ id, method: 'GET', response: xml }).then();
+                } else {
+                    await sleep(10000);
+                    loadUser(username, rememberMe, useCache);
+                    return;
+                }
             }
             if (!userXml) {
                 userXml = await bggGetUserInner(username);
