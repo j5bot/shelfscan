@@ -19,7 +19,7 @@
     "dexie": "^4.0.11",
     "jsdom": "^26.1.0",
     "motion": "^12.19.1",
-    "next": "15.5.0",
+    "next": "15.5.9",
     "nextstepjs": "^2.1.1",
     "png-compressor": "^2.0.0",
     "proxy-memoize": "^3.0.1",
