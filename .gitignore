@@ -3,7 +3,6 @@
 # dependencies
 /node_modules
 /.pnp
-.pnp.*
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
@@ -40,6 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .idea
-pnpm-lock.yaml
-pnpm-workspace.yaml
 .next*
