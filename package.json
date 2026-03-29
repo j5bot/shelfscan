@@ -11,9 +11,10 @@
   "dependencies": {
     "@blakeembrey/template": "^1.2.0",
     "@loadable/component": "^5.16.7",
-    "@react-barcode-scanner/components": "0.0.72",
+    "@react-barcode-scanner/components": "0.0.73",
     "@reactuses/core": "^6.3.0",
     "@reduxjs/toolkit": "^2.11.2",
+    "@undecaf/zbar-wasm": "0.9.16",
     "@vercel/analytics": "^2.0.1",
     "daisyui": "^5.5.19",
     "dexie": "^4.4.1",
@@ -41,5 +42,11 @@
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@undecaf/barcode-detector-polyfill@0.9.23": "patches/@undecaf__barcode-detector-polyfill@0.9.23.patch",
+      "@undecaf/zbar-wasm@0.9.16": "patches/@undecaf__zbar-wasm@0.9.16.patch"
+    }
   }
 }
