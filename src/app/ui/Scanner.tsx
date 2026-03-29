@@ -14,7 +14,7 @@ const SCANNER_SIZES = {
     XS: { width: 240, height: 320, cropWidthRatio: 0.9 },
     SM: { height: 480, width: 376, cropWidthRatio: 0.6 },
     MD: { height: 480, width: 376, cropWidthRatio: 1 },
-    LG: { height: 640, width: 480, cropWidthRatio: 1 }
+    LG: { height: 480, width: 640, cropWidthRatio: 1 }
 }
 
 export const ScannerSizes = {

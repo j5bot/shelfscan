@@ -37,19 +37,19 @@
 @property --svg-css-gauge-background {
     syntax: "<color>";
     inherits: true;
-    initial-value: none;
+    initial-value: transparent;
 }
 
 @property --svg-css-gauge-fill {
     syntax: "<color>";
     inherits: true;
-    initial-value: none;
+    initial-value: transparent;
 }
 
 @property --svg-css-gauge-color {
     syntax: "<color>";
     inherits: true;
-    initial-value: none;
+    initial-value: transparent;
 }
 
 @property --svg-css-gauge-width {
