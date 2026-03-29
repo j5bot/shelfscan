@@ -47,6 +47,12 @@
     "overrides": {
       "@undecaf/zbar-wasm": "^0.11.0"
     },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "typescript": "6",
+        "eslint": "10"
+      }
+    },
     "patchedDependencies": {
       "@undecaf/barcode-detector-polyfill@0.9.23": "patches/@undecaf__barcode-detector-polyfill@0.9.23.patch"
     }
