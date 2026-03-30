@@ -213,6 +213,25 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
             }
+            if (event.data?.type === 'infoLoad-response') {
+                const colItem = event.data.response.collectionItem;
+                const infoFormValues = [
+                    'pricepaid',
+                    'pp_currency',
+                    'currvalue',
+                    'cv_currency',
+                    'acquisitiondate',
+                    'acquiredfrom',
+                    'invdate',
+                    'invlocation',
+                ].reduce((acc, field) => {
+                    return Object.assign(acc, {
+                        [field]: colItem?.[field as keyof BggCollectionItem]?.toString() ?? undefined
+                    });
+                }, formValues);
+                infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
+                setFormValues(infoFormValues);
+            }
         });
     }, []);
 

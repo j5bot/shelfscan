@@ -8,12 +8,12 @@ import { FaCheckDouble, FaCheckToSlot } from 'react-icons/fa6';
 
 const PrivateComment = ({ formValues, setFormValues }: ModeSettingFormProps) => {
     return <textarea
-           name="privateComment"
+           name="privatecomment"
            className="textarea textarea-md text-sm p-2"
            placeholder="Private Comment"
-           defaultValue={formValues?.['privateComment']}
+           defaultValue={formValues?.['privatecomment']}
            onChange={event => setFormValues(
-               Object.assign(formValues, { privateComment: event.currentTarget.value })
+               Object.assign(formValues, { privatecomment: event.currentTarget.value })
            )}
     />
 };
@@ -37,7 +37,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
             />
         </div>
         <div className="flex gap-0.5">
-            <CurrencySelect currency={formValues?.['currency'] ?? 'USD'}
+            <CurrencySelect currency={formValues?.['cv_currency'] ?? 'USD'}
                             setValue={setValue}
             />
             <PriceInput price={formValues?.['currvalue'] ?? ''}

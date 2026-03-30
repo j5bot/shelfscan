@@ -121,16 +121,27 @@ export const getVersionDetailsFromObject = (version: BggRawObject) => {
 };
 
 export const getPrivateInfoFromObject = (object: BggRawObject): Partial<BggCollectionItem> => {
+    const {
+        textfield: { privatecomment: { value: privateComment } = {} } = {},
+        pricepaid,
+        pp_currency,
+        currvalue,
+        cv_currency,
+        acquisitiondate,
+        acquiredfrom,
+        invdate,
+        invlocation,
+    } = object;
     return {
-        privateComment: object.textfield?.privatecomment?.value,
-        pricePaid: object.pricepaid ? parseFloat(object.pricepaid.toString()) : undefined,
-        pricePaidCurrency: object.pp_currency?.toString() ?? undefined,
-        currentValue: object.currvalue ? parseFloat(object.currvalue.toString()) : undefined,
-        currentValueCurrency: object.cv_currenty?.toString() ?? undefined,
-        acquiredDate: object.acquisitiondate?.toString() ?? undefined,
-        acquiredNote: object.acquiredfrom?.toString() ?? undefined,
-        inventoryDate: object.invdate?.toString() ?? undefined,
-        inventoryNote: object.invlocation?.toString() ?? undefined,
+        privatecomment: privateComment?.toString() ?? undefined,
+        pricepaid: pricepaid ? parseFloat(pricepaid.toString()) : undefined,
+        pp_currency: pp_currency?.toString() ?? undefined,
+        currvalue: currvalue ? parseFloat(currvalue.toString()) : undefined,
+        cv_currency: cv_currency?.toString() ?? undefined,
+        acquisitiondate: acquisitiondate?.toString() ?? undefined,
+        acquiredfrom: acquiredfrom?.toString() ?? undefined,
+        invdate: invdate?.toString() ?? undefined,
+        invlocation: invlocation?.toString() ?? undefined,
     };
 };
 
