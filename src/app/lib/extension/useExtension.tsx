@@ -411,7 +411,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                                             return null;
                                         }
 
-                                        return <li onClick={createUpdateModeFn(mode, setting)}
+                                        return <li key={mode} onClick={createUpdateModeFn(mode, setting)}
                                             className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b-1 border-[#e07ca433]' : ''}`.trim()}
                                         >{setting.listText}</li>
                                     })
