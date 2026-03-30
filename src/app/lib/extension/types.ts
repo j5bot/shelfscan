@@ -1,3 +1,4 @@
+import { BggCollectionItem, BggCollectionStatuses } from '@/app/lib/types/bgg';
 import { ReactNode } from 'react';
 
 export type FormValues = Record<string, string>;
@@ -25,6 +26,8 @@ export type CollectionModeSetting = {
     icon: ReactNode;
     width: string;
     form?: (props: ModeSettingFormProps) => ReactNode;
+    shouldShow?: (statuses: BggCollectionStatuses | null, update: boolean) => boolean;
     validator?: (formData: FormData) => boolean;
+    message?: (userId: string, collectionItem: BggCollectionItem) => void;
 }
 export type CollectionModeSettings = Record<Modes['collection'], CollectionModeSetting>;

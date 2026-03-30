@@ -65,6 +65,16 @@ export type BggCollectionItem = {
     statuses: BggCollectionStatuses;
     tradeCondition?: string;
     rating?: number;
+    // private info
+    privateComment?: string;
+    pricePaid?: number;
+    pricePaidCurrency?: string;
+    currentValue?: number;
+    currentValueCurrency?: string;
+    acquiredDate?: string;
+    acquiredNote?: string;
+    inventoryDate?: string;
+    inventoryNote?: string;
 };
 
 export type BggRawObject = {

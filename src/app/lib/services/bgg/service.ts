@@ -120,6 +120,20 @@ export const getVersionDetailsFromObject = (version: BggRawObject) => {
     };
 };
 
+export const getPrivateInfoFromObject = (object: BggRawObject): Partial<BggCollectionItem> => {
+    return {
+        privateComment: object.textfield?.privatecomment?.value,
+        pricePaid: object.pricepaid ? parseFloat(object.pricepaid.toString()) : undefined,
+        pricePaidCurrency: object.pp_currency?.toString() ?? undefined,
+        currentValue: object.currvalue ? parseFloat(object.currvalue.toString()) : undefined,
+        currentValueCurrency: object.cv_currenty?.toString() ?? undefined,
+        acquiredDate: object.acquisitiondate?.toString() ?? undefined,
+        acquiredNote: object.acquiredfrom?.toString() ?? undefined,
+        inventoryDate: object.invdate?.toString() ?? undefined,
+        inventoryNote: object.invlocation?.toString() ?? undefined,
+    };
+};
+
 export const getCollectionFromXml = (xml?: string) => {
     if (!xml || xml.length === 0) {
         return;
@@ -175,6 +189,7 @@ export const getCollectionFromXml = (xml?: string) => {
 export const getCollectionItemFromObject = (object: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(object);
     const version = getVersionDetailsFromObject(object.version as BggRawObject);
+    const privateInfo = getPrivateInfoFromObject(object);
 
     return {
         ...commonDetails,
@@ -186,5 +201,6 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         statuses: object.status,
         rating: object.rating,
         tradeCondition: object.textfield?.conditiontext?.value,
+        ...(Object.keys(privateInfo).length ? privateInfo : {}),
     } as BggCollectionItem;
 };
