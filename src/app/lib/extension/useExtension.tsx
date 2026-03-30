@@ -1,13 +1,19 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
-import { Modes, CollectionModeSettings, DisabledModes } from '@/app/lib/extension/types';
+import {
+    Modes,
+    CollectionModeSettings,
+    DisabledModes,
+    CollectionModeSetting
+} from '@/app/lib/extension/types';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
-import { BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
+import { BggCollectionItem, BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
+import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import React, {
     Fragment,
@@ -19,6 +25,7 @@ import React, {
 import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
+    FaCircleInfo,
     FaClock,
     FaCloudArrowUp,
     FaDice,
@@ -74,14 +81,17 @@ const makeAddToCollectionModeSettings = (
         },
         wishlist: {
             label: 'Wish',
+            listText: 'Add to Wishlist',
             icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
             width: 'xs:w-19.5 w-21.5',
+            shouldShow: (statuses, update) => !(statuses?.wishlist || update),
         },
         previous: {
             label: 'Had It',
             listText: 'Previously Owned',
             icon: <FaClock className="w-3.5 h-3.5 mr-0.5 shrink-0" />,
             width: 'xs:w-22.5 w-24.5',
+            shouldShow: (_, update) => update,
         },
         clear: {
             label: 'Clear',
@@ -99,9 +109,11 @@ const makeAddToCollectionModeSettings = (
                     </label>
                 </form>;
             },
+            shouldShow: (_, update) => update,
         },
         sell: {
             label: 'Sell',
+            listText: 'Add to Market',
             icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
             width: 'xs:w-20.5 w-22.5',
             form: AddToMarketForm,
@@ -120,8 +132,28 @@ const makeAddToCollectionModeSettings = (
                     !!((formValues[field] as string | undefined))?.length);
             }
         },
-    }
-    );
+        info: {
+            label: 'Info',
+            listText: 'Private Info',
+            icon: <FaCircleInfo className="w-4 h-4 mr-0.5 shrink-0" />,
+            width: 'xs:w-23 w-25',
+            form: AddInfoForm,
+            shouldShow: (_, update) => update,
+            message: (userId: string, collectionItem: BggCollectionItem) => {
+                const ce = new CustomEvent('shelfscan-sync', {
+                    detail: {
+                        userId,
+                        type: 'infoLoad',
+                        collectionId: collectionItem.collectionId,
+                        gameId: collectionItem.objectId,
+                        versionId: collectionItem.versionId,
+                        timestamp: Date.now(),
+                    },
+                });
+                document.dispatchEvent(ce);
+            },
+        },
+    });
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
@@ -180,6 +212,25 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         window.addEventListener('message', (event) => {
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
+            }
+            if (event.data?.type === 'infoLoad-response') {
+                const colItem = event.data.response.collectionItem;
+                const infoFormValues = [
+                    'pricepaid',
+                    'pp_currency',
+                    'currvalue',
+                    'cv_currency',
+                    'acquisitiondate',
+                    'acquiredfrom',
+                    'invdate',
+                    'invlocation',
+                ].reduce((acc, field) => {
+                    return Object.assign(acc, {
+                        [field]: colItem?.[field as keyof BggCollectionItem]?.toString() ?? undefined
+                    });
+                }, formValues);
+                infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
+                setFormValues(infoFormValues);
             }
         });
     }, []);
@@ -302,6 +353,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
 
     const ATCForm = atcMode?.form;
 
+    const createUpdateModeFn =
+        (mode: Modes['collection'], setting: CollectionModeSetting)  =>
+            (e: SyntheticEvent<HTMLElement>) => {
+                if (userId && collectionItem && setting.message) {
+                    setting.message(userId, collectionItem);
+                }
+                return updateModes(e, Object.assign({}, modes, { collection: mode }));
+            };
+
     const addToCollectionBlock = atcMode && syncOn && userId && (
         <Fragment key="atcb">
             <div data-collapse="atcb" className={`relative z-40 shrink-0 ${atcMode.width} mr-0.5`}>
@@ -342,29 +402,20 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
                             bg-overlay
                             text-xs leading-5.5`}>
                             <ul className="menu w-full p-0 m-0" data-collapse-key="atcb">
-                                <li onClick={e =>
-                                        updateModes(e, Object.assign({}, modes, { collection: 'add' }))}
-                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >{addToCollectionModeSettings['add'].listText}</li>
-                                <li onClick={e =>
-                                        updateModes(e, Object.assign({}, modes, { collection: 'trade' }))}
-                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >{addToCollectionModeSettings['trade'].listText}</li>
-                                {statuses?.wishlist && update ? null : <li onClick={e =>
-                                            updateModes(e, Object.assign({}, modes, { collection: 'wishlist' }))}
-                                        className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                    >Add to Wishlist</li>}
-                                {update && <li onClick={e =>
-                                        updateModes(e, Object.assign({}, modes, { collection: 'previous' }))}
-                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >{addToCollectionModeSettings['previous'].listText}</li>}
-                                {update && <li onClick={e =>
-                                        updateModes(e, Object.assign({}, modes, { collection: 'clear' }))}
-                                    className="p-1 pl-1.5 cursor-pointer border-b-1 border-[#e07ca433]"
-                                >{addToCollectionModeSettings['clear'].listText}</li>}
-                                <li onClick={e => updateModes(e, Object.assign({}, modes, { collection: 'sell' }))}
-                                    className="p-1 pl-1.5 cursor-pointer"
-                                >Add to Market</li>
+                                {
+                                    Object.entries(addToCollectionModeSettings).map(([key, setting], index, array) => {
+                                        const mode = key as Modes['collection'];
+                                        const shouldShow = setting.shouldShow ? setting.shouldShow(statuses ?? null, update) : true;
+
+                                        if (!shouldShow) {
+                                            return null;
+                                        }
+
+                                        return <li key={mode} onClick={createUpdateModeFn(mode, setting)}
+                                            className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b-1 border-[#e07ca433]' : ''}`.trim()}
+                                        >{setting.listText}</li>
+                                    })
+                                }
                             </ul>
                         </div>
                     </div>

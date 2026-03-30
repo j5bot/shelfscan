@@ -1,24 +1,24 @@
 import { SetFormValue } from '@/app/lib/extension/types';
 import React, { ChangeEvent, useEffect, useState } from 'react';
 
-export const PriceInput = ({
+export const TextInput = ({
     disabled,
-    price,
+    text,
     setValue,
     field = 'price',
     label = 'Price',
 }: {
     disabled?: boolean;
-    price: string | number;
+    text: string;
     setValue: SetFormValue;
     field?: string;
     label?: string;
 }) => {
-    const [tempValue, setTempValue] = useState<string>(price.toString());
+    const [tempValue, setTempValue] = useState<string>(text);
 
     useEffect(() => {
-        setTempValue(price.toString());
-    }, [price]);
+        setTempValue(text);
+    }, [text]);
 
     const changeHandler = (event: ChangeEvent<HTMLInputElement>) =>
         setTempValue(event.currentTarget.value);
@@ -28,7 +28,7 @@ export const PriceInput = ({
         name={field}
         className="input text-sm h-7 pl-1.5 pt-1 pb-1"
         placeholder={label}
-        value={disabled ? price : tempValue}
+        value={disabled ? text : tempValue}
         disabled={disabled}
         onChange={changeHandler}
         onBlur={event =>
