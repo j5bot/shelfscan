@@ -40,7 +40,6 @@ export const useBatchSync = () => {
                 collectionId,
                 name: info.name,
                 gameId: info.id,
-                versionId: undefined,
                 timestamp: Date.now(),
                 formValues: {},
             },
