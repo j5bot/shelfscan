@@ -15,7 +15,7 @@ import { SessionLink } from '@/app/ui/SessionLink';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useMemo } from 'react';
 import { hasSeenTour } from '../lib/tours';
 
 const convertToCompressedCodes = (codes: string[]) => codes
@@ -30,7 +30,6 @@ export default function Page() {
     const breakpoint = useTailwindBreakpoint();
     const searchParams = useSearchParams();
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
-    const [compressedCodes, setCompressedCodes] = useState<string[]>([]);
 
     const { startNextStep } = useNextStep();
 
@@ -46,10 +45,9 @@ export default function Page() {
         setCodes,
     } = useCodes();
 
-    const updateCodes = useCallback((codes: string[]) => {
-        setCodes(codes);
-        setCompressedCodes(convertToCompressedCodes(codes));
-    }, [setCodes, setCompressedCodes]);
+    const compressedCodes = useMemo(() =>
+        convertToCompressedCodes(codes),
+    [codes]);
 
     useEffect(() => {
         if (!breakpoint) {
@@ -66,20 +64,20 @@ export default function Page() {
         if (!gameDataMap) {
             return;
         }
-        updateCodes(Object.keys(gameDataMap));
-    }, [updateCodes, hasGameDataMap]);
+        setCodes(Object.keys(gameDataMap));
+    }, [setCodes, hasGameDataMap]);
 
     useEffect(() => {
         const upc = searchParams.get('u');
         if (!upc) {
             return;
         }
-        updateCodes(
+        setCodes(
             upc.includes('.') || upc.length < 12 ?
                 convertFromCompressedCodes(upc.split('.')) :
                 upc.split(',')
         );
-    }, [searchParams, updateCodes]);
+    }, [searchParams, setCodes]);
 
     void submitOrVerifyGame;
     void removeGame;
@@ -87,7 +85,7 @@ export default function Page() {
     const onScan = (code: string) => {
         if (!codes.includes(code)) {
             codes.unshift(code);
-            updateCodes(codes);
+            setCodes(codes);
         }
         getGameData(code).then();
     };
@@ -112,7 +110,18 @@ export default function Page() {
                         ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
-                              ? (<Scanlist codes={codes} gameUPCResults={gameDataMap} />)
+                              ? (<>
+                                  <Scanlist codes={codes} gameUPCResults={gameDataMap} />
+                                  <div className="flex justify-center pt-4 pb-2">
+                                      <button
+                                          className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+                                              text-sm uppercase cursor-pointer"
+                                          onClick={() => setCodes([])}
+                                      >
+                                          Clear All
+                                      </button>
+                                  </div>
+                              </>)
                               : (
                                   <div className="w-full flex flex-col items-center justify-items-center text-center">
                                       <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>

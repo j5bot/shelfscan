@@ -5,6 +5,7 @@ import {
 } from '@/app/lib/database/cacheDatabase';
 import { removeSetting } from '@/app/lib/database/database';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
+import { useBatchSync } from '@/app/lib/hooks/useBatchSync';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
@@ -15,7 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
-import { FaBarcode, FaBars, FaGear, FaGlobe, FaNewspaper } from 'react-icons/fa6';
+import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaNewspaper } from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
 
 const closeOnNavigate = () => {
@@ -27,6 +28,7 @@ export const NavDrawer = () => {
     const { loadSettings, settings } = useSettings();
     const { username: settingsUsername, rememberMe } = settings;
     const { isPending: refreshCollectionPending, loadUser } = useLoadUser();
+    const { canBatch } = useBatchSync();
 
     const [dialogContent, setDialogContent] = useState<ReactNode>(null);
 
@@ -135,6 +137,11 @@ export const NavDrawer = () => {
                                 router.push('/?scanner-tour=true');
                             }}><MdTour /> Tour</button>}
                         </li>
+                        {canBatch && <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/batch" onNavigate={closeOnNavigate}>
+                                <FaLayerGroup className="inline" /> Batch Scan
+                            </Link>
+                        </li>}
                         {refreshCollectionItem}
                     </ul>
                     <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">

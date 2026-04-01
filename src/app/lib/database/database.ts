@@ -15,6 +15,11 @@ export type CollectionEntity = {
     value: BggCollectionMap;
 };
 
+export type scannedEntity = {
+    id: string;
+    codes: string[];
+};
+
 export type PluginEntity = ShelfScanPlugin;
 export type ShelfScanSettings = Record<string, SettingEntity['value']>;
 
@@ -22,12 +27,27 @@ export const database = new Dexie('db') as Dexie & {
     settings: EntityTable<SettingEntity, 'id'>;
     plugins: EntityTable<PluginEntity, 'id'>;
     collections: EntityTable<CollectionEntity, 'id'>;
+    scanned: EntityTable<scannedEntity, 'id'>;
 };
 
 database.version(1).stores({
     settings: '++id',
     plugins: '++id',
     collections: '++id',
+});
+
+database.version(2).stores({
+    settings: '++id',
+    plugins: '++id',
+    collections: '++id',
+    scannedCodes: '++id',
+});
+
+database.version(3).stores({
+    settings: '++id',
+    plugins: '++id',
+    collections: '++id',
+    scanned: '++id',
 });
 
 export const getSetting = async (id: string) =>
@@ -70,3 +90,18 @@ export const setCollection = async (id: string, value: BggCollectionMap) => {
 
 export const getPlugin = async (id: string) =>
     (await database.plugins.get(id));
+
+export const getscanned = async (id: string) =>
+    (await database.scanned.get(id))?.codes;
+
+export const setscanned = async (id: string, codes: string[]) => {
+    const hasEntry = await database.scanned.get(id);
+    if (hasEntry) {
+        await database.scanned.put({ id, codes });
+    } else {
+        await database.scanned.add({ id, codes });
+    }
+};
+
+export const removescanned = async (id: string) =>
+    await database.scanned.delete(id);
