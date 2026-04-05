@@ -135,34 +135,34 @@ svg[data-name=nextstep-arrow] > #triangle {
   animation: add-pulse 0.3s 1 forwards;
 }
 
-.about-content p {
+.page-content p {
   padding-top: 1em;
 }
 
-.about-content h2 + p,
-.about-content h3 + p {
+.page-content h2 + p,
+.page-content h3 + p {
   padding-top: 0.5em;
 }
 
-.about-content p + h2,
-.about-content p + h3,
-.about-content ul + h2,
-.about-content ul + h3 {
+.page-content p + h2,
+.page-content p + h3,
+.page-content ul + h2,
+.page-content ul + h3 {
   padding-top: 1.5em;
 }
 
-.about-content h3 {
+.page-content h3 {
   text-align: left;
   font-size: 1.25em;
   padding-top: 0.5em;
 }
 
-.about-content p + ul,
-.about-content ul + p {
+.page-content p + ul,
+.page-content ul + p {
   padding-top: 1.5em;
 }
 
-.about-content li {
+.page-content li {
   display: flex;
   align-items: center;
 }

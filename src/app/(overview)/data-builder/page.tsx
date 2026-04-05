@@ -9,10 +9,12 @@ export default function DataBuilderPage() {
 
     return <>
         <NavDrawer />
-        <div className="w-screen pt-15 flex justify-center">
-            <div className="w-full max-w-6xl px-4">
-                <h1 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                    Data Builder
+        <div className="page-content w-screen pt-15 flex justify-center">
+            <div className={`flex flex-col flex-wrap w-10/12 md:w-2/3
+                p-4 pb-10 rounded-xl
+                bg-base-100 text-sm`}>
+                <h1 className="text-3xl text-center">
+                    Data Form Builder
                 </h1>
                 <DataBuilder />
             </div>
