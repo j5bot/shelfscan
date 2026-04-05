@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
             new URL('https://gameupc.com/assets/img/**'),
         ],
     },
+    turbopack: {
+        root: './'
+    }
 };
 
 export default nextConfig;

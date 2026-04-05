@@ -18,7 +18,7 @@ const ExtensionPage = () => {
 
     return <>
         <NavDrawer />
-        <div className="about-content w-screen pt-15 flex justify-center">
+        <div className="page-content w-screen pt-15 flex justify-center">
             <div className={`flex flex-col flex-wrap w-10/12 md:w-2/3
                 p-4 pb-10 rounded-xl
                 bg-base-100 text-sm`}>
