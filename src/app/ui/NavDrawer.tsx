@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
-import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaNewspaper } from 'react-icons/fa6';
+import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaNewspaper, FaTableList } from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
 
 const closeOnNavigate = () => {
@@ -159,6 +159,11 @@ export const NavDrawer = () => {
                             <Link className="flex gap-2 grow" href="https://boardgamegeek.com/blog/16520/shelfscan-news"
                                   target="_blank" onNavigate={closeOnNavigate}>
                                 <FaNewspaper className="inline" /> Blog
+                            </Link>
+                        </li>
+                        <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/data-builder/" onNavigate={closeOnNavigate}>
+                                <FaTableList className="inline" /> Data Builder
                             </Link>
                         </li>
                         <li className="w-full mt-6">
