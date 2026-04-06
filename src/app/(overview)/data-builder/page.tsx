@@ -1,7 +1,7 @@
 'use client';
 
 import { useTitle } from '@/app/lib/hooks/useTitle';
-import { DataBuilder } from '@/app/ui/DataBuilder';
+import { DataBuilder } from '@/app/ui/data-builder/DataBuilder';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 
 export default function DataBuilderPage() {

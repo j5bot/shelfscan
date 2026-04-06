@@ -6,7 +6,9 @@ import dynamic from 'next/dynamic';
 import { useCallback, useRef, useState } from 'react';
 import { FaFolderOpen, FaFloppyDisk, FaTableList } from 'react-icons/fa6';
 
+import 'bootstrap/dist/css/bootstrap.css';
 import '@formio/js/dist/formio.builder.css';
+import './DataBuilder.css';
 
 const BUILDER_OPTIONS = {
     builder: {
