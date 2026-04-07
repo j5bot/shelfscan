@@ -1,28 +1,11 @@
 'use client';
 
-import { useSelector } from '@/app/lib/hooks/index';
-import { RootState } from '@/app/lib/redux/store';
+import { useSync } from '@/app/lib/extension/useSync';
 import { GameUPCBggInfo } from '@/app/lib/types/GameUPCData';
-import { useCallback, useLayoutEffect, useState } from 'react';
+import { useCallback } from 'react';
 
 export const useBatchSync = () => {
-    const [syncOn, setSyncOn] = useState<boolean>(false);
-
-    const userId = useSelector(
-        (state: RootState) => state.bgg.user?.id,
-    );
-
-    const currentUsername = useSelector(
-        (state: RootState) => state.bgg.user?.user,
-    );
-
-    useLayoutEffect(() => {
-        const newValue = document.body.getAttribute('data-shelfscan-sync') === 'on';
-        if (syncOn === newValue) {
-            return;
-        }
-        setSyncOn(newValue);
-    });
+    const { syncOn, userId, currentUsername } = useSync();
 
     const canBatch = !!(syncOn && userId && currentUsername);
 

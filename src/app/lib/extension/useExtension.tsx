@@ -5,6 +5,7 @@ import {
     DisabledModes,
     CollectionModeSetting
 } from '@/app/lib/extension/types';
+import { useSync } from '@/app/lib/extension/useSync';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -19,7 +20,6 @@ import React, {
     Fragment,
     SyntheticEvent,
     useEffect,
-    useLayoutEffect,
     useState
 } from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -156,7 +156,8 @@ const makeAddToCollectionModeSettings = (
     });
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
-    const [syncOn, setSyncOn] = useState<boolean>(false);
+    const { syncOn, userId } = useSync();
+
     const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
     const [newRating, setNewRating] = useState<number>(-1);
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick' });
@@ -170,10 +171,6 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
             getCollectionInfoByObjectId([state, info?.id]));
 
     const collectionItem = collection?.items[collectionId];
-
-    const userId = useSelector(
-        state => state.bgg.user?.id
-    );
 
     const { rating: collectionRating, statuses } = collectionItem ?? {};
 
@@ -234,14 +231,6 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
             }
         });
     }, []);
-
-    useLayoutEffect(() => {
-        const newValue = document.body.getAttribute('data-shelfscan-sync') === 'on';
-        if (syncOn === newValue) {
-            return;
-        }
-        setSyncOn(newValue);
-    }, [info, version]);
 
     useEffect(() => {
         if (update) {
@@ -538,7 +527,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         {primaries}
     </> : null
 
-    const secondaryActions = null;
+    const secondaryActions = syncOn && userId && null;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };
