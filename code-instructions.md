@@ -23,7 +23,15 @@ This document defines the coding conventions used throughout the ShelfScan proje
   export type BggUser = { ... };
   export type ScannerProps = { ... };
   ```
-- **Constants (true constants)**: `UPPER_SNAKE_CASE` for immutable configuration objects and numeric constants.
+- **Type Definition**: Always create a type or type alias for complex objects or types, even if 
+  they are only used in one place. Avoid inline object types in function signatures or component props when the shape is 
+  more than a couple of properties.
+  ```typescript
+  type FormEditor = InstanceType<typeof import('@bpmn-io/form-js-editor').FormEditor>;
+  type Schema = Parameters<FormEditor['importSchema']>[0];
+  ```
+- **Constants (true constants)**: `UPPER_SNAKE_CASE` for immutable configuration objects and 
+  numeric constants.
   ```typescript
   const MAX_ATTEMPTS = 20;
   const SCANNER_SIZES = { NONE: ..., XS: ..., SM: ... };

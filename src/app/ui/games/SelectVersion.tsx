@@ -151,6 +151,7 @@ export const SelectVersion = () => {
                     {settings}
                 </div>
             </GameDetails>
+            {secondaryActions && <div className="flex justify-center min-h-17 items-center">{secondaryActions}</div>}
             {hasInfos && <div className="bg-overlay w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
                     <CollapsibleList
@@ -183,7 +184,6 @@ export const SelectVersion = () => {
                         renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>}
-                {secondaryActions && <div className="flex justify-center min-h-17 items-center">{secondaryActions}</div>}
             </div>}
             <div className="flex justify-center pt-10">
                 <Link title={'Scan More Games'} href="/">
