@@ -1,59 +1,78 @@
 'use client';
 
 import { database, DataFormEntity } from '@/app/lib/database/database';
-import { FormBuilderProps } from '@formio/react';
-import dynamic from 'next/dynamic';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FaFolderOpen, FaFloppyDisk, FaTableList } from 'react-icons/fa6';
 
-import '@formio/js/dist/formio.builder.css';
+import '@bpmn-io/form-js/dist/assets/form-js.css';
+import '@bpmn-io/form-js-editor/dist/assets/form-js-editor.css';
 
-const BUILDER_OPTIONS = {
-    builder: {
-        basic: {
-            components: {
-                password: false,
-            },
-        },
-        advanced: {
-            components: {
-                email: false,
-                phoneNumber: false,
-                address: false,
-                signature: false,
-                survey: false,
-            },
-        },
-        layout: {
-            components: {
-                htmlelement: false,
-            },
-        },
-        premium: {
-            components: {
-                file: false,
-            },
-        },
-    },
-    noDefaultSubmitButton: true,
+import './DataBuilder.css';
+
+const INITIAL_SCHEMA = {
+    schemaVersion: 3,
+    type: 'default',
+    components: [],
+    id: 'Form1',
 };
 
-const FormBuilder = dynamic(
-    () => import('@formio/react').then((mod) => mod.FormBuilder),
-    { ssr: false },
-);
+type FormEditor = InstanceType<typeof import('@bpmn-io/form-js-editor').FormEditor>;
+type Schema = Parameters<FormEditor['importSchema']>[0];
 
 export const DataBuilder = () => {
     const [formName, setFormName] = useState('');
-    const [schema, setSchema] = useState<object>({ display: 'form', components: [] });
+    const [schema, setSchema] = useState<object>(INITIAL_SCHEMA);
     const [currentId, setCurrentId] = useState<number | undefined>(undefined);
     const [savedForms, setSavedForms] = useState<DataFormEntity[]>([]);
     const [saveStatus, setSaveStatus] = useState<string>('');
 
     const openDialogRef = useRef<HTMLDialogElement>(null);
+    const editorContainerRef = useRef<HTMLDivElement>(null);
+    const editorRef = useRef<FormEditor | null>(null);
+    const schemaRef = useRef<Schema>(INITIAL_SCHEMA);
 
-    const handleSchemaChange = useCallback((updatedSchema: object) => {
-        setSchema(updatedSchema);
+    const handleSchemaChange = useCallback(() => {
+        if (!editorRef.current) return;
+        const currentSchema = editorRef.current.getSchema();
+        schemaRef.current = currentSchema;
+        setSchema(currentSchema);
+    }, []);
+
+    // Initialize & teardown the editor
+    useEffect(() => {
+        let destroyed = false;
+
+        (async () => {
+            const { FormEditor } = await import('@bpmn-io/form-js-editor');
+
+            if (destroyed || !editorContainerRef.current) return;
+
+            const editor = new FormEditor({
+                container: editorContainerRef.current,
+            });
+
+            editorRef.current = editor;
+
+            console.info('schema', schemaRef.current);
+            await editor.importSchema(schemaRef.current);
+            editor.on('changed', handleSchemaChange);
+        })();
+
+        return () => {
+            destroyed = true;
+            if (editorRef.current) {
+                editorRef.current.destroy();
+                editorRef.current = null;
+            }
+        };
+    }, [handleSchemaChange]);
+
+    const loadSchemaIntoEditor = useCallback(async (newSchema: Schema) => {
+        schemaRef.current = newSchema;
+        setSchema(newSchema);
+        if (editorRef.current) {
+            await editorRef.current.importSchema(newSchema,);
+        }
     }, []);
 
     const handleSave = async () => {
@@ -62,10 +81,12 @@ export const DataBuilder = () => {
             return;
         }
 
+        const schemaToSave = editorRef.current?.getSchema() ?? schema;
+
         if (currentId !== undefined) {
-            await database.dataforms.put({ id: currentId, name: formName.trim(), schema });
+            await database.dataforms.put({ id: currentId, name: formName.trim(), schema: schemaToSave });
         } else {
-            const newId = await database.dataforms.add({ name: formName.trim(), schema });
+            const newId = await database.dataforms.add({ name: formName.trim(), schema: schemaToSave });
             setCurrentId(newId as number);
         }
         setSaveStatus(`Saved "${formName.trim()}"`);
@@ -80,8 +101,8 @@ export const DataBuilder = () => {
 
     const handleLoadForm = (form: DataFormEntity) => {
         setFormName(form.name);
-        setSchema(form.schema);
         setCurrentId(form.id);
+        loadSchemaIntoEditor(form.schema).then();
         openDialogRef.current?.close();
     };
 
@@ -143,12 +164,7 @@ export const DataBuilder = () => {
                 )}
             </div>
 
-            <FormBuilder
-                key={currentId ?? 'new'}
-                initialForm={schema as FormBuilderProps['initialForm']}
-                options={BUILDER_OPTIONS as FormBuilderProps['options']}
-                onChange={handleSchemaChange}
-            />
+            <div ref={editorContainerRef} className="w-full min-h-[600px]" />
         </div>
     );
 };
