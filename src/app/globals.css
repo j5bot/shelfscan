@@ -73,6 +73,10 @@ details summary::-webkit-details-marker {
   border-radius: var(--radius-2xl);
 }
 
+.fjs-powered-by {
+  display: none;
+}
+
 svg[data-name=nextstep-arrow] > #triangle {
   fill: white;
 }
