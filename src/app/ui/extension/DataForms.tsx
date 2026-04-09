@@ -104,20 +104,31 @@ export const DataForms = () => {
         viewer: null,
     }));
 
-    return <div className="bg-overlay w-full pt-2 flex flex-col items-center">
-        {entries.map((entry) =>
-            <DataFormItem
-                key={entry.id}
-                entry={entry}
-                onViewerReady={handleViewerReady}
-            />,
-        )}
-        <button
-            className="btn btn-sm btn-primary mt-2 flex gap-1"
-            onClick={handleSaveAll}
-        >
-            <FaFloppyDisk /> Save All
-        </button>
+    return <div className="rounded-lg bg-overlay border-[#e07ca4] border-1 w-full flex flex-col items-center">
+        <div className="w-full px-2 py-1 rounded-lg">
+            <div className="flex justify-between items-center w-full pl-2 py-2">
+                <h3>Data Forms</h3>
+                <div className="relative shrink-0 xs:w-26 w-28 xs:h-7 h-8">
+                    <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-26 w-28"></div>
+                    <button onClick={handleSaveAll} className="collection-button cursor-pointer rounded-full
+                    relative
+                    flex justify-start items-center
+                    bg-[#e07ca4] text-white
+                    p-1 pl-1.5 xs:h-7 h-8
+                    xs:font-stretch-condensed xs:tracking-tight
+                    text-sm">
+                        <FaFloppyDisk /> <div className="p-1 font-semibold uppercase">Save All</div>
+                    </button>
+                </div>
+            </div>
+            {entries.map((entry) =>
+                <DataFormItem
+                    key={entry.id}
+                    entry={entry}
+                    onViewerReady={handleViewerReady}
+                />,
+            )}
+        </div>
     </div>;
 };
 

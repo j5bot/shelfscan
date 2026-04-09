@@ -76,6 +76,13 @@ details summary::-webkit-details-marker {
 .fjs-powered-by {
   display: none;
 }
+.fjs-container .fjs-form {
+  padding: 0 !important;
+}
+.cds--grid, .cds--col {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 
 svg[data-name=nextstep-arrow] > #triangle {
   fill: white;
