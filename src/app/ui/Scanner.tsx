@@ -1,5 +1,3 @@
-'use client';
-
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';

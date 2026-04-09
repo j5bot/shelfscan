@@ -1,5 +1,3 @@
-'use client';
-
 import { useStore } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
