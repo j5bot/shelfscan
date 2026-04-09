@@ -5,7 +5,7 @@ import {
 } from '@/app/lib/database/cacheDatabase';
 import { removeSetting } from '@/app/lib/database/database';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
-import { useBatchSync } from '@/app/lib/hooks/useBatchSync';
+import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
 import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';

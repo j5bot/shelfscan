@@ -3,7 +3,7 @@
 import { loader } from '@/app/(overview)/loading';
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { useBatchSync } from '@/app/lib/hooks/useBatchSync';
+import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
@@ -117,10 +117,7 @@ export default function Page() {
                                         addGameToCollection={addGameToCollection}
                                     />
                                 </div>
-                                <Scanlist
-                                    codes={codes}
-                                    gameUPCResults={gameDataMap}
-                                />
+                                <Scanlist gameUPCResults={gameDataMap} />
                                 <div className="flex justify-center gap-3 pt-4 pb-2">
                                     <button
                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600

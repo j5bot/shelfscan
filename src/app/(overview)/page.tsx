@@ -111,7 +111,7 @@ export default function Page() {
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
                               ? (<>
-                                  <Scanlist codes={codes} gameUPCResults={gameDataMap} />
+                                  <Scanlist gameUPCResults={gameDataMap} />
                                   <div className="flex justify-center pt-4 pb-2">
                                       <button
                                           className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600

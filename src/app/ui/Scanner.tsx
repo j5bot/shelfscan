@@ -1,5 +1,6 @@
 'use client';
 
+import { useCodes } from '@/app/lib/CodesProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
 import React, { useMemo, useState } from 'react';
@@ -33,6 +34,7 @@ export const ScannerSizes = {
 
 export function Scanner(props: ScannerProps) {
     const { onScan } = props;
+    const { codes } = useCodes();
     const breakpoint = useTailwindBreakpoint() ?? 'loading';
 
     const [forcedSize, setForcedSize] = useState<keyof typeof ScannerSizes>();
@@ -65,7 +67,6 @@ export function Scanner(props: ScannerProps) {
         }
     }, [breakpoint]);
 
-    const [codes, setCodes] = useState<string[]>([]);
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
     const [deviceId, setDeviceId] = useState<string>();
 
@@ -81,8 +82,6 @@ export function Scanner(props: ScannerProps) {
             return;
         }
         scanAudio.play().then();
-        codes.push(code);
-        setCodes(codes);
         onScan(code);
     };
 

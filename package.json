@@ -44,6 +44,10 @@
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2"
   },
+  "browserslist": [
+    "baseline newly available",
+    "last 4 versions"
+  ],
   "pnpm": {
     "overrides": {
       "@undecaf/zbar-wasm": "^0.11.0"

@@ -1,3 +1,4 @@
+import { useCodes } from '@/app/lib/CodesProvider';
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import {
@@ -11,21 +12,28 @@ import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
-import { FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
+import {
+    FaBarcode,
+    FaCheck,
+    FaEye,
+    FaHeart,
+    FaRecycle,
+} from 'react-icons/fa6';
+import { IoTrashBin } from 'react-icons/io5';
 
 type ScanItemProps = {
     code: string;
+    removeFromList: (code: string) => void;
     gameUPCResults: Record<string, GameUPCData>;
     gameSelections: GameSelections;
 }
 
 type ScanlistProps = {
-    codes: string[];
     gameUPCResults: Record<string, GameUPCData>;
 }
 
 export const ScanItem = (props: ScanItemProps) => {
-    const { code, gameSelections, gameUPCResults } = props;
+    const { code, gameSelections, gameUPCResults, removeFromList } = props;
     const { currentInfoIndex, infoIndexesInCollection } = useSelectVersionContext();
 
     const {
@@ -116,6 +124,12 @@ export const ScanItem = (props: ScanItemProps) => {
     }
 
     return <li className="relative rounded-md bg-orange-100 dark:bg-orange-900" key={code}>
+        <button className="remove-scan-item absolute bottom-0.5 left-0.5 md:bottom-1 md:left-1"
+                title="Remove from List"
+                onClick={() => removeFromList(code)}
+        >
+            <IoTrashBin size={15} className="shrink-0 cursor-pointer" />
+        </button>
         <Link
             href={`/upc/${code}`}
             className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
@@ -146,8 +160,13 @@ export const ScanItem = (props: ScanItemProps) => {
 };
 
 export const Scanlist = (props: ScanlistProps) => {
-    const { codes, gameUPCResults } = props;
+    const { gameUPCResults } = props;
+    const { codes, setCodes } = useCodes();
     const { gameSelections } = useGameSelections();
+
+    const removeFromList = (code: string) => {
+        setCodes(codes.filter(c => c !== code));
+    };
 
     return <ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {codes.map(code => (
@@ -155,6 +174,7 @@ export const Scanlist = (props: ScanlistProps) => {
                 <ScanItem code={code}
                           gameUPCResults={gameUPCResults}
                           gameSelections={gameSelections}
+                          removeFromList={removeFromList}
                 />
             </SelectVersionProvider>
         ))}

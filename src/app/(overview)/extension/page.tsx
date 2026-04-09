@@ -27,6 +27,7 @@ const ExtensionPage = () => {
                 </h1>
 
                 <h3 className="font-semibold">Get the Browser Extension and Do More</h3>
+                <p className="m-1 font-bold">⚠️ <em>Using the browser extension after your free trial requires a BGG supporter account at the ad-block level.</em> ⚠️</p>
                 <p>
                     ShelfScan works together with a browser extension to add
                     lots of extra features that bring together BGG and the web app with a
