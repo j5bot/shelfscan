@@ -1,7 +1,7 @@
 import {
-    getscanned,
-    removescanned,
-    setscanned,
+    getScanned,
+    removeScanned,
+    setScanned,
 } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
@@ -46,7 +46,7 @@ export const CodesProvider = ({ children }: Props) => {
         }
         let active = true;
         (async () => {
-            const stored = await getscanned(persistKey);
+            const stored = await getScanned(persistKey);
             if (!active) {
                 return;
             }
@@ -64,9 +64,9 @@ export const CodesProvider = ({ children }: Props) => {
             return;
         }
         if (codes.length === 0) {
-            removescanned(persistKeyRef.current).then();
+            removeScanned(persistKeyRef.current).then();
         } else {
-            setscanned(persistKeyRef.current, codes).then();
+            setScanned(persistKeyRef.current, codes).then();
         }
     }, [codes, loaded]);
 
