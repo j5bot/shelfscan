@@ -9,6 +9,12 @@ import '@bpmn-io/form-js/dist/assets/form-js.css';
 type FormViewer = InstanceType<typeof import('@bpmn-io/form-js').Form>;
 type Schema = Parameters<FormViewer['importSchema']>[0];
 
+type DataFormsProps = {
+    collectionId: number | undefined;
+    userId: string;
+    gameId: number | undefined;
+};
+
 type FormInstanceEntry = {
     id: number;
     name: string;
@@ -66,7 +72,7 @@ const DataFormItem = ({ entry, onViewerReady }: {
     </div>;
 };
 
-export const DataForms = () => {
+export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
     const [forms, setForms] = useState<DataFormEntity[]>([]);
     const viewersRef = useRef<Map<number, FormViewer>>(new Map());
 
@@ -80,22 +86,67 @@ export const DataForms = () => {
         return () => { active = false; };
     }, []);
 
+    useEffect(() => {
+        if (forms.length === 0) {
+            return;
+        }
+
+        const handler = (event: MessageEvent) => {
+            if (event.data?.type === 'getData-response') {
+                console.log('getData response:', event.data);
+            }
+        };
+        window.addEventListener('message', handler);
+
+        setTimeout(() => {
+            console.log('getData sending');
+            const ce = new CustomEvent('shelfscan-sync', {
+                detail: {
+                    userId,
+                    type: 'getData',
+                    collectionId,
+                    timestamp: Date.now(),
+                },
+            });
+            document.dispatchEvent(ce);
+        }, 5000);
+
+        return () => { window.removeEventListener('message', handler); };
+    }, [forms.length, collectionId, userId]);
+
     const handleViewerReady = useCallback((id: number, viewer: FormViewer) => {
         viewersRef.current.set(id, viewer);
     }, []);
 
     const handleSaveAll = () => {
-        const allData: Record<string, unknown> = {};
+        const dataArray: string[] = [];
         for (const form of forms) {
             const viewer = viewersRef.current.get(form.id!);
             if (!viewer) continue;
-            const { data, errors } = viewer.submit();
-            allData[form.name] = { data, errors };
+            const { data } = viewer.submit();
+            dataArray.push(JSON.stringify(data));
         }
-        console.log('DataForms — all form values:', allData);
+
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                userId,
+                type: 'setData',
+                collectionId,
+                gameId,
+                timestamp: Date.now(),
+                formValues: { data: dataArray },
+            },
+        });
+        document.dispatchEvent(ce);
     };
 
-    if (forms.length === 0) return null;
+    if (!(collectionId && userId && gameId)) {
+        return null;
+    }
+
+    if (forms.length === 0) {
+        return null;
+    }
 
     const entries: FormInstanceEntry[] = forms.map((form) => ({
         id: form.id!,

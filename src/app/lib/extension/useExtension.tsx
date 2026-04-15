@@ -528,7 +528,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         {primaries}
     </> : null
 
-    const secondaryActions = syncOn && userId && <DataForms />;
+    const secondaryActions = syncOn && userId && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };
@@ -565,7 +565,7 @@ export const useExtensionResponse = () => {
                     collectionItem?.collid)) {
                 return;
             }
-            if (detail.type.startsWith('sell')) {
+            if (detail.type.startsWith('sell') || detail.type.startsWith('get')) {
                 return;
             }
             const { shouldRemove } = detail.response ?? {};
