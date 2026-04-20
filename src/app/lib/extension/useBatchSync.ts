@@ -1,7 +1,7 @@
 'use client';
 
 import { useSync } from '@/app/lib/extension/useSync';
-import { GameUPCBggInfo } from '@/app/lib/types/GameUPCData';
+import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { useCallback } from 'react';
 
 export const useBatchSync = () => {

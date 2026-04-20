@@ -8,7 +8,7 @@ import { PossibleStatusWithAll } from '@/app/lib/types/bgg';
 import {
     GameUPCBggInfo,
     GameUPCBggVersion,
-} from '@/app/lib/types/GameUPCData';
+} from 'gameupc-hooks/types';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { GameDetails } from '@/app/ui/games/GameDetails';

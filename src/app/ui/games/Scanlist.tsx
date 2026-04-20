@@ -4,7 +4,7 @@ import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/Select
 import {
     GameUPCData, GameUPCStatus,
     GameUPCVersionStatusText
-} from '@/app/lib/types/GameUPCData';
+} from 'gameupc-hooks/types';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { getConfidenceLevelColor } from '@/app/ui/games/renderers';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';

@@ -2,7 +2,7 @@ import { RootState } from '@/app/lib/redux/store';
 import {
     PossibleStatusWithAll
 } from '@/app/lib/types/bgg';
-import { GameUPCBggInfo } from '@/app/lib/types/GameUPCData';
+import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { memoize } from 'proxy-memoize';
 
 // prefers rated item

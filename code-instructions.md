@@ -38,7 +38,7 @@ This document defines the coding conventions used throughout the ShelfScan proje
   ```
 - **Variables and functions**: `camelCase`.
 - **React components**: `PascalCase` — both the function name and the file name.
-- **Custom hooks**: `camelCase` prefixed with `use`. File name matches: `useGameUPCApi.ts`.
+- **Custom hooks**: `camelCase` prefixed with `use`. File name matches the hook name (example: `useSelectVersion.ts`).
 - **Context providers**: `PascalCase` suffixed with `Provider`. File name matches: `SettingsProvider.tsx`.
 - **Redux slices**: File named `slice.ts` inside a feature directory.
 - **Selectors**: File named `selectors.ts` inside a feature directory.
@@ -79,7 +79,7 @@ This document defines the coding conventions used throughout the ShelfScan proje
   ```
 - Use `{} as Type` for context default values where a real default isn't available:
   ```typescript
-  createContext<ReturnType<typeof useGameUPCApi>>({} as ReturnType<typeof useGameUPCApi>);
+  createContext<ReturnType<typeof useFeatureHook>>({} as ReturnType<typeof useFeatureHook>);
   ```
 
 ### Imports

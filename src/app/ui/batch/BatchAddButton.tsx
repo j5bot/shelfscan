@@ -4,7 +4,7 @@ import { useStore } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { GameUPCBggInfo, GameUPCData } from '@/app/lib/types/GameUPCData';
+import { GameUPCBggInfo, GameUPCData } from 'gameupc-hooks/types';
 import React, { useCallback, useState } from 'react';
 import { FaCloudArrowUp } from 'react-icons/fa6';
 
