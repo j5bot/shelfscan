@@ -1,5 +1,5 @@
 import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
-import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from '@/app/lib/types/GameUPCData';
+import { GameUPCBggInfo, GameUPCBggVersion, GameUPCStatus } from 'gameupc-hooks/types';
 import { Thumbnail } from '@/app/ui/games/Thumbnail';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import React, { ReactNode } from 'react';

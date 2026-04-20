@@ -54,7 +54,7 @@ Defined in `.env` (local) and Vercel environment settings (production):
 | `BGG_TOKEN` | Bearer token for authenticated BGG XML API v2 requests (server-side only) |
 | `GAMEUPC_TOKEN` | API key for GameUPC API requests (server-side only, sent as `x-api-key` header) |
 
-Both are used exclusively in **Server Actions** (`src/app/lib/actions.ts`, `src/app/lib/services/gameupc/server.ts`) and are never exposed to the client.
+Both are used exclusively in **Server Actions** (`src/app/lib/actions.ts`, `gameupc-hooks/server`) and are never exposed to the client.
 
 ---
 
@@ -124,7 +124,7 @@ shelfscan/
 - Uses the **App Router** (not Pages Router). The root `layout.tsx` is a **Server Component**.
 - The `(overview)` route group wraps the main app in a **client-side layout** that provides all context providers.
 - The `/upc/[id]` route uses an **async Server Component** page with `params: Promise<{id}>` (Next.js 16 pattern).
-- **Server Actions** (`'use server'`) in `actions.ts` and `services/gameupc/server.ts` proxy external API calls to keep tokens secret.
+- **Server Actions** (`'use server'`) in `actions.ts` and `gameupc-hooks/server` proxy external API calls to keep tokens secret.
 
 ### State Management — Hybrid Approach
 1. **Redux Toolkit** — Global state for BGG user and collection data. Store created per-request via `makeStore()` pattern. Typed hooks exported from `lib/hooks/index.ts`.
@@ -167,8 +167,8 @@ shelfscan/
 | `src/app/(overview)/layout.tsx` | Provider nesting order — all context providers are composed here |
 | `src/app/(overview)/page.tsx` | Main scanner page — ties together scanning, UPC lookup, and display |
 | `src/app/lib/actions.ts` | Server Actions — BGG API proxy with auth |
-| `src/app/lib/services/gameupc/server.ts` | Server Actions — GameUPC API proxy with auth |
-| `src/app/lib/hooks/useGameUPCApi.ts` | Core hook — manages UPC data fetching, submission, and removal |
+| `gameupc-hooks/server` | Server Actions — GameUPC API proxy with auth |
+| `src/app/lib/GameUPCDataProvider.tsx` | GameUPC context provider backed by `gameupc-hooks/useGameUPC` |
 | `src/app/lib/database/database.ts` | Dexie schema — settings, plugins, collections |
 | `src/app/lib/database/cacheDatabase.ts` | Dexie schema — image and response caching |
 | `src/app/lib/redux/store.ts` | Redux store factory |

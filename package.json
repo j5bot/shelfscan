@@ -18,6 +18,7 @@
     "@vercel/analytics": "^2.0.1",
     "daisyui": "^5.5.19",
     "dexie": "^4.4.1",
+    "gameupc-hooks": "1.0.2",
     "jsdom": "^29.0.1",
     "motion": "^12.38.0",
     "next": "16.2.1",

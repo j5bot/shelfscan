@@ -13,7 +13,7 @@ import {
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionItem, BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
-import { GameUPCBggInfo, GameUPCBggVersion } from '@/app/lib/types/GameUPCData';
+import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import React, {
