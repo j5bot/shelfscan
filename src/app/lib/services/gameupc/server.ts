@@ -2,7 +2,7 @@
 
 import { makeGameUPCHost } from '@/app/lib/services/gameupc/constants';
 
-const useTestHost = !process.env.GAME_UPC_TOKEN;
+const useTestHost = !process.env.GAMEUPC_TOKEN;
 
 const gameUPCFetchOptions = {
     headers: new Headers({
