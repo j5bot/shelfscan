@@ -69,7 +69,7 @@ database.version(4).stores({
     dataforms: '++id',
 });
 
-database.version(4).stores({
+database.version(5).stores({
     settings: '++id',
     plugins: '++id',
     collections: '++id',
