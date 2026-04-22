@@ -1,6 +1,7 @@
 'use client';
 
 import { database, DataFormEntity } from '@/app/lib/database/database';
+import { transformSchemaKeys } from '@/app/lib/utils/formKeyTransform';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FaFolderOpen, FaFloppyDisk, FaTableList } from 'react-icons/fa6';
 
@@ -81,7 +82,7 @@ export const DataBuilder = () => {
             return;
         }
 
-        const schemaToSave = editorRef.current?.getSchema() ?? schema;
+        const schemaToSave = transformSchemaKeys(editorRef.current?.getSchema() ?? schema);
 
         if (currentId !== undefined) {
             await database.dataforms.put({ id: currentId, name: formName.trim(), schema: schemaToSave });
@@ -89,6 +90,7 @@ export const DataBuilder = () => {
             const newId = await database.dataforms.add({ name: formName.trim(), schema: schemaToSave });
             setCurrentId(newId as number);
         }
+        loadSchemaIntoEditor(schemaToSave).then();
         setSaveStatus(`Saved "${formName.trim()}"`);
         setTimeout(() => setSaveStatus(''), 3000);
     };

@@ -23,7 +23,7 @@ export type ScannedEntity = {
 export type DataFormEntity = {
     id?: number;
     name: string;
-    schema: object;
+    schema: object & { id: string };
 };
 
 export type PluginEntity = ShelfScanPlugin;

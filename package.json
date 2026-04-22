@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@blakeembrey/template": "^1.2.0",
-    "@bpmn-io/form-js": "^1.21.2",
-    "@bpmn-io/form-js-editor": "^1.21.2",
+    "@bpmn-io/form-js": "^1.21.3",
+    "@bpmn-io/form-js-editor": "^1.21.3",
+    "@bpmn-io/form-js-viewer": "^1.21.3",
     "@loadable/component": "^5.16.7",
     "@react-barcode-scanner/components": "0.0.77",
     "@reactuses/core": "^6.3.0",

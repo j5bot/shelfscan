@@ -2,7 +2,7 @@
 
 import { database, DataFormEntity } from '@/app/lib/database/database';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FaChevronDown, FaFloppyDisk } from 'react-icons/fa6';
+import { FaArrowRotateLeft, FaChevronDown, FaFloppyDisk } from 'react-icons/fa6';
 
 import '@bpmn-io/form-js/dist/assets/form-js.css';
 
@@ -22,7 +22,9 @@ type FormInstanceEntry = {
     viewer: FormViewer | null;
 };
 
-const DataFormItem = ({ entry, onViewerReady }: {
+const DataFormItem = ({ data, setData, entry, onViewerReady }: {
+    data?: unknown;
+    setData: (id: string, data?: unknown) => void;
     entry: FormInstanceEntry;
     onViewerReady: (id: number, viewer: FormViewer) => void;
 }) => {
@@ -31,7 +33,20 @@ const DataFormItem = ({ entry, onViewerReady }: {
     const [open, setOpen] = useState(false);
 
     useEffect(() => {
-        if (!open || viewerRef.current) return;
+        if (!(viewerRef.current && data)) {
+            return;
+        }
+
+        (async () => {
+            const viewer = viewerRef.current;
+            await viewer?.importSchema(entry.schema, data);
+        })();
+    }, [data, entry.schema]);
+
+    useEffect(() => {
+        if (!open || viewerRef.current) {
+            return;
+        }
 
         let destroyed = false;
 
@@ -45,7 +60,7 @@ const DataFormItem = ({ entry, onViewerReady }: {
             });
 
             viewerRef.current = viewer;
-            await viewer.importSchema(entry.schema);
+            await viewer.importSchema(entry.schema, data ?? undefined);
             onViewerReady(entry.id, viewer);
         })();
 
@@ -56,9 +71,16 @@ const DataFormItem = ({ entry, onViewerReady }: {
                 viewerRef.current = null;
             }
         };
-    }, [open, entry.id, entry.schema, onViewerReady]);
+    }, [data, open, entry.id, entry.schema, onViewerReady]);
 
-    const toggleOpen = () => setOpen(!open);
+    const toggleOpen = () => {
+        // when closing, grab the data from the form and store it
+        if (open && viewerRef.current && data) {
+            const { data: formData } = viewerRef.current.submit();
+            setData(entry.schema.id, formData);
+        }
+        setOpen(!open);
+    };
 
     return <div className="collapse collapse-arrow bg-base-200 mb-1">
         <input type="checkbox" checked={open} onChange={toggleOpen} />
@@ -74,7 +96,21 @@ const DataFormItem = ({ entry, onViewerReady }: {
 
 export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
     const [forms, setForms] = useState<DataFormEntity[]>([]);
+    const [data, setData] = useState<Record<string, unknown>>({});
+
     const viewersRef = useRef<Map<number, FormViewer>>(new Map());
+
+    const sendGetData = () => {
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: {
+                userId,
+                type: 'getData',
+                collectionId,
+                timestamp: Date.now(),
+            },
+        });
+        document.dispatchEvent(ce);
+    };
 
     useEffect(() => {
         let active = true;
@@ -87,45 +123,61 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
     }, []);
 
     useEffect(() => {
-        if (forms.length === 0) {
+        if (forms.length === 0 || !collectionId || !userId) {
             return;
         }
 
         const handler = (event: MessageEvent) => {
-            if (event.data?.type === 'getData-response') {
-                console.log('getData response:', event.data);
+            if (event.origin !== 'https://boardgamegeek.com') {
+                return;
+            }
+            switch (event.data?.type) {
+                case 'getData-response':
+                    handleGetDataResponse(event.data.response.body);
+                    break;
+                default:
+                    break;
             }
         };
         window.addEventListener('message', handler);
 
         setTimeout(() => {
-            console.log('getData sending');
-            const ce = new CustomEvent('shelfscan-sync', {
-                detail: {
-                    userId,
-                    type: 'getData',
-                    collectionId,
-                    timestamp: Date.now(),
-                },
-            });
-            document.dispatchEvent(ce);
-        }, 5000);
+            sendGetData();
+        }, 2000);
 
         return () => { window.removeEventListener('message', handler); };
     }, [forms.length, collectionId, userId]);
+
+    const handleGetDataResponse = (body: string) => {
+        const segments = body.split('\n', 2);
+        const data = JSON.parse(segments[1]);
+        setData(data);
+
+        forms.forEach(form => {
+            const viewer = viewersRef.current.get(form.id!);
+            if (!viewer) {
+                return;
+            }
+            viewer.importSchema(form.schema, data[form.schema.id]).then();
+        })
+    };
 
     const handleViewerReady = useCallback((id: number, viewer: FormViewer) => {
         viewersRef.current.set(id, viewer);
     }, []);
 
     const handleSaveAll = () => {
-        const dataArray: string[] = [];
-        for (const form of forms) {
+        const dataObject: Record<string, unknown> = data ? { ...data} : {};
+        forms.forEach(form => {
             const viewer = viewersRef.current.get(form.id!);
-            if (!viewer) continue;
+            if (!viewer) {
+                return;
+            }
             const { data } = viewer.submit();
-            dataArray.push(JSON.stringify(data));
-        }
+            dataObject[form.schema.id] = data;
+        });
+
+        setData(dataObject);
 
         const ce = new CustomEvent('shelfscan-sync', {
             detail: {
@@ -134,10 +186,14 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
                 collectionId,
                 gameId,
                 timestamp: Date.now(),
-                formValues: { data: dataArray },
+                formValues: { data: JSON.stringify(dataObject) },
             },
         });
         document.dispatchEvent(ce);
+    };
+
+    const setFormData = (id: string, formData: unknown) => {
+        setData({ ...data, [id]: formData });
     };
 
     if (!(collectionId && userId && gameId)) {
@@ -159,22 +215,38 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
         <div className="w-full px-2 py-1 rounded-lg">
             <div className="flex justify-between items-center w-full pl-2 py-2">
                 <h3>Data Forms</h3>
-                <div className="relative shrink-0 xs:w-26 w-28 xs:h-7 h-8">
-                    <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-26 w-28"></div>
-                    <button onClick={handleSaveAll} className="collection-button cursor-pointer rounded-full
-                    relative
-                    flex justify-start items-center
-                    bg-[#e07ca4] text-white
-                    p-1 pl-1.5 xs:h-7 h-8
-                    xs:font-stretch-condensed xs:tracking-tight
-                    text-sm">
-                        <FaFloppyDisk /> <div className="p-1 font-semibold uppercase">Save All</div>
-                    </button>
+                <div className="flex justify-end gap-1.5">
+                    <div className="relative shrink-0 xs:w-20 w-22 xs:h-7 h-8">
+                        <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-20 w-22"></div>
+                        <button onClick={sendGetData} className="collection-button cursor-pointer rounded-full
+                        relative
+                        flex justify-start items-center
+                        bg-[#e07ca4] text-white
+                        p-2 pl-2.5 xs:h-7 h-8
+                        xs:font-stretch-condensed xs:tracking-tight
+                        text-sm">
+                            <FaArrowRotateLeft /> <div className="p-1 font-semibold uppercase">Reset</div>
+                        </button>
+                    </div>
+                    <div className="relative shrink-0 xs:w-26 w-28 xs:h-7 h-8">
+                        <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-26 w-28"></div>
+                        <button onClick={handleSaveAll} className="collection-button cursor-pointer rounded-full
+                        relative
+                        flex justify-start items-center
+                        bg-[#e07ca4] text-white
+                        p-2 pl-2.5 xs:h-7 h-8
+                        xs:font-stretch-condensed xs:tracking-tight
+                        text-sm">
+                            <FaFloppyDisk /> <div className="p-1 font-semibold uppercase">Save All</div>
+                        </button>
+                    </div>
                 </div>
             </div>
             {entries.map((entry) =>
                 <DataFormItem
                     key={entry.id}
+                    data={data?.[entry.schema.id]}
+                    setData={setFormData}
                     entry={entry}
                     onViewerReady={handleViewerReady}
                 />,
