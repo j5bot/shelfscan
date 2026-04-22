@@ -141,11 +141,14 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
         };
         window.addEventListener('message', handler);
 
-        setTimeout(() => {
+        const timeoutId = window.setTimeout(() => {
             sendGetData();
         }, 2000);
 
-        return () => { window.removeEventListener('message', handler); };
+        return () => {
+            window.clearTimeout(timeoutId);
+            window.removeEventListener('message', handler);
+        };
     }, [forms.length, collectionId, userId]);
 
     const handleGetDataResponse = (body: string) => {
@@ -193,7 +196,7 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
     };
 
     const setFormData = (id: string, formData: unknown) => {
-        setData({ ...data, [id]: formData });
+        setData(prev => ({ ...(prev ?? {}), [id]: formData }));
     };
 
     if (!(collectionId && userId && gameId)) {

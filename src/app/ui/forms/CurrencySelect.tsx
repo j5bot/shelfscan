@@ -43,7 +43,7 @@ export const CurrencySelect = ({
                 setValue(field, event.currentTarget.value)}
     >
         {currencies.map(currency =>
-            <option key={currency.label}
+            <option key={currency.value ?? 'empty-currency'}
                     value={currency.value}>{currency.label}</option>
         )}
 </select>;
