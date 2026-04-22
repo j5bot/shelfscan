@@ -183,8 +183,8 @@ export const SelectVersion = () => {
                         renderSelectedItem={renderSelectedItemFn}
                     />
                 </div>}
-                {secondaryActions && <div className="flex justify-center min-h-17 items-center">{secondaryActions}</div>}
             </div>}
+            {secondaryActions && <div className="flex justify-center min-h-17 w-full md:w-2/3 min-w-1/2 lg:min-w-1/3 items-center">{secondaryActions}</div>}
             <div className="flex justify-center pt-10">
                 <Link title={'Scan More Games'} href="/">
                     <button

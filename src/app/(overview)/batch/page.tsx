@@ -106,7 +106,7 @@ export default function Page() {
             </div>
             <Suspense>
                 <div className={`relative w-full h-full
-                    bg-orange-50 dark:bg-yellow-700 p-2 rounded-lg`}>
+                    bg-[#f1eff9] dark:bg-yellow-700 p-2 rounded-lg`}>
                     <div className="flex flex-col justify-center h-full w-full">
                         {codes.length > 0
                             ? <>

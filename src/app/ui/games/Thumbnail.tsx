@@ -43,7 +43,7 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         <div className="flex justify-center p-1">
             <div className={`
                     relative
-                    bg-orange-50
+                    bg-[#f1eff9]
                     flex justify-center items-center
                     rounded-md overflow-clip
                     focus:overflow-visible focus:scale-150

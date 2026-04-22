@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
-import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaNewspaper } from 'react-icons/fa6';
+import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaNewspaper, FaTableList } from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
 
 const closeOnNavigate = () => {
@@ -121,7 +121,7 @@ export const NavDrawer = () => {
                 <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
                 <div className="bg-overlay bg-base-200 min-h-full w-1/2 md:w-80 p-2 mr-0">
                     {username && <div className="flex flex-wrap gap-2 p-2">
-                        <img className="bg-orange-200 rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />
+                        <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />
                         <div className="">
                             <div>{username}</div>
                             <div className="text-xs">{name}</div>
@@ -159,6 +159,11 @@ export const NavDrawer = () => {
                             <Link className="flex gap-2 grow" href="https://boardgamegeek.com/blog/16520/shelfscan-news"
                                   target="_blank" onNavigate={closeOnNavigate}>
                                 <FaNewspaper className="inline" /> Blog
+                            </Link>
+                        </li>
+                        <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/data-builder/" onNavigate={closeOnNavigate}>
+                                <FaTableList className="inline" /> Data Builder
                             </Link>
                         </li>
                         <li className="w-full mt-6">

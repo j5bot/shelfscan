@@ -1,0 +1,7 @@
+[data-field-type="expression"],
+[data-field-type="filepicker"],
+[data-group-id="presentation"],
+[data-group-id="container"],
+[data-group-id="action"] {
+    display: none !important;
+}

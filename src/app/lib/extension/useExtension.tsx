@@ -16,6 +16,7 @@ import { BggCollectionItem, BggCollectionStatuses, BGGPlayer } from '@/app/lib/t
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
+import { DataForms } from '@/app/ui/extension/DataForms';
 import React, {
     Fragment,
     SyntheticEvent,
@@ -527,7 +528,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         {primaries}
     </> : null
 
-    const secondaryActions = syncOn && userId && null;
+    const secondaryActions = syncOn && userId && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };
@@ -564,7 +565,7 @@ export const useExtensionResponse = () => {
                     collectionItem?.collid)) {
                 return;
             }
-            if (detail.type.startsWith('sell')) {
+            if (detail.type.startsWith('sell') || detail.type.startsWith('get')) {
                 return;
             }
             const { shouldRemove } = detail.response ?? {};
