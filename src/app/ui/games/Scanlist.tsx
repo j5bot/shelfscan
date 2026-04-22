@@ -123,7 +123,7 @@ export const ScanItem = (props: ScanItemProps) => {
             break;
     }
 
-    return <li className="relative rounded-md bg-orange-100 dark:bg-orange-900" key={code}>
+    return <li className="relative rounded-md bg-white dark:bg-gray-900" key={code}>
         <button className="remove-scan-item absolute bottom-0.5 left-0.5 md:bottom-1 md:left-1"
                 title="Remove from List"
                 onClick={() => removeFromList(code)}

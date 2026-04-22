@@ -79,6 +79,13 @@ details summary::-webkit-details-marker {
 .fjs-container .fjs-form {
   padding: 0 !important;
 }
+
+.fjs-taglist-tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .cds--grid, .cds--col {
   padding-left: 0 !important;
   padding-right: 0 !important;

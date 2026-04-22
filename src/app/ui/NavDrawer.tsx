@@ -121,7 +121,7 @@ export const NavDrawer = () => {
                 <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
                 <div className="bg-overlay bg-base-200 min-h-full w-1/2 md:w-80 p-2 mr-0">
                     {username && <div className="flex flex-wrap gap-2 p-2">
-                        <img className="bg-orange-200 rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />
+                        <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />
                         <div className="">
                             <div>{username}</div>
                             <div className="text-xs">{name}</div>
