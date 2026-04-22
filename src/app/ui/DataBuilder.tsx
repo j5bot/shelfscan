@@ -54,7 +54,6 @@ export const DataBuilder = () => {
 
             editorRef.current = editor;
 
-            console.info('schema', schemaRef.current);
             await editor.importSchema(schemaRef.current);
             editor.on('changed', handleSchemaChange);
         })();
