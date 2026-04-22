@@ -153,15 +153,25 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
 
     const handleGetDataResponse = (body: string) => {
         const segments = body.split('\n', 2);
-        const data = JSON.parse(segments[1]);
-        setData(data);
+        if (!segments[1]) {
+            return;
+        }
+        
+        let storedData: Record<string, unknown>;
+        try {
+            storedData = JSON.parse(segments[1]);
+        } catch (e) {
+            console.error('Failed to parse stored data', e);
+            return;
+        }
+        setData(storedData);
 
         forms.forEach(form => {
             const viewer = viewersRef.current.get(form.id!);
             if (!viewer) {
                 return;
             }
-            viewer.importSchema(form.schema, data[form.schema.id]).then();
+            viewer.importSchema(form.schema, storedData[form.schema.id]!).then();
         })
     };
 

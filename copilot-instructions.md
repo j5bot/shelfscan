@@ -175,12 +175,6 @@ This document defines the coding conventions used throughout the ShelfScan proje
   export default ExtensionPage;
   ```
 
-### `'use client'` Directive
-- Place `'use client'` as the very first line of any file that uses React hooks, browser APIs, or event handlers.
-- The `(overview)/layout.tsx` is a client component. All pages under it can be client components.
-- Server Components do not have the directive (e.g., root `layout.tsx`, `upc/[id]/page.tsx`).
-- Server Actions files use `'use server'` as the first line.
-
 ### JSX Patterns
 - **Return fragments** (`<>...</>`) for components returning multiple top-level elements. Never wrap in unnecessary `<div>`.
 - **Inline returns**: For short components, return JSX directly without assigning to a variable.
@@ -469,6 +463,16 @@ export default bggUserSlice.reducer;
 - **`void` operator**: Used to suppress TypeScript unused-variable errors for intentionally unused values. Also used to mark `.then()` calls whose result is intentionally discarded.
 - **`Object.assign`**: Preferred over spread (`...`) for merging objects in several places (especially headers, reducer state). Both are used, but `Object.assign` appears in more performance-sensitive code.
 - **No `null` returns from components**: Components return `undefined` (implicit) or falsy via `&&` short-circuit. `null` is used only in `useState<T | null>(null)`.
+- **Always use block bodies** for `if` statements, even for single-line bodies. Never omit 
+  braces.
+  ```typescript
+  if (!item) {
+      return;
+  }
+  if (!id) {
+      return undefined;
+  }
+  ```
 - **Boolean-ish checks**: Use `!!value` for truthy coercion. Use bare `if (!value)` for early returns.
 - **Early returns**: Guard clauses at the top of functions for invalid state:
   ```typescript
