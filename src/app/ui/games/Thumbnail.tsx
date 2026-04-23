@@ -16,6 +16,10 @@ type ThumbnailInnerProps = {
     className?: string;
 };
 
+const noImageFallback = <div className="flex justify-center p-1">
+    <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
+</div>;
+
 const ThumbnailInner = ({ promise, className }: ThumbnailInnerProps) => {
     const imageProps = use(promise);
     return <img className={`object-contain ${className}`} {...imageProps} />;
@@ -70,16 +74,14 @@ const ThumbnailBoxInner = ({ promise, size, styles }: ThumbnailBoxInnerProps) =>
                 />
             </div>
         </div>
-    ) : (
-        <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
-    );
+    ) : noImageFallback;
 };
 
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {
     const { alt = props.url, url, styles, size } = props;
 
     if (!url) {
-        return <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />;
+        return noImageFallback;
     }
 
     const promise = useImagePropsWithCache({
