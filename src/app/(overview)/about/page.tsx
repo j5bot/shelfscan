@@ -77,7 +77,7 @@ const AboutPage = () => {
                     lots of extra features that bring together BGG and the web app with a
                     low-cost subscription.
                 </p>
-                <ul className="font-sharetech text-md pb-4">
+                <ul className="font-sharetech text-md pb-4 do-more">
                     <li>[ <FaPlus className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Your Collection ]</li>
                     <li>[ <FaRecycle className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games For Trade ]</li>
                     <li>[ <FaClock className="h-2.5 w-3.5 inline-block mr-0.5" /> Set Previously Owned ]</li>
