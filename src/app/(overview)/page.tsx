@@ -187,7 +187,7 @@ export default function Page() {
                     <button
                         className="btn btn-sm btn-ghost"
                         onClick={() => {
-                            clearHistory().then();
+                            void clearHistory();
                             setHistoryLimitReached(false);
                         }}
                     >

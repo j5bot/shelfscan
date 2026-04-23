@@ -58,7 +58,7 @@ type ScanHistoryContextValue = {
     clearScanError: () => void;
     recordScan: (opts: RecordScanOptions) => Promise<RecordScanResult>;
     updateEntry: (id: number, updates: UpdateScanOptions) => Promise<void>;
-    clearHistory: () => Promise<void>;
+    clearHistory: () => Promise<boolean>;
     associateScans: (username: string) => Promise<number>;
 };
 
@@ -69,7 +69,7 @@ const ScanHistoryContext = createContext<ScanHistoryContextValue>({
     clearScanError: () => undefined,
     recordScan: async () => ({ kind: 'limitReached' }),
     updateEntry: async () => undefined,
-    clearHistory: async () => undefined,
+    clearHistory: async () => false,
     associateScans: async () => 0,
 });
 
@@ -182,14 +182,16 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
-    const clearHistory = useCallback(async () => {
+    const clearHistory = useCallback(async (): Promise<boolean> => {
         try {
             await clearScanHistory();
             setScanHistory([]);
+            return true;
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to clear scan history';
             console.error('[ScanHistory] clearHistory error:', err);
             setScanError(message);
+            return false;
         }
     }, []);
 
