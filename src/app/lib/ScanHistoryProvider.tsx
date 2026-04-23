@@ -48,23 +48,28 @@ type UpdateScanOptions = {
 type RecordScanResult =
     | { kind: 'added'; id: number }
     | { kind: 'duplicate'; previousEntry: ScanHistoryEntry }
-    | { kind: 'limitReached' };
+    | { kind: 'limitReached' }
+    | { kind: 'error'; message: string };
 
 type ScanHistoryContextValue = {
     scanHistory: ScanHistoryEntry[];
     unmatchedScans: ScanHistoryEntry[];
+    scanError: string | null;
+    clearScanError: () => void;
     recordScan: (opts: RecordScanOptions) => Promise<RecordScanResult>;
     updateEntry: (id: number, updates: UpdateScanOptions) => Promise<void>;
-    clearHistory: () => Promise<void>;
+    clearHistory: () => Promise<boolean>;
     associateScans: (username: string) => Promise<number>;
 };
 
 const ScanHistoryContext = createContext<ScanHistoryContextValue>({
     scanHistory: [],
     unmatchedScans: [],
+    scanError: null,
+    clearScanError: () => undefined,
     recordScan: async () => ({ kind: 'limitReached' }),
     updateEntry: async () => undefined,
-    clearHistory: async () => undefined,
+    clearHistory: async () => false,
     associateScans: async () => 0,
 });
 
@@ -85,10 +90,19 @@ const pruneOldUnmatched = async (entries: ScanHistoryEntry[]): Promise<ScanHisto
 
 export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
     const [scanHistory, setScanHistory] = useState<ScanHistoryEntry[]>([]);
+    const [scanError, setScanError] = useState<string | null>(null);
+
+    const clearScanError = useCallback(() => setScanError(null), []);
 
     const loadHistory = useCallback(async () => {
-        const entries = await getScanHistory();
-        setScanHistory(entries);
+        try {
+            const entries = await getScanHistory();
+            setScanHistory(entries);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to load scan history';
+            console.error('[ScanHistory] loadHistory error:', err);
+            setScanError(message);
+        }
     }, []);
 
     useEffect(() => {
@@ -111,7 +125,13 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         let currentCount = await getScanHistoryCount();
         let currentHistory = scanHistory;
         if (currentCount >= MAX_SCAN_HISTORY) {
-            currentHistory = await pruneOldUnmatched(currentHistory);
+            try {
+                currentHistory = await pruneOldUnmatched(currentHistory);
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Failed to prune scan history';
+                console.error('[ScanHistory] pruneOldUnmatched error:', err);
+                setScanError(message);
+            }
             currentCount = currentHistory.length;
             if (currentCount >= MAX_SCAN_HISTORY) {
                 return { kind: 'limitReached' };
@@ -134,24 +154,45 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
             ...(opts.username !== undefined && { username: opts.username }),
         };
 
-        const id = await addScanHistoryEntry(entry);
-        if (id === undefined) {
-            return { kind: 'limitReached' };
+        try {
+            const id = await addScanHistoryEntry(entry);
+            if (id === undefined) {
+                return { kind: 'limitReached' };
+            }
+            setScanHistory(prev => [{ ...entry, id }, ...prev]);
+            return { kind: 'added', id };
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to save scan';
+            console.error('[ScanHistory] addScanHistoryEntry error:', err);
+            setScanError(message);
+            return { kind: 'error', message };
         }
-        setScanHistory(prev => [{ ...entry, id }, ...prev]);
-        return { kind: 'added', id };
     }, [scanHistory]);
 
     const updateEntry = useCallback(async (id: number, updates: UpdateScanOptions) => {
-        await updateScanHistoryEntry(id, updates);
-        setScanHistory(prev =>
-            prev.map(e => e.id === id ? { ...e, ...updates, updatedAt: Math.floor(Date.now() / 1000) } : e),
-        );
+        try {
+            await updateScanHistoryEntry(id, updates);
+            setScanHistory(prev =>
+                prev.map(e => e.id === id ? { ...e, ...updates, updatedAt: Math.floor(Date.now() / 1000) } : e),
+            );
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to update scan entry';
+            console.error('[ScanHistory] updateEntry error:', err);
+            setScanError(message);
+        }
     }, []);
 
-    const clearHistory = useCallback(async () => {
-        await clearScanHistory();
-        setScanHistory([]);
+    const clearHistory = useCallback(async (): Promise<boolean> => {
+        try {
+            await clearScanHistory();
+            setScanHistory([]);
+            return true;
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Failed to clear scan history';
+            console.error('[ScanHistory] clearHistory error:', err);
+            setScanError(message);
+            return false;
+        }
     }, []);
 
     const associateScans = useCallback(async (username: string): Promise<number> => {
@@ -170,6 +211,8 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
     return <ScanHistoryContext.Provider value={{
         scanHistory,
         unmatchedScans,
+        scanError,
+        clearScanError,
         recordScan,
         updateEntry,
         clearHistory,
