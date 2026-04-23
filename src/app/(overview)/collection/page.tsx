@@ -133,17 +133,17 @@ export default function CollectionPage() {
                         <p className="text-lg">
                             Your collection is empty. Start scanning games to see them here!
                         </p>
-                        <Link href="/" title="Go to scanner">
-                            <button
-                                className={`scan-button cursor-pointer rounded-2xl
-                                    flex justify-start items-center
-                                    bg-gray-400 text-white
-                                    p-6 pt-2 pb-2
-                                    text-4xl`}
-                            >
-                                <FaBarcode className="w-12 h-9" />
-                                <div className="p-1.5 font-semibold uppercase">Scan</div>
-                            </button>
+                        <Link
+                            href="/"
+                            title="Go to scanner"
+                            className={`scan-button cursor-pointer rounded-2xl
+                                flex justify-start items-center
+                                bg-gray-400 text-white
+                                p-6 pt-2 pb-2
+                                text-4xl`}
+                        >
+                            <FaBarcode className="w-12 h-9" />
+                            <div className="p-1.5 font-semibold uppercase">Scan</div>
                         </Link>
                     </div>
                 );
@@ -160,13 +160,17 @@ export default function CollectionPage() {
                         itemContent={(index) => {
                             const item = items[index];
                             const thumbnailUrl = item.version?.image ?? '';
-                            const statusText = item.statuses.own
-                                ? 'Owned'
-                                : item.statuses.fortrade
-                                    ? 'For Trade'
-                                    : item.statuses.wishlist
-                                        ? 'Wishlist'
-                                        : 'In Collection';
+
+                            let statusText: string;
+                            if (item.statuses.own) {
+                                statusText = 'Owned';
+                            } else if (item.statuses.fortrade) {
+                                statusText = 'For Trade';
+                            } else if (item.statuses.wishlist) {
+                                statusText = 'Wishlist';
+                            } else {
+                                statusText = 'In Collection';
+                            }
 
                             return (
                                 <ListGame
