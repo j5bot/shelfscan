@@ -12,9 +12,17 @@ export type Codes = string[];
 const CodesContext =
     createContext<{
         codes: Codes;
+        addHistoryID: (code: string, historyID: number) => void;
+        getHistoryIDs: (code: string) => number[];
         setCodes: (codes: Codes) => void;
         loaded: boolean;
-    }>({ codes: [], setCodes: () => undefined, loaded: false });
+    }>({
+        codes: [],
+        addHistoryID: () => undefined,
+        getHistoryIDs: () => [],
+        setCodes: () => undefined,
+        loaded: false,
+    });
 
 type Props = {
     children: ReactNode;
@@ -27,6 +35,7 @@ export const CodesProvider = ({ children }: Props) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const [codes, setCodesInner] = useState<Codes>([]);
     const [loaded, setLoaded] = useState(false);
+    const historyIDsRef = useRef<Record<string, number[]>>({});
 
     const persistKey = username ? `${username.toLowerCase()}|codes` : undefined;
     const persistKeyRef = useRef(persistKey);
@@ -37,6 +46,13 @@ export const CodesProvider = ({ children }: Props) => {
     const setCodes = useCallback((newCodes: Codes) => {
         setCodesInner([...newCodes]);
     }, []);
+
+    const addHistoryID = (code: string, historyID: number) => {
+        const ids = historyIDsRef.current[code] ?? [];
+        ids.push(historyID);
+        historyIDsRef.current[code] = ids;
+    };
+    const getHistoryIDs = (code: string) => historyIDsRef.current[code];
 
     // load persisted codes from db
     useEffect(() => {
@@ -70,7 +86,7 @@ export const CodesProvider = ({ children }: Props) => {
         }
     }, [codes, loaded]);
 
-    return <CodesContext.Provider value={{ codes, setCodes, loaded }}>
+    return <CodesContext.Provider value={{ codes, addHistoryID, getHistoryIDs, setCodes, loaded }}>
         {children}
     </CodesContext.Provider>;
 };

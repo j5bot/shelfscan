@@ -8,6 +8,8 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
+import { hasSeenTour } from '@/app/lib/tours';
+import { ScanHistoryError, ScanHistoryMatchStatus } from '@/app/lib/types/scanHistory';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -15,20 +17,16 @@ import { Scanner } from '@/app/ui/Scanner';
 import { SessionLink } from '@/app/ui/SessionLink';
 import { UnmatchedScansTab } from '@/app/ui/UnmatchedScansTab';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
-import { type GameUPCData, GameUPCStatus } from 'gameupc-hooks/types';
+import { GameUPCStatus } from 'gameupc-hooks/types';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { hasSeenTour } from '../lib/tours';
 
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
 
 const convertFromCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 36).toString(10));
-
-const isGameMatched = (data: GameUPCData) =>
-    data.bgg_info_status !== GameUPCStatus.none && data.bgg_info?.length > 0;
 
 export default function Page() {
     useTitle('ShelfScan | Scanner');
@@ -48,16 +46,14 @@ export default function Page() {
 
     const {
         codes,
+        addHistoryID,
         setCodes,
     } = useCodes();
 
-    const { recordScan, updateStatus } = useScanHistory();
-
-    // Track history IDs per UPC to update status when data arrives;
-    // entries are removed after status update to prevent re-processing.
-    const historyIdRef = useRef<Record<string, number>>({});
+    const { recordScan } = useScanHistory();
 
     const [activeTab, setActiveTab] = useState<'current' | 'unmatched'>('current');
+    const [isScanning, setIsScanning] = useState<boolean>(false);
 
     const compressedCodes = useMemo(() =>
         convertToCompressedCodes(codes),
@@ -93,38 +89,54 @@ export default function Page() {
         );
     }, [searchParams, setCodes]);
 
-    // Update scan history status when game data resolves
-    useEffect(() => {
-        if (!gameDataMap) {
-            return;
-        }
-        Object.entries(gameDataMap).forEach(([upc, data]) => {
-            const historyId = historyIdRef.current[upc];
-            if (historyId === undefined) {
-                return;
-            }
-            if (isGameMatched(data)) {
-                updateStatus(historyId, 'matched').then();
-                delete historyIdRef.current[upc];
-            }
-        });
-    }, [gameDataMap, updateStatus]);
-
     void submitOrVerifyGame;
     void removeGame;
 
     const onScan = useCallback((code: string) => {
-        if (!codes.includes(code)) {
-            codes.unshift(code);
-            setCodes(codes);
+        if (isScanning) {
+            return;
         }
-        recordScan(code).then(id => {
-            if (id !== undefined) {
-                historyIdRef.current[code] = id;
+        setIsScanning(true);
+        if (codes.includes(code)) {
+            return;
+        }
+
+        getGameData(code).then(data => {
+            if (!data) {
+                return;
             }
-        });
-        getGameData(code).then();
-    }, [codes, setCodes, recordScan, getGameData]);
+            const bggInfo = data.bgg_info?.[0];
+            recordScan({
+                upc: code,
+                username: currentUsername ?? undefined,
+                status: ScanHistoryMatchStatus.matched,
+                verified: data?.bgg_info_status === GameUPCStatus.verified,
+                gameName: bggInfo?.name,
+                bggId: bggInfo?.id,
+                thumbnailUrl: bggInfo?.thumbnail_url,
+            }).then(result => {
+                if (result.kind !== 'added') {
+                    return;
+                }
+                addHistoryID(code, result.id);
+            });
+        }).catch(() => {
+            recordScan({
+                upc: code,
+                username: currentUsername ?? undefined,
+                status: ScanHistoryMatchStatus.unmatched,
+                error: ScanHistoryError.other,
+            }).then(result => {
+                if (result.kind !== 'added') {
+                    return;
+                }
+                addHistoryID(code, result.id);
+            });
+        }).finally(() => setIsScanning(false));
+
+        codes.unshift(code);
+        setCodes(codes);
+    }, [codes, isScanning, setCodes, recordScan, getGameData, currentUsername]);
 
     const tabClass = (tab: 'current' | 'unmatched') =>
         `tab${activeTab === tab ? ' tab-active' : ''}`;
