@@ -1,15 +1,15 @@
 import { useCodes } from '@/app/lib/CodesProvider';
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { GameListContainer } from '@/app/ui/games/GameListContainer';
+import { ListGame } from '@/app/ui/games/ListGame';
 import {
     GameUPCData, GameUPCStatus,
     GameUPCVersionStatusText
 } from 'gameupc-hooks/types';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { getConfidenceLevelColor } from '@/app/ui/games/renderers';
-import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
-import Link from 'next/link';
 import { ReactNode } from 'react';
 import { FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
 import {
@@ -58,7 +58,7 @@ export const ScanItem = (props: ScanItemProps) => {
     }
 
     const {
-        name = 'Nothing Found',
+        name: infoName = 'Nothing Found',
         confidence = 0,
     } = bggInfo?.[infoIndex] ?? {};
 
@@ -67,7 +67,7 @@ export const ScanItem = (props: ScanItemProps) => {
         thumbnail_url: thumbnailUrl,
     } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
 
-    const combinedName = name + (versionName ? ` (${versionName})` : '');
+    const name = infoName + (versionName ? ` (${versionName})` : '');
 
     const imageSize = getImageSizeFromUrl(thumbnailUrl ?? '');
     const smallSquareSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
@@ -123,40 +123,30 @@ export const ScanItem = (props: ScanItemProps) => {
             break;
     }
 
-    return <li className="relative rounded-md bg-white dark:bg-gray-900" key={code}>
-        <button className="remove-scan-item absolute bottom-0.5 left-0.5 md:bottom-1 md:left-1"
-                title="Remove from List"
-                onClick={() => removeFromList(code)}
+    const key = code;
+    const detailUrl = `/upc/${code}`;
+    const bottomLeftIcon = <button
+        className="remove-scan-item absolute bottom-0.5 left-0.5 md:bottom-1 md:left-1"
+        title="Remove from List"
+        onClick={() => removeFromList(code)}
         >
             <IoTrashBin size={15} className="shrink-0 cursor-pointer" />
-        </button>
-        <Link
-            href={`/upc/${code}`}
-            className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
-            title={statusText}
-        >
-            {statusIcon}
-        </Link>
-        <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
-            <div className="flex justify-center items-center gap-1.5">
-                {cornerIcon}
-                <div
-                    className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
-                    title={combinedName}
-                >
-                    {combinedName}
-                </div>
-            </div>
-            <Link href={`/upc/${code}`}>
-                <ThumbnailBox
-                    alt={combinedName}
-                    url={thumbnailUrl}
-                    size={smallSquareSize}
-                    styles={imageContainerStyles}
-                />
-            </Link>
-        </div>
-    </li>;
+        </button>;
+
+    const listGameProperties = {
+        bottomLeftIcon,
+        cornerIcon,
+        detailUrl,
+        imageContainerStyles,
+        key,
+        name,
+        smallSquareSize,
+        statusIcon,
+        statusText,
+        thumbnailUrl,
+    };
+
+    return <ListGame {...listGameProperties } />;
 };
 
 export const Scanlist = (props: ScanlistProps) => {
@@ -168,7 +158,7 @@ export const Scanlist = (props: ScanlistProps) => {
         setCodes(codes.filter(c => c !== code));
     };
 
-    return <ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+    return <GameListContainer>
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
                 <ScanItem code={code}
@@ -178,5 +168,5 @@ export const Scanlist = (props: ScanlistProps) => {
                 />
             </SelectVersionProvider>
         ))}
-    </ul>;
-}
+    </GameListContainer>;
+};
