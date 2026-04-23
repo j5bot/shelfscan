@@ -1,4 +1,4 @@
-import { enqueueFetch } from '@/app/lib/hooks/fetchQueue';
+import { enqueueFetch } from '@/app/lib/utils/fetchQueue';
 import { ImageProps } from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
