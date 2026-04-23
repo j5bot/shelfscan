@@ -1,5 +1,6 @@
 import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { MarketPreferences } from '@/app/lib/types/market';
+import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
 import { AuditEntry } from '../types/audit';
@@ -16,7 +17,7 @@ export type CollectionEntity = {
     value: BggCollectionMap;
 };
 
-export type AuditEntity = AuditEntry;
+export type ScanHistoryEntity = ScanHistoryEntry;
 
 export type ScannedEntity = {
     id: string;
@@ -39,6 +40,7 @@ export const database = new Dexie('db') as Dexie & {
     scanned: EntityTable<ScannedEntity, 'id'>;
     audits: EntityTable<AuditEntity, 'id'>;
     dataforms: EntityTable<DataFormEntity, 'id'>;
+    scanHistory: EntityTable<ScanHistoryEntity, 'id'>;
 };
 
 database.version(1).stores({
@@ -75,7 +77,7 @@ database.version(5).stores({
     collections: '++id',
     scanned: '++id',
     dataforms: '++id',
-    audits: '++id, gameId, collectionId',
+    scanHistory: '++id, upc, status, timestamp, username, bggId',
 });
 
 export const getSetting = async (id: string) =>
@@ -119,9 +121,6 @@ export const setCollection = async (id: string, value: BggCollectionMap) => {
 export const getPlugin = async (id: string) =>
     await database.plugins.get(id);
 
-export const addAudit = async (auditEntry: AuditEntry) =>
-    await database.audits.add(auditEntry);
-
 export const getScanned = async (id: string) =>
     (await database.scanned.get(id))?.codes;
 
@@ -136,3 +135,20 @@ export const setScanned = async (id: string, codes: string[]) => {
 
 export const removeScanned = async (id: string) =>
     await database.scanned.delete(id);
+
+export const addScanHistoryEntry = async (entry: Omit<ScanHistoryEntity, 'id'>) =>
+    await database.scanHistory.add(entry);
+
+export const updateScanHistoryEntry = async (id: number, updates: Partial<Omit<ScanHistoryEntity, 'id' | 'timestamp'>>) =>
+    await database.scanHistory.update(id, { ...updates, updatedAt: Math.floor(Date.now() / 1000) });
+
+export const getScanHistory = async () =>
+    await database.scanHistory
+        .orderBy('timestamp').reverse().toArray();
+
+export const clearScanHistory = async () =>
+    await database.scanHistory.clear();
+
+export const getScanHistoryCount = async () =>
+    await database.scanHistory.count();
+
