@@ -2,6 +2,7 @@
 
 import {
     addScanHistoryEntry,
+    associateAnonymousScans,
     clearScanHistory,
     database,
     getScanHistory,
@@ -55,6 +56,7 @@ type ScanHistoryContextValue = {
     recordScan: (opts: RecordScanOptions) => Promise<RecordScanResult>;
     updateEntry: (id: number, updates: UpdateScanOptions) => Promise<void>;
     clearHistory: () => Promise<void>;
+    associateScans: (username: string) => Promise<number>;
 };
 
 const ScanHistoryContext = createContext<ScanHistoryContextValue>({
@@ -63,6 +65,7 @@ const ScanHistoryContext = createContext<ScanHistoryContextValue>({
     recordScan: async () => ({ kind: 'limitReached' }),
     updateEntry: async () => undefined,
     clearHistory: async () => undefined,
+    associateScans: async () => 0,
 });
 
 export const useScanHistory = () => useContext(ScanHistoryContext);
@@ -151,6 +154,15 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         setScanHistory([]);
     }, []);
 
+    const associateScans = useCallback(async (username: string): Promise<number> => {
+        const updatedAt = Math.floor(Date.now() / 1000);
+        const count = await associateAnonymousScans(username);
+        setScanHistory(prev =>
+            prev.map(e => !e.username ? { ...e, username, updatedAt } : e),
+        );
+        return count;
+    }, []);
+
     const unmatchedScans = scanHistory.filter(
         e => e.status === ScanHistoryMatchStatus.unmatched,
     );
@@ -161,6 +173,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         recordScan,
         updateEntry,
         clearHistory,
+        associateScans,
     }}>
         {children}
     </ScanHistoryContext.Provider>;

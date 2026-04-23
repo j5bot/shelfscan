@@ -54,6 +54,7 @@ export default function Page() {
 
     const [activeTab, setActiveTab] = useState<'current' | 'unmatched'>('current');
     const [isScanning, setIsScanning] = useState<boolean>(false);
+    const [duplicateUpc, setDuplicateUpc] = useState<string | null>(null);
 
     const compressedCodes = useMemo(() =>
         convertToCompressedCodes(codes),
@@ -89,6 +90,14 @@ export default function Page() {
         );
     }, [searchParams, setCodes]);
 
+    useEffect(() => {
+        if (!duplicateUpc) {
+            return;
+        }
+        const timer = setTimeout(() => setDuplicateUpc(null), 4000);
+        return () => clearTimeout(timer);
+    }, [duplicateUpc]);
+
     void submitOrVerifyGame;
     void removeGame;
 
@@ -98,6 +107,7 @@ export default function Page() {
         }
         setIsScanning(true);
         if (codes.includes(code)) {
+            setIsScanning(false);
             return;
         }
 
@@ -115,6 +125,10 @@ export default function Page() {
                 bggId: bggInfo?.id,
                 thumbnailUrl: bggInfo?.thumbnail_url,
             }).then(result => {
+                if (result.kind === 'duplicate') {
+                    setDuplicateUpc(code);
+                    return;
+                }
                 if (result.kind !== 'added') {
                     return;
                 }
@@ -127,6 +141,10 @@ export default function Page() {
                 status: ScanHistoryMatchStatus.unmatched,
                 error: ScanHistoryError.other,
             }).then(result => {
+                if (result.kind === 'duplicate') {
+                    setDuplicateUpc(code);
+                    return;
+                }
                 if (result.kind !== 'added') {
                     return;
                 }
@@ -143,6 +161,15 @@ export default function Page() {
 
     return <>
         <NavDrawer />
+        {duplicateUpc && (
+            <div className="toast toast-top toast-center z-50" onClick={() => setDuplicateUpc(null)}>
+                <div role="alert" className="alert alert-warning shadow-lg cursor-pointer">
+                    <span className="text-sm">
+                        Already scanned <span className="font-mono">{duplicateUpc}</span> recently — duplicate not recorded.
+                    </span>
+                </div>
+            </div>
+        )}
         {breakpoint ? (
              <div className="flex flex-col w-full items-center p-3 sm:p-4">
                  <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
