@@ -7,11 +7,9 @@ import {
 
 describe('transforms utils', () => {
     describe('#capitalize', () => {
-        it('appends an upper-cased first character and the rest of the string', () => {
-            // The implementation: str.concat(str.charAt(0).toUpperCase(), str.substring(1))
-            // 'hello'.concat('H', 'ello') => 'helloHello'
+        it('capitalizes the first character and returns the rest unchanged', () => {
             const result = capitalize('hello');
-            expect(result).toEqual('helloHello');
+            expect(result).toEqual('Hello');
         });
 
         it('returns the input unchanged when the string is empty', () => {
@@ -19,17 +17,14 @@ describe('transforms utils', () => {
         });
 
         it('works for a single character', () => {
-            expect(capitalize('a')).toEqual('aA');
+            expect(capitalize('a')).toEqual('A');
         });
     });
 
     describe('#snakeToLowerCamelCase', () => {
-        it('joins segments with .join() default separator (comma), each non-first segment capitalized via the implementation', () => {
-            // capitalize('bar') = 'bar'.concat('B','ar') = 'barBar'
-            // capitalize('baz') = 'baz'.concat('B','az') = 'bazBaz'
-            // ['foo','barBar','bazBaz'].join() = 'foo,barBar,bazBaz'
+        it('converts a snake_case string to lowerCamelCase', () => {
             const result = snakeToLowerCamelCase('foo_bar_baz');
-            expect(result).toEqual('foo,barBar,bazBaz');
+            expect(result).toEqual('fooBarBaz');
         });
 
         it('returns a single segment unchanged', () => {
@@ -37,9 +32,10 @@ describe('transforms utils', () => {
             expect(result).toEqual('hello');
         });
 
-        it('handles a leading underscore producing an empty first segment', () => {
+        it('handles a leading underscore by producing an empty first segment', () => {
+            // '_foo' splits into ['', 'foo']; first stays '', 'foo' capitalizes to 'Foo'
             const result = snakeToLowerCamelCase('_foo');
-            expect(result).toContain('fooF');
+            expect(result).toEqual('Foo');
         });
     });
 
