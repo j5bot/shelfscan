@@ -31,11 +31,6 @@ cacheDatabase.version(2).stores({
     responses: '++id',
 });
 
-cacheDatabase.version(3).stores({
-    images: 'id',
-    responses: 'id',
-});
-
 const getImageCacheSize = async () => {
     const allImages = await cacheDatabase.images.toArray();
     const totalSize = (await Promise.all(allImages)).reduce((acc, image) => {

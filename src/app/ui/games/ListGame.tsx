@@ -7,7 +7,7 @@ export type ListGameProps = {
     cornerIcon?: ReactNode;
     detailUrl?: string;
     imageContainerStyles?: CSSProperties;
-    key: string;
+    keyValue: string;
     name: string;
     smallSquareSize: number;
     statusIcon: ReactNode;
@@ -21,7 +21,7 @@ export const ListGame = (props: ListGameProps) => {
         cornerIcon,
         detailUrl,
         imageContainerStyles,
-        key,
+        keyValue,
         name,
         smallSquareSize,
         statusIcon,
@@ -36,7 +36,7 @@ export const ListGame = (props: ListGameProps) => {
         styles={imageContainerStyles}
     />;
 
-    return <li className="relative rounded-md bg-white dark:bg-gray-900" key={key}>
+    return <li className="relative rounded-md bg-white dark:bg-gray-900" key={keyValue}>
         {bottomLeftIcon}
         {detailUrl ? <Link
             href={detailUrl}

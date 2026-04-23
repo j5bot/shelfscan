@@ -1,6 +1,6 @@
-import { useObjectUrl } from '@reactuses/core';
-import { getImageProps, ImageProps } from 'next/image';
-import { useEffect, useState } from 'react';
+import { enqueueFetch } from '@/app/lib/hooks/fetchQueue';
+import { ImageProps } from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 
 export type ImagePropsWithCacheParams = ImageProps & {
     getImageId: (props: ImageProps) => string;
@@ -8,51 +8,106 @@ export type ImagePropsWithCacheParams = ImageProps & {
     addImageDataToCache: (id: string, data: Blob) => Promise<string>;
 };
 
-const blobForUndefined = new Blob();
+export type ResolvedImageProps = {
+    alt: string;
+    src: string | undefined;
+    srcSet: undefined;
+};
 
-export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, dependencies: Array<unknown>) => {
+type ResolveImageFn = (v: ResolvedImageProps) => void;
+
+const getAcceptHeader = (src: string): string => {
+    switch (src.split('.').slice(-1)[0]) {
+        case 'jpg':
+        case 'jpeg':
+            return 'image/jpeg';
+        case 'png':
+            return 'image/png';
+        case 'webp':
+            return 'image/webp';
+        case 'avif':
+            return 'image/avif';
+        default:
+            return 'image/*';
+    }
+};
+
+const rewriteImageSrc = (src: string): string => src
+        .replace('https://cf.geekdo-images.com/', '/bgg-images/')
+        .replace('https://cf.geekdo-static.com/', '/bgg-static/')
+        .replace('https://gameupc.com/assets/img/', '/gameupc-images/');
+
+export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, dependencies: Array<unknown>): Promise<ResolvedImageProps> => {
     const {
         getImageId,
         getImageDataFromCache,
         addImageDataToCache,
-        ...paramsForGetImageProps
+        alt,
+        src,
     } = params;
 
+    const imageProps = {
+        alt,
+        src: rewriteImageSrc(src.toString()),
+    };
+
     const [imageBlob, setImageBlob] = useState<Blob>();
-    const { props: imageProps } = getImageProps(paramsForGetImageProps);
+    const [resolvedSrc, setResolvedSrc] = useState<string>();
 
     useEffect(() => {
-        let getting: boolean = true;
+        if (!imageBlob) {
+            return;
+        }
+        const url = URL.createObjectURL(imageBlob);
+        setResolvedSrc(url);
+        return () => {
+            URL.revokeObjectURL(url);
+        };
+    }, [imageBlob]);
+
+    useEffect(() => {
+        let active = true;
         (async () => {
-            if (imageProps.src === '' || !imageProps.src) {
+            if (!imageProps.src) {
                 return;
             }
 
             const id = getImageId(imageProps);
 
-            if (!getting) {
-                return;
+            let cachedImage: Blob | undefined;
+            try {
+                cachedImage = await getImageDataFromCache(id);
+            } catch (e) {
+                console.info('getting cached image', id);
+                console.error(e);
+                void e;
             }
-            const cachedImage = await getImageDataFromCache(id);
 
-            let blob: Blob;
+            let blob: Blob | undefined;
 
             if (cachedImage) {
                 blob = cachedImage;
             } else {
-                blob = await fetch(imageProps.src, {
-                    headers: {
-                        accept: 'image/avif',
-                    },
-                }).then(r => r.blob());
+                const accept = getAcceptHeader(src.toString());
+                blob = await enqueueFetch(() =>
+                    fetch(imageProps.src!, { headers: { accept } })
+                        .then(r =>  r.blob())
+                        .catch((error: unknown) => {
+                            console.error(error);
+                            return undefined;
+                        }),
+                ) ?? undefined;
 
-                if (!getting) {
+                if (!active) {
                     return;
                 }
-                await addImageDataToCache(id, blob);
+                if (!blob) {
+                    return;
+                }
+                void addImageDataToCache(id, blob);
             }
 
-            if (!blob) {
+            if (!active || !blob) {
                 return;
             }
 
@@ -60,14 +115,38 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
         })();
 
         return () => {
-            getting = false;
+            active = false;
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, dependencies);
 
-    const src  = useObjectUrl(imageBlob ?? blobForUndefined);
 
-    return {
+    const resolvedProps: ResolvedImageProps = {
         ...imageProps,
-        srcSet: undefined, src: imageBlob ? src : undefined,
+        srcSet: undefined,
+        src: resolvedSrc,
     };
+
+    const promiseRef = useRef<{ resolve: ResolveImageFn; promise: Promise<ResolvedImageProps> } | null>(null);
+
+    if (!promiseRef.current) {
+        let resolve!: ResolveImageFn;
+        const promise = new Promise<ResolvedImageProps>(r => { resolve = r; });
+        promiseRef.current = { resolve, promise };
+    }
+
+    const prevDepsRef = useRef<Array<unknown>>(dependencies);
+    const isNewDeps = dependencies.some((d, i) => d !== prevDepsRef.current[i]);
+    if (isNewDeps) {
+        prevDepsRef.current = dependencies;
+        let resolve!: (v: ResolvedImageProps) => void;
+        const promise = new Promise<ResolvedImageProps>(r => { resolve = r; });
+        promiseRef.current = { resolve, promise };
+    }
+
+    if (resolvedProps.src !== undefined) {
+        promiseRef.current.resolve(resolvedProps);
+    }
+
+    return promiseRef.current.promise;
 };
