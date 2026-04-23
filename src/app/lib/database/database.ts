@@ -1,5 +1,6 @@
 import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { MarketPreferences } from '@/app/lib/types/market';
+import { ScanHistoryEntry, ScanHistoryStatus } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
 import { AuditEntry } from '../types/audit';
@@ -17,6 +18,8 @@ export type CollectionEntity = {
 };
 
 export type AuditEntity = AuditEntry;
+
+export type ScanHistoryEntity = ScanHistoryEntry;
 
 export type ScannedEntity = {
     id: string;
@@ -39,6 +42,7 @@ export const database = new Dexie('db') as Dexie & {
     scanned: EntityTable<ScannedEntity, 'id'>;
     audits: EntityTable<AuditEntity, 'id'>;
     dataforms: EntityTable<DataFormEntity, 'id'>;
+    scanHistory: EntityTable<ScanHistoryEntity, 'id'>;
 };
 
 database.version(1).stores({
@@ -76,6 +80,16 @@ database.version(5).stores({
     scanned: '++id',
     dataforms: '++id',
     audits: '++id, gameId, collectionId',
+});
+
+database.version(6).stores({
+    settings: '++id',
+    plugins: '++id',
+    collections: '++id',
+    scanned: '++id',
+    dataforms: '++id',
+    audits: '++id, gameId, collectionId',
+    scanHistory: '++id, upc, status, timestamp',
 });
 
 export const getSetting = async (id: string) =>
@@ -136,3 +150,15 @@ export const setScanned = async (id: string, codes: string[]) => {
 
 export const removeScanned = async (id: string) =>
     await database.scanned.delete(id);
+
+export const addScanHistoryEntry = async (entry: Omit<ScanHistoryEntity, 'id'>) =>
+    await database.scanHistory.add(entry);
+
+export const updateScanHistoryStatus = async (id: number, status: ScanHistoryStatus) =>
+    await database.scanHistory.update(id, { status });
+
+export const getScanHistory = async () =>
+    await database.scanHistory.orderBy('timestamp').reverse().toArray();
+
+export const clearScanHistory = async () =>
+    await database.scanHistory.clear();
