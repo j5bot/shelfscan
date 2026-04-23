@@ -3,7 +3,6 @@ import { MarketPreferences } from '@/app/lib/types/market';
 import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
-import { AuditEntry } from '../types/audit';
 
 export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;
 
@@ -38,7 +37,6 @@ export const database = new Dexie('db') as Dexie & {
     plugins: EntityTable<PluginEntity, 'id'>;
     collections: EntityTable<CollectionEntity, 'id'>;
     scanned: EntityTable<ScannedEntity, 'id'>;
-    audits: EntityTable<AuditEntity, 'id'>;
     dataforms: EntityTable<DataFormEntity, 'id'>;
     scanHistory: EntityTable<ScanHistoryEntity, 'id'>;
 };
