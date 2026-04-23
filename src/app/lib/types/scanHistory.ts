@@ -33,3 +33,6 @@ export type ScanHistoryEntry = {
     collectionStatuses?: Record<number, Record<string, boolean>>;
     username?: string;
 };
+
+// Legacy string alias kept for backwards compat during migration
+export type ScanHistoryStatus = 'matched' | 'unmatched';

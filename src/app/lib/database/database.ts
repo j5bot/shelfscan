@@ -75,15 +75,6 @@ database.version(5).stores({
     collections: '++id',
     scanned: '++id',
     dataforms: '++id',
-    audits: '++id, gameId, collectionId',
-});
-
-database.version(5).stores({
-    settings: '++id',
-    plugins: '++id',
-    collections: '++id',
-    scanned: '++id',
-    dataforms: '++id',
     scanHistory: '++id, upc, status, timestamp, username, bggId',
 });
 
