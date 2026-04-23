@@ -193,17 +193,21 @@ export default function CollectionPage() {
     return (
         <>
             <NavDrawer />
-            <main className="flex flex-col w-full items-center p-3 sm:p-4 pt-15">
-                <h1 className="text-2xl font-semibold tracking-wide mb-4">
-                    My Collection
-                </h1>
-                <section
-                    className="w-full"
-                    aria-label="Game collection"
-                >
-                    {renderContent()}
-                </section>
-            </main>
+            <div className="page-content w-screen pt-15 flex justify-center">
+                <div className={`w-full
+                    p-4 pb-10 rounded-xl
+                    bg-overlay text-sm`}>
+                        <h1 className="text-3xl text-center">
+                            Collection
+                        </h1>
+                        <section
+                        className="w-full"
+                        aria-label="Game collection"
+                    >
+                        {renderContent()}
+                    </section>
+                </div>
+            </div>
         </>
     );
 }
