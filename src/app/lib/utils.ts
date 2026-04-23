@@ -3,8 +3,8 @@ import sleep from 'sleep-promise';
 const maxRetries = 15;
 const waitInterval = 300;
 
-const xmlErrorRegExp = /<error/mig;
-const xmlMessageRegExp = /<message/mig;
+const xmlErrorRegExp = /<error/mi;
+const xmlMessageRegExp = /<message/mi;
 
 export const textFetchAndWait = async (
     url: string,
