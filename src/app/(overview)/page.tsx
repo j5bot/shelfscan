@@ -50,11 +50,12 @@ export default function Page() {
         setCodes,
     } = useCodes();
 
-    const { recordScan } = useScanHistory();
+    const { recordScan, clearHistory, scanError, clearScanError } = useScanHistory();
 
     const [activeTab, setActiveTab] = useState<'current' | 'unmatched'>('current');
     const [isScanning, setIsScanning] = useState<boolean>(false);
     const [duplicateUpc, setDuplicateUpc] = useState<string | null>(null);
+    const [historyLimitReached, setHistoryLimitReached] = useState<boolean>(false);
 
     const compressedCodes = useMemo(() =>
         convertToCompressedCodes(codes),
@@ -128,6 +129,10 @@ export default function Page() {
                     setDuplicateUpc(code);
                     return;
                 }
+                if (result.kind === 'limitReached') {
+                    setHistoryLimitReached(true);
+                    return;
+                }
                 if (result.kind !== 'added') {
                     return;
                 }
@@ -142,6 +147,10 @@ export default function Page() {
             }).then(result => {
                 if (result.kind === 'duplicate') {
                     setDuplicateUpc(code);
+                    return;
+                }
+                if (result.kind === 'limitReached') {
+                    setHistoryLimitReached(true);
                     return;
                 }
                 if (result.kind !== 'added') {
@@ -165,6 +174,39 @@ export default function Page() {
                 <div role="alert" className="alert alert-warning shadow-lg cursor-pointer">
                     <span className="text-sm">
                         Already scanned <span className="font-mono">{duplicateUpc}</span> recently — duplicate not recorded.
+                    </span>
+                </div>
+            </div>
+        )}
+        {historyLimitReached && (
+            <div className="toast toast-top toast-center z-50">
+                <div role="alert" className="alert alert-error shadow-lg">
+                    <span className="text-sm">
+                        Scan history is full (20,000 entries). Clear history to continue recording scans.
+                    </span>
+                    <button
+                        className="btn btn-sm btn-ghost"
+                        onClick={() => {
+                            clearHistory().then();
+                            setHistoryLimitReached(false);
+                        }}
+                    >
+                        Clear History
+                    </button>
+                    <button
+                        className="btn btn-sm btn-ghost"
+                        onClick={() => setHistoryLimitReached(false)}
+                    >
+                        ✕
+                    </button>
+                </div>
+            </div>
+        )}
+        {scanError && (
+            <div className="toast toast-top toast-center z-50" onClick={clearScanError}>
+                <div role="alert" className="alert alert-error shadow-lg cursor-pointer">
+                    <span className="text-sm">
+                        Scan history error: {scanError}
                     </span>
                 </div>
             </div>
