@@ -24,7 +24,7 @@
     "gameupc-hooks": "1.0.2",
     "jsdom": "^29.0.1",
     "motion": "^12.38.0",
-    "next": "16.2.1",
+    "next": "16.2.4",
     "nextstepjs": "^2.2.0",
     "png-compressor": "^2.0.0",
     "proxy-memoize": "^3.0.1",
@@ -64,6 +64,15 @@
     },
     "patchedDependencies": {
       "@undecaf/barcode-detector-polyfill@0.9.23": "patches/@undecaf__barcode-detector-polyfill@0.9.23.patch"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@carbon/grid",
+      "@carbon/icons",
+      "@carbon/layout"
+    ]
+  },
+  "engines": {
+    "node": ">=25.0.0 <26.0.0",
+    "pnpm": ">=10.0.0 <11.0.0"
   }
 }
