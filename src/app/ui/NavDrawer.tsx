@@ -14,10 +14,39 @@ import { useSettings } from '@/app/lib/SettingsProvider';
 import { Settings } from '@/app/ui/Settings';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, Suspense, use, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
 import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaList, FaNewspaper, FaTableList } from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
+
+import { type ResolvedImageProps } from '@/app/lib/hooks/useImagePropsWithCache';
+
+type AvatarProps = {
+    avatarUrl: string;
+    username: string;
+};
+
+const AvatarInner = ({ promise }: { promise: Promise<ResolvedImageProps> }) => {
+    const { src, alt, ...imageProps } = use(promise);
+    return <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />;
+};
+
+const Avatar = ({ avatarUrl, username }: AvatarProps) => {
+    const promise = useImagePropsWithCache({
+        src: avatarUrl,
+        alt: username,
+        height: 64,
+        width: 64,
+        getImageId: makeImageCacheId,
+        getImageDataFromCache,
+        addImageDataToCache,
+    }, [username]);
+    return (
+        <Suspense fallback={<div className="bg-[#d9d4e6] rounded-full border-gray-400 border-4 w-16 h-16" />}>
+            <AvatarInner promise={promise} />
+        </Suspense>
+    );
+};
 
 const closeOnNavigate = () => {
     document.getElementById('nav-drawer')?.click?.()
@@ -33,7 +62,7 @@ export const NavDrawer = () => {
     const [dialogContent, setDialogContent] = useState<ReactNode>(null);
 
     const router = useRouter();
-    const user = useSelector((state: RootState)=> state.bgg.user);
+    const user = useSelector((state: RootState) => state.bgg.user);
 
     const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -62,16 +91,6 @@ export const NavDrawer = () => {
         nameSegments.push(lastName);
     }
     const name = nameSegments.join(' ');
-
-    const { src, alt, ...imageProps } = useImagePropsWithCache({
-        src: avatarUrl,
-        alt: username as string,
-        height: 64,
-        width: 64,
-        getImageId: makeImageCacheId,
-        getImageDataFromCache,
-        addImageDataToCache,
-    }, [username]);
 
     const signOutHandler = () => {
         dispatch(setBggUser());
@@ -121,7 +140,7 @@ export const NavDrawer = () => {
                 <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
                 <div className="bg-overlay bg-base-200 min-h-full w-1/2 md:w-80 p-2 mr-0">
                     {username && <div className="flex flex-wrap gap-2 p-2">
-                        <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />
+                        <Avatar avatarUrl={avatarUrl} username={username as string} />
                         <div className="">
                             <div>{username}</div>
                             <div className="text-xs">{name}</div>

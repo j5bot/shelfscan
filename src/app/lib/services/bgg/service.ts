@@ -165,6 +165,8 @@ export const getCollectionFromXml = (xml?: string) => {
             const objectId = elementGetter(item, true, undefined, 'objectid');
             const subType = elementGetter(item, false, undefined, 'subtype') ?? 'boardgame';
             const collectionId = elementGetter(item, true, undefined, 'collid');
+            const image = elementGetter(item, false, 'image');
+            const thumbnail = elementGetter(item, false, 'thumbnail');
             const version = getVersionDetails(item);
             const status = item.getElementsByTagName('status')?.[0];
             const rating = elementGetter(item, false, 'stats > rating', 'value');
@@ -180,6 +182,8 @@ export const getCollectionFromXml = (xml?: string) => {
 
             return {
                 ...commonDetails,
+                image,
+                thumbnail,
                 objectId,
                 versionId: version?.id,
                 subType,

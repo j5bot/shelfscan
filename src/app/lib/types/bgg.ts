@@ -59,6 +59,8 @@ export type BggCollectionItem = {
     subType: string;
     collectionId: number;
     name: string;
+    image: string | undefined;
+    thumbnail: string | undefined;
     yearPublished: number | undefined;
     versionId?: number;
     version?: BggVersion;
