@@ -28,8 +28,8 @@ export const ScanHistoryManager = () => {
 
     const handleClearHistory = async () => {
         setClearStatus('pending');
-        await clearHistory();
-        if (scanError) {
+        const success = await clearHistory();
+        if (!success) {
             setClearStatus('error');
         } else {
             setClearStatus('idle');
