@@ -105,11 +105,10 @@ export default function Page() {
         if (isScanning) {
             return;
         }
-        setIsScanning(true);
         if (codes.includes(code)) {
-            setIsScanning(false);
             return;
         }
+        setIsScanning(true);
 
         getGameData(code).then(data => {
             if (!data) {
