@@ -6,6 +6,7 @@ import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
 import { ExtensionResponse } from '@/app/lib/extension/useExtension';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
+import { ScanHistoryProvider } from '@/app/lib/ScanHistoryProvider';
 import { SettingsProvider } from '@/app/lib/SettingsProvider';
 import { TailwindProvider } from '@/app/lib/TailwindProvider';
 import { Provider } from '@/app/Provider';
@@ -22,29 +23,31 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <CodesProvider>
                         <GameSelectionsProvider>
                             <GameUPCDataProvider>
-                                <NextStepProvider>
-                                    <Suspense><ExtensionResponse /></Suspense>
-                                    <div style={{
-                                        minHeight: 'calc(100dvh - 7.5em)'
-                                    }}>
-                                        {children}
-                                    </div>
-                                    <div className="h-[7.5em] flex flex-col justify-end">
-                                        <Suspense><GetExtensionLink /></Suspense>
-                                        <div className="flex pb-2 justify-center items-center w-full">
-                                            <Link href={'https://boardgamegeek.com'} target="_blank">
-                                                <PoweredByBGGLogo
-                                                    width={114}
-                                                    height={25}
-                                                    style={{
-                                                        '--bgg-head-fill': 'currentColor',
-                                                        '--bgg-text-fill': 'currentColor',
-                                                    } as CSSProperties}
-                                                />
-                                            </Link>
+                                <ScanHistoryProvider>
+                                    <NextStepProvider>
+                                        <Suspense><ExtensionResponse /></Suspense>
+                                        <div style={{
+                                            minHeight: 'calc(100dvh - 7.5em)'
+                                        }}>
+                                            {children}
                                         </div>
-                                    </div>
-                                </NextStepProvider>
+                                        <div className="h-[7.5em] flex flex-col justify-end">
+                                            <Suspense><GetExtensionLink /></Suspense>
+                                            <div className="flex pb-2 justify-center items-center w-full">
+                                                <Link href={'https://boardgamegeek.com'} target="_blank">
+                                                    <PoweredByBGGLogo
+                                                        width={114}
+                                                        height={25}
+                                                        style={{
+                                                            '--bgg-head-fill': 'currentColor',
+                                                            '--bgg-text-fill': 'currentColor',
+                                                        } as CSSProperties}
+                                                    />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </NextStepProvider>
+                                </ScanHistoryProvider>
                             </GameUPCDataProvider>
                         </GameSelectionsProvider>
                     </CodesProvider>
