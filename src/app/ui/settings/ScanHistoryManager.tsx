@@ -4,10 +4,11 @@ import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { useState } from 'react';
 
 export const ScanHistoryManager = () => {
-    const { scanHistory, clearHistory, associateScans } = useScanHistory();
+    const { scanHistory, clearHistory, associateScans, scanError, clearScanError } = useScanHistory();
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
     const [associateStatus, setAssociateStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
     const [associatedCount, setAssociatedCount] = useState<number>(0);
+    const [clearStatus, setClearStatus] = useState<'idle' | 'pending' | 'error'>('idle');
 
     const anonymousCount = scanHistory.filter(e => !e.username).length;
 
@@ -22,6 +23,18 @@ export const ScanHistoryManager = () => {
             setAssociateStatus('success');
         } catch {
             setAssociateStatus('error');
+        }
+    };
+
+    const handleClearHistory = async () => {
+        setClearStatus('pending');
+        await clearHistory();
+        if (scanError) {
+            setClearStatus('error');
+        } else {
+            setClearStatus('idle');
+            setAssociateStatus('idle');
+            setAssociatedCount(0);
         }
     };
 
@@ -71,14 +84,25 @@ export const ScanHistoryManager = () => {
                     </p>
                 )}
             </div>
+            {scanError && (
+                <div role="alert" className="alert alert-error text-xs mt-2 py-2">
+                    <span>Error: {scanError}</span>
+                    <button className="btn btn-xs btn-ghost" onClick={clearScanError}>✕</button>
+                </div>
+            )}
             <p className="mt-2">
-                <button className="btn btn-warning" onClick={() => {
-                    clearHistory().then();
-                    setAssociateStatus('idle');
-                    setAssociatedCount(0);
-                }}>
-                    Clear Scan History
+                <button
+                    className="btn btn-warning"
+                    disabled={clearStatus === 'pending'}
+                    onClick={() => void handleClearHistory()}
+                >
+                    {clearStatus === 'pending'
+                        ? <span className="loading loading-spinner loading-xs" />
+                        : 'Clear Scan History'}
                 </button>
+                {clearStatus === 'error' && (
+                    <span className="text-error ml-2 text-xs">Failed to clear. Please try again.</span>
+                )}
             </p>
         </div>
     </div>;
