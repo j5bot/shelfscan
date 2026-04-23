@@ -1,0 +1,63 @@
+import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
+import Link from 'next/link';
+import { CSSProperties, ReactNode } from 'react';
+
+export type ListGameProps = {
+    bottomLeftIcon?: ReactNode;
+    cornerIcon?: ReactNode;
+    detailUrl?: string;
+    imageContainerStyles?: CSSProperties;
+    key: string;
+    name: string;
+    smallSquareSize: number;
+    statusIcon: ReactNode;
+    statusText: string;
+    thumbnailUrl: string;
+}
+
+export const ListGame = (props: ListGameProps) => {
+    const {
+        bottomLeftIcon,
+        cornerIcon,
+        detailUrl,
+        imageContainerStyles,
+        key,
+        name,
+        smallSquareSize,
+        statusIcon,
+        statusText,
+        thumbnailUrl,
+    } = props;
+
+    const thumbnail = <ThumbnailBox
+        alt={name}
+        url={thumbnailUrl}
+        size={smallSquareSize}
+        styles={imageContainerStyles}
+    />;
+
+    return <li className="relative rounded-md bg-white dark:bg-gray-900" key={key}>
+        {bottomLeftIcon}
+        {detailUrl ? <Link
+            href={detailUrl}
+            className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
+            title={statusText}
+        >
+            {statusIcon}
+        </Link> : <span title={statusText}>statusIcon</span>}
+        <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
+            <div className="flex justify-center items-center gap-1.5">
+                {cornerIcon}
+                <div
+                    className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
+                    title={name}
+                >
+                    {name}
+                </div>
+            </div>
+            {detailUrl ? <Link href={detailUrl}>
+                {thumbnail}
+            </Link> : thumbnail}
+        </div>
+    </li>;
+};
