@@ -88,6 +88,9 @@ importers:
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.2.14)(react@19.2.4)(redux@5.0.1)
+      react-virtuoso:
+        specifier: 4.18.5
+        version: 4.18.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       sleep-promise:
         specifier: ^9.1.0
         version: 9.1.0
@@ -2268,6 +2271,12 @@ packages:
         optional: true
       redux:
         optional: true
+
+  react-virtuoso@4.18.5:
+    resolution: {integrity: sha512-QDyNjyNEuurZG67SOmzYyxEkQYSyGmAMixOI6M15L/Q4CF39EgG+88y6DgZRo0q7rmy0HPx3Fj90I8/tPdnRCQ==}
+    peerDependencies:
+      react: '>=16 || >=17 || >= 18 || >= 19'
+      react-dom: '>=16 || >=17 || >= 18 || >=19'
 
   react@19.2.4:
     resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
@@ -4913,6 +4922,11 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
       redux: 5.0.1
+
+  react-virtuoso@4.18.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
 
   react@19.2.4: {}
 
