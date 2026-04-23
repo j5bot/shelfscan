@@ -6,6 +6,42 @@
 - Data Source: User’s collection data from IndexedDB (Dexie). Use `react-virtuoso` for virtualization.
 - Performance: Must efficiently handle up to 10,000 games.
 - UI: Match overall ShelfScan style (Tailwind, DaisyUI).
+- Accessibility: Fully accessible (semantic HTML, keyboard navigation, screen reader support, 
+  focus management).
+  - Mobile / Responsive: Must work well on mobile and desktop.
+
+## Accessibility (a11y)
+   - Keyboard Navigation: Specify that all interactive elements (tabs, sorting headers, refresh 
+   button, game links) must be keyboard accessible.
+   - Screen Reader Support: Ensure ARIA roles/labels for tabs, list items, and actions.
+   - Focus Management: When switching tabs or updating the list, focus should be managed for 
+     usability.
+
+## Mobile & Responsiveness
+   - Mobile Layout: the collection view is fully responsive, with touch-friendly controls and 
+   readable tables/lists on small screens.
+   - Sticky Headers/Actions: filters and sorting controls should remain accessible on mobile as 
+     users scroll through their collection.
+
+## Error & Empty States
+
+- No Data: show the message "Your collection is empty. Start scanning games to see them here!" 
+  with a call-to-action button to the scanning page (as on the SelectVersion component).
+- Error State: if there’s an error fetching collection data, show "Error loading collection. Please try refreshing." with a retry button.
+
+## Loading State
+
+- Spin the "Refresh Collection" button and disable it while fetching data from BGG.
+- Show a skeleton loader in the game list area while loading collection data.
+
+## State Persistence
+
+- Persist the following UI state in local storage so it’s retained across sessions: selected tab, filter text, sorting options (field and direction).
+- On page load, read persisted state and apply it to the collection view.
+
+## Security & Privacy
+
+- External Links: When opening BGG pages, use `rel="noopener noreferrer"` on links for security.
 
 ## Tabs
 
