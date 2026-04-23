@@ -1,9 +1,8 @@
 import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { MarketPreferences } from '@/app/lib/types/market';
-import { ScanHistoryEntry, ScanHistoryStatus } from '@/app/lib/types/scanHistory';
+import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
-import { AuditEntry } from '../types/audit';
 
 export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;
 
@@ -16,8 +15,6 @@ export type CollectionEntity = {
     id: string;
     value: BggCollectionMap;
 };
-
-export type AuditEntity = AuditEntry;
 
 export type ScanHistoryEntity = ScanHistoryEntry;
 
@@ -40,7 +37,6 @@ export const database = new Dexie('db') as Dexie & {
     plugins: EntityTable<PluginEntity, 'id'>;
     collections: EntityTable<CollectionEntity, 'id'>;
     scanned: EntityTable<ScannedEntity, 'id'>;
-    audits: EntityTable<AuditEntity, 'id'>;
     dataforms: EntityTable<DataFormEntity, 'id'>;
     scanHistory: EntityTable<ScanHistoryEntity, 'id'>;
 };
@@ -79,17 +75,7 @@ database.version(5).stores({
     collections: '++id',
     scanned: '++id',
     dataforms: '++id',
-    audits: '++id, gameId, collectionId',
-});
-
-database.version(6).stores({
-    settings: '++id',
-    plugins: '++id',
-    collections: '++id',
-    scanned: '++id',
-    dataforms: '++id',
-    audits: '++id, gameId, collectionId',
-    scanHistory: '++id, upc, status, timestamp',
+    scanHistory: '++id, upc, status, timestamp, username, bggId',
 });
 
 export const getSetting = async (id: string) =>
@@ -133,9 +119,6 @@ export const setCollection = async (id: string, value: BggCollectionMap) => {
 export const getPlugin = async (id: string) =>
     await database.plugins.get(id);
 
-export const addAudit = async (auditEntry: AuditEntry) =>
-    await database.audits.add(auditEntry);
-
 export const getScanned = async (id: string) =>
     (await database.scanned.get(id))?.codes;
 
@@ -154,11 +137,16 @@ export const removeScanned = async (id: string) =>
 export const addScanHistoryEntry = async (entry: Omit<ScanHistoryEntity, 'id'>) =>
     await database.scanHistory.add(entry);
 
-export const updateScanHistoryStatus = async (id: number, status: ScanHistoryStatus) =>
-    await database.scanHistory.update(id, { status });
+export const updateScanHistoryEntry = async (id: number, updates: Partial<Omit<ScanHistoryEntity, 'id' | 'timestamp'>>) =>
+    await database.scanHistory.update(id, { ...updates, updatedAt: Math.floor(Date.now() / 1000) });
 
 export const getScanHistory = async () =>
-    await database.scanHistory.orderBy('timestamp').reverse().toArray();
+    await database.scanHistory
+        .orderBy('timestamp').reverse().toArray();
 
 export const clearScanHistory = async () =>
     await database.scanHistory.clear();
+
+export const getScanHistoryCount = async () =>
+    await database.scanHistory.count();
+
