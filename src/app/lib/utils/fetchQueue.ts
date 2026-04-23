@@ -1,10 +1,10 @@
-const FETCH_THROTTLE_MS = 500;
+const FETCH_THROTTLE_MS = 300;
 
 type QueueEntry = {
     execute: () => void;
 };
 
-let queue: QueueEntry[] = [];
+const queue: QueueEntry[] = [];
 let draining = false;
 
 const drain = () => {

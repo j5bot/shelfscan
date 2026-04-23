@@ -9,7 +9,7 @@ import { ListGame } from '@/app/ui/games/ListGame';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import { CSSProperties, forwardRef, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { FaBarcode } from 'react-icons/fa6';
+import { FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
 import { VirtuosoGrid } from 'react-virtuoso';
 
 type CollectionState =
@@ -20,7 +20,8 @@ type CollectionState =
 
 const THUMBNAIL_SIZE = 80;
 
-const GRID_CLASS = 'grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6';
+const GRID_CLASS = `grid gap-2 grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7
+    xl:grid-cols-10 2xl:grid-cols-12`;
 
 type GridContainerProps = {
     children?: ReactNode;
@@ -161,15 +162,26 @@ export default function CollectionPage() {
                             const item = items[index];
                             const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
 
-                            let statusText: string;
-                            if (item.statuses.own) {
-                                statusText = 'Owned';
-                            } else if (item.statuses.fortrade) {
-                                statusText = 'For Trade';
-                            } else if (item.statuses.wishlist) {
-                                statusText = 'Wishlist';
-                            } else {
-                                statusText = 'In Collection';
+                            let statusText: string
+                            let cornerIcon: ReactNode;
+
+                            switch (true) {
+                                case item.statuses.fortrade:
+                                    statusText = 'For Trade';
+                                    cornerIcon = <FaRecycle title={statusText} className="shrink-0" />;
+                                    break;
+                                case item.statuses.own:
+                                    statusText = 'Owned';
+                                    cornerIcon = <FaCheck title={statusText} className="shrink-0" />;
+                                    break;
+                                case item.statuses.wishlist:
+                                    statusText = 'Wishlist';
+                                    cornerIcon = <FaHeart title={statusText} className="shrink-0" />;
+                                    break;
+                                default:
+                                    statusText = '';
+                                    cornerIcon = <FaEye size={15} className="shrink-0" />;
+                                    break;
                             }
 
                             return (
@@ -179,6 +191,7 @@ export default function CollectionPage() {
                                     thumbnailUrl={thumbnailUrl}
                                     smallSquareSize={THUMBNAIL_SIZE}
                                     statusText={statusText}
+                                    cornerIcon={cornerIcon}
                                     statusIcon={null}
                                     detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
                                 />
@@ -194,14 +207,14 @@ export default function CollectionPage() {
         <>
             <NavDrawer />
             <div className="page-content w-screen pt-15 flex justify-center">
-                <div className={`w-full
+                <div className={`w-11/12
                     p-4 pb-10 rounded-xl
-                    bg-overlay text-sm`}>
+                    bg-base-100 text-sm`}>
                         <h1 className="text-3xl text-center">
                             Collection
                         </h1>
                         <section
-                        className="w-full"
+                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4 mt-6"
                         aria-label="Game collection"
                     >
                         {renderContent()}
