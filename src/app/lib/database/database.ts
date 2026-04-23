@@ -161,3 +161,10 @@ export const clearScanHistory = async () =>
 export const getScanHistoryCount = async () =>
     await database.scanHistory.count();
 
+export const associateAnonymousScans = async (username: string): Promise<number> => {
+    const updatedAt = Math.floor(Date.now() / 1000);
+    return await database.scanHistory
+        .filter(e => !e.username)
+        .modify({ username, updatedAt });
+};
+
