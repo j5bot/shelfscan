@@ -83,3 +83,6 @@
 
 - Must support up to 10,000 games efficiently.
 - Average expected: 300–500 games.
+
+The maximum collection size that the collection view will support in the initial implementation 
+is 10,000 games.  Average collections are expected to be around 300-500 games.
