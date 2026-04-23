@@ -159,7 +159,7 @@ export default function CollectionPage() {
                         }}
                         itemContent={(index) => {
                             const item = items[index];
-                            const thumbnailUrl = item.version?.image ?? '';
+                            const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
 
                             let statusText: string;
                             if (item.statuses.own) {
@@ -174,7 +174,7 @@ export default function CollectionPage() {
 
                             return (
                                 <ListGame
-                                    key={item.collectionId.toString()}
+                                    keyValue={item.collectionId.toString()}
                                     name={item.name}
                                     thumbnailUrl={thumbnailUrl}
                                     smallSquareSize={THUMBNAIL_SIZE}
