@@ -36,7 +36,7 @@ export const ListGame = (props: ListGameProps) => {
         styles={imageContainerStyles}
     />;
 
-    return <li className="relative rounded-md bg-white dark:bg-gray-900" key={keyValue}>
+    return <li className="list-none relative rounded-md bg-white dark:bg-gray-900" key={keyValue}>
         {bottomLeftIcon}
         {detailUrl ? <Link
             href={detailUrl}

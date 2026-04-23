@@ -123,7 +123,7 @@ export const ScanItem = (props: ScanItemProps) => {
             break;
     }
 
-    const key = code;
+    const keyValue = code;
     const detailUrl = `/upc/${code}`;
     const bottomLeftIcon = <button
         className="remove-scan-item absolute bottom-0.5 left-0.5 md:bottom-1 md:left-1"
@@ -138,7 +138,7 @@ export const ScanItem = (props: ScanItemProps) => {
         cornerIcon,
         detailUrl,
         imageContainerStyles,
-        key,
+        keyValue,
         name,
         smallSquareSize,
         statusIcon,
