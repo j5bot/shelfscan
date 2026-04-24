@@ -1,11 +1,11 @@
 export const capitalize = (str: string) =>
-    str?.length > 0 ? str.concat(str.charAt(0).toUpperCase(), str.substring(1)) : str;
+    str?.length > 0 ? str.charAt(0).toUpperCase() + str.substring(1) : str;
 
 export const snakeToLowerCamelCase = (str: string) => {
     const segments = str.split(/_/g);
     return segments.map(
         (segment, index) => index === 0 ? segment : capitalize(segment)
-    ).join();
+    ).join('');
 };
 
 export const transformObjectKeys =
