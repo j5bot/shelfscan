@@ -61,8 +61,8 @@ export const MarketPreferenceManager = () => {
                             setValue={setValue}
                 />
             </form>
-            <button className="btn btn-error" onClick={async () => {
-                await setSetting('marketPreferences', {});
+            <button className="btn btn-error" onClick={() => {
+                void setSetting('marketPreferences', {});
             }}>
                 Clear Market Defaults
             </button>
