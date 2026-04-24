@@ -118,7 +118,6 @@ export const setCollection = async (id: string, value: BggCollectionMap) => {
 
 export const getPlugin = async (id: string) =>
     await database.plugins.get(id);
-    await database.plugins.get(id);
 
 export const getScanned = async (id: string) =>
     (await database.scanned.get(id))?.codes;
