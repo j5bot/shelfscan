@@ -6,6 +6,8 @@ export type ListGameProps = {
     bottomLeftIcon?: ReactNode;
     cornerIcon?: ReactNode;
     detailUrl?: string;
+    detailUrlTarget?: string;
+    detailUrlRel?: string;
     imageContainerStyles?: CSSProperties;
     keyValue: string;
     name: string;
@@ -20,6 +22,8 @@ export const ListGame = (props: ListGameProps) => {
         bottomLeftIcon,
         cornerIcon,
         detailUrl,
+        detailUrlTarget,
+        detailUrlRel,
         imageContainerStyles,
         keyValue,
         name,
@@ -42,6 +46,8 @@ export const ListGame = (props: ListGameProps) => {
             href={detailUrl}
             className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
             title={statusText}
+            target={detailUrlTarget}
+            rel={detailUrlRel}
         >
             {statusIcon}
         </Link> : <span title={statusText}>statusIcon</span>}
@@ -55,7 +61,7 @@ export const ListGame = (props: ListGameProps) => {
                     {name}
                 </div>
             </div>
-            {detailUrl ? <Link href={detailUrl}>
+            {detailUrl ? <Link href={detailUrl} target={detailUrlTarget} rel={detailUrlRel}>
                 {thumbnail}
             </Link> : thumbnail}
         </div>

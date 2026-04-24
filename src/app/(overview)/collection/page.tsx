@@ -1,17 +1,19 @@
 'use client';
 
-import { getCollection } from '@/app/lib/database/database';
+import { bggGetCollectionInner } from '@/app/lib/actions';
+import { getCollection, setCollection } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
+import { getCollectionFromXml } from '@/app/lib/services/bgg/service';
 import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { UnmatchedScansTab } from '@/app/ui/UnmatchedScansTab';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { CSSProperties, forwardRef, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
+import { CSSProperties, forwardRef, ReactNode, useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { FaArrowsRotate, FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
 import { VirtuosoGrid } from 'react-virtuoso';
 
 type ActiveTab = 'collection' | 'history';
@@ -68,6 +70,9 @@ export default function CollectionPage() {
     const [state, setState] = useState<CollectionState>({ status: 'loading' });
     const [activeTab, setActiveTab] = useState<ActiveTab>('collection');
     const mountedRef = useRef(true);
+    const [isRefreshing, startRefresh] = useTransition();
+    const [refreshError, setRefreshError] = useState<string | null>(null);
+    const [announceText, setAnnounceText] = useState('');
 
     const loadCollection = useCallback(async () => {
         setState({ status: 'loading' });
@@ -91,6 +96,46 @@ export default function CollectionPage() {
             setState({ status: 'error' });
         }
     }, [username]);
+
+    const refreshCollection = useCallback(() => {
+        if (!username || isRefreshing) {
+            return;
+        }
+        setRefreshError(null);
+        startRefresh(async () => {
+            try {
+                const xml = await bggGetCollectionInner(username, 0);
+                if (!xml || xml.startsWith('<error>')) {
+                    if (mountedRef.current) {
+                        setRefreshError('Failed to refresh collection from BGG.');
+                    }
+                    return;
+                }
+                const items = getCollectionFromXml(xml);
+                if (!items || Object.keys(items).length === 0) {
+                    if (mountedRef.current) {
+                        setRefreshError('No collection data returned from BGG.');
+                    }
+                    return;
+                }
+                await setCollection(username.toLowerCase(), items);
+                if (!mountedRef.current) {
+                    return;
+                }
+                setState({ status: 'loaded', items: Object.values(items) });
+                setAnnounceText('Collection refreshed successfully.');
+                setTimeout(() => {
+                    if (mountedRef.current) {
+                        setAnnounceText('');
+                    }
+                }, 3000);
+            } catch {
+                if (mountedRef.current) {
+                    setRefreshError('Error refreshing collection. Please try again.');
+                }
+            }
+        });
+    }, [username, isRefreshing]);
 
     useEffect(() => {
         mountedRef.current = true;
@@ -126,7 +171,7 @@ export default function CollectionPage() {
                         </p>
                         <button
                             className="btn btn-primary"
-                            onClick={() => loadCollection().then()}
+                            onClick={() => refreshCollection()}
                         >
                             Retry
                         </button>
@@ -201,6 +246,8 @@ export default function CollectionPage() {
                                     cornerIcon={cornerIcon}
                                     statusIcon={null}
                                     detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
+                                    detailUrlTarget="_blank"
+                                    detailUrlRel="noopener noreferrer"
                                 />
                             );
                         }}
@@ -213,13 +260,50 @@ export default function CollectionPage() {
     return (
         <>
             <NavDrawer />
+            <div
+                aria-live="polite"
+                aria-atomic="true"
+                className="sr-only"
+            >
+                {announceText}
+            </div>
+            {refreshError && (
+                <div className="toast toast-top toast-center z-50">
+                    <div role="alert" className="alert alert-error shadow-lg">
+                        <span className="text-sm">{refreshError}</span>
+                        <button
+                            className="btn btn-sm btn-ghost"
+                            onClick={() => setRefreshError(null)}
+                            aria-label="Dismiss error"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            )}
             <div className="page-content w-screen pt-15 flex justify-center">
                 <div className={`w-11/12
                     p-4 pb-10 rounded-xl
                     bg-base-100 text-sm`}>
-                    <h1 className="text-3xl text-center">
-                        Collection
-                    </h1>
+                    <div className="flex items-center justify-center gap-3 mb-0">
+                        <h1 className="text-3xl text-center">
+                            Collection
+                        </h1>
+                        {username && (
+                            <button
+                                className="btn btn-sm btn-ghost"
+                                onClick={() => refreshCollection()}
+                                disabled={isRefreshing}
+                                aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
+                                title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
+                            >
+                                <FaArrowsRotate
+                                    className={isRefreshing ? 'animate-spin' : ''}
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        )}
+                    </div>
                     <div role="tablist" className="tabs tabs-border mt-4 mb-2">
                         <button
                             role="tab"
