@@ -57,7 +57,7 @@ export const NavDrawer = () => {
     const { loadSettings, settings } = useSettings();
     const { username: settingsUsername, rememberMe } = settings;
     const { isPending: refreshCollectionPending, loadUser } = useLoadUser();
-    const { canBatch } = useBatchSync();
+    const { canBatch, syncOn } = useBatchSync();
 
     const [dialogContent, setDialogContent] = useState<ReactNode>(null);
 
@@ -161,12 +161,12 @@ export const NavDrawer = () => {
                                 <FaLayerGroup className="inline" /> Batch Scan
                             </Link>
                         </li>}
-                        {refreshCollectionItem}
-                        <li className="w-full">
+                        {syncOn && <li className="w-full">
                             <Link className="flex gap-2 grow" href="/collection" onNavigate={closeOnNavigate}>
                                 <FaList className="inline" /> Collection
                             </Link>
-                        </li>
+                        </li>}
+                        {refreshCollectionItem}
                     </ul>
                     <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">
                         <li className="w-full">
