@@ -51,7 +51,7 @@ export const ListGame = (props: ListGameProps) => {
         >
             {statusIcon}
         </Link> : <span title={statusText}>statusIcon</span>}
-        <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2">
+        <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2 w-full">
             <div className="flex justify-center items-center gap-1.5">
                 {cornerIcon}
                 <div
