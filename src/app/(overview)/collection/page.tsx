@@ -5,12 +5,16 @@ import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
+import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { ListGame } from '@/app/ui/games/ListGame';
+import { UnmatchedScansTab } from '@/app/ui/UnmatchedScansTab';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import { CSSProperties, forwardRef, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
 import { VirtuosoGrid } from 'react-virtuoso';
+
+type ActiveTab = 'collection' | 'history';
 
 type CollectionState =
     | { status: 'loading' }
@@ -18,10 +22,10 @@ type CollectionState =
     | { status: 'error' }
     | { status: 'loaded'; items: BggCollectionItem[] };
 
-const THUMBNAIL_SIZE = 80;
+const THUMBNAIL_SIZE = 100;
 
-const GRID_CLASS = `grid gap-2 grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7
-    xl:grid-cols-10 2xl:grid-cols-12`;
+const GRID_CLASS = `grid gap-2 grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7
+    xl:grid-cols-8 2xl:grid-cols-10`;
 
 type GridContainerProps = {
     children?: ReactNode;
@@ -62,6 +66,7 @@ export default function CollectionPage() {
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const [state, setState] = useState<CollectionState>({ status: 'loading' });
+    const [activeTab, setActiveTab] = useState<ActiveTab>('collection');
     const mountedRef = useRef(true);
 
     const loadCollection = useCallback(async () => {
@@ -161,6 +166,8 @@ export default function CollectionPage() {
                         itemContent={(index) => {
                             const item = items[index];
                             const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
+                            const { height, width } = getImageSizeFromUrl(thumbnailUrl);
+                            const size = Math.ceil(Math.min(height, width) * 2 / 3);
 
                             let statusText: string
                             let cornerIcon: ReactNode;
@@ -189,7 +196,7 @@ export default function CollectionPage() {
                                     keyValue={item.collectionId.toString()}
                                     name={item.name}
                                     thumbnailUrl={thumbnailUrl}
-                                    smallSquareSize={THUMBNAIL_SIZE}
+                                    smallSquareSize={size}
                                     statusText={statusText}
                                     cornerIcon={cornerIcon}
                                     statusIcon={null}
@@ -210,14 +217,31 @@ export default function CollectionPage() {
                 <div className={`w-11/12
                     p-4 pb-10 rounded-xl
                     bg-base-100 text-sm`}>
-                        <h1 className="text-3xl text-center">
-                            Collection
-                        </h1>
-                        <section
-                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4 mt-6"
-                        aria-label="Game collection"
+                    <h1 className="text-3xl text-center">
+                        Collection
+                    </h1>
+                    <div role="tablist" className="tabs tabs-border mt-4 mb-2">
+                        <button
+                            role="tab"
+                            className={`tab${activeTab === 'collection' ? ' tab-active' : ''}`}
+                            onClick={() => setActiveTab('collection')}
+                        >
+                            Games
+                        </button>
+                        <button
+                            role="tab"
+                            className={`tab${activeTab === 'history' ? ' tab-active' : ''}`}
+                            onClick={() => setActiveTab('history')}
+                        >
+                            Scan History
+                        </button>
+                    </div>
+                    <section
+                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4"
+                        aria-label={activeTab === 'collection' ? 'Game collection' : 'Scan history'}
                     >
-                        {renderContent()}
+                        {activeTab === 'collection' && renderContent()}
+                        {activeTab === 'history' && <UnmatchedScansTab />}
                     </section>
                 </div>
             </div>

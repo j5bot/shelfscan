@@ -15,12 +15,11 @@ import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
 import { SessionLink } from '@/app/ui/SessionLink';
-import { UnmatchedScansTab } from '@/app/ui/UnmatchedScansTab';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
 import { GameUPCStatus } from 'gameupc-hooks/types';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
@@ -52,7 +51,6 @@ export default function Page() {
 
     const { recordScan, clearHistory, scanError, clearScanError } = useScanHistory();
 
-    const [activeTab, setActiveTab] = useState<'current' | 'unmatched'>('current');
     const [isScanning, setIsScanning] = useState<boolean>(false);
     const [duplicateUpc, setDuplicateUpc] = useState<string | null>(null);
     const [historyLimitReached, setHistoryLimitReached] = useState<boolean>(false);
@@ -164,8 +162,6 @@ export default function Page() {
         setCodes(codes);
     }, [codes, isScanning, setCodes, recordScan, getGameData, currentUsername]);
 
-    const tabClass = (tab: 'current' | 'unmatched') =>
-        `tab${activeTab === tab ? ' tab-active' : ''}`;
 
     return <>
         <NavDrawer />
@@ -227,43 +223,30 @@ export default function Page() {
                      <div id="scanlist" className={`relative w-full h-full
                         bg-[#f1eff9] dark:bg-yellow-700 p-2
                         ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
-                         <div role="tablist" className="tabs tabs-border mb-2">
-                             <button role="tab" className={tabClass('current')}
-                                     onClick={() => setActiveTab('current')}>
-                                 Current Scans
-                             </button>
-                             <button role="tab" className={tabClass('unmatched')}
-                                     onClick={() => setActiveTab('unmatched')}>
-                                 Unmatched History
-                             </button>
-                         </div>
                          <div className="flex flex-col justify-center h-full w-full">
-                             {activeTab === 'current' && (
-                                 codes.length > 0
-                                 ? (<>
-                                     <Scanlist gameUPCResults={gameDataMap} />
-                                     <div className="flex justify-center pt-4 pb-2">
-                                         <button
-                                             className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
-                                                 text-sm uppercase cursor-pointer"
-                                             onClick={() => setCodes([])}
-                                         >
-                                             Clear All
-                                         </button>
+                             {codes.length > 0
+                             ? (<>
+                                 <Scanlist gameUPCResults={gameDataMap} />
+                                 <div className="flex justify-center pt-4 pb-2">
+                                     <button
+                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+                                             text-sm uppercase cursor-pointer"
+                                         onClick={() => setCodes([])}
+                                     >
+                                         Clear All
+                                     </button>
+                                 </div>
+                             </>)
+                             : (
+                                 <div className="w-full flex flex-col items-center justify-items-center text-center">
+                                     <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
+                                     <div className="mt-2 mb-2 text-sm">
+                                         <h3>- Scan UPCs, Then -</h3>
+                                         <UseCaseBadges />
                                      </div>
-                                 </>)
-                                 : (
-                                     <div className="w-full flex flex-col items-center justify-items-center text-center">
-                                         <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                         <div className="mt-2 mb-2 text-sm">
-                                             <h3>- Scan UPCs, Then -</h3>
-                                             <UseCaseBadges />
-                                         </div>
-                                         <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
-                                     </div>
-                                 )
+                                     <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
+                                 </div>
                              )}
-                             {activeTab === 'unmatched' && <UnmatchedScansTab />}
                          </div>
                      </div>
                      <SessionLink compressedCodes={compressedCodes} />
