@@ -6,20 +6,19 @@ import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
-import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
+import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { hasSeenTour } from '@/app/lib/tours';
-import { ScanHistoryError, ScanHistoryMatchStatus } from '@/app/lib/types/scanHistory';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
+import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import { SessionLink } from '@/app/ui/SessionLink';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
-import { GameUPCStatus } from 'gameupc-hooks/types';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useEffect, useMemo } from 'react';
 
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
@@ -38,22 +37,19 @@ export default function Page() {
 
     const {
         gameDataMap,
-        getGameData,
         submitOrVerifyGame,
         removeGame,
     } = useGameUPCData();
 
+    const { codes, setCodes } = useCodes();
+
     const {
-        codes,
-        addHistoryID,
-        setCodes,
-    } = useCodes();
-
-    const { recordScan, clearHistory, scanError, clearScanError } = useScanHistory();
-
-    const [isScanning, setIsScanning] = useState<boolean>(false);
-    const [duplicateUpc, setDuplicateUpc] = useState<string | null>(null);
-    const [historyLimitReached, setHistoryLimitReached] = useState<boolean>(false);
+        onScan,
+        duplicateUpc,
+        historyLimitReached,
+        clearDuplicateUpc,
+        clearHistoryLimitReached,
+    } = useScanRecorder();
 
     const compressedCodes = useMemo(() =>
         convertToCompressedCodes(codes),
@@ -89,124 +85,17 @@ export default function Page() {
         );
     }, [searchParams, setCodes]);
 
-    useEffect(() => {
-        if (!duplicateUpc) {
-            return;
-        }
-        const timer = setTimeout(() => setDuplicateUpc(null), 4000);
-        return () => clearTimeout(timer);
-    }, [duplicateUpc]);
-
     void submitOrVerifyGame;
     void removeGame;
 
-    const onScan = useCallback((code: string) => {
-        if (isScanning) {
-            return;
-        }
-        if (codes.includes(code)) {
-            return;
-        }
-        setIsScanning(true);
-
-        getGameData(code).then(data => {
-            if (!data) {
-                return;
-            }
-            const bggInfo = data.bgg_info?.[0];
-            recordScan({
-                upc: code,
-                username: currentUsername ?? undefined,
-                status: ScanHistoryMatchStatus.matched,
-                verified: data?.bgg_info_status === GameUPCStatus.verified,
-                gameName: bggInfo?.name,
-                bggId: bggInfo?.id,
-                thumbnailUrl: bggInfo?.thumbnail_url,
-            }).then(result => {
-                if (result.kind === 'duplicate') {
-                    setDuplicateUpc(code);
-                    return;
-                }
-                if (result.kind === 'limitReached') {
-                    setHistoryLimitReached(true);
-                    return;
-                }
-                if (result.kind !== 'added') {
-                    return;
-                }
-                addHistoryID(code, result.id);
-            });
-        }).catch(() => {
-            recordScan({
-                upc: code,
-                username: currentUsername ?? undefined,
-                status: ScanHistoryMatchStatus.unmatched,
-                error: ScanHistoryError.other,
-            }).then(result => {
-                if (result.kind === 'duplicate') {
-                    setDuplicateUpc(code);
-                    return;
-                }
-                if (result.kind === 'limitReached') {
-                    setHistoryLimitReached(true);
-                    return;
-                }
-                if (result.kind !== 'added') {
-                    return;
-                }
-                addHistoryID(code, result.id);
-            });
-        }).finally(() => setIsScanning(false));
-
-        codes.unshift(code);
-        setCodes(codes);
-    }, [codes, isScanning, setCodes, recordScan, getGameData, currentUsername]);
-
-
     return <>
         <NavDrawer />
-        {duplicateUpc && (
-            <div className="toast toast-top toast-center z-50" onClick={() => setDuplicateUpc(null)}>
-                <div role="alert" className="alert alert-warning shadow-lg cursor-pointer">
-                    <span className="text-sm">
-                        Already scanned <span className="font-mono">{duplicateUpc}</span> recently — duplicate not recorded.
-                    </span>
-                </div>
-            </div>
-        )}
-        {historyLimitReached && (
-            <div className="toast toast-top toast-center z-50">
-                <div role="alert" className="alert alert-error shadow-lg">
-                    <span className="text-sm">
-                        Scan history is full (20,000 entries). Clear history to continue recording scans.
-                    </span>
-                    <button
-                        className="btn btn-sm btn-ghost"
-                        onClick={() => {
-                            void clearHistory();
-                            setHistoryLimitReached(false);
-                        }}
-                    >
-                        Clear History
-                    </button>
-                    <button
-                        className="btn btn-sm btn-ghost"
-                        onClick={() => setHistoryLimitReached(false)}
-                    >
-                        ✕
-                    </button>
-                </div>
-            </div>
-        )}
-        {scanError && (
-            <div className="toast toast-top toast-center z-50" onClick={clearScanError}>
-                <div role="alert" className="alert alert-error shadow-lg cursor-pointer">
-                    <span className="text-sm">
-                        Scan history error: {scanError}
-                    </span>
-                </div>
-            </div>
-        )}
+        <ScanToasts
+            duplicateUpc={duplicateUpc}
+            historyLimitReached={historyLimitReached}
+            onClearDuplicate={clearDuplicateUpc}
+            onClearLimitReached={clearHistoryLimitReached}
+        />
         {breakpoint ? (
              <div className="flex flex-col w-full items-center p-3 sm:p-4">
                  <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
