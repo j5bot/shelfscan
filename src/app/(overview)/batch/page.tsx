@@ -4,6 +4,7 @@ import { loader } from '@/app/(overview)/loading';
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
+import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
@@ -11,9 +12,10 @@ import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BatchAddButton } from '@/app/ui/batch/BatchAddButton';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
+import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import Link from 'next/link';
-import React, { Suspense, useCallback, useEffect } from 'react';
+import React, { Suspense, useCallback } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 
 export default function Page() {
@@ -24,33 +26,17 @@ export default function Page() {
 
     const { canBatch, addGameToCollection } = useBatchSync();
 
-    const {
-        gameDataMap,
-        getGameData,
-    } = useGameUPCData();
+    const { gameDataMap } = useGameUPCData();
+
+    const { codes, setCodes } = useCodes();
 
     const {
-        codes,
-        setCodes,
-        loaded,
-    } = useCodes();
-
-    // refetch game data for restored codes
-    useEffect(() => {
-        if (!loaded || !codes.length) {
-            return;
-        }
-        codes.forEach(code => {
-            if (!gameDataMap[code]) {
-                getGameData(code).then();
-            }
-        });
-    }, [loaded]);
-
-    const onScan = useCallback((code: string) => {
-        setCodes(prev => prev.includes(code) ? prev : [code, ...prev]);
-        getGameData(code).then();
-    }, [setCodes, getGameData]);
+        onScan,
+        duplicateUpc,
+        historyLimitReached,
+        clearDuplicateUpc,
+        clearHistoryLimitReached,
+    } = useScanRecorder();
 
     const onClear = useCallback(() => {
         setCodes([]);
@@ -94,6 +80,12 @@ export default function Page() {
 
     return <>
         <NavDrawer />
+        <ScanToasts
+            duplicateUpc={duplicateUpc}
+            historyLimitReached={historyLimitReached}
+            onClearDuplicate={clearDuplicateUpc}
+            onClearLimitReached={clearHistoryLimitReached}
+        />
         <div className="flex flex-col w-full items-center p-3 sm:p-4">
             <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
                 <Suspense fallback={loader('Focusing...')}>
