@@ -70,6 +70,7 @@ export default function CollectionPage() {
     const [state, setState] = useState<CollectionState>({ status: 'loading' });
     const [activeTab, setActiveTab] = useState<ActiveTab>('collection');
     const mountedRef = useRef(true);
+    const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [isRefreshing, startRefresh] = useTransition();
     const [refreshError, setRefreshError] = useState<string | null>(null);
     const [announceText, setAnnounceText] = useState('');
@@ -105,12 +106,6 @@ export default function CollectionPage() {
         startRefresh(async () => {
             try {
                 const xml = await bggGetCollectionInner(username, 0);
-                if (!xml || xml.startsWith('<error>')) {
-                    if (mountedRef.current) {
-                        setRefreshError('Failed to refresh collection from BGG.');
-                    }
-                    return;
-                }
                 const items = getCollectionFromXml(xml);
                 if (!items || Object.keys(items).length === 0) {
                     if (mountedRef.current) {
@@ -124,7 +119,11 @@ export default function CollectionPage() {
                 }
                 setState({ status: 'loaded', items: Object.values(items) });
                 setAnnounceText('Collection refreshed successfully.');
-                setTimeout(() => {
+                if (refreshTimerRef.current !== null) {
+                    clearTimeout(refreshTimerRef.current);
+                }
+                refreshTimerRef.current = setTimeout(() => {
+                    refreshTimerRef.current = null;
                     if (mountedRef.current) {
                         setAnnounceText('');
                     }
@@ -142,6 +141,9 @@ export default function CollectionPage() {
         loadCollection().then();
         return () => {
             mountedRef.current = false;
+            if (refreshTimerRef.current !== null) {
+                clearTimeout(refreshTimerRef.current);
+            }
         };
     }, [loadCollection]);
 
