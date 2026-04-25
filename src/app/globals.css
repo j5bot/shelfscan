@@ -107,6 +107,11 @@ svg[data-name=nextstep-arrow] > #triangle {
   }
 }
 
+.sticky {
+  position: -webkit-sticky;
+  position: sticky;
+}
+
 .collapse:has(>input:is([type="checkbox"]:checked)) > .collapse-title.collection-button > svg {
   transform: rotate(180deg);
 }
