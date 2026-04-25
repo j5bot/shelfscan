@@ -4,6 +4,7 @@ import { bggGetCollectionInner } from '@/app/lib/actions';
 import { getCollection, setCollection } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
+import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
 import { getCollectionFromXml } from '@/app/lib/services/bgg/service';
 import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
@@ -12,17 +13,31 @@ import { ListGame } from '@/app/ui/games/ListGame';
 import { UnmatchedScansTab } from '@/app/ui/UnmatchedScansTab';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { CSSProperties, forwardRef, ReactNode, useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { FaArrowsRotate, FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
+import { CSSProperties, forwardRef, ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { FaArrowDown, FaArrowUp, FaArrowsRotate, FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
 import { VirtuosoGrid } from 'react-virtuoso';
 
 type ActiveTab = 'collection' | 'history';
+
+type SortField = 'name' | 'dateAdded' | 'dateLastScanned' | 'yearPublished';
+type SortDirection = 'asc' | 'desc';
 
 type CollectionState =
     | { status: 'loading' }
     | { status: 'empty' }
     | { status: 'error' }
     | { status: 'loaded'; items: BggCollectionItem[] };
+
+const LS_FILTER_KEY = 'collection-filter';
+const LS_SORT_FIELD_KEY = 'collection-sort-field';
+const LS_SORT_DIR_KEY = 'collection-sort-dir';
+
+const SORT_FIELDS: { field: SortField; label: string }[] = [
+    { field: 'name', label: 'Name' },
+    { field: 'dateAdded', label: 'Date Added' },
+    { field: 'dateLastScanned', label: 'Last Scanned' },
+    { field: 'yearPublished', label: 'Year' },
+];
 
 const THUMBNAIL_SIZE = 100;
 
@@ -74,6 +89,96 @@ export default function CollectionPage() {
     const [isRefreshing, startRefresh] = useTransition();
     const [refreshError, setRefreshError] = useState<string | null>(null);
     const [announceText, setAnnounceText] = useState('');
+
+    const { scanHistory } = useScanHistory();
+
+    const VALID_SORT_FIELDS: SortField[] = ['name', 'dateAdded', 'dateLastScanned', 'yearPublished'];
+    const VALID_SORT_DIRS: SortDirection[] = ['asc', 'desc'];
+
+    const [filterText, setFilterText] = useState<string>(() => {
+        if (typeof window === 'undefined') { return ''; }
+        return localStorage.getItem(LS_FILTER_KEY) ?? '';
+    });
+    const [sortField, setSortField] = useState<SortField>(() => {
+        if (typeof window === 'undefined') { return 'name'; }
+        const stored = localStorage.getItem(LS_SORT_FIELD_KEY) as SortField;
+        return VALID_SORT_FIELDS.includes(stored) ? stored : 'name';
+    });
+    const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
+        if (typeof window === 'undefined') { return 'asc'; }
+        const stored = localStorage.getItem(LS_SORT_DIR_KEY) as SortDirection;
+        return VALID_SORT_DIRS.includes(stored) ? stored : 'asc';
+    });
+
+    useEffect(() => {
+        localStorage.setItem(LS_FILTER_KEY, filterText);
+    }, [filterText]);
+
+    useEffect(() => {
+        localStorage.setItem(LS_SORT_FIELD_KEY, sortField);
+    }, [sortField]);
+
+    useEffect(() => {
+        localStorage.setItem(LS_SORT_DIR_KEY, sortDirection);
+    }, [sortDirection]);
+
+    const lastScannedMap = useMemo(() => {
+        const map = new Map<number, number>();
+        for (const entry of scanHistory) {
+            if (entry.bggId !== undefined) {
+                const existing = map.get(entry.bggId) ?? 0;
+                if (entry.timestamp > existing) {
+                    map.set(entry.bggId, entry.timestamp);
+                }
+            }
+        }
+        return map;
+    }, [scanHistory]);
+
+    const handleSortClick = useCallback((field: SortField) => {
+        if (sortField === field) {
+            setSortDirection(d => d === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortDirection('asc');
+        }
+    }, [sortField]);
+
+    const displayItems = useMemo(() => {
+        if (state.status !== 'loaded') { return []; }
+        let items = state.items;
+        const query = filterText.trim().toLowerCase();
+        if (query) {
+            items = items.filter(item => item.name.toLowerCase().includes(query));
+        }
+        return [...items].sort((a, b) => {
+            let cmp = 0;
+            switch (sortField) {
+                case 'name':
+                    cmp = a.name.localeCompare(b.name);
+                    break;
+                case 'dateAdded': {
+                    const aDate = a.acquisitiondate ? new Date(a.acquisitiondate).getTime() : 0;
+                    const bDate = b.acquisitiondate ? new Date(b.acquisitiondate).getTime() : 0;
+                    cmp = aDate - bDate;
+                    break;
+                }
+                case 'dateLastScanned': {
+                    const aTime = lastScannedMap.get(a.objectId) ?? 0;
+                    const bTime = lastScannedMap.get(b.objectId) ?? 0;
+                    cmp = aTime - bTime;
+                    break;
+                }
+                case 'yearPublished': {
+                    const aYear = a.yearPublished ?? 0;
+                    const bYear = b.yearPublished ?? 0;
+                    cmp = aYear - bYear;
+                    break;
+                }
+            }
+            return sortDirection === 'asc' ? cmp : -cmp;
+        });
+    }, [state, filterText, sortField, sortDirection, lastScannedMap]);
 
     const loadCollection = useCallback(async () => {
         setState({ status: 'loading' });
@@ -202,58 +307,112 @@ export default function CollectionPage() {
                 );
 
             case 'loaded': {
-                const { items } = state;
                 return (
-                    <VirtuosoGrid
-                        useWindowScroll
-                        totalCount={items.length}
-                        components={{
-                            List: GridContainer,
-                        }}
-                        itemContent={(index) => {
-                            const item = items[index];
-                            const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
-                            const { height, width } = getImageSizeFromUrl(thumbnailUrl);
-                            const size = Math.ceil(Math.min(height, width) * 2 / 3);
+                    <>
+                        <div
+                            className={`sticky z-10
+                                bg-[#f1eff9] dark:bg-yellow-700
+                                pt-1 pb-2 flex flex-col gap-2`}
+                            style={{ top: '3.75rem' }}
+                        >
+                            <label htmlFor="collection-filter-input" className="sr-only">
+                                Filter by name
+                            </label>
+                            <input
+                                id="collection-filter-input"
+                                type="search"
+                                aria-label="Filter by name"
+                                placeholder="Filter by name…"
+                                value={filterText}
+                                onChange={e => setFilterText(e.target.value)}
+                                className="input input-bordered input-sm w-full"
+                            />
+                            <div
+                                className="flex flex-wrap gap-1"
+                                role="group"
+                                aria-label="Sort games"
+                            >
+                                {SORT_FIELDS.map(({ field, label }) => {
+                                    const isActive = sortField === field;
+                                    const direction = isActive ? sortDirection : undefined;
+                                    return (
+                                        <button
+                                            key={field}
+                                            onClick={() => handleSortClick(field)}
+                                            className={`btn btn-xs gap-1 ${isActive ? 'btn-primary' : 'btn-ghost'}`}
+                                            aria-sort={isActive
+                                                ? (sortDirection === 'asc' ? 'ascending' : 'descending')
+                                                : 'none'
+                                            }
+                                            aria-label={`Sort by ${label}${direction ? `, ${direction === 'asc' ? 'ascending' : 'descending'}` : ''}`}
+                                        >
+                                            {label}
+                                            {isActive && (
+                                                sortDirection === 'asc'
+                                                    ? <FaArrowUp size={10} aria-hidden="true" />
+                                                    : <FaArrowDown size={10} aria-hidden="true" />
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                        {displayItems.length === 0 ? (
+                            <p className="text-center py-8 text-base-content/60">
+                                No games match your filter.
+                            </p>
+                        ) : (
+                            <VirtuosoGrid
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                components={{
+                                    List: GridContainer,
+                                }}
+                                itemContent={(index) => {
+                                    const item = displayItems[index];
+                                    const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
+                                    const { height, width } = getImageSizeFromUrl(thumbnailUrl);
+                                    const size = Math.ceil(Math.min(height, width) * 2 / 3);
 
-                            let statusText: string
-                            let cornerIcon: ReactNode;
+                                    let statusText: string = '';
+                                    let cornerIcon: ReactNode;
 
-                            switch (true) {
-                                case item.statuses.fortrade:
-                                    statusText = 'For Trade';
-                                    cornerIcon = <FaRecycle title={statusText} className="shrink-0" />;
-                                    break;
-                                case item.statuses.own:
-                                    statusText = 'Owned';
-                                    cornerIcon = <FaCheck title={statusText} className="shrink-0" />;
-                                    break;
-                                case item.statuses.wishlist:
-                                    statusText = 'Wishlist';
-                                    cornerIcon = <FaHeart title={statusText} className="shrink-0" />;
-                                    break;
-                                default:
-                                    statusText = '';
-                                    cornerIcon = <FaEye size={15} className="shrink-0" />;
-                                    break;
-                            }
+                                    switch (true) {
+                                        case item.statuses.fortrade:
+                                            statusText = 'For Trade';
+                                            cornerIcon = <FaRecycle title={statusText} className="shrink-0" />;
+                                            break;
+                                        case item.statuses.own:
+                                            statusText = 'Owned';
+                                            cornerIcon = <FaCheck title={statusText} className="shrink-0" />;
+                                            break;
+                                        case item.statuses.wishlist:
+                                            statusText = 'Wishlist';
+                                            cornerIcon = <FaHeart title={statusText} className="shrink-0" />;
+                                            break;
+                                        default:
+                                            statusText = '';
+                                            cornerIcon = <FaEye size={15} className="shrink-0" />;
+                                            break;
+                                    }
 
-                            return (
-                                <ListGame
-                                    keyValue={item.collectionId.toString()}
-                                    name={item.name}
-                                    thumbnailUrl={thumbnailUrl}
-                                    smallSquareSize={size}
-                                    statusText={statusText}
-                                    cornerIcon={cornerIcon}
-                                    statusIcon={null}
-                                    detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
-                                    detailUrlTarget="_blank"
-                                    detailUrlRel="noopener noreferrer"
-                                />
-                            );
-                        }}
-                    />
+                                    return (
+                                        <ListGame
+                                            keyValue={item.collectionId.toString()}
+                                            name={item.name}
+                                            thumbnailUrl={thumbnailUrl}
+                                            smallSquareSize={size}
+                                            statusText={statusText}
+                                            cornerIcon={cornerIcon}
+                                            statusIcon={null}
+                                            detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
+                                        detailUrlTarget="_blank"
+                                    detailUrlRel="noopener noreferrer"/>
+                                    );
+                                }}
+                            />
+                        )}
+                    </>
                 );
             }
         }
