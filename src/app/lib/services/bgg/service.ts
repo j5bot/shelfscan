@@ -65,7 +65,7 @@ export const getCommonDetails = (item: Element | null) => {
     }
     const name = elementGetter(item, false, 'name') as string;
     const yearPublished =
-        elementGetter(item, true, 'yearPublished') as number | undefined;
+        elementGetter(item, true, 'yearpublished') as number | undefined;
 
     return { name, yearPublished };
 };
@@ -75,7 +75,7 @@ export const getCommonDetailsFromObject = (object: BggRawObject) => {
         return;
     }
     const name = object.name;
-    const yearPublished = object.yearpublished
+    const yearPublished = object.yearPublished ?? object.yearpublished;
 
     return { name, yearPublished };
 };
