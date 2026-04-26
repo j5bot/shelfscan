@@ -65,6 +65,7 @@ export type BggCollectionItem = {
     versionId?: number;
     version?: BggVersion;
     statuses: BggCollectionStatuses;
+    lastModified: string;
     tradeCondition?: string;
     rating?: number;
     // private info
