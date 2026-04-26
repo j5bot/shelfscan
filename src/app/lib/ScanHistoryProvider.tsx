@@ -143,7 +143,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
             upc: opts.upc,
             timestamp: nowSecs,
             updatedAt: nowSecs,
-            status: ScanHistoryMatchStatus.unmatched,
+            status: opts.status ?? ScanHistoryMatchStatus.unmatched,
             verified: opts.verified ?? false,
             schemaVersion: SCAN_HISTORY_SCHEMA_VERSION,
             ...(opts.gameName !== undefined && { gameName: opts.gameName }),
