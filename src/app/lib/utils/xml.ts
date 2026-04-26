@@ -5,7 +5,7 @@ export const getElementAttribute = (
     number?: boolean,
     attribute?: string
 ) =>
-    (element && attribute) ?
+    (element && attribute && element.getAttribute(attribute)) ?
     number ?
     parseInt(element.getAttribute(attribute) ?? 'undefined', 10) :
     element.getAttribute(attribute) ?? undefined :

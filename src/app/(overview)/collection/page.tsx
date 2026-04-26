@@ -19,7 +19,7 @@ import { VirtuosoGrid } from 'react-virtuoso';
 
 type ActiveTab = 'collection' | 'history';
 
-type SortField = 'name' | 'dateAdded' | 'dateLastScanned' | 'yearPublished';
+type SortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished';
 type SortDirection = 'asc' | 'desc';
 
 type CollectionState =
@@ -34,7 +34,7 @@ const LS_SORT_DIR_KEY = 'collection-sort-dir';
 
 const SORT_FIELDS: { field: SortField; label: string }[] = [
     { field: 'name', label: 'Name' },
-    { field: 'dateAdded', label: 'Date Added' },
+    { field: 'lastModified', label: 'Last Modified' },
     { field: 'dateLastScanned', label: 'Last Scanned' },
     { field: 'yearPublished', label: 'Year' },
 ];
@@ -92,7 +92,7 @@ export default function CollectionPage() {
 
     const { scanHistory } = useScanHistory();
 
-    const VALID_SORT_FIELDS: SortField[] = ['name', 'dateAdded', 'dateLastScanned', 'yearPublished'];
+    const VALID_SORT_FIELDS: SortField[] = ['name', 'lastModified', 'dateLastScanned', 'yearPublished'];
     const VALID_SORT_DIRS: SortDirection[] = ['asc', 'desc'];
 
     const [filterText, setFilterText] = useState<string>(() => {
@@ -157,10 +157,15 @@ export default function CollectionPage() {
                 case 'name':
                     cmp = a.name.localeCompare(b.name);
                     break;
-                case 'dateAdded': {
-                    const aDate = a.acquisitiondate ? new Date(a.acquisitiondate).getTime() : 0;
-                    const bDate = b.acquisitiondate ? new Date(b.acquisitiondate).getTime() : 0;
-                    cmp = aDate - bDate;
+                case 'lastModified': {
+                    // Prefer 'lastModified' if present, else fallback to acquisitiondate
+                    const aMod = a.lastModified ?
+                                 new Date(a.lastModified).valueOf()
+                                                : (a.acquisitiondate ? new Date(a.acquisitiondate).valueOf() : 0);
+                    const bMod = b.lastModified ?
+                                 new Date(b.lastModified).valueOf()
+                                                : (b.acquisitiondate ? new Date(b.acquisitiondate).valueOf() : 0);
+                    cmp = aMod - bMod;
                     break;
                 }
                 case 'dateLastScanned': {
