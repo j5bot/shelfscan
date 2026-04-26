@@ -86,7 +86,7 @@ export const NavDrawer = () => {
         loadUser(settingsUsername as string, rememberMe as boolean, false);
     };
 
-    const signOutMenuItem = username ? <li>
+    const signOutMenuItem = (username || (rememberMe && settingsUsername)) ? <li>
         <label htmlFor="nav-drawer" onClick={() => {
             signOutHandler();
             closeOnNavigate();
