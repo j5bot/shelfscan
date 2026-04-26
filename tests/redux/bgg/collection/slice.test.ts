@@ -25,6 +25,9 @@ const makeItem = (overrides: Partial<{
     versionId: number;
     own: boolean;
     fortrade: boolean;
+    image: string;
+    thumbnail: string;
+    lastModified: string;
 }> = {}): BggCollectionMap => {
     const {
         objectId = 1,
@@ -33,6 +36,9 @@ const makeItem = (overrides: Partial<{
         versionId = undefined,
         own = true,
         fortrade = false,
+        image = undefined,
+        thumbnail = undefined,
+        lastModified = new Date().toISOString(),
     } = overrides;
 
     return {
@@ -40,9 +46,12 @@ const makeItem = (overrides: Partial<{
             objectId,
             collectionId,
             name,
+            image,
+            thumbnail,
+            lastModified,
             yearPublished: 2020,
             subType: 'boardgame',
-            ...(versionId !== undefined ? { versionId } : {}),
+            ...(Number.isInteger(versionId) ? { versionId } : {}),
             statuses: {
                 own,
                 prevowned: false,

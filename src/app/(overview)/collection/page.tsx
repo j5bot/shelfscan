@@ -3,6 +3,7 @@
 import { bggGetCollectionInner } from '@/app/lib/actions';
 import { getCollection, setCollection } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
+import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
@@ -20,7 +21,6 @@ import { VirtuosoGrid } from 'react-virtuoso';
 type ActiveTab = 'collection' | 'history';
 
 type SortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished';
-type SortDirection = 'asc' | 'desc';
 
 type CollectionState =
     | { status: 'loading' }
@@ -28,16 +28,7 @@ type CollectionState =
     | { status: 'error' }
     | { status: 'loaded'; items: BggCollectionItem[] };
 
-const LS_FILTER_KEY = 'collection-filter';
-const LS_SORT_FIELD_KEY = 'collection-sort-field';
-const LS_SORT_DIR_KEY = 'collection-sort-dir';
-
-const SORT_FIELDS: { field: SortField; label: string }[] = [
-    { field: 'name', label: 'Name' },
-    { field: 'lastModified', label: 'Last Modified' },
-    { field: 'dateLastScanned', label: 'Last Scanned' },
-    { field: 'yearPublished', label: 'Year' },
-];
+const LS_STORAGE_PREFIX = 'collection';
 
 const THUMBNAIL_SIZE = 100;
 
@@ -89,38 +80,11 @@ export default function CollectionPage() {
     const [isRefreshing, startRefresh] = useTransition();
     const [refreshError, setRefreshError] = useState<string | null>(null);
     const [announceText, setAnnounceText] = useState('');
+    const [stickyTop, setStickyTop] = useState<number>(0);
+    const sentinelRef = useRef<HTMLDivElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
 
     const { scanHistory } = useScanHistory();
-
-    const VALID_SORT_FIELDS: SortField[] = ['name', 'lastModified', 'dateLastScanned', 'yearPublished'];
-    const VALID_SORT_DIRS: SortDirection[] = ['asc', 'desc'];
-
-    const [filterText, setFilterText] = useState<string>(() => {
-        if (typeof window === 'undefined') { return ''; }
-        return localStorage.getItem(LS_FILTER_KEY) ?? '';
-    });
-    const [sortField, setSortField] = useState<SortField>(() => {
-        if (typeof window === 'undefined') { return 'name'; }
-        const stored = localStorage.getItem(LS_SORT_FIELD_KEY) as SortField;
-        return VALID_SORT_FIELDS.includes(stored) ? stored : 'name';
-    });
-    const [sortDirection, setSortDirection] = useState<SortDirection>(() => {
-        if (typeof window === 'undefined') { return 'asc'; }
-        const stored = localStorage.getItem(LS_SORT_DIR_KEY) as SortDirection;
-        return VALID_SORT_DIRS.includes(stored) ? stored : 'asc';
-    });
-
-    useEffect(() => {
-        localStorage.setItem(LS_FILTER_KEY, filterText);
-    }, [filterText]);
-
-    useEffect(() => {
-        localStorage.setItem(LS_SORT_FIELD_KEY, sortField);
-    }, [sortField]);
-
-    useEffect(() => {
-        localStorage.setItem(LS_SORT_DIR_KEY, sortDirection);
-    }, [sortDirection]);
 
     const lastScannedMap = useMemo(() => {
         const map = new Map<number, number>();
@@ -135,55 +99,76 @@ export default function CollectionPage() {
         return map;
     }, [scanHistory]);
 
-    const handleSortClick = useCallback((field: SortField) => {
-        if (sortField === field) {
-            setSortDirection(d => d === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortField(field);
-            setSortDirection('asc');
-        }
-    }, [sortField]);
+    const collectionSortFields = useMemo<SortFieldDef<BggCollectionItem, SortField>[]>(() => [
+        {
+            field: 'name',
+            label: 'Name',
+            compare: (a, b) => a.name.localeCompare(b.name),
+        },
+        {
+            field: 'lastModified',
+            label: 'Last Modified',
+            compare: (a, b) => {
+                const aMod = a.lastModified ?
+                    new Date(a.lastModified).valueOf() :
+                    (a.acquisitiondate ? new Date(a.acquisitiondate).valueOf() : 0);
+                const bMod = b.lastModified ?
+                    new Date(b.lastModified).valueOf() :
+                    (b.acquisitiondate ? new Date(b.acquisitiondate).valueOf() : 0);
+                return aMod - bMod;
+            },
+        },
+        {
+            field: 'dateLastScanned',
+            label: 'Last Scanned',
+            compare: (a, b) => (lastScannedMap.get(a.objectId) ?? 0) - (lastScannedMap.get(b.objectId) ?? 0),
+        },
+        {
+            field: 'yearPublished',
+            label: 'Year',
+            compare: (a, b) => (a.yearPublished ?? 0) - (b.yearPublished ?? 0),
+        },
+    ], [lastScannedMap]);
 
-    const displayItems = useMemo(() => {
-        if (state.status !== 'loaded') { return []; }
-        let items = state.items;
-        const query = filterText.trim().toLowerCase();
-        if (query) {
-            items = items.filter(item => item.name.toLowerCase().includes(query));
+    const loadedItems = useMemo(
+        () => state.status === 'loaded' ? state.items : [],
+        [state],
+    );
+
+    const {
+        filterText,
+        setFilterText,
+        sortField,
+        sortDirection,
+        handleSortClick,
+        displayItems,
+    } = useFilterSort<BggCollectionItem, SortField>({
+        items: loadedItems,
+        filterFn: (item, query) => item.name.toLowerCase().includes(query),
+        sortFields: collectionSortFields,
+        defaultSortField: 'name',
+        storageKeyPrefix: LS_STORAGE_PREFIX,
+    });
+
+    useEffect(() => {
+        const sentinel = sentinelRef.current;
+        const section = sectionRef.current;
+        if (!sentinel || !section) {
+            return;
         }
-        return [...items].sort((a, b) => {
-            let cmp = 0;
-            switch (sortField) {
-                case 'name':
-                    cmp = a.name.localeCompare(b.name);
-                    break;
-                case 'lastModified': {
-                    // Prefer 'lastModified' if present, else fallback to acquisitiondate
-                    const aMod = a.lastModified ?
-                                 new Date(a.lastModified).valueOf()
-                                                : (a.acquisitiondate ? new Date(a.acquisitiondate).valueOf() : 0);
-                    const bMod = b.lastModified ?
-                                 new Date(b.lastModified).valueOf()
-                                                : (b.acquisitiondate ? new Date(b.acquisitiondate).valueOf() : 0);
-                    cmp = aMod - bMod;
-                    break;
-                }
-                case 'dateLastScanned': {
-                    const aTime = lastScannedMap.get(a.objectId) ?? 0;
-                    const bTime = lastScannedMap.get(b.objectId) ?? 0;
-                    cmp = aTime - bTime;
-                    break;
-                }
-                case 'yearPublished': {
-                    const aYear = a.yearPublished ?? 0;
-                    const bYear = b.yearPublished ?? 0;
-                    cmp = aYear - bYear;
-                    break;
-                }
+        const observer = new IntersectionObserver(([entry]) => {
+            if (!entry.isIntersecting && entry.boundingClientRect.top < 0) {
+                // sentinel has scrolled above the viewport — stick the bar at the section top
+                setStickyTop(section.getBoundingClientRect().top > 0
+                    ? section.getBoundingClientRect().top
+                    : 0);
+            } else {
+                setStickyTop(0);
             }
-            return sortDirection === 'asc' ? cmp : -cmp;
-        });
-    }, [state, filterText, sortField, sortDirection, lastScannedMap]);
+        }, { threshold: 0 });
+        observer.observe(sentinel);
+        return () => observer.disconnect();
+    }, [state.status]);
 
     const loadCollection = useCallback(async () => {
         setState({ status: 'loading' });
@@ -262,7 +247,7 @@ export default function CollectionPage() {
             case 'loading':
                 return (
                     <div
-                        className={GRID_CLASS}
+                        className={`${GRID_CLASS} pt-2`}
                         aria-label="Loading collection"
                         aria-busy="true"
                     >
@@ -275,7 +260,7 @@ export default function CollectionPage() {
             case 'error':
                 return (
                     <div
-                        className="flex flex-col items-center gap-4 p-8 text-center"
+                        className="flex flex-col items-center gap-4 p-8 pt-10 text-center"
                         role="alert"
                     >
                         <p className="text-lg">
@@ -292,7 +277,7 @@ export default function CollectionPage() {
 
             case 'empty':
                 return (
-                    <div className="flex flex-col items-center gap-4 p-8 text-center">
+                    <div className="flex flex-col items-center gap-4 p-8 pt-10 text-center">
                         <p className="text-lg">
                             Your collection is empty. Start scanning games to see them here!
                         </p>
@@ -314,11 +299,12 @@ export default function CollectionPage() {
             case 'loaded': {
                 return (
                     <>
+                        <div ref={sentinelRef} aria-hidden="true" style={{ height: 0 }} />
                         <div
                             className={`sticky z-10
                                 bg-[#f1eff9] dark:bg-yellow-700
-                                pt-1 pb-2 flex flex-col gap-2`}
-                            style={{ top: '3.75rem' }}
+                                pt-2 pb-2 flex flex-col gap-2`}
+                            style={{ top: stickyTop }}
                         >
                             <label htmlFor="collection-filter-input" className="sr-only">
                                 Filter by name
@@ -337,7 +323,7 @@ export default function CollectionPage() {
                                 role="group"
                                 aria-label="Sort games"
                             >
-                                {SORT_FIELDS.map(({ field, label }) => {
+                                {collectionSortFields.map(({ field, label }) => {
                                     const isActive = sortField === field;
                                     const direction = isActive ? sortDirection : undefined;
                                     return (
@@ -487,7 +473,8 @@ export default function CollectionPage() {
                         </button>
                     </div>
                     <section
-                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4"
+                        ref={sectionRef}
+                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4 pt-2"
                         aria-label={activeTab === 'collection' ? 'Game collection' : 'Scan history'}
                     >
                         {activeTab === 'collection' && renderContent()}
