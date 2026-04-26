@@ -1,5 +1,3 @@
-'use client';
-
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import React from 'react';
 
