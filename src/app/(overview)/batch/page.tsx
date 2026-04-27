@@ -48,11 +48,9 @@ export default function Page() {
     }, [loaded]);
 
     const onScan = useCallback((code: string) => {
-        if (!codes.includes(code)) {
-            setCodes([code, ...codes]);
-        }
+        setCodes(prev => prev.includes(code) ? prev : [code, ...prev]);
         getGameData(code).then();
-    }, [codes, setCodes, getGameData]);
+    }, [setCodes, getGameData]);
 
     const onClear = useCallback(() => {
         setCodes([]);
