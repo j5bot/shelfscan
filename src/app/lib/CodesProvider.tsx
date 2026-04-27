@@ -12,7 +12,7 @@ export type Codes = string[];
 const CodesContext =
     createContext<{
         codes: Codes;
-        setCodes: (codes: Codes) => void;
+        setCodes: (codes: Codes | ((prev: Codes) => Codes)) => void;
         loaded: boolean;
     }>({ codes: [], setCodes: () => undefined, loaded: false });
 
@@ -34,8 +34,11 @@ export const CodesProvider = ({ children }: Props) => {
     const codesRef = useRef(codes);
     codesRef.current = codes;
 
-    const setCodes = useCallback((newCodes: Codes) => {
-        setCodesInner([...newCodes]);
+    const setCodes = useCallback((newCodes: Codes | ((prev: Codes) => Codes)) => {
+        setCodesInner(prev => {
+            const next = typeof newCodes === 'function' ? newCodes(prev) : newCodes;
+            return [...next];
+        });
     }, []);
 
     // load persisted codes from db
