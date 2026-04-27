@@ -176,7 +176,7 @@ export default function CollectionPage() {
         {
             field: 'name',
             label: 'Name',
-            compare: (a, b) => a.name.localeCompare(b.name),
+            compare: (a, b) => a.name?.localeCompare(b.name),
         },
         {
             field: 'lastModified',
