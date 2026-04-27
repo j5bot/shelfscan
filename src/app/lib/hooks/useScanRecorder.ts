@@ -22,7 +22,7 @@ export const useScanRecorder = (): UseScanRecorderResult => {
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
 
     const { getGameData } = useGameUPCData();
-    const { codes, addHistoryID, setCodes } = useCodes();
+    const { addHistoryID, setCodes } = useCodes();
     const { recordScan } = useScanHistory();
 
     const [isScanning, setIsScanning] = useState<boolean>(false);
@@ -39,9 +39,6 @@ export const useScanRecorder = (): UseScanRecorderResult => {
 
     const onScan = useCallback((code: string) => {
         if (isScanning) {
-            return;
-        }
-        if (codes.includes(code)) {
             return;
         }
         setIsScanning(true);
@@ -95,9 +92,13 @@ export const useScanRecorder = (): UseScanRecorderResult => {
             });
         }).finally(() => setIsScanning(false));
 
-        codes.unshift(code);
-        setCodes(codes);
-    }, [codes, isScanning, setCodes, recordScan, getGameData, currentUsername, addHistoryID]);
+        setCodes(prev => {
+            if (prev.includes(code)) {
+                return prev;
+            }
+            return [code, ...prev];
+        });
+    }, [isScanning, setCodes, recordScan, getGameData, currentUsername, addHistoryID]);
 
     return {
         onScan,
