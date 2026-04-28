@@ -16,7 +16,7 @@ export type ListGameProps = {
     statusText: string;
     thumbnailUrl: string;
     imageUrl?: string;
-}
+};
 
 export const ListGame = (props: ListGameProps) => {
     const {
