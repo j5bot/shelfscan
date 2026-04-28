@@ -65,6 +65,7 @@ export const ScanItem = (props: ScanItemProps) => {
     const {
         name: versionName,
         thumbnail_url: thumbnailUrl,
+        image_url: imageUrl,
     } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
 
     const name = infoName + (versionName ? ` (${versionName})` : '');
@@ -138,6 +139,7 @@ export const ScanItem = (props: ScanItemProps) => {
         cornerIcon,
         detailUrl,
         imageContainerStyles,
+        imageUrl,
         keyValue,
         name,
         smallSquareSize,

@@ -1,0 +1,625 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items termsofuse="https://boardgamegeek.com/xmlapi/termsofuse">
+    <item type="boardgame" id="291453">
+        <thumbnail>https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__small/img/NUcMdmZ3_eA1YfIwL8iRgkZKaHw=/fit-in/200x150/filters:strip_icc()/pic6398727.png</thumbnail>
+        <image>https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__original/img/vkElrRCPJxy7Q3TH9olpq20egA4=/0x0/filters:format(png)/pic6398727.png</image>
+        <name type="primary" sortindex="1" value="SCOUT" />
+        <name type="alternate" sortindex="1" value="Cirkus" />
+        <name type="alternate" sortindex="1" value="Scout!" />
+        <name type="alternate" sortindex="1" value="スカウト！" />
+        <name type="alternate" sortindex="1" value="马戏星探" />
+        <name type="alternate" sortindex="1" value="스카우트" />
+        <description>SCOUT is a ladder-climbing game in which cards have two potential values, players may not rearrange their hand of cards, and players may pass their turn to take a card from the current high set of cards into their hand.
+
+            More specifically, cards are dual-indexed, with different values on each half of the card, with the 45 cards having all possible combinations of the numbers 1-10. During set-up, whoever is shuffling the cards should randomize both the order of the cards in the deck and their orientation. Once each player has been dealt their entire hand of cards, they pick up that hand without rearranging any of the cards; if they wish, they can rotate their entire hand of cards in order to use the values on the other end of each card, but again they cannot rearrange the order of cards in their hand.
+
+            On a turn, a player takes one of two actions:
+
+            &amp;bull; Play: A player chooses one or more adjacent cards in their hand that have all the same value or that have values in consecutive order (whether ascending or descending), then they play this set of cards to the table. They can do this only if the table is empty (as on the first turn) or the set they're playing is ranked higher than the set currently on the table; a set is higher if it has more cards or has cards of the same value instead of consecutive cards or has a set of the same quantity and type but with higher values. In this latter case when a player overplays another set, the player captures the cards in this previous set and places them face down in front of themselves.
+
+            &amp;bull; Scout: A player takes a card from either end of the set currently on the table and places it anywhere they wish in their hand in either orientation. Whoever played this previous set receives a 1 VP token as a reward for playing a set that wasn't beaten.
+
+            Once per round, a player can scout, then immediately play.
+
+            When a player has emptied their hand of cards or all but one player have scouted instead of playing, the round ends. Players receive 1 VP for each face-down card, then subtract one point for each card in their hand (except if they were the player scouted repeatedly to end the game). Play as many rounds as the number of players, then whoever has the most points wins.
+
+        </description>
+        <yearpublished value="2019" />
+        <minplayers value="2" />
+        <maxplayers value="5" />
+        <poll name="suggested_numplayers" title="User Suggested Number of Players" totalvotes="686">
+            <results numplayers="1">
+                <result value="Best" numvotes="0" />
+                <result value="Recommended" numvotes="0" />
+                <result value="Not Recommended" numvotes="426" />
+            </results>
+            <results numplayers="2">
+                <result value="Best" numvotes="23" />
+                <result value="Recommended" numvotes="115" />
+                <result value="Not Recommended" numvotes="357" />
+            </results>
+            <results numplayers="3">
+                <result value="Best" numvotes="69" />
+                <result value="Recommended" numvotes="320" />
+                <result value="Not Recommended" numvotes="180" />
+            </results>
+            <results numplayers="4">
+                <result value="Best" numvotes="501" />
+                <result value="Recommended" numvotes="103" />
+                <result value="Not Recommended" numvotes="2" />
+            </results>
+            <results numplayers="5">
+                <result value="Best" numvotes="148" />
+                <result value="Recommended" numvotes="315" />
+                <result value="Not Recommended" numvotes="37" />
+            </results>
+            <results numplayers="5+">
+                <result value="Best" numvotes="3" />
+                <result value="Recommended" numvotes="3" />
+                <result value="Not Recommended" numvotes="297" />
+            </results>
+        </poll>
+        <poll-summary name="suggested_numplayers"  title="User Suggested Number of Players">
+            <result name="bestwith" value="Best with 4 players" />
+            <result name="recommmendedwith" value="Recommended with 3–5 players" />
+        </poll-summary>
+        <playingtime value="20" />
+        <minplaytime value="20" />
+        <maxplaytime value="20" />
+        <minage value="9" />
+        <poll name="suggested_playerage" title="User Suggested Player Age" totalvotes="59">
+            <results>
+                <result value="2" numvotes="0" />
+                <result value="3" numvotes="0" />
+                <result value="4" numvotes="0" />
+                <result value="5" numvotes="1" />
+                <result value="6" numvotes="3" />
+                <result value="8" numvotes="36" />
+                <result value="10" numvotes="18" />
+                <result value="12" numvotes="1" />
+                <result value="14" numvotes="0" />
+                <result value="16" numvotes="0" />
+                <result value="18" numvotes="0" />
+                <result value="21 and up" numvotes="0" />
+            </results>
+        </poll>
+        <poll name="language_dependence" title="Language Dependence" totalvotes="30">
+            <results>
+                <result level="1" value="No necessary in-game text" numvotes="29" />
+                <result level="2" value="Some necessary text - easily memorized or small crib sheet" numvotes="1" />
+                <result level="3" value="Moderate in-game text - needs crib sheet or paste ups" numvotes="0" />
+                <result level="4" value="Extensive use of text - massive conversion needed to be playable" numvotes="0" />
+                <result level="5" value="Unplayable in another language" numvotes="0" />
+            </results>
+        </poll>
+        <link type="boardgamecategory" id="1002" value="Card Game" />
+        <link type="boardgamemechanic" id="2040" value="Hand Management" />
+        <link type="boardgamemechanic" id="2980" value="Ladder Climbing" />
+        <link type="boardgamemechanic" id="2823" value="Score-and-Reset Game" />
+        <link type="boardgamefamily" id="24430" value="Card Games: Beating" />
+        <link type="boardgamefamily" id="131" value="Card Games: Climbing" />
+        <link type="boardgamefamily" id="8120" value="Card Games: Shedding / Stops" />
+        <link type="boardgamefamily" id="104952" value="Digital Implementations: Apple App Store" />
+        <link type="boardgamefamily" id="77349" value="Digital Implementations: Steam" />
+        <link type="boardgamefamily" id="5743" value="Theme: Circus" />
+        <link type="boardgamedesigner" id="116503" value="Kei Kajino (梶野 桂)" />
+        <link type="boardgameartist" id="116503" value="Kei Kajino (梶野 桂)" />
+        <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+        <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+        <link type="boardgameartist" id="159211" value="Shohei Asaoka (浅岡昇平)" />
+        <link type="boardgamepublisher" id="22649" value="Oink Games" />
+        <link type="boardgamepublisher" id="28731" value="One More Game!" />
+        <link type="boardgamepublisher" id="52588" value="4 Kavky" />
+        <link type="boardgamepublisher" id="157" value="asmodee" />
+        <link type="boardgamepublisher" id="15605" value="Galápagos Jogos" />
+        <link type="boardgamepublisher" id="8820" value="Gém Klub Kft." />
+        <link type="boardgamepublisher" id="8351" value="Gen-X Games" />
+        <link type="boardgamepublisher" id="4785" value="Ghenos Games" />
+        <link type="boardgamepublisher" id="3218" value="Lautapelit.fi" />
+        <link type="boardgamepublisher" id="27470" value="Lucrum Games" />
+        <link type="boardgamepublisher" id="30034" value="Pixie Games" />
+        <link type="boardgamepublisher" id="41167" value="Popcorn Games" />
+        <versions>
+            <item type="boardgameversion" id="692686">
+                <canonicalname value="马戏星探"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Chinese edition" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2023" />
+                <productcode value="" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2181" value="Chinese" />
+            </item>
+            <item type="boardgameversion" id="636020">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="CS/EN/FR/DE edition" />
+                <link type="boardgamepublisher" id="52588" value="4 Kavky" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="2580820221" />
+                <width value="2.59843" />
+                <length value="4.37008" />
+                <depth value="1.45669" />
+                <weight value="0.451948" />
+                <link type="language" id="2180" value="Czech" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+            </item>
+            <item type="boardgameversion" id="780486">
+                <thumbnail>https://cf.geekdo-images.com/G-KmzN6eADTkTw_jtTc-xQ__small/img/rj3lvh8iPgkmd7qqBfN9XhctwjI=/fit-in/200x150/filters:strip_icc()/pic9219894.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/G-KmzN6eADTkTw_jtTc-xQ__original/img/8zTeHH3MKf0Ex2WdiV8NofRopEE=/0x0/filters:format(jpeg)/pic9219894.jpg</image>
+                <canonicalname value="Cirkus"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Czech/English edition" />
+                <link type="boardgamepublisher" id="52588" value="4 Kavky" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2024" />
+                <productcode value="" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2180" value="Czech" />
+                <link type="language" id="2184" value="English" />
+            </item>
+            <item type="boardgameversion" id="651894">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE edition" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="2580820221" />
+                <width value="2.55906" />
+                <length value="4.40945" />
+                <depth value="1.49606" />
+                <weight value="0.35274" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+            </item>
+            <item type="boardgameversion" id="580253">
+                <thumbnail>https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__small/img/NUcMdmZ3_eA1YfIwL8iRgkZKaHw=/fit-in/200x150/filters:strip_icc()/pic6398727.png</thumbnail>
+                <image>https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__original/img/vkElrRCPJxy7Q3TH9olpq20egA4=/0x0/filters:format(png)/pic6398727.png</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE/ES edition 2021" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2021" />
+                <productcode value="2220820211" />
+                <width value="2.55906" />
+                <length value="4.33071" />
+                <depth value="1.37795" />
+                <weight value="0.34833" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+            <item type="boardgameversion" id="755936">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE/ES edition 2220920221" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="2220920221" />
+                <width value="2.55906" />
+                <length value="4.37008" />
+                <depth value="1.45669" />
+                <weight value="0.418878" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+            <item type="boardgameversion" id="759839">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE/ES edition 2220920231" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="2220920231" />
+                <width value="2.56" />
+                <length value="4.37" />
+                <depth value="1.46" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+            <item type="boardgameversion" id="760085">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE/ES edition 2221120241" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="2221120241" />
+                <width value="2.55906" />
+                <length value="4.33071" />
+                <depth value="1.45669" />
+                <weight value="0.35" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+            <item type="boardgameversion" id="636863">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE/ES edition 2580820221" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="2580820221" />
+                <width value="2.55906" />
+                <length value="4.37008" />
+                <depth value="1.45669" />
+                <weight value="0.418878" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+            <item type="boardgameversion" id="648930">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="EN/FR/DE/ES edition with SdJ" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2021" />
+                <productcode value="2220820221" />
+                <width value="2.55906" />
+                <length value="4.33071" />
+                <depth value="1.5748" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2187" value="French" />
+                <link type="language" id="2188" value="German" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+            <item type="boardgameversion" id="702182">
+                <thumbnail>https://cf.geekdo-images.com/eD7A2Ph38PB5NhIxSOxREA__small/img/iWv4jFj-Gs6upLeYhrSR7RdUVS4=/fit-in/200x150/filters:strip_icc()/pic8030769.png</thumbnail>
+                <image>https://cf.geekdo-images.com/eD7A2Ph38PB5NhIxSOxREA__original/img/0VaC8b8AnQz-q9ttc24V77K-m3Q=/0x0/filters:format(png)/pic8030769.png</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="English tuckbox edition" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2024" />
+                <productcode value="" />
+                <width value="4.5" />
+                <length value="4.8" />
+                <depth value="0.6" />
+                <weight value="0.29" />
+                <link type="language" id="2184" value="English" />
+            </item>
+            <item type="boardgameversion" id="617667">
+                <thumbnail>https://cf.geekdo-images.com/ocbCV9Fyo-DBJNulrFYUrg__small/img/006TCYK0gqmBeqnmKUo0YOQPhW4=/fit-in/200x150/filters:strip_icc()/pic5121985.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/ocbCV9Fyo-DBJNulrFYUrg__original/img/TMn9DkaG_ECS16BaPa_Zf3_10H4=/0x0/filters:format(jpeg)/pic5121985.jpg</image>
+                <canonicalname value="Scout!"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="English/Japanese first edition" />
+                <link type="boardgamepublisher" id="28731" value="One More Game!" />
+                <link type="boardgameartist" id="117851" value="sinc (小川)" />
+                <yearpublished value="2019" />
+                <productcode value="" />
+                <width value="3.89764" />
+                <length value="5" />
+                <depth value="0.905512" />
+                <weight value="0.440925" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2194" value="Japanese" />
+            </item>
+            <item type="boardgameversion" id="476056">
+                <thumbnail>https://cf.geekdo-images.com/ZgmpNS-HrHbdQ736_oeuWg__small/img/kSACGLkDHDiXkZssPqFGwUxUimI=/fit-in/200x150/filters:strip_icc()/pic5376324.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/ZgmpNS-HrHbdQ736_oeuWg__original/img/Lazrwx14G7dUjJC-FJhFaznx66k=/0x0/filters:format(jpeg)/pic5376324.jpg</image>
+                <canonicalname value="Scout!"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="English/Japanese second edition" />
+                <link type="boardgamepublisher" id="28731" value="One More Game!" />
+                <link type="boardgameartist" id="117851" value="sinc (小川)" />
+                <yearpublished value="2019" />
+                <productcode value="" />
+                <width value="3.89764" />
+                <length value="5" />
+                <depth value="0.90551" />
+                <weight value="0.43431" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2194" value="Japanese" />
+            </item>
+            <item type="boardgameversion" id="642871">
+                <thumbnail>https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__small/img/NUcMdmZ3_eA1YfIwL8iRgkZKaHw=/fit-in/200x150/filters:strip_icc()/pic6398727.png</thumbnail>
+                <image>https://cf.geekdo-images.com/cf0xxkevbwTGF3VUZymKjg__original/img/vkElrRCPJxy7Q3TH9olpq20egA4=/0x0/filters:format(png)/pic6398727.png</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="French edition" />
+                <link type="boardgamepublisher" id="30034" value="Pixie Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2022" />
+                <productcode value="" />
+                <width value="2.55906" />
+                <length value="4.37008" />
+                <depth value="1.45669" />
+                <weight value="0.440925" />
+                <link type="language" id="2187" value="French" />
+            </item>
+            <item type="boardgameversion" id="768874">
+                <thumbnail>https://cf.geekdo-images.com/HpkGHwHtKRHZ-6Dwn0twsw__small/img/mvkX8QUhqdCAr1vi5VwdeQf_I5g=/fit-in/200x150/filters:strip_icc()/pic9032905.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/HpkGHwHtKRHZ-6Dwn0twsw__original/img/pk-OqUGLsF3nj_x9-vaAQkXLlkc=/0x0/filters:format(jpeg)/pic9032905.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="German/English edition 2021" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2021" />
+                <productcode value="2350720246" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2188" value="German" />
+            </item>
+            <item type="boardgameversion" id="797299">
+                <thumbnail>https://cf.geekdo-images.com/NRTr1J2ZZ28KdlehMWzW9Q__small/img/_TSeIQbRsYWaP-7kNAO0P4TB6Fk=/fit-in/200x150/filters:strip_icc()/pic9508070.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/NRTr1J2ZZ28KdlehMWzW9Q__original/img/tH4REkb95MSn6QO0JWy6_hPQdEk=/0x0/filters:format(jpeg)/pic9508070.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="German/English edition with SdJ" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="140525" value="Rie Komatsuzaki" />
+                <link type="boardgameartist" id="50009" value="Jun Sasaki" />
+                <yearpublished value="2021" />
+                <productcode value="2350820256" />
+                <width value="2.52" />
+                <length value="4.33" />
+                <depth value="1.42" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2188" value="German" />
+            </item>
+            <item type="boardgameversion" id="636384">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="German/English first edition with SdJ" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2022" />
+                <productcode value="2350820221" />
+                <width value="2.56" />
+                <length value="4.33" />
+                <depth value="1.38" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2188" value="German" />
+            </item>
+            <item type="boardgameversion" id="654044">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="German/English second edition with SdJ" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2022" />
+                <productcode value="2350820222" />
+                <width value="2.55906" />
+                <length value="4.25197" />
+                <depth value="1.49606" />
+                <weight value="0.326284" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2188" value="German" />
+            </item>
+            <item type="boardgameversion" id="724783">
+                <thumbnail>https://cf.geekdo-images.com/-8sFBxbRwANwOnfb4XgopA__small/img/NOvT9vfzvdsAD-Q8d3pd6Jekcfg=/fit-in/200x150/filters:strip_icc()/pic8262475.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/-8sFBxbRwANwOnfb4XgopA__original/img/VsFXXin4ItBfRQNuFj82IjLPUv4=/0x0/filters:format(jpeg)/pic8262475.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Hungarian edition" />
+                <link type="boardgamepublisher" id="8820" value="Gém Klub Kft." />
+                <yearpublished value="2024" />
+                <productcode value="" />
+                <width value="2.59843" />
+                <length value="4.37008" />
+                <depth value="1.45669" />
+                <weight value="0" />
+                <link type="language" id="2191" value="Hungarian" />
+            </item>
+            <item type="boardgameversion" id="779662">
+                <thumbnail>https://cf.geekdo-images.com/IlFCngITwbFXyRx-gmrsew__small/img/M7w89ZDEDTVcGsejuPxgQHYj7B4=/fit-in/200x150/filters:strip_icc()/pic9208087.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/IlFCngITwbFXyRx-gmrsew__original/img/qQzlnrUk06UMbIVQ7vVXu9B9RqQ=/0x0/filters:format(jpeg)/pic9208087.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Italian edition" />
+                <link type="boardgamepublisher" id="4785" value="Ghenos Games" />
+                <yearpublished value="2025" />
+                <productcode value="GHE343" />
+                <width value="2.59843" />
+                <length value="4.37008" />
+                <depth value="1.45669" />
+                <weight value="0" />
+                <link type="language" id="2193" value="Italian" />
+            </item>
+            <item type="boardgameversion" id="735278">
+                <thumbnail>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__small/img/9smGO-b_PN9xbcYqo1FyfVPESr4=/fit-in/200x150/filters:strip_icc()/pic7127142.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/YHgZ2mKV9GvX1IgsZ0y5tg__original/img/dy5e8b2xn9Hwk_cdvjg6fF4Zk2k=/0x0/filters:format(jpeg)/pic7127142.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Japanese/Chinese/English edition" />
+                <link type="boardgamepublisher" id="157" value="asmodee" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="116503" value="Kei Kajino (梶野 桂)" />
+                <yearpublished value="2021" />
+                <productcode value="2900120241" />
+                <width value="2.6" />
+                <length value="4.37" />
+                <depth value="1.46" />
+                <weight value="0.45" />
+                <link type="language" id="2181" value="Chinese" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2194" value="Japanese" />
+            </item>
+            <item type="boardgameversion" id="685335">
+                <thumbnail>https://cf.geekdo-images.com/t4IZfWmOu2_dD0yhF_YDTw__small/img/pVNyL3zNYLuAEcczuPZwBzJGIGA=/fit-in/200x150/filters:strip_icc()/pic7022842.png</thumbnail>
+                <image>https://cf.geekdo-images.com/t4IZfWmOu2_dD0yhF_YDTw__original/img/MKBJoobo-4W-UgCeSib1CK0zb10=/0x0/filters:format(png)/pic7022842.png</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Japanese/English edition with SdJ" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2022" />
+                <productcode value="2220820222" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2194" value="Japanese" />
+            </item>
+            <item type="boardgameversion" id="609226">
+                <thumbnail>https://cf.geekdo-images.com/4Csm__jBbTJys34LPBloGQ__small/img/Q9rGcjE35YDyTJg4uy1Pxd3DUXo=/fit-in/200x150/filters:strip_icc()/pic6812279.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/4Csm__jBbTJys34LPBloGQ__original/img/Iu4Ty4u6hmP-kWa6BOzoTAF4u84=/0x0/filters:format(jpeg)/pic6812279.jpg</image>
+                <canonicalname value="스카우트"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Korean edition" />
+                <link type="boardgamepublisher" id="41167" value="Popcorn Games" />
+                <yearpublished value="2022" />
+                <productcode value="" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2195" value="Korean" />
+            </item>
+            <item type="boardgameversion" id="688833">
+                <thumbnail>https://cf.geekdo-images.com/N6XXXb6PKVyBhVOjk5wg-Q__small/img/iKMsQARlxfm6pyibm43pnWpRMWU=/fit-in/200x150/filters:strip_icc()/pic7865430.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/N6XXXb6PKVyBhVOjk5wg-Q__original/img/Q-EtKgx3c1UA45cYJHVfNNri2Ag=/0x0/filters:format(jpeg)/pic7865430.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Nordic edition" />
+                <link type="boardgamepublisher" id="3218" value="Lautapelit.fi" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2023" />
+                <productcode value="LPFI740" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2182" value="Danish" />
+                <link type="language" id="2186" value="Finnish" />
+                <link type="language" id="2198" value="Norwegian" />
+                <link type="language" id="2204" value="Swedish" />
+            </item>
+            <item type="boardgameversion" id="698994">
+                <thumbnail>https://cf.geekdo-images.com/_GOEM9hzCVJN9rpOdcB9pA__small/img/8ARIlZ4YWDFdnA9RTtA7aBvCOps=/fit-in/200x150/filters:strip_icc()/pic8158630.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/_GOEM9hzCVJN9rpOdcB9pA__original/img/doZerceOZSJZF8ptHlYwjMi452s=/0x0/filters:format(jpeg)/pic8158630.jpg</image>
+                <canonicalname value="Scout!"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Oink Games English/Japanese edition with SdJ" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="159211" value="Shohei Asaoka (浅岡昇平)" />
+                <yearpublished value="2023" />
+                <productcode value="" />
+                <width value="3.9" />
+                <length value="5" />
+                <depth value="0.9" />
+                <weight value="0.42" />
+                <link type="language" id="2184" value="English" />
+                <link type="language" id="2194" value="Japanese" />
+            </item>
+            <item type="boardgameversion" id="638662">
+                <thumbnail>https://cf.geekdo-images.com/W8-8lPgouu0CznAyqiJohg__small/img/harjbReBDVkRAgsYZgqT9fzhzlw=/fit-in/200x150/filters:strip_icc()/pic7174555.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/W8-8lPgouu0CznAyqiJohg__original/img/J2iiABEQCnUh7b1ljddcETQKaxA=/0x0/filters:format(jpeg)/pic7174555.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Oink Games Japanese edition" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2021" />
+                <productcode value="" />
+                <width value="2.44094" />
+                <length value="4.29134" />
+                <depth value="1.33858" />
+                <weight value="0" />
+                <link type="language" id="2194" value="Japanese" />
+            </item>
+            <item type="boardgameversion" id="777591">
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Polish edition" />
+                <link type="boardgamepublisher" id="27470" value="Lucrum Games" />
+                <yearpublished value="2026" />
+                <productcode value="" />
+                <width value="0" />
+                <length value="0" />
+                <depth value="0" />
+                <weight value="0" />
+                <link type="language" id="2199" value="Polish" />
+            </item>
+            <item type="boardgameversion" id="702998">
+                <thumbnail>https://cf.geekdo-images.com/E4PaRX5VJWkwaRu38dlUrA__small/img/iVyPv8kQttfEUu6Cid7m452otPM=/fit-in/200x150/filters:strip_icc()/pic8044224.png</thumbnail>
+                <image>https://cf.geekdo-images.com/E4PaRX5VJWkwaRu38dlUrA__original/img/ua7683U8hFTWdTTBFtSJHPX2PAA=/0x0/filters:format(png)/pic8044224.png</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Portuguese edition" />
+                <link type="boardgamepublisher" id="15605" value="Galápagos Jogos" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <yearpublished value="2024" />
+                <productcode value="" />
+                <width value="2.59843" />
+                <length value="4.56693" />
+                <depth value="1.45669" />
+                <weight value="0" />
+                <link type="language" id="2200" value="Portuguese" />
+            </item>
+            <item type="boardgameversion" id="738880">
+                <thumbnail>https://cf.geekdo-images.com/NAjmdAWPxuvHlEzgqlg7Sg__small/img/4sNnUhOAfuYvK-LyqDWF6DHG8wE=/fit-in/200x150/filters:strip_icc()/pic8595064.jpg</thumbnail>
+                <image>https://cf.geekdo-images.com/NAjmdAWPxuvHlEzgqlg7Sg__original/img/xY6bEvp9DbNLNYwoabW3SLplluU=/0x0/filters:format(jpeg)/pic8595064.jpg</image>
+                <canonicalname value="SCOUT"></canonicalname>
+                <link type="boardgameversion" id="291453" value="SCOUT" inbound="true"/>
+                <name type="primary" sortindex="1" value="Spanish edition" />
+                <link type="boardgamepublisher" id="22649" value="Oink Games" />
+                <link type="boardgameartist" id="116503" value="Kei Kajino (梶野 桂)" />
+                <yearpublished value="2022" />
+                <productcode value="" />
+                <width value="2.55906" />
+                <length value="4.33071" />
+                <depth value="1.5748" />
+                <weight value="0" />
+                <link type="language" id="2203" value="Spanish" />
+            </item>
+        </versions>
+    </item>
+</items>

@@ -5,6 +5,7 @@ import sleep from 'sleep-promise';
 
 const bggCollectionBaseURL = `${bggHost}/xmlapi2/collection`;
 const bggUserBaseURL = `${bggHost}/xmlapi2/user`;
+const bggThingBaseURL = `${bggHost}/xmlapi2/thing`;
 
 const MAX_ATTEMPTS = 20;
 
@@ -53,4 +54,12 @@ export const bggGetCollectionInner =
         cuParams.append('stats', '1');
 
         return await fetchFromBggWithToken(collectionUrl.toString(), {}).then(r => r.text());
- };
+    };
+
+export const bggGetThingXml = async (bggId: number): Promise<string> => {
+    const thingUrl = new URL(bggThingBaseURL);
+    thingUrl.searchParams.append('id', String(bggId));
+    thingUrl.searchParams.append('versions', '1');
+    return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
+};
+

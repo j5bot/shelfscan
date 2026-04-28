@@ -1,6 +1,5 @@
 import {
     addImageDataToCache,
-    getImageDataFromCache,
     makeImageCacheId
 } from '@/app/lib/database/cacheDatabase';
 import { removeSetting } from '@/app/lib/database/database';
@@ -28,17 +27,16 @@ type AvatarProps = {
 
 const AvatarInner = ({ promise }: { promise: Promise<ResolvedImageProps> }) => {
     const { src, alt, ...imageProps } = use(promise);
-    return <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} />;
+    return <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} width={64} height={64} />;
 };
 
 const Avatar = ({ avatarUrl, username }: AvatarProps) => {
-    const promise = useImagePropsWithCache({
+    const { promise } = useImagePropsWithCache({
         src: avatarUrl,
         alt: username,
         height: 64,
         width: 64,
         getImageId: makeImageCacheId,
-        getImageDataFromCache,
         addImageDataToCache,
     }, [username]);
     return (
