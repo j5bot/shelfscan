@@ -115,6 +115,10 @@ svg[data-name=nextstep-arrow] > #triangle {
   padding-bottom: 0.25rem;
 }
 
+.collapse-arrow > .collapse-title:after {
+  right: 1rem;
+}
+
 .collapse-arrow.collapse-xs > .collapse-title:after {
   top: 0.85rem;
   height: 0.35rem;

@@ -79,7 +79,7 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                 }}
             >
                 <img
-                    className={`object-contain transition-[filter] duration-200 ${isPlaceholder ? 'blur-sm' : ''}`}
+                    className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-sm' : ''}`}
                     {...imageProps}
                 />
             </div>
