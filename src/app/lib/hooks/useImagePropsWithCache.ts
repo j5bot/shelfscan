@@ -70,9 +70,7 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
         let active = true;
         (async () => {
             if (!imageProps.src) {
-                if (active) {
-                    setImageLoadFailed(true);
-                }
+                setImageLoadFailed(true);
                 return;
             }
 
