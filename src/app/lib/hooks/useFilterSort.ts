@@ -9,7 +9,7 @@ export type SortFieldDef<T, F extends string> = {
 };
 
 type UseFilterSortOptions<T, F extends string> = {
-    items: T[];
+    items?: T[];
     filterFn: (item: T, query: string) => boolean;
     sortFields: SortFieldDef<T, F>[];
     defaultSortField: F;
@@ -27,7 +27,7 @@ type UseFilterSortResult<F extends string> = {
 };
 
 export const useFilterSort = <T, F extends string>({
-    items,
+    items = [],
     filterFn,
     sortFields,
     defaultSortField,
