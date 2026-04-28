@@ -1,7 +1,7 @@
 'use client';
 
-import { useActiveTab } from '@/app/lib/hooks/useActiveTab';
-import { useCollectionData } from '@/app/lib/hooks/useCollectionData';
+import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
+import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionRefresh } from '@/app/lib/hooks/useCollectionRefresh';
 import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
@@ -16,7 +16,16 @@ import { ListGame } from '@/app/ui/games/ListGame';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import { CSSProperties, forwardRef, KeyboardEvent, ReactNode, useMemo } from 'react';
-import { FaArrowDown, FaArrowUp, FaArrowsRotate, FaBarcode, FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
+import {
+    FaArrowDown,
+    FaArrowUp,
+    FaArrowsRotate,
+    FaBarcode,
+    FaCheck,
+    FaEye,
+    FaHeart,
+    FaRecycle
+} from 'react-icons/fa6';
 import { VirtuosoGrid } from 'react-virtuoso';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -110,16 +119,20 @@ const SortControls = <F extends string>({
                         onClick={() => onSortClick(field)}
                         className={`btn btn-xs gap-1 ${isActive ? 'btn-primary' : 'btn-ghost'}`}
                         aria-sort={isActive
-                            ? (sortDirection === 'asc' ? 'ascending' : 'descending')
-                            : 'none'
+                                   ? (
+                                       sortDirection === 'asc' ? 'ascending' : 'descending'
+                                   )
+                                   : 'none'
                         }
-                        aria-label={`Sort by ${label}${direction ? `, ${direction === 'asc' ? 'ascending' : 'descending'}` : ''}`}
+                        aria-label={`Sort by ${label}${direction ?
+                                                       `, ${direction === 'asc' ? 'ascending' : 'descending'}` :
+                                                       ''}`}
                     >
                         {label}
                         {isActive && (
                             sortDirection === 'asc'
-                                ? <FaArrowUp size={10} aria-hidden="true" />
-                                : <FaArrowDown size={10} aria-hidden="true" />
+                            ? <FaArrowUp size={10} aria-hidden="true" />
+                            : <FaArrowDown size={10} aria-hidden="true" />
                         )}
                     </button>
                 );
@@ -137,7 +150,7 @@ export default function CollectionPage() {
     const { scanHistory } = useScanHistory();
 
     // ── Tab state ──────────────────────────────────────────────────────────────
-    const { activeTab, setActiveTab } = useActiveTab();
+    const { activeTab, setActiveTab } = useActiveCollectionTab();
 
     // ── BGG collection data ────────────────────────────────────────────────────
     const { state, setState } = useCollectionData(username);
@@ -145,12 +158,12 @@ export default function CollectionPage() {
     const { isRefreshing, refreshCollection, refreshError, clearRefreshError, announceText } =
         useCollectionRefresh({
             username,
-            onSuccess: items => setState({ status: 'loaded', items }),
+            onSuccess: items => setState({ status: CollectionLoadStatuses.LOADED, items }),
         });
 
     // ── Sticky controls (only active for "All Games" tab) ─────────────────────
     const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
-        activeTab === 'all-games' && state.status === 'loaded',
+        activeTab === CollectionTabs.ALL_GAMES && state.status === CollectionLoadStatuses.LOADED,
     );
 
     // ── "All Games" filter/sort ────────────────────────────────────────────────
@@ -168,11 +181,15 @@ export default function CollectionPage() {
     }, [scanHistory]);
 
     const loadedItems = useMemo(
-        () => (state.status === 'loaded' ? state.items : []),
+        () => (
+            state.status === CollectionLoadStatuses.LOADED ? state.items : []
+        ),
         [state],
     );
 
-    const allGamesSortFields = useMemo<SortFieldDef<BggCollectionItem, AllGamesSortField>[]>(() => [
+    const allGamesSortFields = useMemo<
+        SortFieldDef<BggCollectionItem, AllGamesSortField>[]
+    >(() => [
         {
             field: 'name',
             label: 'Name',
@@ -183,11 +200,15 @@ export default function CollectionPage() {
             label: 'Last Modified',
             compare: (a, b) => {
                 const aMod = a.lastModified
-                    ? new Date(a.lastModified).valueOf()
-                    : (a.acquisitiondate ? new Date(a.acquisitiondate).valueOf() : 0);
+                             ? new Date(a.lastModified).valueOf()
+                             : (
+                                 a.acquisitiondate ? new Date(a.acquisitiondate).valueOf() : 0
+                             );
                 const bMod = b.lastModified
-                    ? new Date(b.lastModified).valueOf()
-                    : (b.acquisitiondate ? new Date(b.acquisitiondate).valueOf() : 0);
+                             ? new Date(b.lastModified).valueOf()
+                             : (
+                                 b.acquisitiondate ? new Date(b.acquisitiondate).valueOf() : 0
+                             );
                 return aMod - bMod;
             },
         },
@@ -195,12 +216,20 @@ export default function CollectionPage() {
             field: 'dateLastScanned',
             label: 'Last Scanned',
             compare: (a, b) =>
-                (lastScannedMap.get(a.objectId) ?? 0) - (lastScannedMap.get(b.objectId) ?? 0),
+                (
+                    lastScannedMap.get(a.objectId) ?? 0
+                ) - (
+                    lastScannedMap.get(b.objectId) ?? 0
+                ),
         },
         {
             field: 'yearPublished',
             label: 'Year',
-            compare: (a, b) => (a.yearPublished ?? 0) - (b.yearPublished ?? 0),
+            compare: (a, b) => (
+                                   a.yearPublished ?? 0
+                               ) - (
+                                   b.yearPublished ?? 0
+                               ),
         },
     ], [lastScannedMap]);
 
@@ -214,16 +243,18 @@ export default function CollectionPage() {
 
     // ── "Not in Collection" filter/sort ───────────────────────────────────────
     const collectionObjectIds = useMemo(
-        () => (state.status === 'loaded' || state.status === 'empty')
-            ? new Set(loadedItems.map(item => item.objectId))
-            : undefined,
+        () => (
+                  state.status === CollectionLoadStatuses.LOADED || state.status === CollectionLoadStatuses.EMPTY
+              )
+              ? new Set(loadedItems?.map(item => item.objectId) ?? [])
+              : undefined,
         [state.status, loadedItems],
     );
 
     const { notInCollectionItems, collectionHasData } = useNotInCollection(
         collectionObjectIds,
         scanHistory,
-        state.status === 'loaded' || state.status === 'empty',
+        state.status === CollectionLoadStatuses.LOADED || state.status === CollectionLoadStatuses.EMPTY,
     );
 
     const notInCollectionSortFields = useMemo<SortFieldDef<NotInCollectionEntry, NotInCollectionSortField>[]>(
@@ -232,7 +263,9 @@ export default function CollectionPage() {
                 field: 'name',
                 label: 'Name',
                 compare: (a, b) =>
-                    (a.gameName ?? a.upc).localeCompare(b.gameName ?? b.upc),
+                    (
+                        a.gameName ?? a.upc
+                    ).localeCompare(b.gameName ?? b.upc),
             },
             {
                 field: 'lastScanned',
@@ -246,7 +279,9 @@ export default function CollectionPage() {
     const notInCollectionFilter = useFilterSort<NotInCollectionEntry, NotInCollectionSortField>({
         items: notInCollectionItems,
         filterFn: (item, query) =>
-            (item.gameName ?? item.upc).toLowerCase().includes(query),
+            (
+                item.gameName ?? item.upc
+            ).toLowerCase().includes(query),
         sortFields: notInCollectionSortFields,
         defaultSortField: 'name',
         storageKeyPrefix: 'collection-not-in',
@@ -254,17 +289,17 @@ export default function CollectionPage() {
 
     // ── Tab keyboard navigation ────────────────────────────────────────────────
     const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>, tab: typeof activeTab) => {
-        if (e.key === 'ArrowRight' && tab === 'all-games') {
-            setActiveTab('not-in-collection');
-        } else if (e.key === 'ArrowLeft' && tab === 'not-in-collection') {
-            setActiveTab('all-games');
+        if (e.key === 'ArrowRight' && tab === CollectionTabs.ALL_GAMES) {
+            setActiveTab(CollectionTabs.NOT_IN_COLLECTION);
+        } else if (e.key === 'ArrowLeft' && tab === CollectionTabs.NOT_IN_COLLECTION) {
+            setActiveTab(CollectionTabs.ALL_GAMES);
         }
     };
 
     // ── Render helpers ─────────────────────────────────────────────────────────
     const renderAllGamesContent = () => {
         switch (state.status) {
-            case 'loading':
+            case CollectionLoadStatuses.LOADING:
                 return (
                     <div
                         className={`${GRID_CLASS} pt-2`}
@@ -277,7 +312,7 @@ export default function CollectionPage() {
                     </div>
                 );
 
-            case 'error':
+            case CollectionLoadStatuses.ERROR:
                 return (
                     <div
                         className="flex flex-col items-center gap-4 p-8 pt-10 text-center"
@@ -290,7 +325,7 @@ export default function CollectionPage() {
                     </div>
                 );
 
-            case 'empty':
+            case CollectionLoadStatuses.EMPTY:
                 return (
                     <div className="flex flex-col items-center gap-4 p-8 pt-10 text-center">
                         <p className="text-lg">
@@ -311,9 +346,15 @@ export default function CollectionPage() {
                     </div>
                 );
 
-            case 'loaded': {
-                const { filterText, setFilterText, sortField, sortDirection, handleSortClick, displayItems } =
-                    allGamesFilter;
+            case CollectionLoadStatuses.LOADED: {
+                const {
+                    filterText,
+                    setFilterText,
+                    sortField,
+                    sortDirection,
+                    handleSortClick,
+                    displayItems
+                } = allGamesFilter;
                 return (
                     <>
                         <div ref={sentinelRef} aria-hidden="true" style={{ height: 0 }} />
@@ -322,7 +363,7 @@ export default function CollectionPage() {
                             sortField={sortField}
                             sortDirection={sortDirection}
                             onSortClick={handleSortClick}
-                            filterId="all-games-filter-input"
+                            filterId={`${CollectionTabs.ALL_GAMES}-filter-input`}
                             filterValue={filterText}
                             onFilterChange={setFilterText}
                             stickyTop={stickyTop}
@@ -332,54 +373,57 @@ export default function CollectionPage() {
                                 No games match your filter.
                             </p>
                         ) : (
-                            <VirtuosoGrid
-                                useWindowScroll
-                                totalCount={displayItems.length}
-                                components={{ List: GridContainer }}
-                                itemContent={index => {
-                                    const item = displayItems[index];
-                                    const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
-                                    const { height, width } = getImageSizeFromUrl(thumbnailUrl);
-                                    const size = Math.ceil(Math.min(height, width) * 2 / 3);
+                             <VirtuosoGrid
+                                 useWindowScroll
+                                 totalCount={displayItems.length}
+                                 components={{ List: GridContainer }}
+                                 itemContent={index => {
+                                     const item = displayItems[index];
+                                     const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
+                                     const { height, width } = getImageSizeFromUrl(thumbnailUrl);
+                                     const size = Math.ceil(Math.min(height, width) * 2 / 3);
 
-                                    let statusText = '';
-                                    let cornerIcon: ReactNode;
-                                    switch (true) {
-                                        case item.statuses.fortrade:
-                                            statusText = 'For Trade';
-                                            cornerIcon = <FaRecycle title={statusText} className="shrink-0" />;
-                                            break;
-                                        case item.statuses.own:
-                                            statusText = 'Owned';
-                                            cornerIcon = <FaCheck title={statusText} className="shrink-0" />;
-                                            break;
-                                        case item.statuses.wishlist:
-                                            statusText = 'Wishlist';
-                                            cornerIcon = <FaHeart title={statusText} className="shrink-0" />;
-                                            break;
-                                        default:
-                                            statusText = '';
-                                            cornerIcon = <FaEye size={15} className="shrink-0" />;
-                                            break;
-                                    }
+                                     let statusText = '';
+                                     let cornerIcon: ReactNode;
+                                     switch (true) {
+                                         case item.statuses.fortrade:
+                                             statusText = 'For Trade';
+                                             cornerIcon = <FaRecycle title={statusText}
+                                                                     className="shrink-0" />;
+                                             break;
+                                         case item.statuses.own:
+                                             statusText = 'Owned';
+                                             cornerIcon = <FaCheck title={statusText}
+                                                                   className="shrink-0" />;
+                                             break;
+                                         case item.statuses.wishlist:
+                                             statusText = 'Wishlist';
+                                             cornerIcon = <FaHeart title={statusText}
+                                                                   className="shrink-0" />;
+                                             break;
+                                         default:
+                                             statusText = '';
+                                             cornerIcon = <FaEye size={15} className="shrink-0" />;
+                                             break;
+                                     }
 
-                                    return (
-                                        <ListGame
-                                            keyValue={item.collectionId.toString()}
-                                            name={item.name}
-                                            thumbnailUrl={thumbnailUrl}
-                                            smallSquareSize={size}
-                                            statusText={statusText}
-                                            cornerIcon={cornerIcon}
-                                            statusIcon={null}
-                                            detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
-                                            detailUrlTarget="_blank"
-                                            detailUrlRel="noopener noreferrer"
-                                        />
-                                    );
-                                }}
-                            />
-                        )}
+                                     return (
+                                         <ListGame
+                                             keyValue={item.collectionId.toString()}
+                                             name={item.name}
+                                             thumbnailUrl={thumbnailUrl}
+                                             smallSquareSize={size}
+                                             statusText={statusText}
+                                             cornerIcon={cornerIcon}
+                                             statusIcon={null}
+                                             detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
+                                             detailUrlTarget="_blank"
+                                             detailUrlRel="noopener noreferrer"
+                                         />
+                                     );
+                                 }}
+                             />
+                         )}
                     </>
                 );
             }
@@ -421,7 +465,7 @@ export default function CollectionPage() {
                     sortField={sortField}
                     sortDirection={sortDirection}
                     onSortClick={handleSortClick}
-                    filterId="not-in-collection-filter-input"
+                    filterId={`${CollectionTabs.NOT_IN_COLLECTION}-filter-input`}
                     filterValue={filterText}
                     onFilterChange={setFilterText}
                     stickyTop={0}
@@ -430,46 +474,46 @@ export default function CollectionPage() {
                     <div className="flex flex-col items-center gap-2 py-8 text-center">
                         <p className="text-base-content/60">
                             {notInCollectionItems.length === 0 && scanHistory.length === 0
-                                ? 'Scan some games to see which ones aren\'t in your collection yet.'
-                                : notInCollectionItems.length === 0
-                                    ? 'All scanned games are already in your collection. 🎉'
-                                    : 'No games match your filter.'
+                             ? 'Scan some games to see which ones aren\'t in your collection yet.'
+                             : notInCollectionItems.length === 0
+                               ? 'All scanned games are already in your collection. 🎉'
+                               : 'No games match your filter.'
                             }
                         </p>
                     </div>
                 ) : (
-                    <div className="flex flex-col gap-1 w-full pt-2">
-                        {displayItems.map(entry => {
-                            const displayName = entry.gameName ?? entry.upc;
-                            const thumbnailUrl = entry.thumbnailUrl ?? '';
-                            const { height, width } = getImageSizeFromUrl(thumbnailUrl);
-                            const size = Math.ceil(Math.min(height, width) * 2 / 3) || THUMBNAIL_SIZE;
+                     <div className="flex flex-col gap-1 w-full pt-2">
+                         {displayItems.map(entry => {
+                             const displayName = entry.gameName ?? entry.upc;
+                             const thumbnailUrl = entry.thumbnailUrl ?? '';
+                             const { height, width } = getImageSizeFromUrl(thumbnailUrl);
+                             const size = Math.ceil(Math.min(height,
+                                 width) * 2 / 3) || THUMBNAIL_SIZE;
 
-                            return (
-                                <ListGame
-                                    key={entry.id}
-                                    keyValue={entry.id.toString()}
-                                    name={displayName}
-                                    thumbnailUrl={thumbnailUrl}
-                                    smallSquareSize={size}
-                                    statusText="Not in collection"
-                                    cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
-                                    statusIcon={null}
-                                    detailUrl={`/upc/${entry.upc}`}
-                                />
-                            );
-                        })}
-                    </div>
-                )}
+                             return (
+                                 <ListGame
+                                     key={entry.id}
+                                     keyValue={entry.id.toString()}
+                                     name={displayName}
+                                     thumbnailUrl={thumbnailUrl}
+                                     smallSquareSize={size}
+                                     statusText="Not in collection"
+                                     cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
+                                     statusIcon={null}
+                                     detailUrl={`/upc/${entry.upc}`}
+                                 />
+                             );
+                         })}
+                     </div>
+                 )}
             </>
         );
     };
 
-    // ── Tab panel IDs ──────────────────────────────────────────────────────────
-    const allGamesTabId = 'tab-all-games';
-    const allGamesPanelId = 'panel-all-games';
-    const notInCollectionTabId = 'tab-not-in-collection';
-    const notInCollectionPanelId = 'panel-not-in-collection';
+    const allGamesTabId = `tab-${CollectionTabs.ALL_GAMES}`;
+    const allGamesPanelId = `panel-${CollectionTabs.ALL_GAMES}`;
+    const notInCollectionTabId = `tab-${CollectionTabs.NOT_IN_COLLECTION}`;
+    const notInCollectionPanelId = `panel-${CollectionTabs.NOT_IN_COLLECTION}`;
 
     return (
         <>
@@ -519,24 +563,24 @@ export default function CollectionPage() {
                         <button
                             id={allGamesTabId}
                             role="tab"
-                            aria-selected={activeTab === 'all-games'}
+                            aria-selected={activeTab === CollectionTabs.ALL_GAMES}
                             aria-controls={allGamesPanelId}
-                            tabIndex={activeTab === 'all-games' ? 0 : -1}
-                            className={`tab${activeTab === 'all-games' ? ' tab-active' : ''}`}
-                            onClick={() => setActiveTab('all-games')}
-                            onKeyDown={e => handleTabKeyDown(e, 'all-games')}
+                            tabIndex={activeTab === CollectionTabs.ALL_GAMES ? 0 : -1}
+                            className={`tab${activeTab === CollectionTabs.ALL_GAMES ? ' tab-active' : ''}`}
+                            onClick={() => setActiveTab(CollectionTabs.ALL_GAMES)}
+                            onKeyDown={e => handleTabKeyDown(e, CollectionTabs.ALL_GAMES)}
                         >
                             All Games
                         </button>
                         <button
                             id={notInCollectionTabId}
                             role="tab"
-                            aria-selected={activeTab === 'not-in-collection'}
+                            aria-selected={activeTab === CollectionTabs.NOT_IN_COLLECTION}
                             aria-controls={notInCollectionPanelId}
-                            tabIndex={activeTab === 'not-in-collection' ? 0 : -1}
-                            className={`tab${activeTab === 'not-in-collection' ? ' tab-active' : ''}`}
-                            onClick={() => setActiveTab('not-in-collection')}
-                            onKeyDown={e => handleTabKeyDown(e, 'not-in-collection')}
+                            tabIndex={activeTab === CollectionTabs.NOT_IN_COLLECTION ? 0 : -1}
+                            className={`tab${activeTab === CollectionTabs.NOT_IN_COLLECTION ? ' tab-active' : ''}`}
+                            onClick={() => setActiveTab(CollectionTabs.NOT_IN_COLLECTION)}
+                            onKeyDown={e => handleTabKeyDown(e, CollectionTabs.NOT_IN_COLLECTION)}
                         >
                             Not in Collection
                         </button>
@@ -544,13 +588,13 @@ export default function CollectionPage() {
 
                     <section
                         ref={sectionRef}
-                        id={activeTab === 'all-games' ? allGamesPanelId : notInCollectionPanelId}
+                        id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
                         role="tabpanel"
-                        aria-labelledby={activeTab === 'all-games' ? allGamesTabId : notInCollectionTabId}
+                        aria-labelledby={activeTab === CollectionTabs.ALL_GAMES ? allGamesTabId : notInCollectionTabId}
                         className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4 pt-2"
                     >
-                        {activeTab === 'all-games' && renderAllGamesContent()}
-                        {activeTab === 'not-in-collection' && renderNotInCollectionContent()}
+                        {activeTab === CollectionTabs.ALL_GAMES && renderAllGamesContent()}
+                        {activeTab === CollectionTabs.NOT_IN_COLLECTION && renderNotInCollectionContent()}
                     </section>
                 </div>
             </div>

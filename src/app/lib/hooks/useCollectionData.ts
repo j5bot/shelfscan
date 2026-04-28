@@ -2,38 +2,40 @@ import { getCollection } from '@/app/lib/database/database';
 import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export type CollectionLoadStatus =
-    | { status: 'loading' }
-    | { status: 'empty' }
-    | { status: 'error' }
-    | { status: 'loaded'; items: BggCollectionItem[] };
+export const CollectionLoadStatuses = {
+    LOADING: 'loading',
+    EMPTY: 'empty',
+    ERROR: 'error',
+    LOADED: 'loaded',
+} as const;
+
+export type CollectionLoadStatus = typeof CollectionLoadStatuses[keyof typeof CollectionLoadStatuses];
+
+export type CollectionLoadStatusData = { status: CollectionLoadStatus; items?: BggCollectionItem[] | undefined };
 
 type UseCollectionDataResult = {
-    state: CollectionLoadStatus;
-    setState: (state: CollectionLoadStatus) => void;
+    state: CollectionLoadStatusData;
+    setState: (state: CollectionLoadStatusData) => void;
     loadCollection: () => Promise<void>;
 };
 
 export const useCollectionData = (username: string | undefined): UseCollectionDataResult => {
-    const [state, setState] = useState<CollectionLoadStatus>({ status: 'loading' });
+    const [state, setState] = useState<CollectionLoadStatusData>({ status: CollectionLoadStatuses.LOADING });
     const mountedRef = useRef(true);
 
     const loadCollection = useCallback(async () => {
-        setState({ status: 'loading' });
+        setState({ status: CollectionLoadStatuses.LOADING });
         try {
-            let map: BggCollectionMap | undefined;
-            if (username) {
-                map = await getCollection(username.toLowerCase());
-            }
+            const map = username ? await getCollection(username.toLowerCase()) : undefined;
             if (!mountedRef.current) { return; }
             if (!map || Object.keys(map).length === 0) {
-                setState({ status: 'empty' });
+                setState({ status: CollectionLoadStatuses.EMPTY });
                 return;
             }
-            setState({ status: 'loaded', items: Object.values(map) });
+            setState({ status: CollectionLoadStatuses.LOADED, items: Object.values(map) });
         } catch {
             if (!mountedRef.current) { return; }
-            setState({ status: 'error' });
+            setState({ status: CollectionLoadStatuses.ERROR });
         }
     }, [username]);
 

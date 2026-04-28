@@ -1,13 +1,20 @@
 import { useCallback, useState } from 'react';
 
-export type CollectionTab = 'all-games' | 'not-in-collection';
+export const CollectionTabs = {
+    ALL_GAMES: 'all-games',
+    NOT_IN_COLLECTION: 'not-in-collection',
+} as const;
+
+export type CollectionTab = typeof CollectionTabs[keyof typeof CollectionTabs];
 
 const LS_ACTIVE_TAB_KEY = 'collection-active-tab';
 
 const readStoredTab = (): CollectionTab => {
-    if (typeof window === 'undefined') { return 'all-games'; }
+    if (typeof window === 'undefined') { return CollectionTabs.ALL_GAMES; }
     const stored = localStorage.getItem(LS_ACTIVE_TAB_KEY);
-    return (stored === 'all-games' || stored === 'not-in-collection') ? stored : 'all-games';
+    return (stored === CollectionTabs.ALL_GAMES || stored === CollectionTabs.NOT_IN_COLLECTION)
+        ? stored as CollectionTab
+        : CollectionTabs.ALL_GAMES;
 };
 
 type UseActiveTabResult = {
@@ -15,7 +22,7 @@ type UseActiveTabResult = {
     setActiveTab: (tab: CollectionTab) => void;
 };
 
-export const useActiveTab = (): UseActiveTabResult => {
+export const useActiveCollectionTab = (): UseActiveTabResult => {
     const [activeTab, setActiveTabInner] = useState<CollectionTab>(readStoredTab);
 
     const setActiveTab = useCallback((tab: CollectionTab) => {
