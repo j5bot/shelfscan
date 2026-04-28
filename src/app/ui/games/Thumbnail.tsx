@@ -69,8 +69,8 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                     bg-[#f1eff9]
                     flex justify-center items-center
                     rounded-md overflow-clip
-                    focus:overflow-visible focus:scale-150
-                    hover:overflow-visible hover:scale-150
+                    focus:overflow-visible focus:scale-300
+                    hover:overflow-visible hover:scale-300
                     hover:z-40
                 `}
                 style={{

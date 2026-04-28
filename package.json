@@ -25,7 +25,6 @@
     "daisyui": "^5.5.19",
     "dexie": "^4.4.1",
     "gameupc-hooks": "1.0.2",
-    "image-blob-reduce": "^4.1.0",
     "motion": "^12.38.0",
     "next": "^16.2.4",
     "nextstepjs": "^2.2.0",

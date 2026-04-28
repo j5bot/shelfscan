@@ -1,8 +1,26 @@
 import { enqueueFetch } from '@/app/lib/utils/fetchQueue';
 import { getImageDataFromCache as getFromCache, hasCachedImage } from '@/app/lib/database/cacheDatabase';
-import ImageBlobReduce from 'image-blob-reduce';
+import type ImageBlobReduce from 'image-blob-reduce';
 import { ImageProps } from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+
+const CDN_IMAGE_BLOB_REDUCE =
+    'https://cdn.jsdelivr.net/npm/image-blob-reduce@4.1.0/dist/image-blob-reduce.esm.mjs';
+
+// Lazily loaded from CDN — not bundled. Cached after first load.
+let cachedImageBlobReduce: typeof ImageBlobReduce | undefined;
+
+// new Function escapes bundler static-analysis so the CDN URL is not followed at build time.
+const cdnImport = new Function('url', 'return import(url)') as
+    (url: string) => Promise<{ default: typeof ImageBlobReduce }>;
+
+const loadImageBlobReduce = async (): Promise<typeof ImageBlobReduce> => {
+    if (!cachedImageBlobReduce) {
+        const mod = await cdnImport(CDN_IMAGE_BLOB_REDUCE);
+        cachedImageBlobReduce = mod.default;
+    }
+    return cachedImageBlobReduce;
+};
 
 const MAX_NORMAL_IMAGE_SIZE = 350;
 const NORMAL_IMAGE_QUALITY = 0.9;
@@ -50,8 +68,10 @@ const rewriteImageSrc = (src: string): string => src
     .replace('https://cf.geekdo-static.com/', '/bgg-static/')
     .replace('https://gameupc.com/assets/img/', '/gameupc-images/');
 
+// @ts-ignore
 const resizeBlob = async (blob: Blob): Promise<Blob> => {
-    const reduce = new ImageBlobReduce();
+    const ImageBlobReduceCtor = await loadImageBlobReduce();
+    const reduce = new ImageBlobReduceCtor();
     const canvas = await reduce.toCanvas(blob, { max: MAX_NORMAL_IMAGE_SIZE });
     return new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
@@ -68,12 +88,12 @@ export const useImagePropsWithCache = (
 ): UseImagePropsWithCacheResult => {
     const {
         getImageId,
-        getImageDataFromCache,
         addImageDataToCache,
         alt,
         src,
         placeholderSrc,
     } = params;
+    void params.getImageDataFromCache; // kept in type for API compatibility
 
     const normalSrc = rewriteImageSrc(src.toString());
     const placeholder = placeholderSrc ? rewriteImageSrc(placeholderSrc) : undefined;
@@ -81,7 +101,6 @@ export const useImagePropsWithCache = (
     const [cacheStatus, setCacheStatus] = useState<'pending' | 'miss' | 'hit'>('pending');
     const [imageBlob, setImageBlob] = useState<Blob>();
     const [blobSrc, setBlobSrc] = useState<string>();
-    const [imageLoadFailed, setImageLoadFailed] = useState(false);
 
     useEffect(() => {
         if (!imageBlob) {
@@ -230,7 +249,7 @@ export const useImagePropsWithCache = (
         promiseRef.current = { resolve, promise };
     }
 
-    if (phase1Props.src !== undefined || imageLoadFailed) {
+    if (phase1Props.src !== undefined) {
         promiseRef.current.resolve(phase1Props);
     }
 
