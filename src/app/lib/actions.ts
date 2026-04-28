@@ -1,6 +1,8 @@
 'use server';
 
+import { ThumbnailImageMismatchEntry } from '@/app/lib/hooks/useThumbnailImageMismatch';
 import { bggHost } from '@/app/lib/services/bgg/constants';
+import { JSDOM } from 'jsdom';
 import sleep from 'sleep-promise';
 
 const bggCollectionBaseURL = `${bggHost}/xmlapi2/collection`;
@@ -61,5 +63,32 @@ export const bggGetThingXml = async (bggId: number): Promise<string> => {
     thingUrl.searchParams.append('id', String(bggId));
     thingUrl.searchParams.append('versions', '1');
     return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
+};
+
+export const bggGetImageUrlMap = async (
+    queue: ThumbnailImageMismatchEntry[],
+): Promise<Record<string, string>> => {
+    const map: Record<string, string> = {};
+
+    await Promise.all(queue.map(async ({ id, versionIds }) => {
+        const xml = await bggGetThingXml(id);
+        const { window: { document } } = new JSDOM(xml, { contentType: 'text/xml' });
+
+        versionIds.forEach(versionId => {
+            const versionEl = document.querySelector(
+                `item[type="boardgameversion"][id="${versionId}"]`,
+            );
+            if (!versionEl) {
+                return;
+            }
+            const thumbnail = versionEl.querySelector('thumbnail')?.textContent?.trim();
+            const image = versionEl.querySelector('image')?.textContent?.trim();
+            if (thumbnail && image && thumbnail !== image) {
+                map[thumbnail] = image;
+            }
+        });
+    }));
+
+    return map;
 };
 
