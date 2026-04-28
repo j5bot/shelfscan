@@ -55,7 +55,7 @@ export const CodesProvider = ({ children }: Props) => {
         ids.push(historyID);
         historyIDsRef.current[code] = ids;
     };
-    const getHistoryIDs = (code: string) => historyIDsRef.current[code];
+    const getHistoryIDs = (code: string) => historyIDsRef.current[code] ?? [];
 
     // load persisted codes from db
     useEffect(() => {
