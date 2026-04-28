@@ -67,7 +67,8 @@ export const GameDetails = (
                 <div className="flex items-start">
                     <ThumbnailBox
                         alt={version?.name ?? 'Default Game Image'}
-                        url={version?.thumbnail_url ?? defaultImageUrl}
+                        url={version?.thumbnail_url ?? info?.thumbnail_url ?? defaultImageUrl}
+                        imageUrl={version?.image_url ?? info?.image_url ?? defaultImageUrl}
                         size={150}
                     />
                 </div>

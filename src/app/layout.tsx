@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Share_Tech } from 'next/font/google';
 import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
+import Script from 'next/script';
 import React from 'react';
 
 const shareTech = Share_Tech({
@@ -42,6 +43,7 @@ export default function RootLayout({
           <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
           <meta name="apple-mobile-web-app-title" content="ShelfScan.io" />
           <link rel="manifest" href="/favicons/site.webmanifest" />
+          <Script src="https://cdn.jsdelivr.net/npm/image-blob-reduce@4.1.0/dist/image-blob-reduce.esm.mjs" strategy="lazyOnload"></Script>
       </head>
       <body className={`
           w-full min-h-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased

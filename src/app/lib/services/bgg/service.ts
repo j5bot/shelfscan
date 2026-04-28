@@ -65,7 +65,7 @@ export const getCommonDetails = (item: Element | null) => {
     }
     const name = elementGetter(item, false, 'name') as string;
     const yearPublished =
-        elementGetter(item, true, 'yearPublished') as number | undefined;
+        elementGetter(item, true, 'yearpublished') as number | undefined;
 
     return { name, yearPublished };
 };
@@ -75,7 +75,7 @@ export const getCommonDetailsFromObject = (object: BggRawObject) => {
         return;
     }
     const name = object.name;
-    const yearPublished = object.yearpublished
+    const yearPublished = object.yearPublished ?? object.yearpublished;
 
     return { name, yearPublished };
 };
@@ -165,6 +165,8 @@ export const getCollectionFromXml = (xml?: string) => {
             const objectId = elementGetter(item, true, undefined, 'objectid');
             const subType = elementGetter(item, false, undefined, 'subtype') ?? 'boardgame';
             const collectionId = elementGetter(item, true, undefined, 'collid');
+            const image = elementGetter(item, false, 'image');
+            const thumbnail = elementGetter(item, false, 'thumbnail');
             const version = getVersionDetails(item);
             const status = item.getElementsByTagName('status')?.[0];
             const rating = elementGetter(item, false, 'stats > rating', 'value');
@@ -174,18 +176,23 @@ export const getCollectionFromXml = (xml?: string) => {
                 return Object.assign(acc, {[attributeName]: status.getAttribute(attributeName) === '1'})
             }, {} as BggCollectionStatuses) : {};
 
+            const lastModified = status ? elementGetter(status, false, undefined, 'lastmodified') : undefined;
+
             if (!(objectId && collectionId)) {
                 return undefined;
             }
 
             return {
                 ...commonDetails,
+                image,
+                thumbnail,
                 objectId,
                 versionId: version?.id,
                 subType,
                 collectionId,
                 version,
                 statuses,
+                lastModified,
                 rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
                 tradeCondition,
             } as BggCollectionItem;
@@ -210,6 +217,7 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         collectionId: object.collid,
         version,
         statuses: object.status,
+        lastModified: object.lastmodified,
         rating: object.rating,
         tradeCondition: object.textfield?.conditiontext?.value,
         ...(Object.keys(privateInfo).length ? privateInfo : {}),

@@ -6,17 +6,20 @@ import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
+import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
+import { hasSeenTour } from '@/app/lib/tours';
+import { ScanHistoryError, ScanHistoryMatchStatus } from '@/app/lib/types/scanHistory';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
+import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import { SessionLink } from '@/app/ui/SessionLink';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
 import React, { Suspense, useEffect, useMemo } from 'react';
-import { hasSeenTour } from '../lib/tours';
 
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
@@ -35,15 +38,19 @@ export default function Page() {
 
     const {
         gameDataMap,
-        getGameData,
         submitOrVerifyGame,
         removeGame,
     } = useGameUPCData();
 
+    const { codes, setCodes } = useCodes();
+
     const {
-        codes,
-        setCodes,
-    } = useCodes();
+        onScan,
+        duplicateUpc,
+        historyLimitReached,
+        clearDuplicateUpc,
+        clearHistoryLimitReached,
+    } = useScanRecorder();
 
     const compressedCodes = useMemo(() =>
         convertToCompressedCodes(codes),
@@ -82,16 +89,14 @@ export default function Page() {
     void submitOrVerifyGame;
     void removeGame;
 
-    const onScan = (code: string) => {
-        if (!codes.includes(code)) {
-            codes.unshift(code);
-            setCodes(codes);
-        }
-        getGameData(code).then();
-    };
-
     return <>
         <NavDrawer />
+        <ScanToasts
+            duplicateUpc={duplicateUpc}
+            historyLimitReached={historyLimitReached}
+            onClearDuplicate={clearDuplicateUpc}
+            onClearLimitReached={clearHistoryLimitReached}
+        />
         {breakpoint ? (
              <div className="flex flex-col w-full items-center p-3 sm:p-4">
                  <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
@@ -110,29 +115,28 @@ export default function Page() {
                         ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
-                              ? (<>
-                                  <Scanlist gameUPCResults={gameDataMap} />
-                                  <div className="flex justify-center pt-4 pb-2">
-                                      <button
-                                          className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
-                                              text-sm uppercase cursor-pointer"
-                                          onClick={() => setCodes([])}
-                                      >
-                                          Clear All
-                                      </button>
-                                  </div>
-                              </>)
-                              : (
-                                  <div className="w-full flex flex-col items-center justify-items-center text-center">
-                                      <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                      <div className="mt-2 mb-2 text-sm">
-                                          <h3>- Scan UPCs, Then -</h3>
-                                          <UseCaseBadges />
-.                                      </div>
-                                      <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
-                                  </div>
-                              )
-                             }
+                             ? (<>
+                                 <Scanlist gameUPCResults={gameDataMap} />
+                                 <div className="flex justify-center pt-4 pb-2">
+                                     <button
+                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+                                             text-sm uppercase cursor-pointer"
+                                         onClick={() => setCodes([])}
+                                     >
+                                         Clear All
+                                     </button>
+                                 </div>
+                             </>)
+                             : (
+                                 <div className="w-full flex flex-col items-center justify-items-center text-center">
+                                     <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
+                                     <div className="mt-2 mb-2 text-sm">
+                                         <h3>- Scan UPCs, Then -</h3>
+                                         <UseCaseBadges />
+                                     </div>
+                                     <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
+                                 </div>
+                             )}
                          </div>
                      </div>
                      <SessionLink compressedCodes={compressedCodes} />
