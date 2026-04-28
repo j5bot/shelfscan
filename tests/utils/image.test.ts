@@ -14,15 +14,15 @@ describe('image utils', () => {
             expect(result).toEqual({ width: 300, height: 400 });
         });
 
-        it('returns the default 200x200 when the URL contains no fit-in segment', () => {
+        it('returns the default 200x150 when the URL contains no fit-in segment', () => {
             const url = 'https://cdn.example.com/image.jpg';
             const result = getImageSizeFromUrl(url);
-            expect(result).toEqual({ width: 200, height: 200 });
+            expect(result).toEqual({ width: 200, height: 150 });
         });
 
-        it('returns the default 200x200 for an empty string', () => {
+        it('returns the default 200x150 for an empty string', () => {
             const result = getImageSizeFromUrl('');
-            expect(result).toEqual({ width: 200, height: 200 });
+            expect(result).toEqual({ width: 200, height: 150 });
         });
 
         it('correctly maps the first capture group to width', () => {
