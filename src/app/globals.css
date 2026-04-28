@@ -116,7 +116,7 @@ svg[data-name=nextstep-arrow] > #triangle {
 }
 
 .collapse-arrow > .collapse-title:after {
-  right: 1rem;
+  right: 1rem !important;
 }
 
 .collapse-arrow.collapse-xs > .collapse-title:after {

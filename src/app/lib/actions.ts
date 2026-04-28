@@ -56,10 +56,9 @@ export const bggGetCollectionInner =
         return await fetchFromBggWithToken(collectionUrl.toString(), {}).then(r => r.text());
     };
 
-export const bggGetThingXml = async (bggId: number): Promise<string> => {
+export const bggGetThingsXml = async (bggIds: number[]): Promise<string> => {
     const thingUrl = new URL(bggThingBaseURL);
-    thingUrl.searchParams.append('id', String(bggId));
+    thingUrl.searchParams.append('id', bggIds.join(','));
     thingUrl.searchParams.append('versions', '1');
     return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
 };
-

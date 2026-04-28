@@ -223,3 +223,45 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         ...(Object.keys(privateInfo).length ? privateInfo : {}),
     } as BggCollectionItem;
 };
+
+const extractImageUrls = (
+    document: Document,
+    selector: string,
+): { thumbnail: string; image: string } | undefined => {
+    const el = document.querySelector(selector);
+    if (!el) {
+        return undefined;
+    }
+    const thumbnail = el.querySelector('thumbnail')?.textContent?.trim();
+    const image = el.querySelector('image')?.textContent?.trim();
+    if (thumbnail && image && thumbnail !== image) {
+        return { thumbnail, image };
+    }
+    return undefined;
+};
+
+export const bggGetImageUrl = (
+    document: Document,
+    infoId?: number,
+    versionId?: number,
+): string => {
+    if (!infoId) {
+        return '';
+    }
+    if (infoId && !versionId) {
+        const result = extractImageUrls(
+            document,
+            `item[type="boardgame"][id="${infoId}"]`,
+        );
+        return result?.image ?? result?.thumbnail ?? '';
+    }
+    if (infoId && versionId) {
+        const result = extractImageUrls(
+            document,
+            `item[type="boardgameversion"][id="${versionId}"]`,
+        );
+        return result?.image ?? result?.thumbnail ?? '';
+    }
+
+    return '';
+};

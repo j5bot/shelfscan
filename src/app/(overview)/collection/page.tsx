@@ -379,7 +379,7 @@ export default function CollectionPage() {
                                  components={{ List: GridContainer }}
                                  itemContent={index => {
                                      const item = displayItems[index];
-                                     const thumbnailUrl = item.version?.image ?? item.thumbnail ?? '';
+                                     const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
                                      const { height, width } = getImageSizeFromUrl(thumbnailUrl);
                                      const size = Math.ceil(Math.min(height, width) * 2 / 3);
 

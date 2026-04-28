@@ -1,5 +1,6 @@
 import { useCodes } from '@/app/lib/CodesProvider';
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
+import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
 import { ListGame } from '@/app/ui/games/ListGame';
@@ -10,7 +11,7 @@ import {
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { getConfidenceLevelColor } from '@/app/ui/games/renderers';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
-import { ReactNode } from 'react';
+import { ReactNode, Suspense, use } from 'react';
 import { FaQuestionCircle, FaSearch, FaSearchPlus } from 'react-icons/fa';
 import {
     FaBarcode,
@@ -53,10 +54,6 @@ export const ScanItem = (props: ScanItemProps) => {
 
     const statusText = GameUPCVersionStatusText[bggInfoStatus];
 
-    if (!bggInfo) {
-        return;
-    }
-
     const {
         name: infoName = 'Nothing Found',
         confidence = 0,
@@ -65,8 +62,17 @@ export const ScanItem = (props: ScanItemProps) => {
     const {
         name: versionName,
         thumbnail_url: thumbnailUrl,
-        image_url: imageUrl,
+        image_url: sourceImageUrl,
     } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
+
+    const imageUrlPromise = useImageMismatch(
+        bggInfo?.[infoIndex]?.id, bggInfo?.[infoIndex]?.versions?.[versionIndex]?.version_id
+    );
+    const imageUrl = imageUrlPromise ? use(imageUrlPromise) : undefined;
+
+    if (!bggInfo) {
+        return;
+    }
 
     const name = infoName + (versionName ? ` (${versionName})` : '');
 
@@ -163,11 +169,13 @@ export const Scanlist = (props: ScanlistProps) => {
     return <GameListContainer>
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
-                <ScanItem code={code}
-                          gameUPCResults={gameUPCResults}
-                          gameSelections={gameSelections}
-                          removeFromList={removeFromList}
-                />
+                <Suspense fallback={<ListGame keyValue={code} name={''} smallSquareSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>
+                    <ScanItem code={code}
+                              gameUPCResults={gameUPCResults}
+                              gameSelections={gameSelections}
+                              removeFromList={removeFromList}
+                    />
+                </Suspense>
             </SelectVersionProvider>
         ))}
     </GameListContainer>;
