@@ -32,7 +32,7 @@ const AvatarInner = ({ promise }: { promise: Promise<ResolvedImageProps> }) => {
 };
 
 const Avatar = ({ avatarUrl, username }: AvatarProps) => {
-    const promise = useImagePropsWithCache({
+    const { promise } = useImagePropsWithCache({
         src: avatarUrl,
         alt: username,
         height: 64,

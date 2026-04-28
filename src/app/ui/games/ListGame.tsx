@@ -15,6 +15,7 @@ export type ListGameProps = {
     statusIcon: ReactNode;
     statusText: string;
     thumbnailUrl: string;
+    imageUrl?: string;
 }
 
 export const ListGame = (props: ListGameProps) => {
@@ -31,11 +32,13 @@ export const ListGame = (props: ListGameProps) => {
         statusIcon,
         statusText,
         thumbnailUrl,
+        imageUrl,
     } = props;
 
     const thumbnail = <ThumbnailBox
         alt={name}
         url={thumbnailUrl}
+        imageUrl={imageUrl}
         size={smallSquareSize}
         styles={imageContainerStyles}
     />;

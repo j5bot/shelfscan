@@ -49,6 +49,9 @@ export const makeImageCacheId = (imageProps: ImageProps) => [
 export const getImageDataFromCache = async (id: string) =>
     (await cacheDatabase.images.get(id))?.data;
 
+export const hasCachedImage = async (id: string): Promise<boolean> =>
+    (await cacheDatabase.images.where(':id').equals(id).count()) > 0;
+
 export const addImageDataToCache = async (id: string, blob: Blob) => {
     const previousImage = await cacheDatabase.images.get(id);
     if (previousImage) {
