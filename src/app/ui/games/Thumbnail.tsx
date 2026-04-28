@@ -1,4 +1,4 @@
-import { addImageDataToCache, getImageDataFromCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
+import { addImageDataToCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import { useImagePropsWithCache, type ResolvedImageProps } from '@/app/lib/hooks/useImagePropsWithCache';
 import React, { CSSProperties, Suspense, use } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
@@ -39,7 +39,6 @@ export const Thumbnail = (props: ThumbnailBoxProps) => {
         src: imageUrl ?? url,
         placeholderSrc: imageUrl ? url : undefined,
         getImageId: makeImageCacheId,
-        getImageDataFromCache,
         addImageDataToCache,
         width: size,
         height: size,
@@ -101,7 +100,6 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         placeholderSrc: imageUrl ? url : undefined,
         fill: true,
         getImageId: makeImageCacheId,
-        getImageDataFromCache,
         addImageDataToCache,
     }, [url, imageUrl]);
 

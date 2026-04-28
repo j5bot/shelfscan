@@ -1,6 +1,5 @@
 import {
     addImageDataToCache,
-    getImageDataFromCache,
     makeImageCacheId
 } from '@/app/lib/database/cacheDatabase';
 import { removeSetting } from '@/app/lib/database/database';
@@ -38,7 +37,6 @@ const Avatar = ({ avatarUrl, username }: AvatarProps) => {
         height: 64,
         width: 64,
         getImageId: makeImageCacheId,
-        getImageDataFromCache,
         addImageDataToCache,
     }, [username]);
     return (
