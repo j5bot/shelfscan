@@ -65,29 +65,68 @@ export const bggGetThingXml = async (bggId: number): Promise<string> => {
     return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
 };
 
+const bggGetThingsXml = async (bggIds: number[]): Promise<string> => {
+    const thingUrl = new URL(bggThingBaseURL);
+    thingUrl.searchParams.append('id', bggIds.join(','));
+    thingUrl.searchParams.append('versions', '1');
+    return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
+};
+
+const extractImageUrls = (
+    document: Document,
+    selector: string,
+): { thumbnail: string; image: string } | undefined => {
+    const el = document.querySelector(selector);
+    if (!el) {
+        return undefined;
+    }
+    const thumbnail = el.querySelector('thumbnail')?.textContent?.trim();
+    const image = el.querySelector('image')?.textContent?.trim();
+    if (thumbnail && image && thumbnail !== image) {
+        return { thumbnail, image };
+    }
+    return undefined;
+};
+
 export const bggGetImageUrlMap = async (
     queue: ThumbnailImageMismatchEntry[],
 ): Promise<Record<string, string>> => {
-    const map: Record<string, string> = {};
+    if (queue.length === 0) {
+        return {};
+    }
 
-    await Promise.all(queue.map(async ({ id, versionIds }) => {
-        const xml = await bggGetThingXml(id);
-        const { window: { document } } = new JSDOM(xml, { contentType: 'text/xml' });
+    const map: Record<string, string> = {};
+    const ids = queue.map(({ id }) => id);
+    const xml = await bggGetThingsXml(ids);
+    const { window: { document } } = new JSDOM(xml, { contentType: 'text/xml' });
+
+    queue.forEach(({ id, versionIds }) => {
+        if (versionIds.length === 0) {
+            // Top-level info mismatch — resolve via the game's own image element.
+            const result = extractImageUrls(
+                document,
+                `item[type="boardgame"][id="${id}"]`,
+            );
+            if (result) {
+                map[result.thumbnail] = result.image;
+            }
+            return;
+        }
 
         versionIds.forEach(versionId => {
-            const versionEl = document.querySelector(
-                `item[type="boardgameversion"][id="${versionId}"]`,
-            );
-            if (!versionEl) {
+            const safeVersionId = parseInt(String(versionId), 10);
+            if (!Number.isFinite(safeVersionId)) {
                 return;
             }
-            const thumbnail = versionEl.querySelector('thumbnail')?.textContent?.trim();
-            const image = versionEl.querySelector('image')?.textContent?.trim();
-            if (thumbnail && image && thumbnail !== image) {
-                map[thumbnail] = image;
+            const result = extractImageUrls(
+                document,
+                `item[type="boardgameversion"][id="${safeVersionId}"]`,
+            );
+            if (result) {
+                map[result.thumbnail] = result.image;
             }
         });
-    }));
+    });
 
     return map;
 };
