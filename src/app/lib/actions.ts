@@ -1,8 +1,6 @@
 'use server';
 
-import { ThumbnailImageMismatchEntry } from '@/app/lib/hooks/useThumbnailImageMismatch';
 import { bggHost } from '@/app/lib/services/bgg/constants';
-import { JSDOM } from 'jsdom';
 import sleep from 'sleep-promise';
 
 const bggCollectionBaseURL = `${bggHost}/xmlapi2/collection`;
@@ -58,76 +56,9 @@ export const bggGetCollectionInner =
         return await fetchFromBggWithToken(collectionUrl.toString(), {}).then(r => r.text());
     };
 
-export const bggGetThingXml = async (bggId: number): Promise<string> => {
-    const thingUrl = new URL(bggThingBaseURL);
-    thingUrl.searchParams.append('id', String(bggId));
-    thingUrl.searchParams.append('versions', '1');
-    return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
-};
-
-const bggGetThingsXml = async (bggIds: number[]): Promise<string> => {
+export const bggGetThingsXml = async (bggIds: number[]): Promise<string> => {
     const thingUrl = new URL(bggThingBaseURL);
     thingUrl.searchParams.append('id', bggIds.join(','));
     thingUrl.searchParams.append('versions', '1');
     return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
 };
-
-const extractImageUrls = (
-    document: Document,
-    selector: string,
-): { thumbnail: string; image: string } | undefined => {
-    const el = document.querySelector(selector);
-    if (!el) {
-        return undefined;
-    }
-    const thumbnail = el.querySelector('thumbnail')?.textContent?.trim();
-    const image = el.querySelector('image')?.textContent?.trim();
-    if (thumbnail && image && thumbnail !== image) {
-        return { thumbnail, image };
-    }
-    return undefined;
-};
-
-export const bggGetImageUrlMap = async (
-    queue: ThumbnailImageMismatchEntry[],
-): Promise<Record<string, string>> => {
-    if (queue.length === 0) {
-        return {};
-    }
-
-    const map: Record<string, string> = {};
-    const ids = queue.map(({ id }) => id);
-    const xml = await bggGetThingsXml(ids);
-    const { window: { document } } = new JSDOM(xml, { contentType: 'text/xml' });
-
-    queue.forEach(({ id, versionIds }) => {
-        if (versionIds.length === 0) {
-            // Top-level info mismatch — resolve via the game's own image element.
-            const result = extractImageUrls(
-                document,
-                `item[type="boardgame"][id="${id}"]`,
-            );
-            if (result) {
-                map[result.thumbnail] = result.image;
-            }
-            return;
-        }
-
-        versionIds.forEach(versionId => {
-            const safeVersionId = parseInt(String(versionId), 10);
-            if (!Number.isFinite(safeVersionId)) {
-                return;
-            }
-            const result = extractImageUrls(
-                document,
-                `item[type="boardgameversion"][id="${safeVersionId}"]`,
-            );
-            if (result) {
-                map[result.thumbnail] = result.image;
-            }
-        });
-    });
-
-    return map;
-};
-

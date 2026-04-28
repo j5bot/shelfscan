@@ -43,7 +43,7 @@ export default function RootLayout({
           <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png" />
           <meta name="apple-mobile-web-app-title" content="ShelfScan.io" />
           <link rel="manifest" href="/favicons/site.webmanifest" />
-          <Script src="https://cdn.jsdelivr.net/npm/image-blob-reduce@4.1.0/dist/image-blob-reduce.esm.mjs" strategy="lazyOnload"></Script>
+          <Script src="https://cdn.jsdelivr.net/npm/image-blob-reduce@4.1.0/dist/image-blob-reduce.min.js" strategy="beforeInteractive"></Script>
       </head>
       <body className={`
           w-full min-h-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased

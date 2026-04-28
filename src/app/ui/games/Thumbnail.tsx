@@ -24,10 +24,9 @@ const noImageFallback = <div className="flex justify-center p-1">
 
 const ThumbnailInner = ({ promise, upgradedProps, className }: ThumbnailInnerProps) => {
     const initial = use(promise);
-    const imageProps = upgradedProps ?? initial;
-    const isPlaceholder = initial.isPlaceholder && !upgradedProps;
+    const { isPlaceholder, ...imageProps } = upgradedProps ?? initial;
     return <img
-        className={`object-contain transition-[filter] duration-200 ${isPlaceholder ? 'blur-sm' : ''} ${className ?? ''}`}
+        className={`object-contain transition-[filter] duration-200 ${isPlaceholder && !upgradedProps ? 'blur-sm' : ''} ${className ?? ''}`}
         {...imageProps}
     />;
 };
