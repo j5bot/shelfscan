@@ -24,7 +24,11 @@ export const enqueueFetch = <T>(fn: () => Promise<T>): Promise<T> => {
     return new Promise<T>((resolve, reject) => {
         queue.push({
             execute: () => {
-                fn().then(resolve, reject);
+                try {
+                    fn().then(resolve, reject);
+                } catch (error) {
+                    reject(error);
+                }
             },
         });
         drain();

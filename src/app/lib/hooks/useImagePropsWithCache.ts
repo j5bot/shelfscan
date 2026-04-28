@@ -53,6 +53,7 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
 
     const [imageBlob, setImageBlob] = useState<Blob>();
     const [resolvedSrc, setResolvedSrc] = useState<string>();
+    const [imageLoadFailed, setImageLoadFailed] = useState(false);
 
     useEffect(() => {
         if (!imageBlob) {
@@ -69,6 +70,9 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
         let active = true;
         (async () => {
             if (!imageProps.src) {
+                if (active) {
+                    setImageLoadFailed(true);
+                }
                 return;
             }
 
@@ -102,6 +106,7 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
                     return;
                 }
                 if (!blob) {
+                    setImageLoadFailed(true);
                     return;
                 }
                 void addImageDataToCache(id, blob);
@@ -139,12 +144,13 @@ export const useImagePropsWithCache = (params: ImagePropsWithCacheParams, depend
     const isNewDeps = dependencies.some((d, i) => d !== prevDepsRef.current[i]);
     if (isNewDeps) {
         prevDepsRef.current = dependencies;
+        setImageLoadFailed(false);
         let resolve!: (v: ResolvedImageProps) => void;
         const promise = new Promise<ResolvedImageProps>(r => { resolve = r; });
         promiseRef.current = { resolve, promise };
     }
 
-    if (resolvedProps.src !== undefined) {
+    if (resolvedProps.src !== undefined || imageLoadFailed) {
         promiseRef.current.resolve(resolvedProps);
     }
 
