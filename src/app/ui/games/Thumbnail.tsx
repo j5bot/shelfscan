@@ -60,6 +60,9 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
     const initial = use(promise);
     const imageProps = upgradedProps ?? initial;
     const isPlaceholder = initial.isPlaceholder && !upgradedProps;
+
+    const scalePercent = size < 200 ? 300 : size < 300 ? 200 : 100;
+
     return imageProps.src ? (
         <div className="flex justify-center p-1">
             <div className={`
@@ -67,8 +70,8 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                     bg-[#f1eff9]
                     flex justify-center items-center
                     rounded-md overflow-clip
-                    focus:overflow-visible focus:scale-300
-                    hover:overflow-visible hover:scale-300
+                    focus:overflow-visible focus:scale-${scalePercent}
+                    hover:overflow-visible hover:scale-${scalePercent}
                     hover:z-40
                 `}
                 style={{
@@ -76,6 +79,7 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                     height: `${size}px`,
                     ...styles,
                 }}
+                tabIndex={0}
             >
                 <img
                     className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-sm' : ''}`}

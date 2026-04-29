@@ -11,6 +11,7 @@ export type SortFieldDef<T, F extends string> = {
 type UseFilterSortOptions<T, F extends string> = {
     items?: T[];
     filterFn: (item: T, query: string) => boolean;
+    extraFilterFn?: (item: T) => boolean;
     sortFields: SortFieldDef<T, F>[];
     defaultSortField: F;
     defaultSortDirection?: SortDirection;
@@ -29,6 +30,7 @@ type UseFilterSortResult<F extends string> = {
 export const useFilterSort = <T, F extends string>({
     items = [],
     filterFn,
+    extraFilterFn,
     sortFields,
     defaultSortField,
     defaultSortDirection = 'asc',
@@ -89,13 +91,14 @@ export const useFilterSort = <T, F extends string>({
     const displayItems = useMemo(() => {
         const query = filterText.trim().toLowerCase();
         let filtered = query ? items.filter(item => filterFn(item, query)) : items;
+        if (extraFilterFn) { filtered = filtered.filter(extraFilterFn); }
         if (!compareFn) { return filtered; }
         filtered = [...filtered].sort((a, b) => {
             const cmp = compareFn(a, b);
             return sortDirection === 'asc' ? cmp : -cmp;
         });
         return filtered;
-    }, [items, filterText, filterFn, compareFn, sortDirection]);
+    }, [items, filterText, filterFn, extraFilterFn, compareFn, sortDirection]);
 
     return {
         filterText,

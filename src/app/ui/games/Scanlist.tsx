@@ -169,7 +169,7 @@ export const Scanlist = (props: ScanlistProps) => {
     return <GameListContainer>
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
-                <Suspense fallback={<ListGame keyValue={code} name={''} smallSquareSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>
+                <Suspense fallback={<ListGame keyValue={code} name={''} thumbnailSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>
                     <ScanItem code={code}
                               gameUPCResults={gameUPCResults}
                               gameSelections={gameSelections}
