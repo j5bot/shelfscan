@@ -157,7 +157,7 @@ export default function CollectionPage() {
         },
         {
             field: 'lastModified',
-            label: 'Last Modified',
+            label: 'Modified',
             compare: (a, b) => {
                 const aMod = a.lastModified
                              ? new Date(a.lastModified).valueOf()
@@ -174,7 +174,7 @@ export default function CollectionPage() {
         },
         {
             field: 'dateLastScanned',
-            label: 'Last Scanned',
+            label: 'Scanned',
             compare: (a, b) =>
                 (
                     lastScannedMap.get(a.objectId) ?? 0
@@ -525,32 +525,31 @@ export default function CollectionPage() {
             )}
             <div className="page-content w-screen pt-15 flex justify-center">
                 <div className="w-11/12 p-4 pb-10 rounded-xl bg-base-100 text-sm">
-                    <div className="flex items-center justify-between gap-3 mb-0">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl text-center">Collection</h1>
-                            {username && (
-                                <button
-                                    className="btn btn-sm btn-ghost"
-                                    onClick={() => refreshCollection()}
-                                    disabled={isRefreshing}
-                                    aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
-                                    title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
-                                >
-                                    <FaArrowsRotate
-                                        className={isRefreshing ? 'animate-spin' : ''}
-                                        aria-hidden="true"
-                                    />
-                                </button>
-                            )}
-                        </div>
+                    <div className="flex justify-center items-center gap-3">
+                        <h1 className="text-3xl text-center">Collection</h1>
+                        {username && (
+                            <button
+                                className="btn btn-sm rounded-md"
+                                onClick={() => refreshCollection()}
+                                disabled={isRefreshing}
+                                aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
+                                title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
+                            >
+                                <FaArrowsRotate
+                                    className={isRefreshing ? 'animate-spin' : ''}
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        )}
+
                         <div
-                            className="flex items-center gap-1"
+                            className="flex items-center gap-0.5"
                             role="group"
                             aria-label="View mode"
                         >
                             <button
                                 type="button"
-                                className={`btn btn-sm ${view === CollectionViews.LIST ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`btn btn-sm rounded-md ${view === CollectionViews.LIST ? 'btn-primary' : 'btn-ghost'}`}
                                 onClick={() => setView(CollectionViews.LIST)}
                                 aria-label="List view"
                                 title="List view"
@@ -560,23 +559,23 @@ export default function CollectionPage() {
                             </button>
                             <button
                                 type="button"
-                                className={`btn btn-sm ${view === CollectionViews.SMALL_GRID ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`btn btn-sm rounded-md ${view === CollectionViews.SMALL_GRID ? 'btn-primary' : 'btn-ghost'}`}
                                 onClick={() => setView(CollectionViews.SMALL_GRID)}
                                 aria-label="Small grid view"
                                 title="Small grid view"
                                 aria-pressed={view === CollectionViews.SMALL_GRID}
                             >
-                                <FaBorderAll aria-hidden="true" />
+                                <FaTableCells aria-hidden="true" />
                             </button>
                             <button
                                 type="button"
-                                className={`btn btn-sm ${view === CollectionViews.LARGE_GRID ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`btn btn-sm rounded-md ${view === CollectionViews.LARGE_GRID ? 'btn-primary' : 'btn-ghost'}`}
                                 onClick={() => setView(CollectionViews.LARGE_GRID)}
                                 aria-label="Large grid view"
                                 title="Large grid view"
                                 aria-pressed={view === CollectionViews.LARGE_GRID}
                             >
-                                <FaTableCells aria-hidden="true" />
+                                <FaBorderAll aria-hidden="true" />
                             </button>
                         </div>
                     </div>

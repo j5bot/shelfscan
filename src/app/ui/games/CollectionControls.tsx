@@ -1,5 +1,3 @@
-'use client';
-
 import {    CollectionFilters,
     OwnershipFilter,
     TradeFilter,
@@ -13,7 +11,7 @@ import {    CollectionFilters,
     cycleThreeState,
 } from '@/app/lib/hooks/useCollectionFilters';
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
-import { CSSProperties } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 import {
     FaArrowDown,
     FaArrowUp,
@@ -37,7 +35,7 @@ type ThreeStateToggleProps<S extends string> = {
     states: readonly [S, S, S]; // [default, on, off]
     onLabel: string;
     offLabel: string;
-    icon: React.ReactNode;
+    icon: ReactNode;
     onChange: (next: S) => void;
     title?: string;
 };
@@ -110,7 +108,7 @@ const SortControlsInner = <F extends string>({
 }: SortControlsInnerProps<F>) => (
     <div className="flex items-center gap-1 shrink-0">
         <select
-            className="select select-bordered select-xs"
+            className="select select-bordered select-sm rounded-sm w-22 pl-2"
             value={sortField}
             onChange={e => onSortClick(e.target.value as F)}
             aria-label="Sort by field"
@@ -194,21 +192,37 @@ export const CollectionControls = <F extends string>({
         </div>
 
         {/* Row 2: status filters */}
-        <div className="flex flex-wrap gap-1 items-center" role="group" aria-label="Filter games">
+        <div className="flex gap-1 items-center overflow-auto" role="group" aria-label="Filter games">
 
             {/* Ownership dropdown */}
-            <div className="flex items-center gap-0.5">
+            <div className="flex items-center gap-1 w-24 sm:w-27 xs:w-27">
                 <FaCheck size={11} className="text-base-content/40" aria-hidden="true" />
                 <select
-                    className="select select-bordered select-xs"
+                    className={`select select-bordered select-xs rounded-sm pl-2 w-24 sm:w-27 xs:w-27${filters.ownership === 'default' ? ' italic' : ''}`}
                     value={filters.ownership}
                     onChange={e => setFilter('ownership', e.target.value as OwnershipFilter)}
                     aria-label="Filter by ownership"
                 >
-                    <option value="default">Ownership</option>
+                    <option value="default" className="italic">Ownership</option>
                     <option value="own">Owned</option>
-                    <option value="prevowned">Previously Owned</option>
+                    <option value="prevowned">Previous</option>
                     <option value="notowned">Not Owned</option>
+                </select>
+            </div>
+
+            {/* Want dropdown */}
+            <div className="flex items-center gap-1 w-30">
+                <FaStar size={11} className="text-base-content/40" aria-hidden="true" />
+                <select
+                    className={`select select-bordered select-xs rounded-sm pl-2 w-30${filters.want === 'default' ? ' italic' : ''}`}
+                    value={filters.want}
+                    onChange={e => setFilter('want', e.target.value as WantFilter)}
+                    aria-label="Filter by want status"
+                >
+                    <option value="default">Want Status</option>
+                    <option value="want">Want in Trade</option>
+                    <option value="wanttoplay">Want to Play</option>
+                    <option value="wanttobuy">Want to Buy</option>
                 </select>
             </div>
 
@@ -222,22 +236,6 @@ export const CollectionControls = <F extends string>({
                 onChange={v => setFilter('trade', v as TradeFilter)}
                 title="Trade Status"
             />
-
-            {/* Want dropdown */}
-            <div className="flex items-center gap-0.5">
-                <FaStar size={11} className="text-base-content/40" aria-hidden="true" />
-                <select
-                    className="select select-bordered select-xs"
-                    value={filters.want}
-                    onChange={e => setFilter('want', e.target.value as WantFilter)}
-                    aria-label="Filter by want status"
-                >
-                    <option value="default">Want Status</option>
-                    <option value="want">Want in Trade</option>
-                    <option value="wanttoplay">Want to Play</option>
-                    <option value="wanttobuy">Want to Buy</option>
-                </select>
-            </div>
 
             {/* Condition toggle */}
             <ThreeStateToggle
@@ -264,17 +262,17 @@ export const CollectionControls = <F extends string>({
             {/* Wishlist Priority — only shown when wishlist filter is active */}
             {filters.wishlist !== 'default' && (
                 <select
-                    className="select select-bordered select-xs"
+                    className="pl-2 select select-bordered select-xs w-26 xs:w-28 sm:w-28"
                     value={filters.wishlistPriority}
                     onChange={e => setFilter('wishlistPriority', e.target.value as WishlistPriorityFilter)}
                     aria-label="Filter by wishlist priority"
                 >
                     <option value="default">Any Priority</option>
-                    <option value="1">Priority 1</option>
-                    <option value="2">Priority 2</option>
-                    <option value="3">Priority 3</option>
-                    <option value="4">Priority 4</option>
-                    <option value="5">Priority 5</option>
+                    <option value="1">Must Have</option>
+                    <option value="2">Love to Have</option>
+                    <option value="3">Like to Have</option>
+                    <option value="4">Considering</option>
+                    <option value="5">Don't Buy</option>
                 </select>
             )}
 

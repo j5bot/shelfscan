@@ -177,6 +177,7 @@ export const getCollectionFromXml = (xml?: string) => {
             }, {} as BggCollectionStatuses) : {};
 
             const lastModified = status ? elementGetter(status, false, undefined, 'lastmodified') : undefined;
+            const wishlistPriority = status ? elementGetter(status, true, undefined, 'wishlistpriority') : undefined;
 
             if (!(objectId && collectionId)) {
                 return undefined;
@@ -193,6 +194,7 @@ export const getCollectionFromXml = (xml?: string) => {
                 version,
                 statuses,
                 lastModified,
+                wishlistPriority,
                 rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
                 tradeCondition,
             } as BggCollectionItem;
@@ -218,6 +220,7 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         version,
         statuses: object.status,
         lastModified: object.lastmodified,
+        wishlistPriority: object.wishlistpriority,
         rating: object.rating,
         tradeCondition: object.textfield?.conditiontext?.value,
         ...(Object.keys(privateInfo).length ? privateInfo : {}),

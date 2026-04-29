@@ -129,7 +129,7 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
 
                 // Wishlist Priority (only meaningful when wishlist filter is active)
                 if (filters.wishlistPriority !== 'default' && filters.wishlist !== 'default') {
-                    const priority = (item as BggCollectionItem & { wishlistpriority?: number }).wishlistpriority;
+                    const priority = item.wishlistPriority;
                     if (priority !== undefined && priority.toString() !== filters.wishlistPriority) {
                         return false;
                     }
