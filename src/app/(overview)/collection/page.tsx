@@ -2,7 +2,9 @@
 
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
+import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { useCollectionRefresh } from '@/app/lib/hooks/useCollectionRefresh';
+import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
 import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
@@ -12,37 +14,40 @@ import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
+import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';
+import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import { CSSProperties, forwardRef, KeyboardEvent, ReactNode, useMemo } from 'react';
 import {
-    FaArrowDown,
-    FaArrowUp,
     FaArrowsRotate,
     FaBarcode,
+    FaBorderAll,
     FaCheck,
     FaEye,
     FaHeart,
-    FaRecycle
+    FaList,
+    FaRecycle,
+    FaTableCells,
 } from 'react-icons/fa6';
-import { VirtuosoGrid } from 'react-virtuoso';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 
 type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished';
 type NotInCollectionSortField = 'name' | 'lastScanned';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const THUMBNAIL_SIZE = 100;
 
-const GRID_CLASS = `grid gap-2 grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7
-    xl:grid-cols-8 2xl:grid-cols-10`;
+const GridClasses = {
+    small: `grid gap-2 grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-10`,
+    large: `grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6`,
+} as const;
+type GridClassSize = keyof typeof GridClasses;
 
-const STICKY_CLASS = `sticky z-10 bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
+const ThumbnailSizes = {
+    small: 100,
+    large: 200,
+} as const;
 
 type GridContainerProps = {
     children?: ReactNode;
@@ -50,18 +55,22 @@ type GridContainerProps = {
     style?: CSSProperties;
 };
 
-const GridContainer = forwardRef<HTMLDivElement, GridContainerProps>(
-    ({ children, style, className }, ref) => (
-        <div
-            ref={ref}
-            className={`${GRID_CLASS}${className ? ` ${className}` : ''}`}
-            style={style}
-        >
-            {children}
-        </div>
-    ),
-);
-GridContainer.displayName = 'GridContainer';
+const makeGridContainer = (size: GridClassSize) => {
+    const gridClass = GridClasses[size];
+    const Result = forwardRef<HTMLDivElement, GridContainerProps>(
+        ({ children, style, className }, ref) => (
+            <div
+                ref={ref}
+                className={`${gridClass} ${className}`}
+                style={style}
+            >
+                {children}
+            </div>
+        ),
+    );
+    Result.displayName = 'GridContainer';
+    return Result;
+};
 
 const SkeletonItem = () => (
     <div className="relative rounded-md bg-white dark:bg-gray-900" aria-hidden="true">
@@ -75,73 +84,6 @@ const SkeletonItem = () => (
     </div>
 );
 
-// ─── Sort controls shared UI ──────────────────────────────────────────────────
-
-type SortControlsProps<F extends string> = {
-    sortFields: { field: F; label: string }[];
-    sortField: F;
-    sortDirection: 'asc' | 'desc';
-    onSortClick: (field: F) => void;
-    filterId: string;
-    filterValue: string;
-    onFilterChange: (value: string) => void;
-    stickyTop: number;
-};
-
-const SortControls = <F extends string>({
-    sortFields,
-    sortField,
-    sortDirection,
-    onSortClick,
-    filterId,
-    filterValue,
-    onFilterChange,
-    stickyTop,
-}: SortControlsProps<F>) => (
-    <div className={STICKY_CLASS} style={{ top: stickyTop }}>
-        <label htmlFor={filterId} className="sr-only">Filter by name</label>
-        <input
-            id={filterId}
-            type="search"
-            aria-label="Filter by name"
-            placeholder="Filter by name…"
-            value={filterValue}
-            onChange={e => onFilterChange(e.target.value)}
-            className="input input-bordered input-sm w-full"
-        />
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Sort games">
-            {sortFields.map(({ field, label }) => {
-                const isActive = sortField === field;
-                const direction = isActive ? sortDirection : undefined;
-                return (
-                    <button
-                        key={field}
-                        onClick={() => onSortClick(field)}
-                        className={`btn btn-xs gap-1 ${isActive ? 'btn-primary' : 'btn-ghost'}`}
-                        aria-sort={isActive
-                                   ? (
-                                       sortDirection === 'asc' ? 'ascending' : 'descending'
-                                   )
-                                   : 'none'
-                        }
-                        aria-label={`Sort by ${label}${direction ?
-                                                       `, ${direction === 'asc' ? 'ascending' : 'descending'}` :
-                                                       ''}`}
-                    >
-                        {label}
-                        {isActive && (
-                            sortDirection === 'asc'
-                            ? <FaArrowUp size={10} aria-hidden="true" />
-                            : <FaArrowDown size={10} aria-hidden="true" />
-                        )}
-                    </button>
-                );
-            })}
-        </div>
-    </div>
-);
-
-// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function CollectionPage() {
     useTitle('ShelfScan | Collection');
@@ -149,11 +91,10 @@ export default function CollectionPage() {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory } = useScanHistory();
 
-    // ── Tab state ──────────────────────────────────────────────────────────────
     const { activeTab, setActiveTab } = useActiveCollectionTab();
-
-    // ── BGG collection data ────────────────────────────────────────────────────
     const { state, setState } = useCollectionData(username);
+    const { view, setView } = useCollectionView();
+    const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
 
     const { isRefreshing, refreshCollection, refreshError, clearRefreshError, announceText } =
         useCollectionRefresh({
@@ -161,12 +102,10 @@ export default function CollectionPage() {
             onSuccess: items => setState({ status: CollectionLoadStatuses.LOADED, items }),
         });
 
-    // ── Sticky controls (only active for "All Games" tab) ─────────────────────
     const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
         activeTab === CollectionTabs.ALL_GAMES && state.status === CollectionLoadStatuses.LOADED,
     );
 
-    // ── "All Games" filter/sort ────────────────────────────────────────────────
     const lastScannedMap = useMemo(() => {
         const map = new Map<number, number>();
         for (const entry of scanHistory) {
@@ -179,6 +118,27 @@ export default function CollectionPage() {
         }
         return map;
     }, [scanHistory]);
+
+    const scannedSet = useMemo(() => {
+        const set = new Set<number>();
+        for (const entry of scanHistory) {
+            if (entry.bggId !== undefined) { set.add(entry.bggId); }
+        }
+        return set;
+    }, [scanHistory]);
+
+    const verifiedSet = useMemo(() => {
+        const set = new Set<number>();
+        for (const entry of scanHistory) {
+            if (entry.bggId !== undefined && entry.verified) { set.add(entry.bggId); }
+        }
+        return set;
+    }, [scanHistory]);
+
+    const extraFilterFn = useMemo(
+        () => makeFilterFn(scannedSet, verifiedSet),
+        [makeFilterFn, scannedSet, verifiedSet],
+    );
 
     const loadedItems = useMemo(
         () => (
@@ -197,7 +157,7 @@ export default function CollectionPage() {
         },
         {
             field: 'lastModified',
-            label: 'Last Modified',
+            label: 'Modified',
             compare: (a, b) => {
                 const aMod = a.lastModified
                              ? new Date(a.lastModified).valueOf()
@@ -214,7 +174,7 @@ export default function CollectionPage() {
         },
         {
             field: 'dateLastScanned',
-            label: 'Last Scanned',
+            label: 'Scanned',
             compare: (a, b) =>
                 (
                     lastScannedMap.get(a.objectId) ?? 0
@@ -236,6 +196,7 @@ export default function CollectionPage() {
     const allGamesFilter = useFilterSort<BggCollectionItem, AllGamesSortField>({
         items: loadedItems,
         filterFn: (item, query) => item.name.toLowerCase().includes(query),
+        extraFilterFn,
         sortFields: allGamesSortFields,
         defaultSortField: 'name',
         storageKeyPrefix: 'collection-all',
@@ -302,11 +263,11 @@ export default function CollectionPage() {
             case CollectionLoadStatuses.LOADING:
                 return (
                     <div
-                        className={`${GRID_CLASS} pt-2`}
+                        className={`${GridClasses['small']} pt-2`}
                         aria-label="Loading collection"
                         aria-busy="true"
                     >
-                        {Array.from({ length: 12 }).map((_, i) => (
+                        {Array.from({ length: 36 }).map((_, i) => (
                             <SkeletonItem key={i} />
                         ))}
                     </div>
@@ -353,12 +314,51 @@ export default function CollectionPage() {
                     sortField,
                     sortDirection,
                     handleSortClick,
-                    displayItems
+                    displayItems,
                 } = allGamesFilter;
+
+                const renderGridItem = (item: BggCollectionItem, thumbnailSize: number) => {
+                    const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
+                    let statusText = '';
+                    let cornerIcon: ReactNode;
+                    switch (true) {
+                        case item.statuses.fortrade:
+                            statusText = 'For Trade';
+                            cornerIcon = <FaRecycle title={statusText} className="shrink-0" />;
+                            break;
+                        case item.statuses.own:
+                            statusText = 'Owned';
+                            cornerIcon = <FaCheck title={statusText} className="shrink-0" />;
+                            break;
+                        case item.statuses.wishlist:
+                            statusText = 'Wishlist';
+                            cornerIcon = <FaHeart title={statusText} className="shrink-0" />;
+                            break;
+                        default:
+                            statusText = '';
+                            cornerIcon = <FaEye size={15} className="shrink-0" />;
+                            break;
+                    }
+                    return (
+                        <ListGame
+                            keyValue={item.collectionId.toString()}
+                            name={item.name}
+                            thumbnailUrl={thumbnailUrl}
+                            thumbnailSize={thumbnailSize}
+                            statusText={statusText}
+                            cornerIcon={cornerIcon}
+                            statusIcon={null}
+                            detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
+                            detailUrlTarget="_blank"
+                            detailUrlRel="noopener noreferrer"
+                        />
+                    );
+                };
+
                 return (
                     <>
                         <div ref={sentinelRef} aria-hidden="true" style={{ height: 0 }} />
-                        <SortControls
+                        <CollectionControls
                             sortFields={allGamesSortFields}
                             sortField={sortField}
                             sortDirection={sortDirection}
@@ -366,64 +366,48 @@ export default function CollectionPage() {
                             filterId={`${CollectionTabs.ALL_GAMES}-filter-input`}
                             filterValue={filterText}
                             onFilterChange={setFilterText}
+                            filters={filters}
+                            setFilter={setFilter}
+                            hasActiveFilters={hasActiveFilters}
+                            resetFilters={resetFilters}
                             stickyTop={stickyTop}
                         />
                         {displayItems.length === 0 ? (
                             <p className="text-center py-8 text-base-content/60">
                                 No games match your filter.
                             </p>
+                        ) : view === CollectionViews.LIST ? (
+                            <Virtuoso
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                itemContent={index => (
+                                    <div className="pt-1">
+                                        <ListGameRow
+                                            item={displayItems[index]}
+                                            detailUrl={`https://boardgamegeek.com/boardgame/${displayItems[index].objectId}`}
+                                            detailUrlTarget="_blank"
+                                            detailUrlRel="noopener noreferrer"
+                                            isScanned={scannedSet.has(displayItems[index].objectId)}
+                                            isVerified={verifiedSet.has(displayItems[index].objectId)}
+                                        />
+                                    </div>
+                                )}
+                            />
+                        ) : view === CollectionViews.LARGE_GRID ? (
+                            <VirtuosoGrid
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                components={{ List: makeGridContainer('large') }}
+                                itemContent={index => renderGridItem(displayItems[index], ThumbnailSizes['large'])}
+                            />
                         ) : (
-                             <VirtuosoGrid
-                                 useWindowScroll
-                                 totalCount={displayItems.length}
-                                 components={{ List: GridContainer }}
-                                 itemContent={index => {
-                                     const item = displayItems[index];
-                                     const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
-                                     const { height, width } = getImageSizeFromUrl(thumbnailUrl);
-                                     const size = Math.ceil(Math.min(height, width) * 2 / 3);
-
-                                     let statusText = '';
-                                     let cornerIcon: ReactNode;
-                                     switch (true) {
-                                         case item.statuses.fortrade:
-                                             statusText = 'For Trade';
-                                             cornerIcon = <FaRecycle title={statusText}
-                                                                     className="shrink-0" />;
-                                             break;
-                                         case item.statuses.own:
-                                             statusText = 'Owned';
-                                             cornerIcon = <FaCheck title={statusText}
-                                                                   className="shrink-0" />;
-                                             break;
-                                         case item.statuses.wishlist:
-                                             statusText = 'Wishlist';
-                                             cornerIcon = <FaHeart title={statusText}
-                                                                   className="shrink-0" />;
-                                             break;
-                                         default:
-                                             statusText = '';
-                                             cornerIcon = <FaEye size={15} className="shrink-0" />;
-                                             break;
-                                     }
-
-                                     return (
-                                         <ListGame
-                                             keyValue={item.collectionId.toString()}
-                                             name={item.name}
-                                             thumbnailUrl={thumbnailUrl}
-                                             smallSquareSize={size}
-                                             statusText={statusText}
-                                             cornerIcon={cornerIcon}
-                                             statusIcon={null}
-                                             detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
-                                             detailUrlTarget="_blank"
-                                             detailUrlRel="noopener noreferrer"
-                                         />
-                                     );
-                                 }}
-                             />
-                         )}
+                            <VirtuosoGrid
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                components={{ List: makeGridContainer('small') }}
+                                itemContent={index => renderGridItem(displayItems[index], ThumbnailSizes['small'])}
+                            />
+                        )}
                     </>
                 );
             }
@@ -460,7 +444,7 @@ export default function CollectionPage() {
 
         return (
             <>
-                <SortControls
+                <CollectionControls
                     sortFields={notInCollectionSortFields}
                     sortField={sortField}
                     sortDirection={sortDirection}
@@ -468,6 +452,10 @@ export default function CollectionPage() {
                     filterId={`${CollectionTabs.NOT_IN_COLLECTION}-filter-input`}
                     filterValue={filterText}
                     onFilterChange={setFilterText}
+                    filters={filters}
+                    setFilter={setFilter}
+                    hasActiveFilters={hasActiveFilters}
+                    resetFilters={resetFilters}
                     stickyTop={0}
                 />
                 {displayItems.length === 0 ? (
@@ -496,7 +484,7 @@ export default function CollectionPage() {
                                      keyValue={entry.id.toString()}
                                      name={displayName}
                                      thumbnailUrl={thumbnailUrl}
-                                     smallSquareSize={size}
+                                     thumbnailSize={size}
                                      statusText="Not in collection"
                                      cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
                                      statusIcon={null}
@@ -537,11 +525,11 @@ export default function CollectionPage() {
             )}
             <div className="page-content w-screen pt-15 flex justify-center">
                 <div className="w-11/12 p-4 pb-10 rounded-xl bg-base-100 text-sm">
-                    <div className="flex items-center justify-center gap-3 mb-0">
+                    <div className="flex justify-center items-center gap-3 relative">
                         <h1 className="text-3xl text-center">Collection</h1>
                         {username && (
                             <button
-                                className="btn btn-sm btn-ghost"
+                                className="btn btn-sm rounded-md"
                                 onClick={() => refreshCollection()}
                                 disabled={isRefreshing}
                                 aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
@@ -553,6 +541,43 @@ export default function CollectionPage() {
                                 />
                             </button>
                         )}
+
+                        <div
+                            className="absolute top-1 right-0 flex items-center gap-0.5"
+                            role="group"
+                            aria-label="View mode"
+                        >
+                            <button
+                                type="button"
+                                className={`btn btn-xs pl-1 pr-1 rounded-md ${view === CollectionViews.LIST ? 'btn-primary' : 'btn-ghost'}`}
+                                onClick={() => setView(CollectionViews.LIST)}
+                                aria-label="List view"
+                                title="List view"
+                                aria-pressed={view === CollectionViews.LIST}
+                            >
+                                <FaList aria-hidden="true" />
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn btn-xs pl-1 pr-1 rounded-md ${view === CollectionViews.SMALL_GRID ? 'btn-primary' : 'btn-ghost'}`}
+                                onClick={() => setView(CollectionViews.SMALL_GRID)}
+                                aria-label="Small grid view"
+                                title="Small grid view"
+                                aria-pressed={view === CollectionViews.SMALL_GRID}
+                            >
+                                <FaTableCells aria-hidden="true" />
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn btn-xs pl-1 pr-1 rounded-md ${view === CollectionViews.LARGE_GRID ? 'btn-primary' : 'btn-ghost'}`}
+                                onClick={() => setView(CollectionViews.LARGE_GRID)}
+                                aria-label="Large grid view"
+                                title="Large grid view"
+                                aria-pressed={view === CollectionViews.LARGE_GRID}
+                            >
+                                <FaBorderAll aria-hidden="true" />
+                            </button>
+                        </div>
                     </div>
 
                     <div
@@ -591,7 +616,7 @@ export default function CollectionPage() {
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
                         role="tabpanel"
                         aria-labelledby={activeTab === CollectionTabs.ALL_GAMES ? allGamesTabId : notInCollectionTabId}
-                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4 pt-2"
+                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-2 pt-0"
                     >
                         {activeTab === CollectionTabs.ALL_GAMES && renderAllGamesContent()}
                         {activeTab === CollectionTabs.NOT_IN_COLLECTION && renderNotInCollectionContent()}

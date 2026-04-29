@@ -3,7 +3,7 @@ import { getImageDataFromCache as getFromCache, hasCachedImage } from '@/app/lib
 import { ImageProps } from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
-const MAX_NORMAL_IMAGE_SIZE = 350;
+const MAX_NORMAL_IMAGE_SIZE = 400;
 const NORMAL_IMAGE_QUALITY = 0.9;
 const NORMAL_IMAGE_CACHE_QUALITY = 90;
 

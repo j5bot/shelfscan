@@ -11,7 +11,7 @@ export type ListGameProps = {
     imageContainerStyles?: CSSProperties;
     keyValue: string;
     name: string;
-    smallSquareSize: number;
+    thumbnailSize: number;
     statusIcon: ReactNode;
     statusText: string;
     thumbnailUrl: string;
@@ -28,7 +28,7 @@ export const ListGame = (props: ListGameProps) => {
         imageContainerStyles,
         keyValue,
         name,
-        smallSquareSize,
+        thumbnailSize,
         statusIcon,
         statusText,
         thumbnailUrl,
@@ -39,7 +39,7 @@ export const ListGame = (props: ListGameProps) => {
         alt={name}
         url={thumbnailUrl}
         imageUrl={imageUrl}
-        size={smallSquareSize}
+        size={thumbnailSize}
         styles={imageContainerStyles}
     />;
 

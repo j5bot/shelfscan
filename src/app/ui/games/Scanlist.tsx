@@ -77,10 +77,10 @@ export const ScanItem = (props: ScanItemProps) => {
     const name = infoName + (versionName ? ` (${versionName})` : '');
 
     const imageSize = getImageSizeFromUrl(thumbnailUrl ?? '');
-    const smallSquareSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
+    const thumbnailSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
     const imageContainerStyles = {
-        width: `${smallSquareSize}px`,
-        height: `${smallSquareSize}px`,
+        width: `${thumbnailSize}px`,
+        height: `${thumbnailSize}px`,
     };
 
     let statusIcon: ReactNode;
@@ -148,7 +148,7 @@ export const ScanItem = (props: ScanItemProps) => {
         imageUrl,
         keyValue,
         name,
-        smallSquareSize,
+        thumbnailSize,
         statusIcon,
         statusText,
         thumbnailUrl,
@@ -169,7 +169,7 @@ export const Scanlist = (props: ScanlistProps) => {
     return <GameListContainer>
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
-                <Suspense fallback={<ListGame keyValue={code} name={''} smallSquareSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>
+                <Suspense fallback={<ListGame keyValue={code} name={''} thumbnailSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>
                     <ScanItem code={code}
                               gameUPCResults={gameUPCResults}
                               gameSelections={gameSelections}
