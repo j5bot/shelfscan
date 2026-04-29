@@ -525,7 +525,7 @@ export default function CollectionPage() {
             )}
             <div className="page-content w-screen pt-15 flex justify-center">
                 <div className="w-11/12 p-4 pb-10 rounded-xl bg-base-100 text-sm">
-                    <div className="flex justify-center items-center gap-3">
+                    <div className="flex justify-center items-center gap-3 relative">
                         <h1 className="text-3xl text-center">Collection</h1>
                         {username && (
                             <button
@@ -543,13 +543,13 @@ export default function CollectionPage() {
                         )}
 
                         <div
-                            className="flex items-center gap-0.5"
+                            className="absolute top-1 right-0 flex items-center gap-0.5"
                             role="group"
                             aria-label="View mode"
                         >
                             <button
                                 type="button"
-                                className={`btn btn-sm rounded-md ${view === CollectionViews.LIST ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`btn btn-xs pl-1 pr-1 rounded-md ${view === CollectionViews.LIST ? 'btn-primary' : 'btn-ghost'}`}
                                 onClick={() => setView(CollectionViews.LIST)}
                                 aria-label="List view"
                                 title="List view"
@@ -559,7 +559,7 @@ export default function CollectionPage() {
                             </button>
                             <button
                                 type="button"
-                                className={`btn btn-sm rounded-md ${view === CollectionViews.SMALL_GRID ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`btn btn-xs pl-1 pr-1 rounded-md ${view === CollectionViews.SMALL_GRID ? 'btn-primary' : 'btn-ghost'}`}
                                 onClick={() => setView(CollectionViews.SMALL_GRID)}
                                 aria-label="Small grid view"
                                 title="Small grid view"
@@ -569,7 +569,7 @@ export default function CollectionPage() {
                             </button>
                             <button
                                 type="button"
-                                className={`btn btn-sm rounded-md ${view === CollectionViews.LARGE_GRID ? 'btn-primary' : 'btn-ghost'}`}
+                                className={`btn btn-xs pl-1 pr-1 rounded-md ${view === CollectionViews.LARGE_GRID ? 'btn-primary' : 'btn-ghost'}`}
                                 onClick={() => setView(CollectionViews.LARGE_GRID)}
                                 aria-label="Large grid view"
                                 title="Large grid view"
@@ -616,7 +616,7 @@ export default function CollectionPage() {
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
                         role="tabpanel"
                         aria-labelledby={activeTab === CollectionTabs.ALL_GAMES ? allGamesTabId : notInCollectionTabId}
-                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-4 pt-2"
+                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-2 pt-0"
                     >
                         {activeTab === CollectionTabs.ALL_GAMES && renderAllGamesContent()}
                         {activeTab === CollectionTabs.NOT_IN_COLLECTION && renderNotInCollectionContent()}

@@ -124,7 +124,7 @@ const SortControlsInner = <F extends string>({
         </select>
         <button
             type="button"
-            className="btn btn-xs btn-ghost"
+            className="btn btn-xs btn-ghost pl-0.5 pr-0.5"
             onClick={() => onSortClick(sortField)}
             aria-label={sortDirection === 'asc' ? 'Sort ascending' : 'Sort descending'}
             title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
@@ -179,7 +179,7 @@ export const CollectionControls = <F extends string>({
     return (
         <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties}>
             {/* Row 1: text filter + sort + filter toggle */}
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-1 items-center">
                 <label htmlFor={filterId} className="sr-only">Filter by name</label>
                 <input
                     id={filterId}
@@ -192,7 +192,7 @@ export const CollectionControls = <F extends string>({
                 />
                 <button
                     type="button"
-                    className={`btn relative btn-xs shrink-0 rounded-sm ${showFilters || hasActiveFilters ? 'btn-primary' : 'btn-ghost text-base-content/40'}`}
+                    className={`btn relative btn-xs shrink-0 pl-1 pr-1 rounded-sm ${showFilters || hasActiveFilters ? 'btn-primary' : 'btn-ghost text-base-content/40'}`}
                     onClick={() => setShowFilters(v => !v)}
                     aria-label={showFilters ? 'Hide filters' : 'Show filters'}
                     aria-expanded={showFilters}
@@ -221,38 +221,75 @@ export const CollectionControls = <F extends string>({
                      role="group"
                      aria-label="Filter games">
 
-                    {/* Ownership dropdown */}
-                    <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-1 w-24 sm:w-27 xs:w-27">
-                        <FaCheck size={11} className="text-base-content/40" aria-hidden="true" />
-                        <select
-                            className={`select select-bordered select-xs rounded-sm pl-2 w-24 sm:w-27 xs:w-27${filters.ownership === 'default' ? ' italic' : ''}`}
+                    {/* Ownership toggle + dropdown */}
+                    {filters.ownership !== 'default' ? (
+                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                            <ThreeStateToggle
+                                value={filters.ownership}
+                                states={['default', 'own', 'notowned'] as const}
+                                onLabel="Owned"
+                                offLabel="Not Owned"
+                                icon={<FaCheck size={12} aria-hidden="true" />}
+                                onChange={v => setFilter('ownership', v as OwnershipFilter)}
+                                title="Ownership Status"
+                            />
+                            <select
+                                className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 flex-shrink-0"
+                                value={filters.ownership}
+                                onChange={e => setFilter('ownership', e.target.value as OwnershipFilter)}
+                                aria-label="Filter by ownership"
+                            >
+                                <option value="own">Owned</option>
+                                <option value="prevowned">Previous</option>
+                                <option value="notowned">Not Owned</option>
+                            </select>
+                        </div>
+                    ) : (
+                        <ThreeStateToggle
                             value={filters.ownership}
-                            onChange={e => setFilter('ownership',
-                                e.target.value as OwnershipFilter)}
-                            aria-label="Filter by ownership"
-                        >
-                            <option value="default" className="italic">Ownership</option>
-                            <option value="own">Owned</option>
-                            <option value="prevowned">Previous</option>
-                            <option value="notowned">Not Owned</option>
-                        </select>
-                    </div>
+                            states={['default', 'own', 'notowned'] as const}
+                            onLabel="Owned"
+                            offLabel="Not Owned"
+                            icon={<FaCheck size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('ownership', v as OwnershipFilter)}
+                            title="Ownership Status"
+                        />
+                    )}
 
-                    {/* Want dropdown */}
-                    <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-1 w-30">
-                        <FaStar size={11} className="text-base-content/40" aria-hidden="true" />
-                        <select
-                            className={`select select-bordered select-xs rounded-sm pl-2 w-30${filters.want === 'default' ? ' italic' : ''}`}
-                            value={filters.want}
-                            onChange={e => setFilter('want', e.target.value as WantFilter)}
+                    {/* Want toggle + dropdown */}
+                    {filters.want !== 'default' ? (
+                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                            <button
+                                type="button"
+                                className="btn btn-xs btn-success text-success-content rounded-sm gap-0.5"
+                                onClick={() => setFilter('want', 'default')}
+                                aria-label="Clear want filter"
+                                title="Want Status"
+                            >
+                                <FaStar size={12} aria-hidden="true" />
+                            </button>
+                            <select
+                                className="pl-2 select rounded-sm select-bordered select-xs w-30 flex-shrink-0"
+                                value={filters.want}
+                                onChange={e => setFilter('want', e.target.value as WantFilter)}
+                                aria-label="Filter by want status"
+                            >
+                                <option value="want">Want in Trade</option>
+                                <option value="wanttoplay">Want to Play</option>
+                                <option value="wanttobuy">Want to Buy</option>
+                            </select>
+                        </div>
+                    ) : (
+                        <button
+                            type="button"
+                            className="btn btn-xs btn-ghost text-base-content/40 bg-[#efefef] rounded-sm gap-0.5"
+                            onClick={() => setFilter('want', 'wanttobuy')}
                             aria-label="Filter by want status"
+                            title="Want Status"
                         >
-                            <option value="default">Want Status</option>
-                            <option value="want">Want in Trade</option>
-                            <option value="wanttoplay">Want to Play</option>
-                            <option value="wanttobuy">Want to Buy</option>
-                        </select>
-                    </div>
+                            <FaStar size={12} aria-hidden="true" />
+                        </button>
+                    )}
 
                     {/* Trade toggle */}
                     <ThreeStateToggle
