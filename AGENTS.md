@@ -155,7 +155,6 @@ shelfscan/
 2. **GameUPC API** (`api.gameupc.com`) — UPC lookup, game matching, verification. Requires `GAMEUPC_TOKEN`. Falls back to test endpoint if token missing.
 
 ### Browser Extension
-- A **Firefox extension** (`.xpi` files in `public/extension/firefox/`) communicates with the web app.
 - Extension types and hooks are in `src/app/lib/extension/`.
 
 ---
