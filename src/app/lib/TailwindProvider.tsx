@@ -1,6 +1,7 @@
 import React, {
     createContext,
     ReactNode,
+    useCallback,
     useContext,
     useLayoutEffect,
     useState
@@ -41,7 +42,7 @@ export const TailwindProvider = ({ children }: Props) => {
 
     return <>
         <div className="w-0 h-0 dark:w-2 dark:h-2 absolute top-0 left-0"
-             id="darkmode-detect" />
+             id="dark-mode-detect" />
         <div className="w-2 h-2 sm:w-0 sm:h-0 md:w-0 md:h-0 lg:w-0 lg:h-0 xl:w-0 xl:h-0 2xl:w-0 2xl:h-0 absolute top-0 left-0"
              id="mobile-breakpoint-detect" />
         <div className="w-0 h-0 sm:w-2 sm:h-2 md:w-0 md:h-0 lg:w-0 lg:h-0 xl:w-0 xl:h-0 2xl:w-0 2xl:h-0 absolute top-0 left-0"
@@ -68,7 +69,7 @@ export const useTailwindDarkMode = () => useContext(TailwindDarkModeContext);
 export const useTailwindBreakpointDetect = () => {
     const [breakpoint, setBreakpoint] = useState<TailwindCSSBreakId>();
 
-    const checkBreakpoint = () => {
+    const checkBreakpoint = useCallback(() => {
         TailwindCSSBreaks.forEach(bp => {
             const { size } = bp;
             const breakDetect =
@@ -84,7 +85,7 @@ export const useTailwindBreakpointDetect = () => {
                 document.body.classList.remove(size);
             }
         });
-    };
+    }, []);
 
     useLayoutEffect(() => {
         checkBreakpoint();
@@ -96,9 +97,9 @@ export const useTailwindBreakpointDetect = () => {
 export const useTailwindDarkModeDetect = () => {
     const [darkMode, setDarkMode] = useState<boolean>(false);
 
-    const checkDarkMode = () => {
+    const checkDarkMode = useCallback(() => {
         const darkModeDetect =
-            document.getElementById(`darkmode-detect`);
+            document.getElementById(`dark-mode-detect`);
         if (!darkModeDetect) {
             return;
         }
@@ -109,7 +110,7 @@ export const useTailwindDarkModeDetect = () => {
         } else {
             document.body.classList.remove('dark-mode');
         }
-    };
+    }, []);
 
     useLayoutEffect(() => {
         checkDarkMode();
