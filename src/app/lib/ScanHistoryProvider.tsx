@@ -15,10 +15,18 @@ import {
     ScanHistoryError,
     ScanHistoryMatchStatus,
 } from '@/app/lib/types/scanHistory';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import {
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
 
-const MAX_SCAN_HISTORY = 20_000;
-const DUPLICATE_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_SCAN_HISTORY = 20000;
+const DUPLICATE_WINDOW_SECS = 5 * 60; // 5 minutes
 
 type RecordScanOptions = {
     upc: string;
@@ -91,13 +99,16 @@ const pruneOldUnmatched = async (entries: ScanHistoryEntry[]): Promise<ScanHisto
 export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
     const [scanHistory, setScanHistory] = useState<ScanHistoryEntry[]>([]);
     const [scanError, setScanError] = useState<string | null>(null);
+    const scanHistoryCount = useRef<number>(0);
 
     const clearScanError = useCallback(() => setScanError(null), []);
 
     const loadHistory = useCallback(async () => {
         try {
             const entries = await getScanHistory();
+            const count = entries.length;
             setScanHistory(entries);
+            scanHistoryCount.current = count;
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to load scan history';
             console.error('[ScanHistory] loadHistory error:', err);
@@ -109,31 +120,30 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         loadHistory().then();
     }, [loadHistory]);
 
-    const recordScan = useCallback(async (opts: RecordScanOptions): Promise<RecordScanResult> => {
+    const recordScan = async (opts: RecordScanOptions): Promise<RecordScanResult> => {
         const now = Date.now();
         const nowSecs = Math.floor(now / 1000);
 
         // Duplicate check: same UPC within 5 minutes
         const recentDuplicate = scanHistory.find(
-            e => e.upc === opts.upc && (now - e.timestamp * 1000) < DUPLICATE_WINDOW_MS,
+            e => e.upc === opts.upc && (now - e.timestamp) < DUPLICATE_WINDOW_SECS,
         );
         if (recentDuplicate) {
             return { kind: 'duplicate', previousEntry: recentDuplicate };
         }
 
         // Data retention: prune before adding
-        let currentCount = await getScanHistoryCount();
         let currentHistory = scanHistory;
-        if (currentCount >= MAX_SCAN_HISTORY) {
+        if (scanHistoryCount.current >= MAX_SCAN_HISTORY) {
             try {
                 currentHistory = await pruneOldUnmatched(currentHistory);
+                scanHistoryCount.current = currentHistory.length;
             } catch (err) {
                 const message = err instanceof Error ? err.message : 'Failed to prune scan history';
                 console.error('[ScanHistory] pruneOldUnmatched error:', err);
                 setScanError(message);
             }
-            currentCount = currentHistory.length;
-            if (currentCount >= MAX_SCAN_HISTORY) {
+            if (scanHistoryCount.current >= MAX_SCAN_HISTORY) {
                 return { kind: 'limitReached' };
             }
             setScanHistory(currentHistory);
@@ -160,6 +170,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
                 return { kind: 'limitReached' };
             }
             setScanHistory(prev => [{ ...entry, id }, ...prev]);
+            scanHistoryCount.current = scanHistoryCount.current + 1;
             return { kind: 'added', id };
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to save scan';
@@ -167,7 +178,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
             setScanError(message);
             return { kind: 'error', message };
         }
-    }, [scanHistory]);
+    };
 
     const updateEntry = useCallback(async (id: number, updates: UpdateScanOptions) => {
         try {
@@ -186,6 +197,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         try {
             await clearScanHistory();
             setScanHistory([]);
+            scanHistoryCount.current = 0;
             return true;
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Failed to clear scan history';
@@ -208,7 +220,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         e => e.status === ScanHistoryMatchStatus.unmatched,
     );
 
-    return <ScanHistoryContext.Provider value={{
+    const scanHistoryProviderValue = {
         scanHistory,
         unmatchedScans,
         scanError,
@@ -217,7 +229,9 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         updateEntry,
         clearHistory,
         associateScans,
-    }}>
+    };
+
+    return <ScanHistoryContext.Provider value={scanHistoryProviderValue}>
         {children}
     </ScanHistoryContext.Provider>;
 };
