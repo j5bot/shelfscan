@@ -355,6 +355,53 @@ export default function CollectionPage() {
                     );
                 };
 
+                let content: ReactNode = displayItems.length === 0 ? (
+                    <p className="text-center py-8 text-base-content/60">
+                        No games match your filter.
+                    </p>
+                ) : undefined;
+
+                if (displayItems.length > 0) {
+                    switch (view) {
+                        case CollectionViews.LIST:
+                            content = <Virtuoso
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                itemContent={index => (
+                                    <div className="pt-1">
+                                        <ListGameRow
+                                            item={displayItems[index]}
+                                            detailUrl={`https://boardgamegeek.com/boardgame/${displayItems[index].objectId}`}
+                                            detailUrlTarget="_blank"
+                                            detailUrlRel="noopener noreferrer"
+                                            isScanned={scannedSet.has(displayItems[index].objectId)}
+                                            isVerified={verifiedSet.has(displayItems[index].objectId)}
+                                        />
+                                    </div>
+                                )}
+                            />;
+                            break;
+                        case CollectionViews.LARGE_GRID:
+                            content = <VirtuosoGrid
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                components={{ List: makeGridContainer('large') }}
+                                itemContent={index => renderGridItem(displayItems[index],
+                                    ThumbnailSizes['large'])}
+                            />;
+                            break;
+                        case CollectionViews.SMALL_GRID:
+                            content = <VirtuosoGrid
+                                useWindowScroll
+                                totalCount={displayItems.length}
+                                components={{ List: makeGridContainer('small') }}
+                                itemContent={index => renderGridItem(displayItems[index],
+                                    ThumbnailSizes['small'])}
+                            />;
+                            break;
+                    }
+                }
+
                 return (
                     <>
                         <div ref={sentinelRef} aria-hidden="true" style={{ height: 0 }} />
@@ -372,42 +419,7 @@ export default function CollectionPage() {
                             resetFilters={resetFilters}
                             stickyTop={stickyTop}
                         />
-                        {displayItems.length === 0 ? (
-                            <p className="text-center py-8 text-base-content/60">
-                                No games match your filter.
-                            </p>
-                        ) : view === CollectionViews.LIST ? (
-                            <Virtuoso
-                                useWindowScroll
-                                totalCount={displayItems.length}
-                                itemContent={index => (
-                                    <div className="pt-1">
-                                        <ListGameRow
-                                            item={displayItems[index]}
-                                            detailUrl={`https://boardgamegeek.com/boardgame/${displayItems[index].objectId}`}
-                                            detailUrlTarget="_blank"
-                                            detailUrlRel="noopener noreferrer"
-                                            isScanned={scannedSet.has(displayItems[index].objectId)}
-                                            isVerified={verifiedSet.has(displayItems[index].objectId)}
-                                        />
-                                    </div>
-                                )}
-                            />
-                        ) : view === CollectionViews.LARGE_GRID ? (
-                            <VirtuosoGrid
-                                useWindowScroll
-                                totalCount={displayItems.length}
-                                components={{ List: makeGridContainer('large') }}
-                                itemContent={index => renderGridItem(displayItems[index], ThumbnailSizes['large'])}
-                            />
-                        ) : (
-                            <VirtuosoGrid
-                                useWindowScroll
-                                totalCount={displayItems.length}
-                                components={{ List: makeGridContainer('small') }}
-                                itemContent={index => renderGridItem(displayItems[index], ThumbnailSizes['small'])}
-                            />
-                        )}
+                        {content}
                     </>
                 );
             }
@@ -442,6 +454,78 @@ export default function CollectionPage() {
             filterText, setFilterText, sortField, sortDirection, handleSortClick, displayItems,
         } = notInCollectionFilter;
 
+        const renderNotInCollectionGridItem = (entry: NotInCollectionEntry, thumbnailSize: number) => {
+            const displayName = entry.gameName ?? entry.upc;
+            const thumbnailUrl = entry.thumbnailUrl ?? '';
+            return (
+                <ListGame
+                    keyValue={entry.id.toString()}
+                    name={displayName}
+                    thumbnailUrl={thumbnailUrl}
+                    thumbnailSize={thumbnailSize}
+                    statusText="Not in collection"
+                    cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
+                    statusIcon={null}
+                    detailUrl={`/upc/${entry.upc}`}
+                />
+            );
+        };
+
+        let content: ReactNode = displayItems.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+                <p className="text-base-content/60">
+                    {notInCollectionItems.length === 0 && scanHistory.length === 0
+                     ? 'Scan some games to see which ones aren\'t in your collection yet.'
+                     : notInCollectionItems.length === 0
+                       ? 'All scanned games are already in your collection. 🎉'
+                       : 'No games match your filter.'
+                    }
+                </p>
+            </div>
+        ) : undefined;
+
+        if (displayItems.length > 0) {
+            switch (view) {
+                case CollectionViews.LIST:
+                    content = <Virtuoso
+                        useWindowScroll
+                        totalCount={displayItems.length}
+                        itemContent={index => {
+                            const entry = displayItems[index];
+                            return (
+                                <div className="pt-1">
+                                    <ListGameRow
+                                        name={entry.gameName ?? entry.upc}
+                                        thumbnailUrl={entry.thumbnailUrl ?? ''}
+                                        detailUrl={`/upc/${entry.upc}`}
+                                        isScanned={true}
+                                    />
+                                </div>
+                            );
+                        }}
+                    />;
+                    break;
+                case CollectionViews.LARGE_GRID:
+                    content = <VirtuosoGrid
+                        useWindowScroll
+                        totalCount={displayItems.length}
+                        components={{ List: makeGridContainer('large') }}
+                        itemContent={index => renderNotInCollectionGridItem(displayItems[index],
+                            ThumbnailSizes['large'])}
+                    />;
+                    break;
+                case CollectionViews.SMALL_GRID:
+                    content = <VirtuosoGrid
+                        useWindowScroll
+                        totalCount={displayItems.length}
+                        components={{ List: makeGridContainer('small') }}
+                        itemContent={index => renderNotInCollectionGridItem(displayItems[index],
+                            ThumbnailSizes['small'])}
+                    />;
+                    break;
+            }
+        }
+
         return (
             <>
                 <CollectionControls
@@ -458,42 +542,7 @@ export default function CollectionPage() {
                     resetFilters={resetFilters}
                     stickyTop={0}
                 />
-                {displayItems.length === 0 ? (
-                    <div className="flex flex-col items-center gap-2 py-8 text-center">
-                        <p className="text-base-content/60">
-                            {notInCollectionItems.length === 0 && scanHistory.length === 0
-                             ? 'Scan some games to see which ones aren\'t in your collection yet.'
-                             : notInCollectionItems.length === 0
-                               ? 'All scanned games are already in your collection. 🎉'
-                               : 'No games match your filter.'
-                            }
-                        </p>
-                    </div>
-                ) : (
-                     <div className="flex flex-col gap-1 w-full pt-2">
-                         {displayItems.map(entry => {
-                             const displayName = entry.gameName ?? entry.upc;
-                             const thumbnailUrl = entry.thumbnailUrl ?? '';
-                             const { height, width } = getImageSizeFromUrl(thumbnailUrl);
-                             const size = Math.ceil(Math.min(height,
-                                 width) * 2 / 3) || THUMBNAIL_SIZE;
-
-                             return (
-                                 <ListGame
-                                     key={entry.id}
-                                     keyValue={entry.id.toString()}
-                                     name={displayName}
-                                     thumbnailUrl={thumbnailUrl}
-                                     thumbnailSize={size}
-                                     statusText="Not in collection"
-                                     cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
-                                     statusIcon={null}
-                                     detailUrl={`/upc/${entry.upc}`}
-                                 />
-                             );
-                         })}
-                     </div>
-                 )}
+                {content}
             </>
         );
     };
