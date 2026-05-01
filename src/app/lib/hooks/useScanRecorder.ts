@@ -6,7 +6,7 @@ import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { ScanHistoryError, ScanHistoryMatchStatus } from '@/app/lib/types/scanHistory';
-import { GameUPCStatus } from 'gameupc-hooks/types';
+import { GameUPCStatus } from 'gameupc-hooks/useGameUPC';
 import { useCallback, useEffect, useState } from 'react';
 
 type UseScanRecorderResult = {

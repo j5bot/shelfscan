@@ -4,10 +4,8 @@ import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
 import { ListGame } from '@/app/ui/games/ListGame';
-import {
-    GameUPCData, GameUPCStatus,
-    GameUPCVersionStatusText
-} from 'gameupc-hooks/types';
+import { type GameUPCData } from 'gameupc-hooks/types';
+import { GameUPCStatus, GameUPCVersionStatusText } from 'gameupc-hooks/useGameUPC';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
 import { getConfidenceLevelColor } from '@/app/ui/games/renderers';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';

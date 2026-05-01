@@ -14,14 +14,29 @@ import {
 
 const LIST_THUMBNAIL_SIZE = 50;
 
-type ListGameRowProps = {
-    item: BggCollectionItem;
+type ListGameRowBaseProps = {
     detailUrl: string;
     detailUrlTarget?: string;
     detailUrlRel?: string;
-    isScanned: boolean;
-    isVerified: boolean;
+    isScanned?: boolean;
+    isVerified?: boolean;
+    /** Extra status badges or content rendered after the built-in badges. */
+    extraBadges?: ReactNode;
 };
+
+type ListGameRowCollectionProps = ListGameRowBaseProps & {
+    item: BggCollectionItem;
+    name?: never;
+    thumbnailUrl?: never;
+};
+
+type ListGameRowSimpleProps = ListGameRowBaseProps & {
+    item?: never;
+    name: string;
+    thumbnailUrl?: string;
+};
+
+export type ListGameRowProps = ListGameRowCollectionProps | ListGameRowSimpleProps;
 
 const StatusBadge = ({ icon, label, active }: { icon: ReactNode; label: string; active: boolean }) =>
     active ? (
@@ -36,14 +51,20 @@ const StatusBadge = ({ icon, label, active }: { icon: ReactNode; label: string; 
 
 export const ListGameRow = ({
     item,
+    name,
+    thumbnailUrl: thumbnailUrlProp,
     detailUrl,
     detailUrlTarget,
     detailUrlRel,
-    isScanned,
-    isVerified,
+    isScanned = false,
+    isVerified = false,
+    extraBadges,
 }: ListGameRowProps) => {
-    const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
-    const { statuses } = item;
+    const resolvedName = item ? item.name : name;
+    const resolvedThumbnailUrl = item
+        ? (item.version?.image ?? item.image ?? item.thumbnail ?? '')
+        : (thumbnailUrlProp ?? '');
+    const statuses = item?.statuses;
 
     return (
         <div className="flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1">
@@ -54,8 +75,8 @@ export const ListGameRow = ({
                 className="shrink-0"
             >
                 <ThumbnailBox
-                    alt={item.name}
-                    url={thumbnailUrl}
+                    alt={resolvedName}
+                    url={resolvedThumbnailUrl}
                     size={LIST_THUMBNAIL_SIZE}
                 />
             </Link>
@@ -64,18 +85,21 @@ export const ListGameRow = ({
                 target={detailUrlTarget}
                 rel={detailUrlRel}
                 className="flex-1 min-w-0 text-sm font-medium truncate"
-                title={item.name}
+                title={resolvedName}
             >
-                {item.name}
+                {resolvedName}
             </Link>
             <div className="flex items-center gap-1.5 shrink-0 text-base-content/60">
-                <StatusBadge icon={<FaCheck size={11} />} label="Owned" active={statuses.own} />
-                <StatusBadge icon={<FaRecycle size={11} />} label="For Trade" active={statuses.fortrade} />
-                <StatusBadge icon={<FaHeart size={11} />} label="Wishlist" active={statuses.wishlist} />
-                <StatusBadge icon={<FaStar size={11} />} label="Want" active={statuses.want || statuses.wanttoplay || statuses.wanttobuy} />
-                <StatusBadge icon={<FaCalendar size={11} />} label="Preordered" active={statuses.preordered} />
+                {statuses && <>
+                    <StatusBadge icon={<FaCheck size={11} />} label="Owned" active={statuses.own} />
+                    <StatusBadge icon={<FaRecycle size={11} />} label="For Trade" active={statuses.fortrade} />
+                    <StatusBadge icon={<FaHeart size={11} />} label="Wishlist" active={statuses.wishlist} />
+                    <StatusBadge icon={<FaStar size={11} />} label="Want" active={statuses.want || statuses.wanttoplay || statuses.wanttobuy} />
+                    <StatusBadge icon={<FaCalendar size={11} />} label="Preordered" active={statuses.preordered} />
+                </>}
                 <StatusBadge icon={<FaBarcode size={11} />} label="Scanned" active={isScanned} />
                 <StatusBadge icon={<FaThumbsUp size={11} />} label="Verified" active={isVerified} />
+                {extraBadges}
             </div>
         </div>
     );

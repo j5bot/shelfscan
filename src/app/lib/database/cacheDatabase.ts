@@ -39,12 +39,18 @@ const getImageCacheSize = async () => {
     return { entries: allImages.length, size: totalSize };
 };
 
-export const makeImageCacheId = (imageProps: ImageProps) => [
-        imageProps.src,
-        imageProps.width,
-        imageProps.height,
-        imageProps.quality
+export const makeImageCacheId = (imageProps: ImageProps) => {
+    const { src, width, height, quality } = imageProps;
+    const srcString = src.toString();
+    const picSrc = srcString.startsWith('/bgg-images/') ? srcString.split('/').pop() : srcString;
+
+    return [
+        picSrc,
+        width,
+        height,
+        quality
     ].join('|');
+};
 
 export const getImageDataFromCache = async (id: string) =>
     (await cacheDatabase.images.get(id))?.data;

@@ -62,6 +62,24 @@ const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
             version: []
         }
     },
+    'plugin.internal.DustAndDice': {
+        id: 'plugin.internal.DustAndDice',
+        name: 'Dust and Dice Verdict Plugin',
+        type: 'link',
+        location: 'actions',
+        templates: {
+            game: [
+                {
+                    icon: 'fa6/FaDiceD20',
+                    iconSize: 15,
+                    title: 'Verdict',
+                    template: 'https://dustanddice.app/?verdict={{id}}',
+                    className: 'xs:min-w-22 min-w-24'
+                }
+            ],
+            version: []
+        }
+    },
 };
 
 const builtInPluginIds = Object.keys(builtInPlugins);
