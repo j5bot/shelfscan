@@ -12,16 +12,32 @@ const builtInPlugins: Record<string, ShelfScanPlugin> = {
                 {
                     icon: 'fa/FaExternalLinkAlt',
                     title: 'Game Link',
-                    template: '{{page_url}}',
+                    template: '{{pageUrl}}',
                 },
             ],
             version: [
                 {
                     icon: 'fa/FaExternalLinkAlt',
                     title: 'Version Link',
-                    template: '{{page_url}}',
+                    template: '{{pageUrl}}',
                 },
             ],
+        }
+    },
+    'plugin.internal.BGGCollectionLink': {
+        id: 'plugin.internal.BGGCollectionLink',
+        name: 'BGG Collection Links Plugin',
+        type: 'link',
+        location: 'details',
+        templates: {
+            game: [
+                {
+                    icon: 'fa6/FaLayerGroup',
+                    title: 'Collection Link',
+                    template: '{{pageUrl}}/mygames/collection',
+                },
+            ],
+            version: []
         }
     },
 };

@@ -22,16 +22,6 @@ export type GameDetailsProps = {
     version?: Version;
     /** Fallback image URL when neither game nor version provides one. */
     defaultImageUrl?: string;
-    /**
-     * Raw data passed to plugin link templates (game scope).
-     * Should include fields referenced in template strings, e.g. `id`, `page_url`.
-     */
-    pluginGameData?: Record<string, unknown>;
-    /**
-     * Raw data passed to plugin link templates (version scope).
-     * Should include fields referenced in template strings, e.g. `version_id`, `page_url`.
-     */
-    pluginVersionData?: Record<string, unknown>;
     /** When provided, a search form is rendered inside the component. */
     search?: GameDetailsSearchProps;
     header?: ReactNode;
@@ -42,8 +32,6 @@ export const GameDetails = ({
     game,
     version,
     defaultImageUrl,
-    pluginGameData,
-    pluginVersionData,
     search,
     header,
     children,
@@ -66,12 +54,12 @@ export const GameDetails = ({
                 {game?.pageUrl ?
                  <Link className="hover:underline" href={game.pageUrl} target="_blank">{game?.name ?? game?.id}</Link> :
                  game?.name ?? game?.id}
-                {pluginGameData && detailTemplates.game?.map(plugin => {
+                {game && detailTemplates.game?.map(plugin => {
                     const templateFn = template(plugin.template);
                     return <Link className="mb-2"
                                  key={plugin.template}
                                  title={plugin.title}
-                                 href={templateFn(pluginGameData)}
+                                 href={templateFn(game)}
                                  target="_blank"
                     >
                         <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? 12} className="text-gray-400 ml-1" />
@@ -95,12 +83,12 @@ export const GameDetails = ({
                                  <Link href={version.pageUrl} target="_blank">{version.name}</Link> :
                                        version?.name}
                             </span>
-                            {version?.versionId && pluginVersionData && detailTemplates.version?.length && <div className="shrink">
+                            {version?.versionId && detailTemplates.version?.length && <div className="shrink">
                                 {detailTemplates.version?.map(plugin => {
                                     const templateFn = template(plugin.template);
                                     return <Link key={plugin.template}
                                                  title={plugin.title}
-                                                 href={templateFn(pluginVersionData)}
+                                                 href={templateFn(version)}
                                                  target="_blank">
                                         <DynamicIcon
                                             icon={plugin.icon}

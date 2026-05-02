@@ -1,4 +1,3 @@
-
 import { SyntheticEvent, useEffect, useState } from 'react';
 
 export type UseGameDetailsSearchOptions = {

@@ -133,7 +133,7 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
             }
             switch (event.data?.type) {
                 case 'getData-response':
-                    handleGetDataResponse(event.data.response.body);
+                    handleGetDataResponse(event.data.response?.body);
                     break;
                 default:
                     break;
