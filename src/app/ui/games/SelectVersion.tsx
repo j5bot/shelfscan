@@ -11,7 +11,7 @@ import {
 } from 'gameupc-hooks/types';
 import { CollapsibleList } from '@/app/ui/CollapsibleList';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
-import { GameDetails } from '@/app/ui/games/GameDetails';
+import { SelectVersionGameDetails } from '@/app/ui/games/SelectVersionGameDetails';
 import { renderItem, renderSelectedItem, renderVersionItem } from '@/app/ui/games/renderers';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { template } from '@blakeembrey/template';
@@ -144,13 +144,13 @@ export const SelectVersion = () => {
     return <>
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
-            <GameDetails header={header}>
+            <SelectVersionGameDetails header={header}>
                 <div className="flex flex-wrap justify-start gap-1.5">
                     {primaryActions}
                     {pluginActions}
                     {settings}
                 </div>
-            </GameDetails>
+            </SelectVersionGameDetails>
             {hasInfos && <div className="bg-overlay w-full md:w-2/3 min-w-1/2 lg:min-w-1/3">
                 <div id="select-game" className="flex gap-2 items-center">
                     <CollapsibleList

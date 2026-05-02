@@ -8,14 +8,14 @@
             {
                 "icon": "fa/FaExternalLinkAlt",
                 "title": "Game Link",
-                "template": "{{page_url}}"
+                "template": "{{pageUrl}}"
             }
         ],
         "version": [
             {
                 "icon": "fa/FaExternalLinkAlt",
                 "title": "Version Link",
-                "template": "{{page_url}}"
+                "template": "{{pageUrl}}"
             }
         ]
     }

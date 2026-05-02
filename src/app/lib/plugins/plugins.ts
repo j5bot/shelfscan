@@ -12,16 +12,32 @@ const builtInPlugins: Record<string, ShelfScanPlugin> = {
                 {
                     icon: 'fa/FaExternalLinkAlt',
                     title: 'Game Link',
-                    template: '{{page_url}}',
+                    template: '{{pageUrl}}',
                 },
             ],
             version: [
                 {
                     icon: 'fa/FaExternalLinkAlt',
                     title: 'Version Link',
-                    template: '{{page_url}}',
+                    template: '{{pageUrl}}',
                 },
             ],
+        }
+    },
+    'plugin.internal.BGGCollectionLink': {
+        id: 'plugin.internal.BGGCollectionLink',
+        name: 'BGG Collection Links Plugin',
+        type: 'link',
+        location: 'details',
+        templates: {
+            game: [
+                {
+                    icon: 'fa6/FaLayerGroup',
+                    title: 'Collection Link',
+                    template: '{{pageUrl}}/mygames/collection',
+                },
+            ],
+            version: []
         }
     },
 };
@@ -158,10 +174,10 @@ export const getPluginIdList = async (enabled: boolean = true) => {
     const enabledPluginSetting = await getSetting('plugins') as string[] | undefined ?? [];
     const disabledPluginSetting = await getSetting('disabledPlugins') as string[] | undefined ?? [];
 
-    const enabledPluginIds = builtInPluginIds.concat(enabledPluginSetting)
+    const enabledPluginIds = [...new Set(builtInPluginIds.concat(enabledPluginSetting))]
         .filter(id => !disabledPluginSetting.includes(id));
 
-    const disabledPluginIds = disabledBuiltInPluginIds.concat(disabledPluginSetting)
+    const disabledPluginIds = [...new Set(disabledBuiltInPluginIds.concat(disabledPluginSetting))]
         .filter(id => !enabledPluginIds.includes(id));
 
     return enabled ? enabledPluginIds : disabledPluginIds;

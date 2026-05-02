@@ -53,8 +53,8 @@ importers:
         specifier: ^4.4.1
         version: 4.4.1
       gameupc-hooks:
-        specifier: ^1.0.10
-        version: 1.0.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+        specifier: ^1.0.11
+        version: 1.0.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1818,8 +1818,8 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  gameupc-hooks@1.0.10:
-    resolution: {integrity: sha512-iz2T1tnt5hV5dHp+ghB+beZvqDKg4gvsEJV7w7g9ffX4VMNyxq8lrB2Qb69KtiSNQ1Q960gdPbU8VESplz4wRQ==}
+  gameupc-hooks@1.0.11:
+    resolution: {integrity: sha512-c0uXdyX9ZzzCPTwS00foF7I8D/dz//CscZgcdrylMYKplMjk1O+4sacmuCPh94ExPMf/xPbsL4jpZz7gDustxg==}
     peerDependencies:
       react: '>=19.0.0'
       react-dom: '>=19.0.0'
@@ -4879,7 +4879,7 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  gameupc-hooks@1.0.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+  gameupc-hooks@1.0.11(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
