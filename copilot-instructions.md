@@ -157,6 +157,25 @@ This document defines the coding conventions used throughout the ShelfScan proje
       };
   ```
 
+## Branching Logic
+- Use `if` statements for simple conditions and early returns. Always use block bodies with braces, even for single-line bodies.
+- Use `switch` statements for multiple discrete cases, especially when returning different values. Use `switch (true)` for range-based conditions.
+- Use ternary expressions for simple conditional rendering in JSX or short inline conditions. 
+- For more complex conditional logic in JSX, prepare the React nodes in variables before they 
+  are used in the return 
+  statement for clarity.  Use switches when deciding between multiple alternatives, even in JSX.
+  ```tsx
+  let content: ReactNode = <div>Default content</div>;
+  switch (status) {
+      case 'verified':
+          content = <div>...</div>;
+          break;
+      case 'choose_from_versions':
+          content = <div>...</div>;
+          break;
+  }
+  return <div>{content}</div>;
+
 ---
 
 ## React Components

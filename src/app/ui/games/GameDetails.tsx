@@ -1,62 +1,77 @@
+import { useGameDetailsSearch } from '@/app/lib/hooks/useGameDetailsSearch';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
-import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { type Game, type Version } from '@/app/lib/types/game';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import React, { ReactNode, SyntheticEvent, useEffect, useState } from 'react';
+import React, { type ReactNode } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa6';
 
-const getVersionUrl = (versionId: number) =>
-    `https://boardgamegeek.com/boardgameversion/${versionId}`;
+export type GameDetailsSearchProps = {
+    onSearch: (search: string) => void;
+    initialQuery?: string;
+    initialOpen?: boolean;
+};
 
-export const GameDetails = (
-    { header, children }: { header?: ReactNode; children: ReactNode }
-) => {
-    const searchParams = useSearchParams();
-    const { defaultImageUrl, id, info, infos, searchGameUPC, version } = useSelectVersionContext();
+export type GameDetailsProps = {
+    /** The selected game to display. */
+    game?: Game;
+    /** The selected version to display. */
+    version?: Version;
+    /** Fallback image URL when neither game nor version provides one. */
+    defaultImageUrl?: string;
+    /**
+     * Raw data passed to plugin link templates (game scope).
+     * Should include fields referenced in template strings, e.g. `id`, `page_url`.
+     */
+    pluginGameData?: Record<string, unknown>;
+    /**
+     * Raw data passed to plugin link templates (version scope).
+     * Should include fields referenced in template strings, e.g. `version_id`, `page_url`.
+     */
+    pluginVersionData?: Record<string, unknown>;
+    /** When provided, a search form is rendered inside the component. */
+    search?: GameDetailsSearchProps;
+    header?: ReactNode;
+    children?: ReactNode;
+};
+
+export const GameDetails = ({
+    game,
+    version,
+    defaultImageUrl,
+    pluginGameData,
+    pluginVersionData,
+    search,
+    header,
+    children,
+}: GameDetailsProps) => {
     const detailTemplates = usePlugins('link.details');
 
-    const searchQuery = searchParams.get('q');
+    const { searchFormOpen, setSearchFormOpen, searchString, searchBlurHandler, searchClickHandler } =
+        useGameDetailsSearch({
+            onSearch: search?.onSearch ?? (() => {}),
+            initialQuery: search?.initialQuery,
+            initialOpen: search?.initialOpen,
+        });
 
-    const [searchFormOpen, setSearchFormOpen] = useState<boolean>(!infos?.length || !!searchQuery);
-    const [searchString, setSearchString] = useState<string>(searchQuery ?? '');
-
-    useEffect(() => {
-        setSearchFormOpen(!infos || !!searchQuery);
-    }, [infos, searchQuery]);
-
-    const searchBlurHandler = (e: SyntheticEvent<HTMLInputElement>) => {
-        const searchString = e.currentTarget.value;
-        const url = new URL(window.location.href);
-        url.searchParams.set('q', searchString);
-        window.history.pushState(undefined, '', url.toString());
-        setSearchString(searchString);
-    };
-
-    const searchClickHandler = () => {
-        searchGameUPC(searchString);
-    };
-
-    return <div
-        id="game-details"
-    >
+    return <div id="game-details">
         <div className="h-22 md:h-27 flex justify-center items-center md:gap-2">
             {header}
         </div>
         <div className="pt-3 bg-overlay min-w-23">
             <h2 className="mb-1 text-center text-balance uppercase flex gap-1 justify-center items-center">
-                {info?.page_url ?
-                 <Link className="hover:underline" href={info.page_url} target="_blank">{info?.name ?? id}</Link> :
-                 info?.name ?? id}
-                {info && detailTemplates.game?.map(plugin => {
+                {game?.pageUrl ?
+                 <Link className="hover:underline" href={game.pageUrl} target="_blank">{game?.name ?? game?.id}</Link> :
+                 game?.name ?? game?.id}
+                {pluginGameData && detailTemplates.game?.map(plugin => {
                     const templateFn = template(plugin.template);
                     return <Link className="mb-2"
                                  key={plugin.template}
                                  title={plugin.title}
-                                 href={templateFn(info ?? { upc: id })}
+                                 href={templateFn(pluginGameData)}
                                  target="_blank"
                     >
                         <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? 12} className="text-gray-400 ml-1" />
@@ -67,8 +82,8 @@ export const GameDetails = (
                 <div className="flex items-start">
                     <ThumbnailBox
                         alt={version?.name ?? 'Default Game Image'}
-                        url={version?.thumbnail_url ?? info?.thumbnail_url ?? defaultImageUrl}
-                        imageUrl={version?.image_url ?? info?.image_url ?? defaultImageUrl}
+                        url={version?.thumbnailUrl ?? game?.thumbnailUrl ?? defaultImageUrl ?? ''}
+                        imageUrl={version?.imageUrl ?? game?.imageUrl ?? defaultImageUrl}
                         size={150}
                     />
                 </div>
@@ -76,19 +91,16 @@ export const GameDetails = (
                     {version?.name && <div className="grow">
                         <div className="border-b-1 border-b-gray-200 pb-1 flex gap-1 text-balance">
                             <span className="grow">
-                                {version?.version_id ?
-                                 <Link href={getVersionUrl(version.version_id)} target="_blank">{version.name}</Link> :
+                                {version?.versionId ?
+                                 <Link href={version.pageUrl} target="_blank">{version.name}</Link> :
                                        version?.name}
                             </span>
-                            {version?.version_id && detailTemplates.version?.length && <div className="shrink">
+                            {version?.versionId && pluginVersionData && detailTemplates.version?.length && <div className="shrink">
                                 {detailTemplates.version?.map(plugin => {
                                     const templateFn = template(plugin.template);
                                     return <Link key={plugin.template}
                                                  title={plugin.title}
-                                                 href={templateFn({
-                                                     ...version,
-                                                     page_url: getVersionUrl(version.version_id),
-                                                 })}
+                                                 href={templateFn(pluginVersionData)}
                                                  target="_blank">
                                         <DynamicIcon
                                             icon={plugin.icon}
@@ -102,9 +114,9 @@ export const GameDetails = (
                         <h4 className="pb-0.5">{version?.published || 'Unknown'}</h4>
                     </div>}
                     {children && <div className={`grow max-w-60 pb-0.5 ${version ? '' : 'pt-1'}`}>
-                        {info?.id && children}
+                        {game?.id && children}
                     </div>}
-                    <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
+                    {search && <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
                         <div className="cursor-pointer align-middle text-gray-500 border-base-300 btn h-7 w-7 p-0 mr-1">
                             <FaSearch className="w-4 m-2" onClick={() => {
                                 setSearchFormOpen(!searchFormOpen);
@@ -126,9 +138,9 @@ export const GameDetails = (
                                 <FaCaretRight className="text-white"/>
                             </button>
                         </div>
-                    </div>
+                    </div>}
                 </div>
             </div>
         </div>
-    </div>
+    </div>;
 };
