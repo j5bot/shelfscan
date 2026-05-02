@@ -174,10 +174,10 @@ export const getPluginIdList = async (enabled: boolean = true) => {
     const enabledPluginSetting = await getSetting('plugins') as string[] | undefined ?? [];
     const disabledPluginSetting = await getSetting('disabledPlugins') as string[] | undefined ?? [];
 
-    const enabledPluginIds = builtInPluginIds.concat(enabledPluginSetting)
+    const enabledPluginIds = [...new Set(builtInPluginIds.concat(enabledPluginSetting))]
         .filter(id => !disabledPluginSetting.includes(id));
 
-    const disabledPluginIds = disabledBuiltInPluginIds.concat(disabledPluginSetting)
+    const disabledPluginIds = [...new Set(disabledBuiltInPluginIds.concat(disabledPluginSetting))]
         .filter(id => !enabledPluginIds.includes(id));
 
     return enabled ? enabledPluginIds : disabledPluginIds;
