@@ -1,11 +1,13 @@
 'use client';
 
+import { useExtensionMessaging } from '@/app/lib/extension/useExtension';
 import { useSync } from '@/app/lib/extension/useSync';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { useCallback } from 'react';
 
 export const useBatchSync = () => {
     const { syncOn, userId, currentUsername } = useSync();
+    const { dispatchExtensionMessage } = useExtensionMessaging();
 
     const canBatch = !!(syncOn && userId && currentUsername);
 
@@ -14,20 +16,16 @@ export const useBatchSync = () => {
         collectionId: number | undefined,
     ) => {
         if (!userId) {
-            return;
+            return Promise.resolve(false);
         }
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: {
-                userId,
-                type: 'add',
-                collectionId,
-                name: info.name,
-                gameId: info.id,
-                timestamp: Date.now(),
-                formValues: {},
-            },
+        return dispatchExtensionMessage({
+            userId,
+            type: 'add',
+            collectionId,
+            name: info.name,
+            gameId: info.id,
+            formValues: {},
         });
-        document.dispatchEvent(ce);
     }, [userId]);
 
     return {

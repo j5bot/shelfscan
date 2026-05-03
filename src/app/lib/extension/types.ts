@@ -28,6 +28,10 @@ export type CollectionModeSetting = {
     form?: (props: ModeSettingFormProps) => ReactNode;
     shouldShow?: (statuses: BggCollectionStatuses | null, update: boolean) => boolean;
     validator?: (formData: FormData) => boolean;
-    message?: (userId: string, collectionItem: BggCollectionItem) => void;
+    message?: (
+        userId: string,
+        dispatchExtensionMessage: (detail: object) => void,
+        collectionItem: BggCollectionItem
+    ) => void;
 }
 export type CollectionModeSettings = Record<Modes['collection'], CollectionModeSetting>;

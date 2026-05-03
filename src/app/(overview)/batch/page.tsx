@@ -15,7 +15,7 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import Link from 'next/link';
-import React, { Suspense, useCallback } from 'react';
+import React, { Suspense, useCallback, useRef, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 
 export default function Page() {
@@ -37,6 +37,19 @@ export default function Page() {
         clearDuplicateUpc,
         clearHistoryLimitReached,
     } = useScanRecorder();
+
+    const [addedNames, setAddedNames] = useState<string[]>([]);
+    const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const onComplete = useCallback((names: string[]) => {
+        if (names.length === 0) { return; }
+        setAddedNames(names);
+        if (toastTimerRef.current !== null) { clearTimeout(toastTimerRef.current); }
+        toastTimerRef.current = setTimeout(() => {
+            toastTimerRef.current = null;
+            setAddedNames([]);
+        }, 5000);
+    }, []);
 
     const onClear = useCallback(() => {
         setCodes([]);
@@ -86,6 +99,16 @@ export default function Page() {
             onClearDuplicate={clearDuplicateUpc}
             onClearLimitReached={clearHistoryLimitReached}
         />
+        {addedNames.length > 0 && (
+            <div className="toast toast-top toast-center z-50" onClick={() => setAddedNames([])}>
+                <div role="status" className="alert alert-success shadow-lg cursor-pointer">
+                    <span className="text-sm">
+                        Added {addedNames.length} game{addedNames.length !== 1 ? 's ' : ' '} to collection:&nbsp;
+                        {addedNames.join(', ')}
+                    </span>
+                </div>
+            </div>
+        )}
         <div className="flex flex-col w-full items-center p-3 sm:p-4">
             <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
                 <Suspense fallback={loader('Focusing...')}>
@@ -105,6 +128,7 @@ export default function Page() {
                                         codes={codes}
                                         gameUPCResults={gameDataMap}
                                         addGameToCollection={addGameToCollection}
+                                        onComplete={onComplete}
                                     />
                                 </div>
                                 <Scanlist gameUPCResults={gameDataMap} />

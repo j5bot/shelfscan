@@ -1,5 +1,9 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import {
+    DocumentMessageDetail,
+    DocumentMessageResponseDetail
+} from '@/app/lib/extension/messageTypes';
+import {
     Modes,
     CollectionModeSettings,
     DisabledModes,
@@ -20,7 +24,9 @@ import { DataForms } from '@/app/ui/extension/DataForms';
 import React, {
     Fragment,
     SyntheticEvent,
+    useCallback,
     useEffect,
+    useRef,
     useState
 } from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -140,24 +146,25 @@ const makeAddToCollectionModeSettings = (
             width: 'xs:w-23 w-25',
             form: AddInfoForm,
             shouldShow: (_, update) => update,
-            message: (userId: string, collectionItem: BggCollectionItem) => {
-                const ce = new CustomEvent('shelfscan-sync', {
-                    detail: {
-                        userId,
-                        type: 'infoLoad',
-                        collectionId: collectionItem.collectionId,
-                        gameId: collectionItem.objectId,
-                        versionId: collectionItem.versionId,
-                        timestamp: Date.now(),
-                    },
+            message: (
+                userId: string,
+                dispatchExtensionMessage: (detail: Partial<DocumentMessageDetail>) => void,
+                collectionItem: BggCollectionItem,
+            ) => {
+                dispatchExtensionMessage({
+                    userId,
+                    type: 'infoLoad',
+                    collectionId: collectionItem.collectionId,
+                    gameId: collectionItem.objectId,
+                    versionId: collectionItem.versionId,
                 });
-                document.dispatchEvent(ce);
             },
         },
     });
 
 export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
     const { syncOn, userId } = useSync();
+    const { dispatchExtensionMessage } = useExtensionMessaging();
 
     const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
     const [newRating, setNewRating] = useState<number>(-1);
@@ -275,19 +282,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
             return;
         }
 
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: {
-                userId,
-                type: modes.collection,
-                collectionId: update ? collectionId : undefined,
-                name: version?.name ?? info?.name,
-                gameId: info?.id,
-                versionId: version?.version_id,
-                timestamp: Date.now(),
-                formValues: Object.fromEntries(formData ?? []),
-            },
+        dispatchExtensionMessage({
+            userId,
+            type: modes.collection,
+            collectionId: update ? collectionId : undefined,
+            name: version?.name ?? info?.name,
+            gameId: info?.id,
+            versionId: version?.version_id,
+            formValues: Object.fromEntries(formData ?? []),
         });
-        document.dispatchEvent(ce);
 
         const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
         void target.offsetWidth;
@@ -299,19 +302,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         const form = document.forms.namedItem('rating-form');
         const formData = form ? new FormData(form) : undefined;
 
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: {
-                userId,
-                type: 'ratings',
-                collectionId,
-                name: version?.name ?? info?.name,
-                gameId: info?.id,
-                versionId: version?.version_id,
-                timestamp: Date.now(),
-                formValues: Object.fromEntries(formData ?? []),
-            },
+        dispatchExtensionMessage({
+            userId,
+            type: 'ratings',
+            collectionId,
+            name: version?.name ?? info?.name,
+            gameId: info?.id,
+            versionId: version?.version_id,
+            formValues: Object.fromEntries(formData ?? []),
         });
-        document.dispatchEvent(ce);
 
         const target = e.currentTarget?.previousElementSibling as HTMLDivElement;
         void target.offsetWidth;
@@ -322,18 +321,15 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     const addPlay = (e: SyntheticEvent<HTMLButtonElement>) => {
         const currentDate = new Date();
         const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: {
-                userId,
-                type: 'plays',
-                name: version?.name ?? info?.name,
-                gameId: info?.id,
-                versionId: version?.version_id,
-                timestamp: Date.now(),
-                date: dateString,
-            },
+
+        dispatchExtensionMessage({
+            userId,
+            type: 'plays',
+            name: version?.name ?? info?.name,
+            gameId: info?.id,
+            versionId: version?.version_id,
+            date: dateString,
         });
-        document.dispatchEvent(ce);
 
         const target = e.currentTarget.previousElementSibling as HTMLDivElement;
         void target.offsetWidth;
@@ -347,7 +343,7 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         (mode: Modes['collection'], setting: CollectionModeSetting)  =>
             (e: SyntheticEvent<HTMLElement>) => {
                 if (userId && collectionItem && setting.message) {
-                    setting.message(userId, collectionItem);
+                    setting.message(userId, dispatchExtensionMessage, collectionItem);
                 }
                 return updateModes(e, Object.assign({}, modes, { collection: mode }));
             };
@@ -533,11 +529,44 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };
 
-export const useExtensionResponse = () => {
+export const useExtensionMessaging = () => {
     const dispatch = useDispatch();
     const username = useSelector(state => state.bgg.user?.user);
 
     const [listening, setListening] = useState<boolean>(false);
+    const messagesRef = useRef<Record<number, [DocumentMessageDetail, DocumentMessageResponseDetail | undefined]>>({});
+    const promisesRef = useRef<Record<number, PromiseWithResolvers<boolean>>>({});
+
+    const dispatchExtensionMessage = useCallback((detail: Partial<DocumentMessageDetail>) => {
+        const isResponse = detail.type?.endsWith('-response');
+        const timestamp = isResponse ?
+                          (detail as DocumentMessageResponseDetail).sourceMessage.timestamp
+                                     : detail.timestamp ? detail.timestamp : Date.now();
+
+        const matchingMessages = messagesRef.current[timestamp!];
+
+        if (matchingMessages) {
+            const sourceMessage = matchingMessages[0];
+
+            if (detail.type!.endsWith('response')) {
+                messagesRef.current[timestamp!] = [sourceMessage, detail as DocumentMessageResponseDetail];
+                return promisesRef.current[timestamp!].resolve(true);
+            }
+        }
+
+        const timestampedDetail: Partial<DocumentMessageDetail> = { timestamp, ...detail };
+        const ce = new CustomEvent('shelfscan-sync', {
+            detail: timestampedDetail,
+        });
+        document.dispatchEvent(ce);
+
+        if (!matchingMessages) {
+            messagesRef.current[timestamp!] = [timestampedDetail as DocumentMessageDetail, undefined];
+            promisesRef.current[timestamp!] = Promise.withResolvers<boolean>()
+        }
+
+        return promisesRef.current[timestamp!].promise;
+    }, []);
 
     useEffect(() => {
         if (!username || listening) {
@@ -553,10 +582,7 @@ export const useExtensionResponse = () => {
 
             const { data: detail } = event;
 
-            const ce = new CustomEvent('shelfscan-sync', {
-                detail,
-            });
-            document.dispatchEvent(ce);
+            dispatchExtensionMessage(detail);
 
             const collectionItem = detail.response?.collectionItem ?? detail.response;
 
@@ -582,9 +608,11 @@ export const useExtensionResponse = () => {
         });
         setListening(true);
     }, [username, listening, setListening]);
+
+    return { dispatchExtensionMessage, messages: messagesRef.current, promises: promisesRef.current };
 };
 
-export const ExtensionResponse = () => {
-    useExtensionResponse();
+export const ExtensionMessaging = () => {
+    useExtensionMessaging();
     return <></>;
 };
