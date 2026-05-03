@@ -1,3 +1,4 @@
+import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
 import { useStore } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -9,7 +10,7 @@ import { FaCloudArrowUp } from 'react-icons/fa6';
 type BatchAddButtonProps = {
     codes: string[];
     gameUPCResults: Record<string, GameUPCData>;
-    addGameToCollection: (info: GameUPCBggInfo, collectionId: number | undefined) => void;
+    addGameToCollection: (info: GameUPCBggInfo, collectionId: number | undefined) => void | Promise<DocumentMessageResponseDetail | undefined>;
     onComplete?: (addedCodes: string[]) => void;
 };
 
@@ -24,27 +25,28 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
         return data?.bgg_info?.[0]?.id;
     });
 
-    const handleAddAll = useCallback(() => {
+    const handleAddAll = useCallback(async () => {
         if (isAdding || readyGames.length === 0) {
             return;
         }
         setIsAdding(true);
 
         const state = store.getState();
-        const added: string[] = [];
-        for (const code of readyGames) {
+        const promises = readyGames.map(code => {
             const info = gameUPCResults[code]?.bgg_info?.[0];
             if (!info) {
-                continue;
+                return;
             }
             const { collectionId } =
                 getCollectionInfoByObjectId([state, info.id]);
-            addGameToCollection(info, collectionId);
-            added.push(code);
-        }
 
-        onComplete?.(added);
-        setIsAdding(false);
+            return addGameToCollection(info, collectionId)?.then(success => success ? `${info.name} (${code})` : undefined);
+        }).filter(Boolean);
+
+        Promise.all(promises).then(results => {
+            onComplete?.(results.filter(r => r !== undefined));
+            setIsAdding(false);
+        });
     }, [isAdding, readyGames, gameUPCResults, store, addGameToCollection, onComplete]);
 
     const pendingCount = codes.length - readyGames.length;
@@ -60,11 +62,8 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
             disabled={readyGames.length === 0 || isAdding}
             onClick={handleAddAll}
         >
-            <FaCloudArrowUp className="w-5 h-5" />
-            {isAdding
-                ? <span className="loading loading-bars loading-sm" />
-                : <>Add {readyGames.length} Game{readyGames.length !== 1 ? 's' : ''} to Collection</>
-            }
+            {isAdding ? <span className="loading loading-bars loading-sm" /> : <FaCloudArrowUp className="w-5 h-5" />}
+            Add {readyGames.length} Game{readyGames.length !== 1 ? 's' : ''} to Collection
         </button>
         {pendingCount > 0 && <div className="text-xs text-gray-500">
             {pendingCount} game{pendingCount !== 1 ? 's' : ''} still loading...

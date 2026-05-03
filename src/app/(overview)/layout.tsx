@@ -3,7 +3,7 @@
 import { CodesProvider } from '@/app/lib/CodesProvider';
 import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
-import { ExtensionResponse } from '@/app/lib/extension/useExtension';
+import { ExtensionMessaging } from '@/app/lib/extension/useExtension';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { ScanHistoryProvider } from '@/app/lib/ScanHistoryProvider';
@@ -25,7 +25,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <GameUPCDataProvider>
                                 <ScanHistoryProvider>
                                     <NextStepProvider>
-                                        <Suspense><ExtensionResponse /></Suspense>
+                                        <Suspense><ExtensionMessaging /></Suspense>
                                         <div style={{
                                             minHeight: 'calc(100dvh - 7.5em)'
                                         }}>
