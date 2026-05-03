@@ -16,7 +16,7 @@ export const useBatchSync = () => {
         collectionId: number | undefined,
     ) => {
         if (!userId) {
-            return Promise.resolve(false);
+            return Promise.resolve(undefined);
         }
         return dispatchExtensionMessage({
             userId,

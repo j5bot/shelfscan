@@ -535,7 +535,7 @@ export const useExtensionMessaging = () => {
 
     const [listening, setListening] = useState<boolean>(false);
     const messagesRef = useRef<Record<number, [DocumentMessageDetail, DocumentMessageResponseDetail | undefined]>>({});
-    const promisesRef = useRef<Record<number, PromiseWithResolvers<boolean>>>({});
+    const promisesRef = useRef<Record<number, PromiseWithResolvers<DocumentMessageResponseDetail | undefined>>>({});
 
     const dispatchExtensionMessage = useCallback((detail: Partial<DocumentMessageDetail>) => {
         const isResponse = detail.type?.endsWith('-response');
@@ -550,7 +550,7 @@ export const useExtensionMessaging = () => {
 
             if (detail.type!.endsWith('response')) {
                 messagesRef.current[timestamp!] = [sourceMessage, detail as DocumentMessageResponseDetail];
-                return promisesRef.current[timestamp!].resolve(true);
+                return promisesRef.current[timestamp!].resolve(detail as DocumentMessageResponseDetail);
             }
         }
 
@@ -562,7 +562,7 @@ export const useExtensionMessaging = () => {
 
         if (!matchingMessages) {
             messagesRef.current[timestamp!] = [timestampedDetail as DocumentMessageDetail, undefined];
-            promisesRef.current[timestamp!] = Promise.withResolvers<boolean>()
+            promisesRef.current[timestamp!] = Promise.withResolvers<DocumentMessageResponseDetail | undefined>()
         }
 
         return promisesRef.current[timestamp!].promise;

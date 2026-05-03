@@ -1,3 +1,4 @@
+import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
 import { useStore } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -9,7 +10,7 @@ import { FaCloudArrowUp } from 'react-icons/fa6';
 type BatchAddButtonProps = {
     codes: string[];
     gameUPCResults: Record<string, GameUPCData>;
-    addGameToCollection: (info: GameUPCBggInfo, collectionId: number | undefined) => void | Promise<boolean>;
+    addGameToCollection: (info: GameUPCBggInfo, collectionId: number | undefined) => void | Promise<DocumentMessageResponseDetail | undefined>;
     onComplete?: (addedCodes: string[]) => void;
 };
 
