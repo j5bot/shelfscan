@@ -16,6 +16,8 @@ export type ListGameProps = {
     statusText: string;
     thumbnailUrl: string;
     imageUrl?: string;
+    /** When provided, clicking the thumbnail opens an action (e.g. a modal) instead of navigating. */
+    onClick?: () => void;
 };
 
 export const ListGame = (props: ListGameProps) => {
@@ -33,6 +35,7 @@ export const ListGame = (props: ListGameProps) => {
         statusText,
         thumbnailUrl,
         imageUrl,
+        onClick,
     } = props;
 
     const thumbnail = <ThumbnailBox
@@ -43,17 +46,36 @@ export const ListGame = (props: ListGameProps) => {
         styles={imageContainerStyles}
     />;
 
+    const thumbnailContent = onClick ? (
+        <button
+            type="button"
+            className="w-full text-left cursor-pointer"
+            onClick={onClick}
+            aria-label={`View details for ${name}`}
+        >
+            {thumbnail}
+        </button>
+    ) : detailUrl ? (
+        <Link href={detailUrl} target={detailUrlTarget} rel={detailUrlRel}>
+            {thumbnail}
+        </Link>
+    ) : thumbnail;
+
     return <li className="list-none relative rounded-md bg-white dark:bg-gray-900" key={keyValue}>
         {bottomLeftIcon}
-        {detailUrl ? <Link
-            href={detailUrl}
-            className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
-            title={statusText}
-            target={detailUrlTarget}
-            rel={detailUrlRel}
-        >
-            {statusIcon}
-        </Link> : <span title={statusText}>{statusIcon}</span>}
+        {detailUrl ? (
+            <Link
+                href={detailUrl}
+                className="absolute bottom-0.5 right-0.5 md:bottom-1 md:right-1"
+                title={statusText}
+                target={detailUrlTarget}
+                rel={detailUrlRel}
+            >
+                {statusIcon}
+            </Link>
+        ) : (
+            <span title={statusText}>{statusIcon}</span>
+        )}
         <div className="flex flex-col pt-1 p-3 md:p-4 md:pt-2 w-full">
             <div className="flex justify-center items-center gap-1.5">
                 {cornerIcon}
@@ -64,9 +86,7 @@ export const ListGame = (props: ListGameProps) => {
                     {name}
                 </div>
             </div>
-            {detailUrl ? <Link href={detailUrl} target={detailUrlTarget} rel={detailUrlRel}>
-                {thumbnail}
-            </Link> : thumbnail}
+            {thumbnailContent}
         </div>
     </li>;
 };

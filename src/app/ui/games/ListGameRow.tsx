@@ -3,6 +3,7 @@ import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
 import { ReactNode } from 'react';
 import {
+    FaArrowUpRightFromSquare,
     FaBarcode,
     FaCalendar,
     FaCheck,
@@ -22,6 +23,8 @@ type ListGameRowBaseProps = {
     isVerified?: boolean;
     /** Extra status badges or content rendered after the built-in badges. */
     extraBadges?: ReactNode;
+    /** When provided, clicking the row opens an action (e.g. a modal) instead of navigating. */
+    onClick?: () => void;
 };
 
 type ListGameRowCollectionProps = ListGameRowBaseProps & {
@@ -59,6 +62,7 @@ export const ListGameRow = ({
     isScanned = false,
     isVerified = false,
     extraBadges,
+    onClick,
 }: ListGameRowProps) => {
     const resolvedName = item ? item.name : name;
     const resolvedThumbnailUrl = item
@@ -66,29 +70,49 @@ export const ListGameRow = ({
         : (thumbnailUrlProp ?? '');
     const statuses = item?.statuses;
 
+    const thumbnailElement = (
+        <ThumbnailBox
+            alt={resolvedName}
+            url={resolvedThumbnailUrl}
+            size={LIST_THUMBNAIL_SIZE}
+        />
+    );
+
     return (
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1">
-            <Link
-                href={detailUrl}
-                target={detailUrlTarget}
-                rel={detailUrlRel}
-                className="shrink-0"
-            >
-                <ThumbnailBox
-                    alt={resolvedName}
-                    url={resolvedThumbnailUrl}
-                    size={LIST_THUMBNAIL_SIZE}
-                />
-            </Link>
-            <Link
-                href={detailUrl}
-                target={detailUrlTarget}
-                rel={detailUrlRel}
-                className="flex-1 min-w-0 text-sm font-medium truncate"
-                title={resolvedName}
-            >
-                {resolvedName}
-            </Link>
+        <div
+            className={`flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1 ${onClick ? 'cursor-pointer' : ''}`}
+            onClick={onClick}
+        >
+            {onClick ? (
+                <div className="shrink-0">{thumbnailElement}</div>
+            ) : (
+                <Link
+                    href={detailUrl}
+                    target={detailUrlTarget}
+                    rel={detailUrlRel}
+                    className="shrink-0"
+                >
+                    {thumbnailElement}
+                </Link>
+            )}
+            {onClick ? (
+                <div
+                    className="flex-1 min-w-0 text-sm font-medium truncate"
+                    title={resolvedName}
+                >
+                    {resolvedName}
+                </div>
+            ) : (
+                <Link
+                    href={detailUrl}
+                    target={detailUrlTarget}
+                    rel={detailUrlRel}
+                    className="flex-1 min-w-0 text-sm font-medium truncate"
+                    title={resolvedName}
+                >
+                    {resolvedName}
+                </Link>
+            )}
             <div className="flex items-center gap-1.5 shrink-0 text-base-content/60">
                 {statuses && <>
                     <StatusBadge icon={<FaCheck size={11} />} label="Owned" active={statuses.own} />
@@ -100,6 +124,18 @@ export const ListGameRow = ({
                 <StatusBadge icon={<FaBarcode size={11} />} label="Scanned" active={isScanned} />
                 <StatusBadge icon={<FaThumbsUp size={11} />} label="Verified" active={isVerified} />
                 {extraBadges}
+                {onClick && (
+                    <Link
+                        href={detailUrl}
+                        target={detailUrlTarget}
+                        rel={detailUrlRel}
+                        title="Open on BGG"
+                        aria-label="Open on BGG"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <FaArrowUpRightFromSquare size={11} />
+                    </Link>
+                )}
             </div>
         </div>
     );

@@ -9,17 +9,18 @@ import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
 import { useTitle } from '@/app/lib/hooks/useTitle';
-import { useSelector } from '@/app/lib/hooks';
+import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
-import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { getImageSizeFromUrl } from '@/app/lib/utils/image';
+import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
+import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
 import { CollectionControls } from '@/app/ui/games/CollectionControls';
+import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { CSSProperties, forwardRef, KeyboardEvent, ReactNode, useMemo } from 'react';
+import { CSSProperties, forwardRef, KeyboardEvent, ReactNode, useCallback, useMemo, useState } from 'react';
 import {
     FaArrowsRotate,
     FaBarcode,
@@ -90,16 +91,38 @@ export default function CollectionPage() {
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory } = useScanHistory();
+    const dispatch = useDispatch();
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
-    const { state, setState } = useCollectionData(username);
     const { view, setView } = useCollectionView();
     const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
+    const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
+
+    const onLoaded = useCallback((items: BggCollectionMap) => {
+        if (username) {
+            dispatch(updateCollectionItems({ username, items }));
+        }
+    }, [username, dispatch]);
+
+    const { state, setState } = useCollectionData({ username, onLoaded });
+
+    const reduxItems = useSelector((state: RootState) => {
+        const collection = state.bgg.collection.users[username?.toLowerCase() ?? ''];
+        return collection ? Object.values(collection.items) : undefined;
+    });
 
     const { isRefreshing, refreshCollection, refreshError, clearRefreshError, announceText } =
         useCollectionRefresh({
             username,
-            onSuccess: items => setState({ status: CollectionLoadStatuses.LOADED, items }),
+            onSuccess: useCallback((items: BggCollectionItem[]) => {
+                if (username) {
+                    const map = Object.fromEntries(
+                        items.map(item => [item.collectionId, item]),
+                    ) as BggCollectionMap;
+                    dispatch(updateCollectionItems({ username, items: map }));
+                }
+                setState({ status: CollectionLoadStatuses.LOADED });
+            }, [username, dispatch, setState]),
         });
 
     const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
@@ -141,10 +164,8 @@ export default function CollectionPage() {
     );
 
     const loadedItems = useMemo(
-        () => (
-            state.status === CollectionLoadStatuses.LOADED ? state.items : []
-        ),
-        [state],
+        () => reduxItems ?? [],
+        [reduxItems],
     );
 
     const allGamesSortFields = useMemo<
@@ -351,6 +372,7 @@ export default function CollectionPage() {
                             detailUrl={`https://boardgamegeek.com/boardgame/${item.objectId}`}
                             detailUrlTarget="_blank"
                             detailUrlRel="noopener noreferrer"
+                            onClick={() => setSelectedItem(item)}
                         />
                     );
                 };
@@ -376,6 +398,7 @@ export default function CollectionPage() {
                                             detailUrlRel="noopener noreferrer"
                                             isScanned={scannedSet.has(displayItems[index].objectId)}
                                             isVerified={verifiedSet.has(displayItems[index].objectId)}
+                                            onClick={() => setSelectedItem(displayItems[index])}
                                         />
                                     </div>
                                 )}
@@ -672,6 +695,7 @@ export default function CollectionPage() {
                     </section>
                 </div>
             </div>
+            <CollectionItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
         </>
     );
 }

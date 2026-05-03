@@ -4,7 +4,7 @@ import { GameDetails, type GameDetailsProps } from '@/app/ui/games/GameDetails';
 import { useSearchParams } from 'next/navigation';
 import React, { type ReactNode } from 'react';
 
-type SelectVersionGameDetailsProps = GameDetailsProps;
+type SelectVersionGameDetailsProps = Omit<GameDetailsProps, 'view'>;
 
 /**
  * Wrapper around GameDetails for use inside a SelectVersionProvider context.
@@ -26,6 +26,7 @@ export const SelectVersionGameDetails = ({ header, children }: SelectVersionGame
     };
 
     return <GameDetails
+        view="version"
         game={game}
         version={adaptedVersion}
         defaultImageUrl={defaultImageUrl}

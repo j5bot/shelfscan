@@ -1,5 +1,5 @@
 import { getCollection } from '@/app/lib/database/database';
-import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
+import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const CollectionLoadStatuses = {
@@ -11,15 +11,20 @@ export const CollectionLoadStatuses = {
 
 export type CollectionLoadStatus = typeof CollectionLoadStatuses[keyof typeof CollectionLoadStatuses];
 
-export type CollectionLoadStatusData = { status: CollectionLoadStatus; items?: BggCollectionItem[] | undefined };
+export type CollectionLoadStatusData = { status: CollectionLoadStatus };
+
+type UseCollectionDataOptions = {
+    username: string | undefined;
+    /** Called with items loaded from Dexie when they exist. Use this to populate Redux. */
+    onLoaded?: (items: BggCollectionMap) => void;
+};
 
 type UseCollectionDataResult = {
     state: CollectionLoadStatusData;
     setState: (state: CollectionLoadStatusData) => void;
-    loadCollection: () => Promise<void>;
 };
 
-export const useCollectionData = (username: string | undefined): UseCollectionDataResult => {
+export const useCollectionData = ({ username, onLoaded }: UseCollectionDataOptions): UseCollectionDataResult => {
     const [state, setState] = useState<CollectionLoadStatusData>({ status: CollectionLoadStatuses.LOADING });
     const mountedRef = useRef(true);
 
@@ -32,12 +37,13 @@ export const useCollectionData = (username: string | undefined): UseCollectionDa
                 setState({ status: CollectionLoadStatuses.EMPTY });
                 return;
             }
-            setState({ status: CollectionLoadStatuses.LOADED, items: Object.values(map) });
+            onLoaded?.(map);
+            setState({ status: CollectionLoadStatuses.LOADED });
         } catch {
             if (!mountedRef.current) { return; }
             setState({ status: CollectionLoadStatuses.ERROR });
         }
-    }, [username]);
+    }, [username, onLoaded]);
 
     useEffect(() => {
         mountedRef.current = true;
@@ -45,5 +51,5 @@ export const useCollectionData = (username: string | undefined): UseCollectionDa
         return () => { mountedRef.current = false; };
     }, [loadCollection]);
 
-    return { state, setState, loadCollection };
+    return { state, setState };
 };
