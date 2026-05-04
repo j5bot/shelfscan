@@ -69,6 +69,7 @@ export type BggCollectionItem = {
     lastModified: string;
     tradeCondition?: string;
     rating?: number;
+    averageRating?: number;
     // private info
     privatecomment?: string;
     pricepaid?: number;

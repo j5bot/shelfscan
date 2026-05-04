@@ -12,6 +12,8 @@ export type WishlistPriorityFilter = 'default' | '1' | '2' | '3' | '4' | '5';
 export type PreorderFilter = 'default' | 'preordered' | 'notpreordered';
 export type VerificationFilter = 'default' | 'verified' | 'notverified';
 export type ScanFilter = 'default' | 'scanned' | 'notscanned';
+export type RatingFilter = 'default' | 'rated' | 'notrated';
+export type RatingSource = 'user' | 'average';
 
 export type CollectionFilters = {
     ownership: OwnershipFilter;
@@ -23,6 +25,10 @@ export type CollectionFilters = {
     preorder: PreorderFilter;
     verification: VerificationFilter;
     scan: ScanFilter;
+    rating: RatingFilter;
+    ratingSource: RatingSource;
+    ratingMin: string;
+    ratingMax: string;
 };
 
 const DEFAULT_FILTERS: CollectionFilters = {
@@ -35,6 +41,10 @@ const DEFAULT_FILTERS: CollectionFilters = {
     preorder: 'default',
     verification: 'default',
     scan: 'default',
+    rating: 'default',
+    ratingSource: 'user',
+    ratingMin: '',
+    ratingMax: '',
 };
 
 const LS_KEY = 'collection-filters';
@@ -92,7 +102,18 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
     }, []);
 
     const hasActiveFilters = useMemo(
-        () => Object.entries(filters).some(([, v]) => v !== 'default'),
+        () => (
+            filters.ownership !== 'default' ||
+            filters.trade !== 'default' ||
+            filters.want !== 'default' ||
+            filters.condition !== 'default' ||
+            filters.wishlist !== 'default' ||
+            filters.wishlistPriority !== 'default' ||
+            filters.preorder !== 'default' ||
+            filters.verification !== 'default' ||
+            filters.scan !== 'default' ||
+            filters.rating !== 'default'
+        ),
         [filters],
     );
 
@@ -146,6 +167,20 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                 // Verification
                 if (filters.verification === 'verified' && !verifiedSet.has(item.objectId)) { return false; }
                 if (filters.verification === 'notverified' && verifiedSet.has(item.objectId)) { return false; }
+
+                // Rating
+                if (filters.rating === 'notrated') {
+                    if (item.rating !== undefined) { return false; }
+                } else if (filters.rating === 'rated') {
+                    const ratingValue = filters.ratingSource === 'average'
+                        ? item.averageRating
+                        : item.rating;
+                    if (ratingValue === undefined) { return false; }
+                    const min = filters.ratingMin !== '' ? parseFloat(filters.ratingMin) : undefined;
+                    const max = filters.ratingMax !== '' ? parseFloat(filters.ratingMax) : undefined;
+                    if (min !== undefined && !isNaN(min) && ratingValue < min) { return false; }
+                    if (max !== undefined && !isNaN(max) && ratingValue > max) { return false; }
+                }
 
                 return true;
             },
