@@ -296,6 +296,63 @@ export const CollectionControls = <F extends string>({
                         </button>
                     )}
 
+                    {/* Rating toggle */}
+                    {filters.rating === 'rated' ? (
+                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5 flex-wrap">
+                            <ThreeStateToggle
+                                value={filters.rating}
+                                states={['default', 'rated', 'notrated'] as const}
+                                onLabel="Rated"
+                                offLabel="Not Rated"
+                                icon={<FaStar size={12} aria-hidden="true" />}
+                                onChange={v => setFilter('rating', v as RatingFilter)}
+                                title="Rating Filter"
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-xs btn-primary rounded-sm gap-0.5"
+                                onClick={() => setFilter('ratingSource',
+                                    filters.ratingSource === 'user' ? 'average' : 'user' as RatingSource)}
+                                aria-label={filters.ratingSource === 'user' ? 'Filter by user rating' : 'Filter by average rating'}
+                                title={filters.ratingSource === 'user' ? 'User Rating' : 'Average Rating'}
+                            >
+                                {filters.ratingSource === 'user'
+                                    ? <FaUser size={12} aria-hidden="true" />
+                                    : <FaUserGroup size={12} aria-hidden="true" />
+                                }
+                            </button>
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                className="input input-bordered input-xs w-14 rounded-sm"
+                                placeholder="Min"
+                                value={filters.ratingMin}
+                                onChange={e => setFilter('ratingMin', e.target.value)}
+                                aria-label="Minimum rating"
+                            />
+                            <span className="text-xs text-base-content/50">–</span>
+                            <input
+                                type="text"
+                                inputMode="decimal"
+                                className="input input-bordered input-xs w-14 rounded-sm"
+                                placeholder="Max"
+                                value={filters.ratingMax}
+                                onChange={e => setFilter('ratingMax', e.target.value)}
+                                aria-label="Maximum rating"
+                            />
+                        </div>
+                    ) : (
+                        <ThreeStateToggle
+                            value={filters.rating}
+                            states={['default', 'rated', 'notrated'] as const}
+                            onLabel="Rated"
+                            offLabel="Not Rated"
+                            icon={<FaStar size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('rating', v as RatingFilter)}
+                            title="Rating Filter"
+                        />
+                    )}
+
                     {/* Trade toggle */}
                     <ThreeStateToggle
                         value={filters.trade}
@@ -391,63 +448,6 @@ export const CollectionControls = <F extends string>({
                         onChange={v => setFilter('scan', v as ScanFilter)}
                         title="Scan Status"
                     />
-
-                    {/* Rating toggle */}
-                    {filters.rating === 'rated' ? (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5 flex-wrap">
-                            <ThreeStateToggle
-                                value={filters.rating}
-                                states={['default', 'rated', 'notrated'] as const}
-                                onLabel="Rated"
-                                offLabel="Not Rated"
-                                icon={<FaStar size={12} aria-hidden="true" />}
-                                onChange={v => setFilter('rating', v as RatingFilter)}
-                                title="Rating Filter"
-                            />
-                            <button
-                                type="button"
-                                className="btn btn-xs btn-primary rounded-sm gap-0.5"
-                                onClick={() => setFilter('ratingSource',
-                                    filters.ratingSource === 'user' ? 'average' : 'user' as RatingSource)}
-                                aria-label={filters.ratingSource === 'user' ? 'Filter by user rating' : 'Filter by average rating'}
-                                title={filters.ratingSource === 'user' ? 'User Rating' : 'Average Rating'}
-                            >
-                                {filters.ratingSource === 'user'
-                                    ? <FaUser size={12} aria-hidden="true" />
-                                    : <FaUserGroup size={12} aria-hidden="true" />
-                                }
-                            </button>
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                className="input input-bordered input-xs w-14 rounded-sm"
-                                placeholder="Min"
-                                value={filters.ratingMin}
-                                onChange={e => setFilter('ratingMin', e.target.value)}
-                                aria-label="Minimum rating"
-                            />
-                            <span className="text-xs text-base-content/50">–</span>
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                className="input input-bordered input-xs w-14 rounded-sm"
-                                placeholder="Max"
-                                value={filters.ratingMax}
-                                onChange={e => setFilter('ratingMax', e.target.value)}
-                                aria-label="Maximum rating"
-                            />
-                        </div>
-                    ) : (
-                        <ThreeStateToggle
-                            value={filters.rating}
-                            states={['default', 'rated', 'notrated'] as const}
-                            onLabel="Rated"
-                            offLabel="Not Rated"
-                            icon={<FaStar size={12} aria-hidden="true" />}
-                            onChange={v => setFilter('rating', v as RatingFilter)}
-                            title="Rating Filter"
-                        />
-                    )}
 
                     {/* Reset */}
                     {hasActiveFilters && (
