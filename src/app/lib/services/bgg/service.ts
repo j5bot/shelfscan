@@ -170,6 +170,7 @@ export const getCollectionFromXml = (xml?: string) => {
             const version = getVersionDetails(item);
             const status = item.getElementsByTagName('status')?.[0];
             const rating = elementGetter(item, false, 'stats > rating', 'value');
+            const averageRating = elementGetter(item, false, 'stats > rating > average', 'value');
             const tradeCondition = elementGetter(item, false, 'conditiontext');
 
             const statuses = status ? PossibleStatuses.reduce((acc: BggCollectionStatuses, attributeName: string) => {
@@ -196,6 +197,7 @@ export const getCollectionFromXml = (xml?: string) => {
                 lastModified,
                 wishlistPriority,
                 rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
+                averageRating: averageRating ? parseFloat(averageRating.toString()) : undefined,
                 tradeCondition,
             } as BggCollectionItem;
         })
@@ -222,6 +224,7 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         lastModified: object.lastmodified,
         wishlistPriority: object.wishlistpriority,
         rating: object.rating,
+        averageRating: object.averageRating,
         tradeCondition: object.textfield?.conditiontext?.value,
         ...(Object.keys(privateInfo).length ? privateInfo : {}),
     } as BggCollectionItem;
