@@ -39,6 +39,7 @@ export const PossibleStatuses = [
 export type PossibleStatuses = typeof PossibleStatuses;
 export type PossibleStatus = PossibleStatuses[number];
 export type PossibleStatusWithAll = PossibleStatus | 'all';
+export type PossibleStatusWithAllAndNone = PossibleStatusWithAll | 'none';
 
 export type BggCollectionStatuses = Record<PossibleStatus, boolean>;
 

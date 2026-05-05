@@ -1,9 +1,8 @@
 'use client';
 
 import { loader } from '@/app/(overview)/loading';
-import { useCodes } from '@/app/lib/CodesProvider';
-import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
+import { useInfoCollectionStatus } from '@/app/lib/hooks/useInfoCollectionStatus';
 import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
@@ -25,10 +24,7 @@ export default function Page() {
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
 
     const { canBatch, addGameToCollection } = useBatchSync();
-
-    const { gameDataMap } = useGameUPCData();
-
-    const { codes, setCodes } = useCodes();
+    const { codes, removeCode, setCodes } = useInfoCollectionStatus();
 
     const {
         onScan,
@@ -126,12 +122,21 @@ export default function Page() {
                                 <div className="pb-3 pt-1">
                                     <BatchAddButton
                                         codes={codes}
-                                        gameUPCResults={gameDataMap}
                                         addGameToCollection={addGameToCollection}
                                         onComplete={onComplete}
                                     />
                                 </div>
-                                <Scanlist gameUPCResults={gameDataMap} />
+
+                                {/*{Object.entries(statuses)?.map(([status, statusCodes]) => {*/}
+                                {/*    if (status === 'all' || statusCodes.length === 0) {*/}
+                                {/*        return null;*/}
+                                {/*    }*/}
+                                {/*    return <Fragment key={status}>*/}
+                                {/*        <div>{status.toUpperCase()}</div>*/}
+                                {/*        <Scanlist codes={statusCodes} removeCode={removeCode} showGame={true} />*/}
+                                {/*    </Fragment>;*/}
+                                {/*})}*/}
+                                <Scanlist codes={codes} removeCode={removeCode} showGame={true} />
                                 <div className="flex justify-center gap-3 pt-4 pb-2">
                                     <button
                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
