@@ -101,17 +101,17 @@ export default function Page() {
         },
         {
             key: 'prevowned',
-            name: 'Prev. Owned',
+            name: 'Prev.',
             codes: statuses['prevowned'],
         },
         {
             key: 'own',
-            name: 'Owned',
+            name: 'Own',
             codes: statuses['own'],
         },
         {
             key: 'all',
-            name: 'All',
+            name: 'Scanned',
             codes,
         },
     ] as const;
