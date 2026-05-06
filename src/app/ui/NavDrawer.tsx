@@ -42,7 +42,7 @@ const Avatar = ({ avatarUrl, username }: AvatarProps) => {
         width: 64,
         getImageId: makeImageCacheId,
         addImageDataToCache,
-    }, [username]);
+    });
     return (
         <Suspense fallback={<div className="bg-[#d9d4e6] rounded-full border-gray-400 border-4 w-16 h-16" />}>
             <AvatarInner { ...cachedImageProps } />

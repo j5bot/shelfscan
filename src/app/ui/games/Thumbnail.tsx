@@ -46,7 +46,7 @@ export const Thumbnail = (props: ThumbnailBoxProps) => {
         addImageDataToCache,
         width: size,
         height: size,
-    }, [url, imageUrl]);
+    });
     return (
         <Suspense fallback={null}>
             <ThumbnailInner {...cachedImageProps} className={className} />
@@ -114,7 +114,7 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         fill: true,
         getImageId: makeImageCacheId,
         addImageDataToCache,
-    }, [url, imageUrl]);
+    });
 
     const fallback = <div className="flex justify-center p-1">
         <div
