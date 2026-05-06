@@ -82,7 +82,7 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                 tabIndex={0}
             >
                 <img
-                    className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-sm' : ''}`}
+                    className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-xs' : ''}`}
                     {...imageProps}
                 />
             </div>
@@ -93,10 +93,8 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {
     const { alt = props.url, url, imageUrl, styles, size } = props;
 
-    if (!url) {
-        return noImageFallback;
-    }
-
+    // Hook must be called before any conditional return (Rules of Hooks).
+    // The hook gracefully handles an empty src by resolving with undefined.
     const { promise, upgradedProps } = useImagePropsWithCache({
         alt,
         src: imageUrl ?? url,
@@ -105,6 +103,10 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         getImageId: makeImageCacheId,
         addImageDataToCache,
     }, [url, imageUrl]);
+
+    if (!url) {
+        return noImageFallback;
+    }
 
     const fallback = <div className="flex justify-center p-1">
         <div
