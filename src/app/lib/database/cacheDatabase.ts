@@ -41,7 +41,7 @@ const getImageCacheSize = async () => {
 
 export const makeImageCacheId = (imageProps: ImageProps) => {
     const { src, width, height, quality } = imageProps;
-    const srcString = src.toString();
+    const srcString = src?.toString();
     const picSrc = srcString.startsWith('/bgg-images/') ? srcString.split('/').pop() : srcString;
 
     return [
