@@ -54,7 +54,7 @@ export default function Page() {
             setCodes([]);
             return;
         }
-        setCodes(codes.filter(code => !statuses[shownStatus].includes(code)));
+        setCodes(codes.filter(code => !statuses[status].includes(code)));
     }, [statuses, setCodes]);
 
     if (!breakpoint) {

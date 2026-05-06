@@ -18,10 +18,6 @@ type ThumbnailInnerProps = {
     className?: string;
 };
 
-const noImageFallback = <div className="flex justify-center p-1">
-    <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
-</div>;
-
 const ThumbnailInner = ({ placeholderPromise, cachePromise, className }: ThumbnailInnerProps) => {
     const placeholder = use(placeholderPromise);
     const cache = use(cachePromise);
@@ -71,7 +67,7 @@ const ThumbnailBoxInner = ({ placeholderPromise, cachePromise, size, styles }: T
 
     const isPlaceholder = placeholder?.type === 'placeholder' || cache?.type === 'placeholder';
 
-    const scalePercent = size < 200 ? 300 : size < 300 ? 200 : 100;
+    const scalePercent = size < 200 ? 'scale-250' : size < 300 ? 'scale-150' : 'scale-100';
 
     if (!(placeholder || cache)) {
         return null;
@@ -80,15 +76,15 @@ const ThumbnailBoxInner = ({ placeholderPromise, cachePromise, size, styles }: T
     const { type: _type, alt, ...imageProps } = cache ?? placeholder ?? {};
 
     return (
-        <div className="flex justify-center p-1">
+        <div className="flex justify-center p-1 relative">
             <div className={`
                     relative
                     bg-[#f1eff9]
                     flex justify-center items-center
                     rounded-md overflow-clip
-                    focus:overflow-visible focus:scale-${scalePercent}
-                    hover:overflow-visible hover:scale-${scalePercent}
-                    hover:z-40
+                    focus:overflow-visible focus:${scalePercent}
+                    hover:overflow-visible hover:${scalePercent}
+                    focus:z-40 hover:z-40
                 `}
                 style={{
                     width: `${size}px`,

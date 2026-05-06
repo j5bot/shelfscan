@@ -6,8 +6,6 @@ import { useEffect, useRef, useState } from 'react';
 const MAX_NORMAL_IMAGE_SIZE = 400;
 const NORMAL_IMAGE_QUALITY = 0.9;
 const NORMAL_IMAGE_CACHE_QUALITY = 90;
-/** Maximum time (ms) to wait for an image before resolving with the fallback. */
-const IMAGE_LOAD_TIMEOUT_MS = 20000;
 
 export type ImagePropsWithCacheParams = ImageProps & {
     getImageId: (props: ImageProps) => string;
@@ -26,8 +24,6 @@ export type UseCachedImage = {
     placeholderPromise: Promise<ResolvedImageProps | undefined>;
     cachePromise: Promise<ResolvedImageProps | undefined>;
 };
-
-type ResolveImageFn = (v: ResolvedImageProps) => void;
 
 const getAcceptHeader = (src: string): string => {
     switch (src.split('.').slice(-1)[0]) {
@@ -138,7 +134,7 @@ export const useCachedImage = (
         return undefined;
     };
 
-    const resizeBlob = async (rawBlob: Blob) => {
+    const resizeRawBlob = async (rawBlob: Blob) => {
         try {
             return await resizeBlob(rawBlob);
         } catch (e) {
@@ -196,7 +192,7 @@ export const useCachedImage = (
                         });
                         return;
                     }
-                    return resizeBlob(blob)
+                    return resizeRawBlob(blob)
                         .then(blob => {
                             cacheBlob(normalImageId, blob);
                             url = URL.createObjectURL(blob);
