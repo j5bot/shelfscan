@@ -34,12 +34,12 @@ export const useInfoCollectionStatus = (): UseInfoCollectionStatus => {
 
             const [infoId] = gameSelections[code] ?? [];
 
-            let infoIndex = bggInfo?.
-            findIndex(info => info.id === infoId);
+            let infoIndex = infos?.
+                findIndex(info => info.id === (infoId ?? bggInfo?.[0]?.id));
 
             infoIndex = infoIndex > -1 ? infoIndex : 0;
 
-            const statusesToCheck = ['fortrade', 'own', 'wishlist'] as PossibleStatusWithAll[];
+            const statusesToCheck = ['fortrade', 'own', 'prevowned'] as PossibleStatusWithAll[];
 
             let found = false;
             const statuses = statusesToCheck.reduce((statusAcc, status) => {

@@ -8,6 +8,7 @@ import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
+import { PossibleStatusWithAllAndNone } from '@/app/lib/types/bgg';
 import { BatchAddButton } from '@/app/ui/batch/BatchAddButton';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -24,7 +25,7 @@ export default function Page() {
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
 
     const { canBatch, addGameToCollection } = useBatchSync();
-    const { codes, removeCode, setCodes } = useInfoCollectionStatus();
+    const { codes, removeCode, setCodes, ...statuses } = useInfoCollectionStatus();
 
     const {
         onScan,
@@ -35,6 +36,7 @@ export default function Page() {
     } = useScanRecorder();
 
     const [addedNames, setAddedNames] = useState<string[]>([]);
+    const [shownStatus, setShownStatus] = useState<PossibleStatusWithAllAndNone>('none');
     const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const onComplete = useCallback((names: string[]) => {
@@ -47,9 +49,13 @@ export default function Page() {
         }, 5000);
     }, []);
 
-    const onClear = useCallback(() => {
-        setCodes([]);
-    }, [setCodes]);
+    const onClear = useCallback((status?: PossibleStatusWithAllAndNone) => {
+        if (!status) {
+            setCodes([]);
+            return;
+        }
+        statuses[status].forEach(code => removeCode(code));
+    }, [statuses, setCodes]);
 
     if (!breakpoint) {
         return <>
@@ -121,7 +127,7 @@ export default function Page() {
                             ? <>
                                 <div className="pb-3 pt-1">
                                     <BatchAddButton
-                                        codes={codes}
+                                        codes={statuses[shownStatus] ?? []}
                                         addGameToCollection={addGameToCollection}
                                         onComplete={onComplete}
                                     />
@@ -136,12 +142,30 @@ export default function Page() {
                                 {/*        <Scanlist codes={statusCodes} removeCode={removeCode} showGame={true} />*/}
                                 {/*    </Fragment>;*/}
                                 {/*})}*/}
-                                <Scanlist codes={codes} removeCode={removeCode} showGame={true} />
+                                <div className="flex justify-start gap-1 pb-1">
+                                    {(['none', 'prevowned', 'own', 'all'] as PossibleStatusWithAllAndNone[])
+                                        .map(status => (<button className={`btn btn-sm rounded-md bg-gray-300 dark:bg-gray-600
+                                            text-sm uppercase cursor-pointer`}
+                                            onClick={() => shownStatus !== status && setShownStatus(status)}
+                                            key={status}
+                                        >
+                                            {status} <span className="badge badge-xs text-xs">{statuses[status]?.length ?? 0}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <Scanlist codes={statuses[shownStatus] ?? []} removeCode={removeCode} showGame={true} />
                                 <div className="flex justify-center gap-3 pt-4 pb-2">
                                     <button
                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
                                             text-sm uppercase cursor-pointer"
-                                        onClick={onClear}
+                                        onClick={() => onClear(shownStatus)}
+                                    >
+                                        Clear Segment
+                                    </button>
+                                    <button
+                                        className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+                                                text-sm uppercase cursor-pointer"
+                                        onClick={() => onClear()}
                                     >
                                         Clear All
                                     </button>
