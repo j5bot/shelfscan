@@ -1,37 +1,13 @@
+import PQueue from 'p-queue';
+
 const FETCH_THROTTLE_MS = 300;
 
-type QueueEntry = {
-    execute: () => void;
-};
+const queue = new PQueue({
+    concurrency: 1,
+    interval: FETCH_THROTTLE_MS,
+    intervalCap: 1,
+});
 
-const queue: QueueEntry[] = [];
-let draining = false;
-
-const drain = () => {
-    if (draining || queue.length === 0) {
-        return;
-    }
-    draining = true;
-    const entry = queue.shift()!;
-    entry.execute();
-    setTimeout(() => {
-        draining = false;
-        drain();
-    }, FETCH_THROTTLE_MS);
-};
-
-export const enqueueFetch = <T>(fn: () => Promise<T>): Promise<T> => {
-    return new Promise<T>((resolve, reject) => {
-        queue.push({
-            execute: () => {
-                try {
-                    fn().then(resolve, reject);
-                } catch (error) {
-                    reject(error);
-                }
-            },
-        });
-        drain();
-    });
-};
+export const enqueueFetch = <T>(fn: () => Promise<T>): Promise<T> =>
+    queue.add(fn) as Promise<T>;
 

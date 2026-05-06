@@ -42,7 +42,7 @@ export default function Page() {
         removeGame,
     } = useGameUPCData();
 
-    const { codes, setCodes } = useCodes();
+    const { codes, removeCode, setCodes } = useCodes();
 
     const {
         onScan,
@@ -116,7 +116,7 @@ export default function Page() {
                          <div className="flex flex-col justify-center h-full w-full">
                              {codes.length > 0
                              ? (<>
-                                 <Scanlist gameUPCResults={gameDataMap} />
+                                 <Scanlist codes={codes} removeCode={removeCode} />
                                  <div className="flex justify-center pt-4 pb-2">
                                      <button
                                          className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600

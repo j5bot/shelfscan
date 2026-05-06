@@ -1,4 +1,5 @@
 import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
+import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useStore } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -9,19 +10,19 @@ import { FaCloudArrowUp } from 'react-icons/fa6';
 
 type BatchAddButtonProps = {
     codes: string[];
-    gameUPCResults: Record<string, GameUPCData>;
     addGameToCollection: (info: GameUPCBggInfo, collectionId: number | undefined) => void | Promise<DocumentMessageResponseDetail | undefined>;
     onComplete?: (addedCodes: string[]) => void;
 };
 
 export const BatchAddButton = (props: BatchAddButtonProps) => {
-    const { codes, gameUPCResults, addGameToCollection, onComplete } = props;
+    const { gameDataMap } = useGameUPCData();
+    const { codes, addGameToCollection, onComplete } = props;
     const [isAdding, setIsAdding] = useState(false);
 
     const store = useStore();
 
     const readyGames = codes.filter(code => {
-        const data = gameUPCResults[code];
+        const data = gameDataMap[code];
         return data?.bgg_info?.[0]?.id;
     });
 
@@ -33,21 +34,23 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
 
         const state = store.getState();
         const promises = readyGames.map(code => {
-            const info = gameUPCResults[code]?.bgg_info?.[0];
+            const info = gameDataMap[code]?.bgg_info?.[0];
             if (!info) {
                 return;
             }
             const { collectionId } =
                 getCollectionInfoByObjectId([state, info.id]);
 
-            return addGameToCollection(info, collectionId)?.then(success => success ? `${info.name} (${code})` : undefined);
+            return addGameToCollection(info, collectionId)?.then(
+                success => success ? `${info.name} (${code})` : undefined
+            );
         }).filter(Boolean);
 
         Promise.all(promises).then(results => {
             onComplete?.(results.filter(r => r !== undefined));
             setIsAdding(false);
         });
-    }, [isAdding, readyGames, gameUPCResults, store, addGameToCollection, onComplete]);
+    }, [isAdding, readyGames, gameDataMap, store, addGameToCollection, onComplete]);
 
     const pendingCount = codes.length - readyGames.length;
 

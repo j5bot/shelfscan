@@ -1,14 +1,14 @@
 'use client';
 
 import { loader } from '@/app/(overview)/loading';
-import { useCodes } from '@/app/lib/CodesProvider';
-import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
+import { useInfoCollectionStatus } from '@/app/lib/hooks/useInfoCollectionStatus';
 import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useSelector } from '@/app/lib/hooks';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
+import { PossibleStatusWithAllAndNone } from '@/app/lib/types/bgg';
 import { BatchAddButton } from '@/app/ui/batch/BatchAddButton';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -25,10 +25,7 @@ export default function Page() {
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
 
     const { canBatch, addGameToCollection } = useBatchSync();
-
-    const { gameDataMap } = useGameUPCData();
-
-    const { codes, setCodes } = useCodes();
+    const { codes, removeCode, setCodes, ...statuses } = useInfoCollectionStatus();
 
     const {
         onScan,
@@ -39,6 +36,7 @@ export default function Page() {
     } = useScanRecorder();
 
     const [addedNames, setAddedNames] = useState<string[]>([]);
+    const [shownStatus, setShownStatus] = useState<PossibleStatusWithAllAndNone>('none');
     const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const onComplete = useCallback((names: string[]) => {
@@ -51,9 +49,13 @@ export default function Page() {
         }, 5000);
     }, []);
 
-    const onClear = useCallback(() => {
-        setCodes([]);
-    }, [setCodes]);
+    const onClear = useCallback((status?: PossibleStatusWithAllAndNone) => {
+        if (!status) {
+            setCodes([]);
+            return;
+        }
+        setCodes(codes.filter(code => !statuses[status].includes(code)));
+    }, [statuses, setCodes]);
 
     if (!breakpoint) {
         return <>
@@ -91,6 +93,29 @@ export default function Page() {
         </>;
     }
 
+    const segments = [
+        {
+            key: 'none',
+            name: 'New',
+            codes: statuses['none'],
+        },
+        {
+            key: 'prevowned',
+            name: 'Prev. Owned',
+            codes: statuses['prevowned'],
+        },
+        {
+            key: 'own',
+            name: 'Owned',
+            codes: statuses['own'],
+        },
+        {
+            key: 'all',
+            name: 'All',
+            codes,
+        },
+    ] as const;
+
     return <>
         <NavDrawer />
         <ScanToasts
@@ -125,18 +150,44 @@ export default function Page() {
                             ? <>
                                 <div className="pb-3 pt-1">
                                     <BatchAddButton
-                                        codes={codes}
-                                        gameUPCResults={gameDataMap}
+                                        codes={statuses[shownStatus] ?? []}
                                         addGameToCollection={addGameToCollection}
                                         onComplete={onComplete}
                                     />
                                 </div>
-                                <Scanlist gameUPCResults={gameDataMap} />
+
+                                <div className="flex justify-start gap-1 pb-1">
+                                    {segments
+                                        .map(({key, name, codes}) => (<button className={`btn btn-sm rounded-md ${
+                                            shownStatus === key ?
+                                                'bg-white dark:bg-gray-300'
+                                                   : 'bg-gray-300 dark:bg-gray-600'
+                                            }
+                                            text-sm cursor-pointer`}
+                                            onClick={() => shownStatus !== key && setShownStatus(key)}
+                                            key={key}
+                                        >
+                                            {name} <span className="badge badge-xs text-xs">
+                                                {codes?.length ?? 0}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                                <Scanlist
+                                    codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
+                                    removeCode={removeCode} showGame={true} />
                                 <div className="flex justify-center gap-3 pt-4 pb-2">
                                     <button
                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
                                             text-sm uppercase cursor-pointer"
-                                        onClick={onClear}
+                                        onClick={() => onClear(shownStatus)}
+                                    >
+                                        Clear Segment
+                                    </button>
+                                    <button
+                                        className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+                                                text-sm uppercase cursor-pointer"
+                                        onClick={() => onClear()}
                                     >
                                         Clear All
                                     </button>

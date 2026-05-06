@@ -1,5 +1,5 @@
 import { addImageDataToCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
-import { useImagePropsWithCache, type ResolvedImageProps } from '@/app/lib/hooks/useImagePropsWithCache';
+import { useCachedImage, type ResolvedImageProps } from '@/app/lib/hooks/useCachedImage';
 import React, { CSSProperties, Suspense, use } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 
@@ -13,27 +13,32 @@ export type ThumbnailBoxProps = {
 };
 
 type ThumbnailInnerProps = {
-    promise: Promise<ResolvedImageProps>;
-    upgradedProps: ResolvedImageProps | undefined;
+    placeholderPromise: Promise<ResolvedImageProps | undefined>;
+    cachePromise: Promise<ResolvedImageProps | undefined>;
     className?: string;
 };
 
-const noImageFallback = <div className="flex justify-center p-1">
-    <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
-</div>;
+const ThumbnailInner = ({ placeholderPromise, cachePromise, className }: ThumbnailInnerProps) => {
+    const placeholder = use(placeholderPromise);
+    const cache = use(cachePromise);
 
-const ThumbnailInner = ({ promise, upgradedProps, className }: ThumbnailInnerProps) => {
-    const initial = use(promise);
-    const { isPlaceholder, ...imageProps } = upgradedProps ?? initial;
-    return <img
-        className={`object-contain transition-[filter] duration-200 ${isPlaceholder && !upgradedProps ? 'blur-sm' : ''} ${className ?? ''}`}
+    const isPlaceholder = placeholder?.type === 'placeholder' || cache?.type === 'placeholder';
+
+    if (!(placeholder || cache)) {
+        return null;
+    }
+
+    const { type: _type, alt, ...imageProps } = cache ?? placeholder ?? {};
+
+    return <img alt={alt}
+        className={`object-contain transition-[filter] duration-200 ${isPlaceholder ? 'blur-xs' : ''} ${className ?? ''}`}
         {...imageProps}
     />;
 };
 
 export const Thumbnail = (props: ThumbnailBoxProps) => {
     const { alt = props.url, className, url, imageUrl, size } = props;
-    const { promise, upgradedProps } = useImagePropsWithCache({
+    const cachedImageProps = useCachedImage({
         alt,
         src: imageUrl ?? url,
         placeholderSrc: imageUrl ? url : undefined,
@@ -44,35 +49,42 @@ export const Thumbnail = (props: ThumbnailBoxProps) => {
     }, [url, imageUrl]);
     return (
         <Suspense fallback={null}>
-            <ThumbnailInner promise={promise} upgradedProps={upgradedProps} className={className} />
+            <ThumbnailInner {...cachedImageProps} className={className} />
         </Suspense>
     );
 };
 
 type ThumbnailBoxInnerProps = {
-    promise: Promise<ResolvedImageProps>;
-    upgradedProps: ResolvedImageProps | undefined;
+    placeholderPromise: Promise<ResolvedImageProps | undefined>;
+    cachePromise: Promise<ResolvedImageProps | undefined>;
     size: number;
     styles?: CSSProperties;
 };
 
-const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBoxInnerProps) => {
-    const initial = use(promise);
-    const imageProps = upgradedProps ?? initial;
-    const isPlaceholder = initial.isPlaceholder && !upgradedProps;
+const ThumbnailBoxInner = ({ placeholderPromise, cachePromise, size, styles }: ThumbnailBoxInnerProps) => {
+    const placeholder = use(placeholderPromise);
+    const cache = use(cachePromise);
 
-    const scalePercent = size < 200 ? 300 : size < 300 ? 200 : 100;
+    const isPlaceholder = placeholder?.type === 'placeholder' || cache?.type === 'placeholder';
 
-    return imageProps.src ? (
-        <div className="flex justify-center p-1">
+    const scalePercent = size < 200 ? 'scale-250' : size < 300 ? 'scale-150' : 'scale-100';
+
+    if (!(placeholder || cache)) {
+        return null;
+    }
+
+    const { type: _type, alt, ...imageProps } = cache ?? placeholder ?? {};
+
+    return (
+        <div className="flex justify-center p-1 relative">
             <div className={`
                     relative
                     bg-[#f1eff9]
                     flex justify-center items-center
                     rounded-md overflow-clip
-                    focus:overflow-visible focus:scale-${scalePercent}
-                    hover:overflow-visible hover:scale-${scalePercent}
-                    hover:z-40
+                    focus:overflow-visible focus:${scalePercent}
+                    hover:overflow-visible hover:${scalePercent}
+                    focus:z-40 hover:z-40
                 `}
                 style={{
                     width: `${size}px`,
@@ -81,23 +93,21 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                 }}
                 tabIndex={0}
             >
-                <img
-                    className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-sm' : ''}`}
+                <img alt={alt}
+                    className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-xs' : ''}`}
                     {...imageProps}
                 />
             </div>
         </div>
-    ) : noImageFallback;
+    );
 };
 
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {
     const { alt = props.url, url, imageUrl, styles, size } = props;
 
-    if (!url) {
-        return noImageFallback;
-    }
-
-    const { promise, upgradedProps } = useImagePropsWithCache({
+    // Hook must be called before any conditional return (Rules of Hooks).
+    // The hook gracefully handles an empty src by resolving with undefined.
+    const cachedImageProps = useCachedImage({
         alt,
         src: imageUrl ?? url,
         placeholderSrc: imageUrl ? url : undefined,
@@ -113,9 +123,13 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         />
     </div>;
 
+    if (!url) {
+        return fallback;
+    }
+
     return (
         <Suspense fallback={fallback}>
-            <ThumbnailBoxInner promise={promise} upgradedProps={upgradedProps} size={size} styles={styles} />
+            <ThumbnailBoxInner {...cachedImageProps} size={size} styles={styles} />
         </Suspense>
     );
 };

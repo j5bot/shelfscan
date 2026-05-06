@@ -1,5 +1,5 @@
-import { useCodes } from '@/app/lib/CodesProvider';
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
+import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
@@ -22,17 +22,20 @@ import { IoTrashBin } from 'react-icons/io5';
 
 type ScanItemProps = {
     code: string;
+    showGame?: boolean;
     removeFromList: (code: string) => void;
     gameUPCResults: Record<string, GameUPCData>;
     gameSelections: GameSelections;
-}
+};
 
 type ScanlistProps = {
-    gameUPCResults: Record<string, GameUPCData>;
-}
+    codes: string[];
+    removeCode: (code: string) => void;
+    showGame?: boolean;
+};
 
 export const ScanItem = (props: ScanItemProps) => {
-    const { code, gameSelections, gameUPCResults, removeFromList } = props;
+    const { code, gameSelections, gameUPCResults, removeFromList, showGame } = props;
     const { currentInfoIndex, infoIndexesInCollection } = useSelectVersionContext();
 
     const {
@@ -60,11 +63,11 @@ export const ScanItem = (props: ScanItemProps) => {
     const {
         name: versionName,
         thumbnail_url: thumbnailUrl,
-        image_url: sourceImageUrl,
     } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
 
     const imageUrlPromise = useImageMismatch(
-        bggInfo?.[infoIndex]?.id, bggInfo?.[infoIndex]?.versions?.[versionIndex]?.version_id
+        bggInfo?.[infoIndex]?.id,
+        showGame ? undefined : bggInfo?.[infoIndex]?.versions?.[versionIndex]?.version_id,
     );
     const imageUrl = imageUrlPromise ? use(imageUrlPromise) : undefined;
 
@@ -72,7 +75,9 @@ export const ScanItem = (props: ScanItemProps) => {
         return;
     }
 
-    const name = infoName + (versionName ? ` (${versionName})` : '');
+    const name = showGame ?
+                 infoName
+                 : infoName + (versionName ? ` (${versionName})` : '');
 
     const imageSize = getImageSizeFromUrl(thumbnailUrl ?? '');
     const thumbnailSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
@@ -155,23 +160,19 @@ export const ScanItem = (props: ScanItemProps) => {
     return <ListGame {...listGameProperties } />;
 };
 
-export const Scanlist = (props: ScanlistProps) => {
-    const { gameUPCResults } = props;
-    const { codes, setCodes } = useCodes();
+export const Scanlist = ({ codes, removeCode, showGame }: ScanlistProps) => {
+    const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
-
-    const removeFromList = (code: string) => {
-        setCodes(codes.filter(c => c !== code));
-    };
 
     return <GameListContainer>
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
                 <Suspense fallback={<ListGame keyValue={code} name={''} thumbnailSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>
                     <ScanItem code={code}
-                              gameUPCResults={gameUPCResults}
+                              gameUPCResults={gameDataMap}
                               gameSelections={gameSelections}
-                              removeFromList={removeFromList}
+                              removeFromList={removeCode}
+                              showGame={showGame}
                     />
                 </Suspense>
             </SelectVersionProvider>

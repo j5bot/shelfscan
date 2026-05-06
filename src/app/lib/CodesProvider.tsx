@@ -14,12 +14,14 @@ const CodesContext =
         codes: Codes;
         addHistoryID: (code: string, historyID: number) => void;
         getHistoryIDs: (code: string) => number[];
+        removeCode: (code: string) => void;
         setCodes: (codes: Codes | ((prev: Codes) => Codes)) => void;
         loaded: boolean;
     }>({
         codes: [],
         addHistoryID: () => undefined,
         getHistoryIDs: () => [],
+        removeCode: () => undefined,
         setCodes: () => undefined,
         loaded: false,
     });
@@ -49,6 +51,10 @@ export const CodesProvider = ({ children }: Props) => {
             return [...next];
         });
     }, []);
+
+    const removeCode = useCallback((code: string) => {
+        setCodes(codes.filter(c => c !== code));
+    }, [codes]);
 
     const addHistoryID = (code: string, historyID: number) => {
         const ids = historyIDsRef.current[code] ?? [];
@@ -89,7 +95,7 @@ export const CodesProvider = ({ children }: Props) => {
         }
     }, [codes, loaded]);
 
-    return <CodesContext.Provider value={{ codes, addHistoryID, getHistoryIDs, setCodes, loaded }}>
+    return <CodesContext.Provider value={{ codes, addHistoryID, getHistoryIDs, removeCode, setCodes, loaded }}>
         {children}
     </CodesContext.Provider>;
 };
