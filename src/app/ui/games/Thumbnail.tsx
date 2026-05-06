@@ -1,5 +1,5 @@
 import { addImageDataToCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
-import { useImagePropsWithCache, type ResolvedImageProps } from '@/app/lib/hooks/useImagePropsWithCache';
+import { useCachedImage, type ResolvedImageProps } from '@/app/lib/hooks/useCachedImage';
 import React, { CSSProperties, Suspense, use } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 
@@ -13,8 +13,8 @@ export type ThumbnailBoxProps = {
 };
 
 type ThumbnailInnerProps = {
-    promise: Promise<ResolvedImageProps>;
-    upgradedProps: ResolvedImageProps | undefined;
+    placeholderPromise: Promise<ResolvedImageProps | undefined>;
+    cachePromise: Promise<ResolvedImageProps | undefined>;
     className?: string;
 };
 
@@ -22,18 +22,27 @@ const noImageFallback = <div className="flex justify-center p-1">
     <FaQuestion className="self-center m-2 fill-orange-500" title="No Image" size={64} />
 </div>;
 
-const ThumbnailInner = ({ promise, upgradedProps, className }: ThumbnailInnerProps) => {
-    const initial = use(promise);
-    const { isPlaceholder, ...imageProps } = upgradedProps ?? initial;
-    return <img
-        className={`object-contain transition-[filter] duration-200 ${isPlaceholder && !upgradedProps ? 'blur-sm' : ''} ${className ?? ''}`}
+const ThumbnailInner = ({ placeholderPromise, cachePromise, className }: ThumbnailInnerProps) => {
+    const placeholder = use(placeholderPromise);
+    const cache = use(cachePromise);
+
+    const isPlaceholder = placeholder?.type === 'placeholder' || cache?.type === 'placeholder';
+
+    if (!(placeholder || cache)) {
+        return null;
+    }
+
+    const { type: _type, alt, ...imageProps } = cache ?? placeholder ?? {};
+
+    return <img alt={alt}
+        className={`object-contain transition-[filter] duration-200 ${isPlaceholder ? 'blur-xs' : ''} ${className ?? ''}`}
         {...imageProps}
     />;
 };
 
 export const Thumbnail = (props: ThumbnailBoxProps) => {
     const { alt = props.url, className, url, imageUrl, size } = props;
-    const { promise, upgradedProps } = useImagePropsWithCache({
+    const cachedImageProps = useCachedImage({
         alt,
         src: imageUrl ?? url,
         placeholderSrc: imageUrl ? url : undefined,
@@ -44,26 +53,33 @@ export const Thumbnail = (props: ThumbnailBoxProps) => {
     }, [url, imageUrl]);
     return (
         <Suspense fallback={null}>
-            <ThumbnailInner promise={promise} upgradedProps={upgradedProps} className={className} />
+            <ThumbnailInner {...cachedImageProps} className={className} />
         </Suspense>
     );
 };
 
 type ThumbnailBoxInnerProps = {
-    promise: Promise<ResolvedImageProps>;
-    upgradedProps: ResolvedImageProps | undefined;
+    placeholderPromise: Promise<ResolvedImageProps | undefined>;
+    cachePromise: Promise<ResolvedImageProps | undefined>;
     size: number;
     styles?: CSSProperties;
 };
 
-const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBoxInnerProps) => {
-    const initial = use(promise);
-    const imageProps = upgradedProps ?? initial;
-    const isPlaceholder = initial.isPlaceholder && !upgradedProps;
+const ThumbnailBoxInner = ({ placeholderPromise, cachePromise, size, styles }: ThumbnailBoxInnerProps) => {
+    const placeholder = use(placeholderPromise);
+    const cache = use(cachePromise);
+
+    const isPlaceholder = placeholder?.type === 'placeholder' || cache?.type === 'placeholder';
 
     const scalePercent = size < 200 ? 300 : size < 300 ? 200 : 100;
 
-    return imageProps.src ? (
+    if (!(placeholder || cache)) {
+        return null;
+    }
+
+    const { type: _type, alt, ...imageProps } = cache ?? placeholder ?? {};
+
+    return (
         <div className="flex justify-center p-1">
             <div className={`
                     relative
@@ -81,13 +97,13 @@ const ThumbnailBoxInner = ({ promise, upgradedProps, size, styles }: ThumbnailBo
                 }}
                 tabIndex={0}
             >
-                <img
+                <img alt={alt}
                     className={`object-contain transition-[filter] duration-200 rounded-xs ${isPlaceholder ? 'blur-xs' : ''}`}
                     {...imageProps}
                 />
             </div>
         </div>
-    ) : noImageFallback;
+    );
 };
 
 export const ThumbnailBox = (props: ThumbnailBoxProps) => {
@@ -95,7 +111,7 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
 
     // Hook must be called before any conditional return (Rules of Hooks).
     // The hook gracefully handles an empty src by resolving with undefined.
-    const { promise, upgradedProps } = useImagePropsWithCache({
+    const cachedImageProps = useCachedImage({
         alt,
         src: imageUrl ?? url,
         placeholderSrc: imageUrl ? url : undefined,
@@ -104,10 +120,6 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         addImageDataToCache,
     }, [url, imageUrl]);
 
-    if (!url) {
-        return noImageFallback;
-    }
-
     const fallback = <div className="flex justify-center p-1">
         <div
             className="skeleton rounded-md"
@@ -115,9 +127,13 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
         />
     </div>;
 
+    if (!url) {
+        return fallback;
+    }
+
     return (
         <Suspense fallback={fallback}>
-            <ThumbnailBoxInner promise={promise} upgradedProps={upgradedProps} size={size} styles={styles} />
+            <ThumbnailBoxInner {...cachedImageProps} size={size} styles={styles} />
         </Suspense>
     );
 };

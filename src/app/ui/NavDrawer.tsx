@@ -1,11 +1,8 @@
-import {
-    addImageDataToCache,
-    makeImageCacheId
-} from '@/app/lib/database/cacheDatabase';
+import { addImageDataToCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import { removeSetting } from '@/app/lib/database/database';
-import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
-import { useImagePropsWithCache } from '@/app/lib/hooks/useImagePropsWithCache';
+import { useDispatch, useSelector } from '@/app/lib/hooks';
+import { useCachedImage, UseCachedImage } from '@/app/lib/hooks/useCachedImage';
 import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
@@ -15,23 +12,30 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ReactNode, Suspense, use, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
-import { FaBarcode, FaBars, FaGear, FaGlobe, FaLayerGroup, FaList, FaNewspaper, FaTableList } from 'react-icons/fa6';
+import {
+    FaBarcode,
+    FaBars,
+    FaGear,
+    FaGlobe,
+    FaLayerGroup,
+    FaList,
+    FaNewspaper,
+    FaTableList
+} from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
-
-import { type ResolvedImageProps } from '@/app/lib/hooks/useImagePropsWithCache';
 
 type AvatarProps = {
     avatarUrl: string;
     username: string;
 };
 
-const AvatarInner = ({ promise }: { promise: Promise<ResolvedImageProps> }) => {
-    const { src, alt, ...imageProps } = use(promise);
-    return <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" src={src} alt={alt} {...imageProps} width={64} height={64} />;
+const AvatarInner = ({ cachePromise }: UseCachedImage) => {
+    const { alt, type: _type, ...imageProps } = use(cachePromise) ?? {};
+    return <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" alt={alt} {...imageProps} width={64} height={64} />;
 };
 
 const Avatar = ({ avatarUrl, username }: AvatarProps) => {
-    const { promise } = useImagePropsWithCache({
+    const cachedImageProps = useCachedImage({
         src: avatarUrl,
         alt: username,
         height: 64,
@@ -41,7 +45,7 @@ const Avatar = ({ avatarUrl, username }: AvatarProps) => {
     }, [username]);
     return (
         <Suspense fallback={<div className="bg-[#d9d4e6] rounded-full border-gray-400 border-4 w-16 h-16" />}>
-            <AvatarInner promise={promise} />
+            <AvatarInner { ...cachedImageProps } />
         </Suspense>
     );
 };
