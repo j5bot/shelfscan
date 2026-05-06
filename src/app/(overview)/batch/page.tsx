@@ -93,6 +93,29 @@ export default function Page() {
         </>;
     }
 
+    const segments = [
+        {
+            key: 'none',
+            name: 'New',
+            codes: statuses['none'],
+        },
+        {
+            key: 'prevowned',
+            name: 'Prev. Owned',
+            codes: statuses['prevowned'],
+        },
+        {
+            key: 'own',
+            name: 'Owned',
+            codes: statuses['own'],
+        },
+        {
+            key: 'all',
+            name: 'All',
+            codes,
+        },
+    ] as const;
+
     return <>
         <NavDrawer />
         <ScanToasts
@@ -133,27 +156,26 @@ export default function Page() {
                                     />
                                 </div>
 
-                                {/*{Object.entries(statuses)?.map(([status, statusCodes]) => {*/}
-                                {/*    if (status === 'all' || statusCodes.length === 0) {*/}
-                                {/*        return null;*/}
-                                {/*    }*/}
-                                {/*    return <Fragment key={status}>*/}
-                                {/*        <div>{status.toUpperCase()}</div>*/}
-                                {/*        <Scanlist codes={statusCodes} removeCode={removeCode} showGame={true} />*/}
-                                {/*    </Fragment>;*/}
-                                {/*})}*/}
                                 <div className="flex justify-start gap-1 pb-1">
-                                    {(['none', 'prevowned', 'own', 'all'] as PossibleStatusWithAllAndNone[])
-                                        .map(status => (<button className={`btn btn-sm rounded-md bg-gray-300 dark:bg-gray-600
-                                            text-sm uppercase cursor-pointer`}
-                                            onClick={() => shownStatus !== status && setShownStatus(status)}
-                                            key={status}
+                                    {segments
+                                        .map(({key, name, codes}) => (<button className={`btn btn-sm rounded-md ${
+                                            shownStatus === key ?
+                                                'bg-white dark:bg-gray-300'
+                                                   : 'bg-gray-300 dark:bg-gray-600'
+                                            }
+                                            text-sm cursor-pointer`}
+                                            onClick={() => shownStatus !== key && setShownStatus(key)}
+                                            key={key}
                                         >
-                                            {status} <span className="badge badge-xs text-xs">{statuses[status]?.length ?? 0}</span>
+                                            {name} <span className="badge badge-xs text-xs">
+                                                {codes?.length ?? 0}
+                                            </span>
                                         </button>
                                     ))}
                                 </div>
-                                <Scanlist codes={statuses[shownStatus] ?? []} removeCode={removeCode} showGame={true} />
+                                <Scanlist
+                                    codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
+                                    removeCode={removeCode} showGame={true} />
                                 <div className="flex justify-center gap-3 pt-4 pb-2">
                                     <button
                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
