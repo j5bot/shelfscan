@@ -72,7 +72,7 @@ export const useCachedImage = (
         placeholderSrc,
     } = params;
 
-    const normalSrc = rewriteImageSrc(src?.toString());
+    const normalSrc = rewriteImageSrc(src?.toString() ?? placeholderSrc);
     const placeholder = placeholderSrc ? rewriteImageSrc(placeholderSrc) : undefined;
 
     const normalImageId = getImageId({
@@ -83,12 +83,6 @@ export const useCachedImage = (
         quality: NORMAL_IMAGE_CACHE_QUALITY,
     } as ImageProps);
 
-    const placeholderProps = {
-        alt,
-        src: placeholder,
-        srcSet: undefined,
-        type: 'placeholder',
-    };
     const placeholderSrcPromiseRef =
         useRef<PromiseWithResolvers<ResolvedImageProps | undefined>>(
             Promise.withResolvers<ResolvedImageProps | undefined>()
