@@ -72,7 +72,7 @@ export const useCachedImage = (
         placeholderSrc,
     } = params;
 
-    const normalSrc = rewriteImageSrc(src.toString());
+    const normalSrc = rewriteImageSrc(src?.toString());
     const placeholder = placeholderSrc ? rewriteImageSrc(placeholderSrc) : undefined;
 
     const normalImageId = getImageId({
