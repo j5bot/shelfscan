@@ -62,7 +62,6 @@ const resizeBlob = async (blob: Blob): Promise<Blob> => {
 
 export const useCachedImage = (
     params: ImagePropsWithCacheParams,
-    dependencies: Array<unknown>,
 ): UseCachedImage => {
     const {
         getImageId,
@@ -72,7 +71,7 @@ export const useCachedImage = (
         placeholderSrc,
     } = params;
 
-    const normalSrc = rewriteImageSrc(src?.toString() ?? placeholderSrc);
+    const normalSrc = rewriteImageSrc(src?.toString() ?? placeholderSrc ?? '');
     const placeholder = placeholderSrc ? rewriteImageSrc(placeholderSrc) : undefined;
 
     const normalImageId = getImageId({
