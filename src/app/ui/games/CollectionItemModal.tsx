@@ -1,5 +1,3 @@
-'use client';
-
 import { useExtension } from '@/app/lib/extension/useExtension';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';

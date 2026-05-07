@@ -3,24 +3,22 @@
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
-import { useCollectionRefresh } from '@/app/lib/hooks/useCollectionRefresh';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
 import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
 import { useTitle } from '@/app/lib/hooks/useTitle';
-import { useDispatch, useSelector } from '@/app/lib/hooks';
+import { useSelector } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
-import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
-import { BggCollectionItem, BggCollectionMap } from '@/app/lib/types/bgg';
+import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { CSSProperties, forwardRef, KeyboardEvent, ReactNode, useCallback, useMemo, useState } from 'react';
+import { CSSProperties, forwardRef, KeyboardEvent, ReactNode, useMemo, useState } from 'react';
 import {
     FaArrowsRotate,
     FaBarcode,
@@ -91,39 +89,21 @@ export default function CollectionPage() {
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory } = useScanHistory();
-    const dispatch = useDispatch();
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
     const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
     const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
 
-    const onLoaded = useCallback((items: BggCollectionMap) => {
-        if (username) {
-            dispatch(updateCollectionItems({ username, items }));
-        }
-    }, [username, dispatch]);
-
-    const { state, setState } = useCollectionData({ username, onLoaded });
-
-    const reduxItems = useSelector((state: RootState) => {
-        const collection = state.bgg.collection.users[username?.toLowerCase() ?? ''];
-        return collection ? Object.values(collection.items) : undefined;
-    });
-
-    const { isRefreshing, refreshCollection, refreshError, clearRefreshError, announceText } =
-        useCollectionRefresh({
-            username,
-            onSuccess: useCallback((items: BggCollectionItem[]) => {
-                if (username) {
-                    const map = Object.fromEntries(
-                        items.map(item => [item.collectionId, item]),
-                    ) as BggCollectionMap;
-                    dispatch(updateCollectionItems({ username, items: map }));
-                }
-                setState({ status: CollectionLoadStatuses.LOADED });
-            }, [username, dispatch, setState]),
-        });
+    const {
+        reduxItems,
+        state,
+        isRefreshing,
+        refreshCollection,
+        refreshError,
+        clearRefreshError,
+        announceText,
+    } = useCollectionData({ username });
 
     const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
         activeTab === CollectionTabs.ALL_GAMES && state.status === CollectionLoadStatuses.LOADED,
@@ -161,11 +141,6 @@ export default function CollectionPage() {
     const extraFilterFn = useMemo(
         () => makeFilterFn(scannedSet, verifiedSet),
         [makeFilterFn, scannedSet, verifiedSet],
-    );
-
-    const loadedItems = useMemo(
-        () => reduxItems ?? [],
-        [reduxItems],
     );
 
     const allGamesSortFields = useMemo<
@@ -215,7 +190,7 @@ export default function CollectionPage() {
     ], [lastScannedMap]);
 
     const allGamesFilter = useFilterSort<BggCollectionItem, AllGamesSortField>({
-        items: loadedItems,
+        items: reduxItems,
         filterFn: (item, query) => item.name.toLowerCase().includes(query),
         extraFilterFn,
         sortFields: allGamesSortFields,
@@ -228,9 +203,9 @@ export default function CollectionPage() {
         () => (
                   state.status === CollectionLoadStatuses.LOADED || state.status === CollectionLoadStatuses.EMPTY
               )
-              ? new Set(loadedItems?.map(item => item.objectId) ?? [])
+              ? new Set(reduxItems?.map(item => item.objectId) ?? [])
               : undefined,
-        [state.status, loadedItems],
+        [state.status, reduxItems],
     );
 
     const { notInCollectionItems, collectionHasData } = useNotInCollection(
@@ -340,7 +315,7 @@ export default function CollectionPage() {
 
                 const renderGridItem = (item: BggCollectionItem, thumbnailSize: number) => {
                     const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
-                    let statusText = '';
+                    let statusText;
                     let cornerIcon: ReactNode;
                     switch (true) {
                         case item.statuses.fortrade:
