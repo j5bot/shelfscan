@@ -101,7 +101,7 @@ export const CollectionItemModal = ({ item, onClose }: CollectionItemModalProps)
 
     return (
         <div
-            className={`fixed inset-0 z-50 flex items-end xs:items-start sm:items-center
+            className={`fixed inset-0 z-50 flex items-center
                 xs:min-h-[100dvh]
                 overflow-y-auto   
                 justify-center bg-black/60`}
@@ -115,7 +115,7 @@ export const CollectionItemModal = ({ item, onClose }: CollectionItemModalProps)
                     relative bg-overlay
                     w-full xs:w-auto sm:w-auto sm:min-w-96 sm:max-w-lg
                     md:w-full
-                    rounded-t-2xl xs:rounded-none sm:rounded-2xl
+                    rounded-2xl xs:rounded-none sm:rounded-2xl
                     p-4 pt-8
                     xs:min-h-[100dvh]
                 `}
