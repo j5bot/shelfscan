@@ -570,8 +570,8 @@ export default function CollectionPage() {
                     </div>
                 </div>
             )}
-            <div className="page-content w-screen pt-15 flex justify-center">
-                <div className="w-11/12 p-4 pb-10 rounded-xl bg-base-100 text-sm">
+            <div className="page-content w-full pt-15 flex justify-center">
+                <div className="w-12/12 md:w-11/12 p-3 xs:p-2 md:p-4 pb-10 rounded-xl bg-base-100 text-sm">
                     <div className="flex justify-center items-center gap-3 relative">
                         <h1 className="text-3xl text-center">Collection</h1>
                         {username && (
@@ -630,7 +630,7 @@ export default function CollectionPage() {
                     <div
                         role="tablist"
                         aria-label="Collection views"
-                        className="tabs tabs-border mt-4 mb-2"
+                        className="tabs tabs-border mt-2 mb-2"
                     >
                         <button
                             id={allGamesTabId}
