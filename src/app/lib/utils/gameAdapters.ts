@@ -43,3 +43,27 @@ export const collectionVersionToVersion = (version: BggVersion): Version => ({
     language: version.languages?.join(', '),
 });
 
+export const collectionVersionToGameUPCVersion = (version: BggVersion): GameUPCBggVersion => ({
+    version_id: version.id,
+    name: version.name ?? '',
+    published: version.yearPublished ?? 0,
+    confidence: 100,
+    thumbnail_url: version.image ?? '',
+    image_url: version.image ?? '',
+    update_url: '',
+    language: version.languages?.join(', ') ?? '',
+});
+
+export const collectionItemToGameUPCInfo = (item: BggCollectionItem): GameUPCBggInfo => ({
+    id: item.objectId,
+    name: item.name,
+    confidence: 100,
+    thumbnail_url: item.thumbnail ?? '',
+    page_url: `https://boardgamegeek.com/boardgame/${item.objectId}`,
+    image_url: item.image ?? '',
+    data_url: '',
+    update_url: '',
+    version_status: 'none',
+    versions: item.version ? [collectionVersionToGameUPCVersion(item.version)] : [],
+});
+

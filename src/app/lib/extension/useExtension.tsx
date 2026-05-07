@@ -162,7 +162,14 @@ const makeAddToCollectionModeSettings = (
         },
     });
 
-export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion) => {
+type UseExtension = {
+    info?: GameUPCBggInfo;
+    version?: GameUPCBggVersion;
+    view?: 'version' | 'collection'
+}
+
+export const useExtension = (params?: UseExtension) => {
+    const { info, version, view = 'version' } = params ?? {};
     const { syncOn, userId } = useSync();
     const { dispatchExtensionMessage } = useExtensionMessaging();
 
@@ -514,7 +521,11 @@ export const useExtension = (info?: GameUPCBggInfo, version?: GameUPCBggVersion)
         </label>
     </div>;
 
-    const primaries = [
+    const primaries = view === 'collection' ? [
+        <div key={'atcb'}>{addToCollectionBlock}</div>,
+        <div key={'apb'}>{addPlayBlock}</div>,
+        <div key={'arb'}>{addRatingBlock}</div>,
+    ] : [
         addToCollectionBlock,
         addPlayBlock,
         addRatingBlock,
