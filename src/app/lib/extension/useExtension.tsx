@@ -598,7 +598,7 @@ export const useExtensionMessaging = () => {
             const collectionItem = detail.response?.collectionItem ?? detail.response;
 
             if (!(username &&
-                  detail.type.endsWith('response') &&
+                  detail.type.endsWith('-response') &&
                     collectionItem?.collid)) {
                 return;
             }
@@ -615,6 +615,7 @@ export const useExtensionMessaging = () => {
                 },
                 update: true,
                 remove: shouldRemove,
+                extend: true,
             }));
         });
         setListening(true);
