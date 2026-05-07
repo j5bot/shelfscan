@@ -74,7 +74,7 @@ export const getCommonDetailsFromObject = (object: BggRawObject) => {
     if (!object) {
         return;
     }
-    const name = object.name;
+    const name = object.objectname ?? object.name;
     const yearPublished = object.yearPublished ?? object.yearpublished;
 
     return { name, yearPublished };

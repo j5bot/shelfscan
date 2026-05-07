@@ -5,7 +5,6 @@ import { collectionItemToGame, collectionItemToGameUPCInfo } from '@/app/lib/uti
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { CollectionGameDetails } from '@/app/ui/games/CollectionGameDetails';
 import { template } from '@blakeembrey/template';
-import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import Link from 'next/link';
 import React, { SyntheticEvent, useEffect } from 'react';
 import { FaXmark } from 'react-icons/fa6';
@@ -53,8 +52,6 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
             </div>
         );
     });
-
-    const hasActions = primaryActions || (pluginActions && pluginActions.length > 0) || settings;
 
     return (
         <>

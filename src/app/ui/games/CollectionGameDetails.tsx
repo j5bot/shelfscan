@@ -1,5 +1,12 @@
+import { useExtension } from '@/app/lib/extension/useExtension';
+import { useSelector } from '@/app/lib/hooks';
+import { RootState } from '@/app/lib/redux/store';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
-import { collectionItemToGame, collectionVersionToVersion } from '@/app/lib/utils/gameAdapters';
+import {
+    collectionItemToGame,
+    collectionItemToGameUPCInfo,
+    collectionVersionToVersion
+} from '@/app/lib/utils/gameAdapters';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
 import React, { type ReactNode } from 'react';
 import { type IconType } from 'react-icons';
@@ -52,9 +59,12 @@ type CollectionGameDetailsProps = Omit<GameDetailsProps, 'view'> & {
  * information such as rating and play count.
  */
 export const CollectionGameDetails = ({ item, header, children, thumbnailSize }: CollectionGameDetailsProps) => {
+    const username = useSelector((state: RootState) => state.bgg.user?.user);
+    const liveItem = useSelector(state => username ? state.bgg.collection.users[username].items[item.collectionId] : undefined);
+
     const game = collectionItemToGame(item);
     const adaptedVersion = item.version ? collectionVersionToVersion(item.version) : undefined;
-    const computedHeader = header ?? computeCollectionHeader(item);
+    const computedHeader = header ?? computeCollectionHeader(liveItem ?? item);
 
     return <GameDetails
         view="collection"

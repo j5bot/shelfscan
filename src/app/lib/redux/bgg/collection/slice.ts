@@ -29,9 +29,10 @@ const innerUpdateCollectionItems = (
     payload: {
         items: BggCollectionMap;
         remove: boolean;
+        extend?: boolean;
     },
 ) => {
-    const { items, remove } = payload;
+    const { items, remove, extend } = payload;
     const ids = (Object.keys(items) as unknown[]) as number[];
 
     for (const id of ids) {
@@ -95,7 +96,7 @@ const innerUpdateCollectionItems = (
             if (versionId) {
                 allVersions[versionId] = conditionalAddToArray(id, allVersions[versionId]);
             }
-            state.items[id] = item;
+            state.items[id] = extend ? { ...state.items[id], ...item } : item;
         }
         state.objects.all = allObjects;
         state.versions.all = allVersions;
@@ -124,9 +125,10 @@ export const bggCollectionSlice = createSlice({
                 items: BggCollectionMap;
                 update?: boolean;
                 remove?: boolean;
+                extend?: boolean;
             }>,
         ) => {
-            const { username: user, items, update = false, remove = false } = action.payload;
+            const { username: user, items, update = false, remove = false, extend = false } = action.payload;
             const username = user.toLowerCase();
 
             if (!update) {
@@ -137,7 +139,7 @@ export const bggCollectionSlice = createSlice({
                     versions: {} as BggVersionsByStatus,
                 };
             }
-            innerUpdateCollectionItems(state.users[username], { items, remove });
+            innerUpdateCollectionItems(state.users[username], { items, remove, extend });
             const newState =
                 current<BggCollectionSliceState>(state);
 
