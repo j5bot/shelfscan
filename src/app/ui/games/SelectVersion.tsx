@@ -65,7 +65,7 @@ export const SelectVersion = () => {
 
     useTitle(`${version?.name ?? info?.name ?? id} | ShelfScan`);
 
-    const { primaryActions, secondaryActions, settings } = useExtension(info, version);
+    const { primaryActions, secondaryActions, settings } = useExtension({ info, version });
     const actionTemplates = usePlugins('link.actions');
 
     const pluginActions = actionTemplates?.game?.map(((actionPlugin, index) => {

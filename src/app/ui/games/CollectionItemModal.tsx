@@ -1,7 +1,7 @@
 import { useExtension } from '@/app/lib/extension/useExtension';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
-import { collectionItemToGame } from '@/app/lib/utils/gameAdapters';
+import { collectionItemToGame, collectionItemToGameUPCInfo } from '@/app/lib/utils/gameAdapters';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { CollectionGameDetails } from '@/app/ui/games/CollectionGameDetails';
 import { template } from '@blakeembrey/template';
@@ -25,8 +25,8 @@ type CollectionItemModalContentProps = {
 
 const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) => {
     const game = collectionItemToGame(item);
-    const fakeInfo = { id: item.objectId, name: item.name } as GameUPCBggInfo;
-    const { primaryActions, secondaryActions, settings } = useExtension(fakeInfo, undefined);
+    const info = collectionItemToGameUPCInfo(item);
+    const { primaryActions, secondaryActions, settings } = useExtension({ info, version: info.versions?.[0], view: 'collection' });
     const actionTemplates = usePlugins('link.actions');
 
     const pluginActions = actionTemplates?.game?.map((actionPlugin, index) => {
@@ -57,18 +57,28 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
     const hasActions = primaryActions || (pluginActions && pluginActions.length > 0) || settings;
 
     return (
-        <CollectionGameDetails item={item} thumbnailSize={MODAL_THUMBNAIL_SIZE}>
-            {hasActions && (
-                <div className="flex flex-wrap justify-start gap-1.5 pt-2">
-                    {primaryActions}
-                    {pluginActions}
-                    {settings}
-                </div>
-            )}
+        <>
+            <CollectionGameDetails item={item} thumbnailSize={MODAL_THUMBNAIL_SIZE}>
+                {primaryActions && (
+                    <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
+                        {primaryActions}
+                    </div>
+                )}
+                {pluginActions?.length > 0 && (
+                    <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
+                        {pluginActions}
+                    </div>
+                )}
+                {settings && (
+                    <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
+                        {settings}
+                    </div>
+                )}
+            </CollectionGameDetails>
             {secondaryActions && (
                 <div className="flex justify-center pt-2">{secondaryActions}</div>
             )}
-        </CollectionGameDetails>
+        </>
     );
 };
 
@@ -104,6 +114,7 @@ export const CollectionItemModal = ({ item, onClose }: CollectionItemModalProps)
                 className={`
                     relative bg-overlay
                     w-full xs:w-auto sm:w-auto sm:min-w-96 sm:max-w-lg
+                    md:w-full
                     rounded-t-2xl xs:rounded-none sm:rounded-2xl
                     p-4 pt-8
                     xs:min-h-[100dvh]
