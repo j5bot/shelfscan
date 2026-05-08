@@ -57,12 +57,13 @@ export const ScanItem = (props: ScanItemProps) => {
 
     const {
         name: infoName = 'Nothing Found',
+        thumbnail_url: infoThumbnailUrl,
         confidence = 0,
     } = bggInfo?.[infoIndex] ?? {};
 
     const {
         name: versionName,
-        thumbnail_url: thumbnailUrl,
+        thumbnail_url: versionThumbnailUrl,
     } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
 
     const imageUrlPromise = useImageMismatch(
@@ -70,7 +71,7 @@ export const ScanItem = (props: ScanItemProps) => {
         showGame ? undefined : bggInfo?.[infoIndex]?.versions?.[versionIndex]?.version_id,
     );
     const imageUrl = imageUrlPromise ? use(imageUrlPromise) : undefined;
-
+    const thumbnailUrl = showGame ? infoThumbnailUrl : versionThumbnailUrl;
     if (!bggInfo) {
         return;
     }
@@ -79,7 +80,7 @@ export const ScanItem = (props: ScanItemProps) => {
                  infoName
                  : infoName + (versionName ? ` (${versionName})` : '');
 
-    const imageSize = getImageSizeFromUrl(thumbnailUrl ?? '');
+    const imageSize = getImageSizeFromUrl(imageUrl ?? '');
     const thumbnailSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
     const imageContainerStyles = {
         width: `${thumbnailSize}px`,
