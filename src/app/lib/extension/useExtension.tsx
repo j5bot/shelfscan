@@ -94,6 +94,7 @@ const makeAddToCollectionModeSettings = (
             shouldShow: (statuses, update) => !(statuses?.wishlist || update),
         },
         previous: {
+            updateOnly: true,
             label: 'Had It',
             listText: 'Previously Owned',
             icon: <FaClock className="w-3.5 h-3.5 mr-0.5 shrink-0" />,
@@ -101,6 +102,7 @@ const makeAddToCollectionModeSettings = (
             shouldShow: (_, update) => update,
         },
         clear: {
+            updateOnly: true,
             label: 'Clear',
             listText: 'Clear Statuses',
             icon: <FaXmark className="w-4 h-4 shrink-0" />,
@@ -140,6 +142,7 @@ const makeAddToCollectionModeSettings = (
             }
         },
         info: {
+            updateOnly: true,
             label: 'Info',
             listText: 'Private Info',
             icon: <FaCircleInfo className="w-4 h-4 mr-0.5 shrink-0" />,
@@ -192,8 +195,11 @@ export const useExtension = (params?: UseExtension) => {
     const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
     const addToCollectionModeSettings =
         makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
-    const atcMode =
-        addToCollectionModeSettings[modes.collection ?? 'add'];
+    const allowedModes = Object.entries(addToCollectionModeSettings)
+        .map(([mode, settings]) => !update ? settings.updateOnly ? undefined : mode : mode)
+        .filter(x => x);
+    const currentMode = allowedModes.includes(modes.collection) ? modes.collection : 'add';
+    const atcMode = addToCollectionModeSettings[currentMode];
 
     useEffect(() => {
         if (collectionId) {
@@ -253,7 +259,7 @@ export const useExtension = (params?: UseExtension) => {
             return;
         }
 
-        switch (modes.collection) {
+        switch (currentMode) {
             case 'previous':
             case 'clear':
                 setDisabledModes(Object.assign({}, disabledModes, { collection: true }));
@@ -262,7 +268,7 @@ export const useExtension = (params?: UseExtension) => {
                 setDisabledModes(Object.assign({}, disabledModes, { collection: false }));
                 break;
         }
-    }, [update, modes.collection, setDisabledModes]);
+    }, [update, currentMode, setDisabledModes]);
 
     const updateModes = async (
         event: SyntheticEvent<HTMLElement>,
@@ -391,7 +397,7 @@ export const useExtension = (params?: UseExtension) => {
                     </button>
                     <div className={`collapse-content p-0 min-w-33`}>
                         <div className={`mt-1
-                            border-1 border-[#e07ca4] rounded-md
+                            border border-[#e07ca4] rounded-md
                             bg-overlay
                             text-xs leading-5.5`}>
                             <ul className="menu w-full p-0 m-0" data-collapse-key="atcb">
@@ -405,7 +411,7 @@ export const useExtension = (params?: UseExtension) => {
                                         }
 
                                         return <li key={mode} onClick={createUpdateModeFn(mode, setting)}
-                                            className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b-1 border-[#e07ca433]' : ''}`.trim()}
+                                            className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b border-[#e07ca433]' : ''}`.trim()}
                                         >{setting.listText}</li>
                                     })
                                 }
@@ -466,7 +472,7 @@ export const useExtension = (params?: UseExtension) => {
                         <FaSave className="w-6 h-6 text-[#e07ca4]" />
                     </button>}
             </div>
-            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2 xs:scale-90 relative xs:left-[-10px]">
+            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
                 <div className="rating rating-sm rating-half">
                     <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
                     {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]

@@ -54,7 +54,7 @@ export const GameDetails = ({
 
     const versionInfo = version?.name && (
         <div className={isLarge ? 'w-full mt-2' : 'grow'}>
-            <div className="border-b-1 border-b-gray-200 pb-1 flex gap-1 text-balance">
+            <div className="border-b border-b-gray-200 pb-1 flex gap-1 text-balance">
                 <span className="grow">
                     {version?.versionId ?
                      <Link href={version.pageUrl} target="_blank">{version.name}</Link> :
@@ -86,15 +86,15 @@ export const GameDetails = ({
         </div>
     );
 
-    const headerClasses = view === 'version' ? 'h-22 md:h-27' : 'h-12 md:h-12 mt-[-1rem]';
+    const headerClasses = header
+        ? view === 'version' ? 'h-22' : 'h-12 md:h-12 mt-[-1rem]'
+        : 'h-15';
 
     return <div id="game-details">
-        {header && (<>
-            <div className={`${headerClasses} flex justify-center items-center md:gap-2`}>
-                {header}
-            </div>
-        </>)}
-        <div className="pt-3 bg-overlay min-w-23">
+        <div className={`${headerClasses} flex justify-center items-center md:gap-2`}>
+            {header}
+        </div>
+        <div className={`pt-3 bg-overlay min-w-23`}>
             <h2 className="mb-1 text-center text-balance uppercase flex gap-1 justify-center items-center">
                 {game?.pageUrl ?
                  <Link className="hover:underline" href={game.pageUrl} target="_blank">{game?.name ?? game?.id}</Link> :
@@ -138,7 +138,7 @@ export const GameDetails = ({
                             size={thumbnailSize}
                         />
                     </div>
-                    <div className="flex flex-col gap-1 w-full grow xs:max-w-[185px] lg:max-w-2/3">
+                    <div className="flex flex-col gap-1 w-full grow xs:max-w-46.25 lg:max-w-2/3">
                         {versionInfo}
                         {view === 'version' && children && <div className={`grow max-w-60 pb-0.5 ${version ? '' : 'pt-1'}`}>
                             {game?.id && children}

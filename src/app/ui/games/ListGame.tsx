@@ -80,7 +80,7 @@ export const ListGame = (props: ListGameProps) => {
             <div className="flex justify-center items-center gap-1.5">
                 {cornerIcon}
                 <div
-                    className="w-fit overflow-ellipsis overflow-hidden text-nowrap"
+                    className="w-fit h-5.5 overflow-ellipsis overflow-hidden text-nowrap"
                     title={name}
                 >
                     {name}
