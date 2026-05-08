@@ -2,6 +2,7 @@
 
 import { useExtensionMessaging } from '@/app/lib/extension/useExtension';
 import { useSync } from '@/app/lib/extension/useSync';
+import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { useCallback } from 'react';
 
@@ -13,7 +14,8 @@ export const useBatchSync = () => {
 
     const addGameToCollection = useCallback((
         info: GameUPCBggInfo,
-        collectionId: number | undefined,
+        versionId?: number,
+        collectionId?: number,
     ) => {
         if (!userId) {
             return Promise.resolve(undefined);
@@ -24,6 +26,7 @@ export const useBatchSync = () => {
             collectionId,
             name: info.name,
             gameId: info.id,
+            versionId: versionId,
             formValues: {},
         });
     }, [userId]);

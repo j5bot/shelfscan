@@ -1,7 +1,7 @@
 import { enqueueFetch } from '@/app/lib/utils/fetchQueue';
 import { getImageDataFromCache as getFromCache, hasCachedImage } from '@/app/lib/database/cacheDatabase';
 import { ImageProps } from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 const MAX_NORMAL_IMAGE_SIZE = 400;
 const NORMAL_IMAGE_QUALITY = 0.9;
@@ -82,14 +82,12 @@ export const useCachedImage = (
         quality: NORMAL_IMAGE_CACHE_QUALITY,
     } as ImageProps);
 
-    const placeholderSrcPromiseRef =
-        useRef<PromiseWithResolvers<ResolvedImageProps | undefined>>(
-            Promise.withResolvers<ResolvedImageProps | undefined>()
-        );
-    const cachedSrcPromiseRef =
-        useRef<PromiseWithResolvers<ResolvedImageProps | undefined>>(
-            Promise.withResolvers<ResolvedImageProps | undefined>()
-        );
+    const placeholderSrcPromise =
+        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(), [normalImageId]);
+    const cachedSrcPromise =
+        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(), [normalImageId]);
+
+    const urlRef = useRef<string | undefined>(undefined);
 
     /* Functions for Async Portion */
     const checkCache = async (id: string) => {
@@ -146,18 +144,28 @@ export const useCachedImage = (
     };
 
     useEffect(() => {
-        let url: string;
+        let active = true;
 
         (async () => {
             const isCached = await checkCache(normalImageId);
+            if (!active) {
+                return;
+            }
             if (isCached) {
                 const blob = await getCachedBlob(normalImageId);
+                if (!active) {
+                    return;
+                }
                 if (!blob) {
                     // hmmm....
                 }
-                url = URL.createObjectURL(blob!);
-                placeholderSrcPromiseRef.current.resolve(undefined);
-                cachedSrcPromiseRef.current.resolve({
+                const url = URL.createObjectURL(blob!);
+                if (urlRef.current) {
+                    URL.revokeObjectURL(urlRef.current);
+                }
+                urlRef.current = url;
+                placeholderSrcPromise.resolve(undefined);
+                cachedSrcPromise.resolve({
                     alt,
                     src: url,
                     srcSet: undefined,
@@ -167,7 +175,7 @@ export const useCachedImage = (
             }
 
             // since we're uncached, we can resolve the placeholder promise
-            placeholderSrcPromiseRef.current.resolve({
+            placeholderSrcPromise.resolve({
                 alt,
                 src: placeholder,
                 srcSet: undefined,
@@ -176,8 +184,11 @@ export const useCachedImage = (
 
             queueFetchBlob()
                 .then(blob => {
+                    if (!active) {
+                        return;
+                    }
                     if (!blob) {
-                        cachedSrcPromiseRef.current.resolve({
+                        cachedSrcPromise.resolve({
                             alt,
                             src: placeholder,
                             srcSet: undefined,
@@ -187,9 +198,16 @@ export const useCachedImage = (
                     }
                     return resizeRawBlob(blob)
                         .then(blob => {
+                            if (!active) {
+                                return;
+                            }
                             cacheBlob(normalImageId, blob);
-                            url = URL.createObjectURL(blob);
-                            cachedSrcPromiseRef.current.resolve({
+                            const url = URL.createObjectURL(blob);
+                            if (urlRef.current) {
+                                URL.revokeObjectURL(urlRef.current);
+                            }
+                            urlRef.current = url;
+                            cachedSrcPromise.resolve({
                                 alt,
                                 src: url,
                                 srcSet: undefined,
@@ -200,14 +218,16 @@ export const useCachedImage = (
         })();
 
         return () => {
-            if (url) {
-                URL.revokeObjectURL(url);
+            active = false;
+            if (urlRef.current) {
+                URL.revokeObjectURL(urlRef.current);
+                urlRef.current = undefined;
             }
         };
     }, [normalImageId]);
 
     return {
-        placeholderPromise: placeholderSrcPromiseRef.current.promise,
-        cachePromise: cachedSrcPromiseRef.current.promise,
+        placeholderPromise: placeholderSrcPromise.promise,
+        cachePromise: cachedSrcPromise.promise,
     };
 };

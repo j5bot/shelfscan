@@ -1,21 +1,24 @@
 import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
+import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useStore } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { GameUPCBggInfo, GameUPCData } from 'gameupc-hooks/types';
+import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import React, { useCallback, useState } from 'react';
 import { FaCloudArrowUp } from 'react-icons/fa6';
 
 type BatchAddButtonProps = {
     codes: string[];
-    addGameToCollection: (info: GameUPCBggInfo, collectionId: number | undefined) => void | Promise<DocumentMessageResponseDetail | undefined>;
+    addGameToCollection: (info: GameUPCBggInfo, versionId?: number, collectionId?: number) => void | Promise<DocumentMessageResponseDetail | undefined>;
     onComplete?: (addedCodes: string[]) => void;
 };
 
 export const BatchAddButton = (props: BatchAddButtonProps) => {
     const { gameDataMap } = useGameUPCData();
+    const { gameSelections } = useGameSelections();
+
     const { codes, addGameToCollection, onComplete } = props;
     const [isAdding, setIsAdding] = useState(false);
 
@@ -34,14 +37,17 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
 
         const state = store.getState();
         const promises = readyGames.map(code => {
-            const info = gameDataMap[code]?.bgg_info?.[0];
+            const [infoId, versionId] = gameSelections[code] ?? [];
+            const infoIndex = gameDataMap[code]?.bgg_info
+                                  ?.findIndex(info => info.id === infoId) ?? 0;
+            const info = gameDataMap[code]?.bgg_info?.[infoIndex];
             if (!info) {
                 return;
             }
             const { collectionId } =
                 getCollectionInfoByObjectId([state, info.id]);
 
-            return addGameToCollection(info, collectionId)?.then(
+            return addGameToCollection(info, versionId, collectionId)?.then(
                 success => success ? `${info.name} (${code})` : undefined
             );
         }).filter(Boolean);

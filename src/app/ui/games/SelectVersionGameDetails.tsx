@@ -2,7 +2,6 @@ import { useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { gameUPCInfoToGame, gameUPCVersionToVersion } from '@/app/lib/utils/gameAdapters';
 import { GameDetails, type GameDetailsProps } from '@/app/ui/games/GameDetails';
 import { useSearchParams } from 'next/navigation';
-import React, { type ReactNode } from 'react';
 
 type SelectVersionGameDetailsProps = Omit<GameDetailsProps, 'view'>;
 
@@ -12,11 +11,12 @@ type SelectVersionGameDetailsProps = Omit<GameDetailsProps, 'view'>;
  * types, and injects search functionality.
  */
 export const SelectVersionGameDetails = ({ header, children }: SelectVersionGameDetailsProps) => {
-    const { defaultImageUrl, info, infos, searchGameUPC, version } = useSelectVersionContext();
+    const { defaultImageUrl, id, info, infos, searchGameUPC, version } = useSelectVersionContext();
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('q');
 
     const game = info ? gameUPCInfoToGame(info) : undefined;
+    const defaultGame = !game && infos?.[0] ? gameUPCInfoToGame(infos[0]) : undefined;
     const adaptedVersion = version ? gameUPCVersionToVersion(version) : undefined;
 
     const searchProps: GameDetailsProps['search'] = {
@@ -26,8 +26,10 @@ export const SelectVersionGameDetails = ({ header, children }: SelectVersionGame
     };
 
     return <GameDetails
+        code={id}
         view="version"
         game={game}
+        defaultGame={defaultGame}
         version={adaptedVersion}
         defaultImageUrl={defaultImageUrl}
         search={searchProps}
