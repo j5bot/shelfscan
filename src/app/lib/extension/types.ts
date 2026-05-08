@@ -21,6 +21,7 @@ export type ModeSettingFormProps = {
 };
 
 export type CollectionModeSetting = {
+    updateOnly?: boolean;
     label: ReactNode;
     listText?: string;
     icon: ReactNode;

@@ -15,7 +15,7 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import Link from 'next/link';
-import React, { Suspense, useCallback, useRef, useState } from 'react';
+import React, { CSSProperties, Suspense, useCallback, useRef, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 
 export default function Page() {
@@ -148,34 +148,53 @@ export default function Page() {
                     <div className="flex flex-col justify-center h-full w-full">
                         {codes.length > 0
                             ? <>
-                                <div className="pb-3 pt-1">
+                                <div className="pb-2 pt-1">
                                     <BatchAddButton
-                                        codes={statuses[shownStatus] ?? []}
+                                        codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
                                         addGameToCollection={addGameToCollection}
                                         onComplete={onComplete}
                                     />
                                 </div>
 
-                                <div className="flex justify-start gap-1 pb-1">
+                                <div
+                                    role="tablist"
+                                    aria-label="Collection views"
+                                    className="tabs tabs-border mb-2"
+                                    style={{'--tab-height': '28px'} as CSSProperties}
+                                >
                                     {segments
-                                        .map(({key, name, codes}) => (<button className={`btn btn-sm rounded-md ${
-                                            shownStatus === key ?
-                                                'bg-white dark:bg-gray-300'
-                                                   : 'bg-gray-300 dark:bg-gray-600'
-                                            }
-                                            text-sm cursor-pointer`}
-                                            onClick={() => shownStatus !== key && setShownStatus(key)}
-                                            key={key}
-                                        >
-                                            {name} <span className="badge badge-xs text-xs">
-                                                {codes?.length ?? 0}
-                                            </span>
-                                        </button>
-                                    ))}
+                                        .map(({key, name, codes}) => {
+                                            return <button
+                                                id={`${key}-tab`}
+                                                role="tab"
+                                                aria-selected={shownStatus === key}
+                                                aria-controls={`${key}-panel`}
+                                                tabIndex={shownStatus === key ? 0 : -1}
+                                                className={`tab${shownStatus === key ? ' tab-active' : ''}
+                                                text-xs cursor-pointer pb-1`}
+                                                onClick={() => shownStatus !== key && setShownStatus(
+                                                   key)}
+                                                key={key}
+                                            >
+                                                {name}
+                                                <span className="badge badge-xs text-xs p-0.5 ml-0.5" style={{scale: 0.85}}>
+                                                    {codes?.length ?? 0}
+                                                </span>
+                                            </button>;
+                                        })}
                                 </div>
-                                <Scanlist
-                                    codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
-                                    removeCode={removeCode} showGame={true} />
+
+                                <section
+                                    id={`${shownStatus}-panel`}
+                                    role="tabpanel"
+                                    aria-labelledby={`${shownStatus}-tab`}
+                                    className="w-full"
+                                >
+                                    <Scanlist
+                                        codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
+                                        removeCode={removeCode} showGame={true} />
+                                </section>
+
                                 <div className="flex justify-center gap-3 pt-4 pb-2">
                                     <button
                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
