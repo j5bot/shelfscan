@@ -363,7 +363,7 @@ export const useExtension = (params?: UseExtension) => {
 
     const addToCollectionBlock = atcMode && syncOn && userId && (
         <Fragment key="atcb">
-            <div data-collapse="atcb" className={`relative z-9 shrink-0 ${atcMode.width} mr-0.5`}>
+            <div data-collapse="atcb" className={`relative z-[9] shrink-0 ${atcMode.width} mr-0.5`}>
                 <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${atcMode.width}`}></div>
                 <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${atcMode.width}`}>
                     <input type="checkbox" className="xs:h-7 h-8" style={{

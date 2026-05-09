@@ -72,7 +72,7 @@ type ThumbnailBoxInnerProps = {
     styles?: CSSProperties;
 };
 
-const ThumbnailBoxImage = ({ promise, className }: { promise: any | Promise<any>; className?: string })=> {
+const ThumbnailBoxImage = ({ promise, className }: { promise: ResolvedImageProps | undefined | Promise<ResolvedImageProps | undefined>; className?: string })=> {
     const resolved = promise instanceof Promise ? use(promise) : promise;
 
     if (!resolved) {

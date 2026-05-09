@@ -54,7 +54,9 @@ const resizeBlob = async (blob: Blob): Promise<Blob> => {
     const canvas = await reduce.toCanvas(blob, { max: MAX_NORMAL_IMAGE_SIZE });
     return new Promise<Blob>((resolve, reject) => {
         canvas.toBlob(
-            (b: Blob | null) => (b ? resolve(b) : reject(new Error('canvas.toBlob returned null'))),
+            (b: Blob | null) => (b ? resolve(b) : reject(
+                new Error('canvas.toBlob returned null')
+            )),
             'image/jpeg',
             NORMAL_IMAGE_QUALITY,
         );
@@ -84,9 +86,11 @@ export const useCachedImage = (
     } as ImageProps);
 
     const placeholderSrcPromise =
-        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(), [normalImageId]);
+        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(),
+            [normalSrc, placeholder, normalImageId]);
     const cachedSrcPromise =
-        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(), [normalImageId]);
+        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(),
+            [normalSrc, placeholder, normalImageId]);
 
     const urlRef = useRef<string | undefined>(undefined);
 
@@ -145,6 +149,10 @@ export const useCachedImage = (
     };
 
     useEffect(() => {
+        if (!normalSrc || normalSrc.length === 0) {
+            return;
+        }
+
         let active = true;
 
         (async () => {
@@ -225,7 +233,7 @@ export const useCachedImage = (
                 urlRef.current = undefined;
             }
         };
-    }, [src, placeholder, normalImageId]);
+    }, [normalSrc, placeholder, normalImageId]);
 
     return {
         imageId: normalImageId,
