@@ -163,7 +163,7 @@ type CollectionControlsProps<F extends string> = {
     stickyTop: number;
 };
 
-const STICKY_CLASS = `sticky z-10 bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
+const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
 
 export const CollectionControls = <F extends string>({
     sortFields,

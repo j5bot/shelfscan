@@ -3,7 +3,12 @@ import { bggGetImageUrl } from '@/app/lib/services/bgg/service';
 import { getPageDOM } from '@/app/lib/utils/xml';
 import { useEffect, useRef, useState, useTransition } from 'react';
 
-export const useImageMismatch = (infoId?: number, versionId?: number): Promise<string> | null => {
+export const useImageMismatch = (
+    infoMismatch: boolean,
+    versionMismatch: boolean,
+    infoId?: number,
+    versionId?: number
+): Promise<string> | null => {
     const [isMapping, startMapping] = useTransition();
 
     const promiseRef = useRef<Promise<string>>(null);
@@ -12,6 +17,13 @@ export const useImageMismatch = (infoId?: number, versionId?: number): Promise<s
         if (isMapping || !infoId) {
             return;
         }
+        if (!versionId && !infoMismatch) {
+            return;
+        }
+        if (versionId && !versionMismatch) {
+            return;
+        }
+
         startMapping(() => {
             promiseRef.current = new Promise<string>(async resolve => {
                 const xml = await bggGetThingsXml([infoId]);
@@ -19,7 +31,11 @@ export const useImageMismatch = (infoId?: number, versionId?: number): Promise<s
                 resolve(bggGetImageUrl(doc, infoId, versionId));
             });
         });
-    }, [infoId, versionId]);
+
+        return () => {
+            promiseRef.current = null;
+        };
+    }, [infoMismatch, versionMismatch, infoId, versionId]);
 
     return promiseRef.current;
 };
