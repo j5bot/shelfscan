@@ -63,7 +63,7 @@ export const SelectVersion = () => {
         versionNameClickHandler,
     } = selectVersionContext;
 
-    useTitle(`${version?.name ?? info?.name ?? id} | ShelfScan`);
+    useTitle(`${info?.name ?? id} | ShelfScan`);
 
     const { primaryActions, secondaryActions, settings } = useExtension({ info, version });
     const actionTemplates = usePlugins('link.actions');

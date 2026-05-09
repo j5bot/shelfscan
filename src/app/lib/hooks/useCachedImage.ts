@@ -21,6 +21,7 @@ export type ResolvedImageProps = {
 };
 
 export type UseCachedImage = {
+    imageId: string;
     placeholderPromise: Promise<ResolvedImageProps | undefined>;
     cachePromise: Promise<ResolvedImageProps | undefined>;
 };
@@ -224,9 +225,10 @@ export const useCachedImage = (
                 urlRef.current = undefined;
             }
         };
-    }, [normalImageId]);
+    }, [src, placeholder, normalImageId]);
 
     return {
+        imageId: normalImageId,
         placeholderPromise: placeholderSrcPromise.promise,
         cachePromise: cachedSrcPromise.promise,
     };
