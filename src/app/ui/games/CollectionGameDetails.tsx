@@ -62,7 +62,7 @@ export const CollectionGameDetails = ({ item, header, children, thumbnailSize }:
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const liveItem = useSelector(state => username ? state.bgg.collection.users[username].items[item.collectionId] : undefined);
 
-    const game = collectionItemToGame(item);
+    const game = collectionItemToGame(liveItem ?? item);
     const adaptedVersion = item.version ? collectionVersionToVersion(item.version) : undefined;
     const computedHeader = header ?? computeCollectionHeader(liveItem ?? item);
 
