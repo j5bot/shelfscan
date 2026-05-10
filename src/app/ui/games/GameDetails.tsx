@@ -95,8 +95,6 @@ export const GameDetails = ({
         ? view === 'version' ? 'h-22' : 'h-12 md:h-12 mt-[-1rem]'
         : 'h-15';
 
-    const displayGame = game ?? defaultGame;
-
     return <div id="game-details">
         <div className={`${headerClasses} flex justify-center items-center md:gap-2`}>
             {header}

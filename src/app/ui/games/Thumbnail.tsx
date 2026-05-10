@@ -103,7 +103,7 @@ const ThumbnailBoxInner = ({ src, placeholderPromise, cachePromise, size, styles
                     rounded-md overflow-clip
                     focus:overflow-visible ${scalePercent}
                     hover:overflow-visible
-                    z-10
+                    z-[9] hover:z-10 focus:z-10
                 `}
                 style={{
                     width: `${size}px`,
