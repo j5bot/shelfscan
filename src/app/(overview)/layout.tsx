@@ -3,7 +3,7 @@
 import { CodesProvider } from '@/app/lib/CodesProvider';
 import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
-import { ExtensionMessaging } from '@/app/lib/extension/useExtension';
+import { ExtensionMessagingProvider } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { ScanHistoryProvider } from '@/app/lib/ScanHistoryProvider';
@@ -25,27 +25,28 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <GameUPCDataProvider>
                                 <ScanHistoryProvider>
                                     <NextStepProvider>
-                                        <Suspense><ExtensionMessaging /></Suspense>
-                                        <div style={{
-                                            minHeight: 'calc(100dvh - 7.5em)'
-                                        }}>
-                                            {children}
-                                        </div>
-                                        <div className="h-[7.5em] flex flex-col justify-end">
-                                            <Suspense><GetExtensionLink /></Suspense>
-                                            <div className="flex pb-2 justify-center items-center w-full">
-                                                <Link href={'https://boardgamegeek.com'} target="_blank">
-                                                    <PoweredByBGGLogo
-                                                        width={114}
-                                                        height={25}
-                                                        style={{
-                                                            '--bgg-head-fill': 'currentColor',
-                                                            '--bgg-text-fill': 'currentColor',
-                                                        } as CSSProperties}
-                                                    />
-                                                </Link>
+                                        <ExtensionMessagingProvider>
+                                            <div style={{
+                                                minHeight: 'calc(100dvh - 7.5em)'
+                                            }}>
+                                                {children}
                                             </div>
-                                        </div>
+                                            <div className="h-[7.5em] flex flex-col justify-end">
+                                                <Suspense><GetExtensionLink /></Suspense>
+                                                <div className="flex pb-2 justify-center items-center w-full">
+                                                    <Link href={'https://boardgamegeek.com'} target="_blank">
+                                                        <PoweredByBGGLogo
+                                                            width={114}
+                                                            height={25}
+                                                            style={{
+                                                                '--bgg-head-fill': 'currentColor',
+                                                                '--bgg-text-fill': 'currentColor',
+                                                            } as CSSProperties}
+                                                        />
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </ExtensionMessagingProvider>
                                     </NextStepProvider>
                                 </ScanHistoryProvider>
                             </GameUPCDataProvider>

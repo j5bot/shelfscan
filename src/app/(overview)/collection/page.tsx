@@ -1,5 +1,6 @@
 'use client';
 
+import { useSync } from '@/app/lib/extension/useSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
@@ -27,7 +28,7 @@ import {
     FaEye,
     FaHeart,
     FaList,
-    FaRecycle,
+    FaRecycle, FaStar,
     FaTableCells,
 } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
@@ -89,6 +90,12 @@ export default function CollectionPage() {
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory } = useScanHistory();
+    const { syncOn } = useSync();
+    const [batchRate, setBatchRate] = useState<boolean>(false);
+
+    const modeMap = useMemo(() => ({
+        batchRating: syncOn && batchRate,
+    }), [syncOn, batchRate]);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -337,6 +344,8 @@ export default function CollectionPage() {
                     }
                     return (
                         <ListGame
+                            collectionId={item.collectionId!}
+                            modeMap={modeMap}
                             keyValue={item.collectionId.toString()}
                             name={item.name}
                             thumbnailUrl={thumbnailUrl}
@@ -584,6 +593,16 @@ export default function CollectionPage() {
                             >
                                 <FaArrowsRotate
                                     className={isRefreshing ? 'animate-spin' : ''}
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        )}
+                        {syncOn && (
+                            <button
+                                className="btn btn-sm rounded-md"
+                                onClick={() => setBatchRate(!batchRate)}
+                            >
+                                <FaStar
                                     aria-hidden="true"
                                 />
                             </button>

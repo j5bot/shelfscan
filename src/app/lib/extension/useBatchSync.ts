@@ -1,8 +1,5 @@
-'use client';
-
-import { useExtensionMessaging } from '@/app/lib/extension/useExtension';
+import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
-import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { useCallback } from 'react';
 
