@@ -33,6 +33,8 @@ type UseCollectionDataResult = {
     refreshCollection: () => void;
 };
 
+const emptyCollectionArray: BggCollectionItem[] = [];
+
 export const useCollectionData = ({ username }: UseCollectionDataOptions): UseCollectionDataResult => {
     const dispatch = useDispatch();
 
@@ -46,9 +48,9 @@ export const useCollectionData = ({ username }: UseCollectionDataOptions): UseCo
     const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const reduxItems = useSelector((state: RootState) => {
-        const collection = state.bgg.collection.users[username?.toLowerCase() ?? ''];
-        return collection ? Object.values(collection.items) : undefined;
-    }) ?? [];
+        const items = state.bgg.collection.users[username?.toLowerCase() ?? '']?.items;
+        return items ? Object.values(items) : emptyCollectionArray;
+    });
 
     const loadCollection = useCallback(async () => {
         setState({ status: CollectionLoadStatuses.LOADING });

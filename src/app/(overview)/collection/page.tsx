@@ -93,14 +93,14 @@ export default function CollectionPage() {
     const { syncOn } = useSync();
     const [batchRate, setBatchRate] = useState<boolean>(false);
 
-    const modeMap = useMemo(() => ({
-        batchRating: syncOn && batchRate,
-    }), [syncOn, batchRate]);
-
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
     const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
     const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
+
+    const modeMap = useMemo(() => ({
+        batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
+    }), [syncOn, batchRate, view]);
 
     const {
         reduxItems,
@@ -583,31 +583,32 @@ export default function CollectionPage() {
                 <div className="w-12/12 md:w-11/12 p-3 xs:p-2 md:p-4 pb-10 rounded-xl bg-base-100 text-sm">
                     <div className="flex justify-center items-center gap-3 relative">
                         <h1 className="text-3xl text-center">Collection</h1>
-                        {username && (
-                            <button
-                                className="btn btn-sm rounded-md"
-                                onClick={() => refreshCollection()}
-                                disabled={isRefreshing}
-                                aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
-                                title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
-                            >
-                                <FaArrowsRotate
-                                    className={isRefreshing ? 'animate-spin' : ''}
-                                    aria-hidden="true"
-                                />
-                            </button>
-                        )}
-                        {syncOn && (
-                            <button
-                                className="btn btn-sm rounded-md"
-                                onClick={() => setBatchRate(!batchRate)}
-                            >
-                                <FaStar
-                                    aria-hidden="true"
-                                />
-                            </button>
-                        )}
-
+                        <div className="flex justify-start gap-1">
+                            {username && (
+                                <button
+                                    className="btn btn-sm rounded-md"
+                                    onClick={() => refreshCollection()}
+                                    disabled={isRefreshing}
+                                    aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
+                                    title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
+                                >
+                                    <FaArrowsRotate
+                                        className={isRefreshing ? 'animate-spin' : ''}
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            )}
+                            {view === CollectionViews.LARGE_GRID && syncOn && (
+                                <button
+                                    className="btn btn-sm rounded-md"
+                                    onClick={() => setBatchRate(!batchRate)}
+                                >
+                                    <FaStar
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            )}
+                        </div>
                         <div
                             className="absolute top-1 right-0 flex items-center gap-0.5"
                             role="group"

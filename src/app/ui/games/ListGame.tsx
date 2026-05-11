@@ -48,8 +48,6 @@ export const ListGame = memo((props: ListGameProps) => {
         modeMap = emptyModeMap,
     } = props;
 
-    console.log('list game', collectionId);
-
     const ratingForm = collectionId && modeMap.batchRating ? <RatingForm
         collectionId={collectionId}
     /> : null;

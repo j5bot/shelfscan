@@ -44,8 +44,8 @@ export const RatingForm = memo(({
 
     const bgClassName = getBgClassName(newRating);
 
-    return (<form name={`rating-form-${collectionId ?? gameId ?? 'unknown'}`}
-                  className="pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
+    return (<form name={`rating-form-${collectionId ?? item.objectId ?? 'unknown'}`}
+                  className="flex justify-center pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
         <div className="rating rating-sm rating-half">
             <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
             {RATINGS.map((rating, index) => (

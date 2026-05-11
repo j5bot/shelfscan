@@ -1,5 +1,3 @@
-'use client';
-
 import {
     DocumentMessageDetail,
     DocumentMessageResponseDetail,
@@ -43,6 +41,10 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
 
         const matchingMessages = messagesRef.current[timestamp!];
 
+        const timestampedDetail: Partial<DocumentMessageDetail> = { timestamp, ...detail };
+        const ce = new CustomEvent('shelfscan-sync', { detail: timestampedDetail });
+        document.dispatchEvent(ce);
+
         if (matchingMessages) {
             const sourceMessage = matchingMessages[0];
 
@@ -51,10 +53,6 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
                 return promisesRef.current[timestamp!].resolve(detail as DocumentMessageResponseDetail);
             }
         }
-
-        const timestampedDetail: Partial<DocumentMessageDetail> = { timestamp, ...detail };
-        const ce = new CustomEvent('shelfscan-sync', { detail: timestampedDetail });
-        document.dispatchEvent(ce);
 
         if (!matchingMessages) {
             messagesRef.current[timestamp!] = [timestampedDetail as DocumentMessageDetail, undefined];
@@ -68,6 +66,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
         if (!username || listeningRef.current) {
             return;
         }
+
         window.addEventListener('message', event => {
             if (event.origin !== 'https://boardgamegeek.com') {
                 return;

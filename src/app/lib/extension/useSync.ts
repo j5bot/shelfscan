@@ -1,9 +1,9 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 export const useSync = () => {
-    const [syncOn, setSyncOn] = useState<boolean>(false);
+    const syncOnRef = useRef<boolean>(false);
 
     const userId = useSelector(
         (state: RootState) => state.bgg.user?.id,
@@ -16,14 +16,14 @@ export const useSync = () => {
     useLayoutEffect(() => {
         const newValue = document.cookie.includes('shelfScanExtension') ||
             document.body.getAttribute('data-shelfscan-sync') === 'on';
-        if (syncOn === newValue) {
+        if (syncOnRef.current === newValue) {
             return;
         }
-        setSyncOn(newValue);
-    });
+        syncOnRef.current = newValue;
+    }, []);
 
     return {
-        syncOn,
+        syncOn: syncOnRef.current,
         userId,
         currentUsername,
     };
