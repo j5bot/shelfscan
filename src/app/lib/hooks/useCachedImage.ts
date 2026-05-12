@@ -1,7 +1,7 @@
 import { enqueueFetch } from '@/app/lib/utils/fetchQueue';
 import { getImageDataFromCache as getFromCache, hasCachedImage } from '@/app/lib/database/cacheDatabase';
 import { ImageProps } from 'next/image';
-import { useEffect, useMemo, useRef } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 
 const MAX_NORMAL_IMAGE_SIZE = 400;
 const NORMAL_IMAGE_QUALITY = 0.9;
@@ -148,7 +148,7 @@ export const useCachedImage = (
         return blob;
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (!normalSrc || normalSrc.length === 0) {
             return;
         }
