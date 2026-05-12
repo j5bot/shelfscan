@@ -36,6 +36,9 @@ export default function RootLayout({
   return (
       <html lang="en">
       <head>
+          {process.env.NODE_ENV === "development" && (
+              <Script src="https://unpkg.com/react-scan/dist/auto.global.js" crossOrigin="anonymous" strategy="beforeInteractive" />
+          )}
           <title>ShelfScan</title>
           <link rel="icon" type="image/png" href="/favicons/favicon-96x96.png" sizes="96x96" />
           <link rel="icon" type="image/svg+xml" href="/favicons/favicon.svg" />
@@ -47,11 +50,11 @@ export default function RootLayout({
       </head>
       <body className={`
           w-full min-h-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased
-          bg-[image:url(/images/flair-bg.png)]
-          md:bg-[image:url(/images/flair-bg-md.png)]
-          lg:bg-[image:url(/images/flair-bg-lg.png)]
-          xl:bg-[image:url(/images/flair-bg-xl.png)]
-          2xl:bg-[image:url(/images/flair-bg-2xl.png)]
+          bg-[url(/images/flair-bg.png)]
+          md:bg-[url(/images/flair-bg-md.png)]
+          lg:bg-[url(/images/flair-bg-lg.png)]
+          xl:bg-[url(/images/flair-bg-xl.png)]
+          2xl:bg-[url(/images/flair-bg-2xl.png)]
           bg-repeat bg-contain
           `}>
               <div id="shelfscan-logo" className="absolute flex flex-row gap-4 top-3 left-2 z-40">

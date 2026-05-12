@@ -1,3 +1,5 @@
+import { useSelector } from '@/app/lib/hooks';
+import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
@@ -28,13 +30,13 @@ type ListGameRowBaseProps = {
 };
 
 type ListGameRowCollectionProps = ListGameRowBaseProps & {
-    item: BggCollectionItem;
+    collectionId: number;
     name?: never;
     thumbnailUrl?: never;
 };
 
 type ListGameRowSimpleProps = ListGameRowBaseProps & {
-    item?: never;
+    collectionId?: never;
     name: string;
     thumbnailUrl?: string;
 };
@@ -53,7 +55,7 @@ const StatusBadge = ({ icon, label, active }: { icon: ReactNode; label: string; 
     ) : null;
 
 export const ListGameRow = ({
-    item,
+    collectionId,
     name,
     thumbnailUrl: thumbnailUrlProp,
     detailUrl,
@@ -64,6 +66,13 @@ export const ListGameRow = ({
     extraBadges,
     onClick,
 }: ListGameRowProps) => {
+    const item = useSelector((state: RootState) => {
+        const username = state.bgg.user.user?.toLowerCase() ?? '';
+        return collectionId
+               ? state.bgg.collection.users[username].items[collectionId]
+               : undefined;
+    });
+
     const resolvedName = item ? item.name : name;
     const resolvedThumbnailUrl = item
         ? (item.version?.image ?? item.image ?? item.thumbnail ?? '')
@@ -72,7 +81,7 @@ export const ListGameRow = ({
 
     const thumbnailElement = (
         <ThumbnailBox
-            alt={resolvedName}
+            alt={resolvedName ?? resolvedThumbnailUrl}
             url={resolvedThumbnailUrl}
             size={LIST_THUMBNAIL_SIZE}
         />
