@@ -100,7 +100,6 @@ export const CollectionItemModal = ({ item, onClose }: CollectionItemModalProps)
         <div
             className={`fixed inset-0 z-50 flex items-center
                 xs:min-h-[100dvh]
-                overflow-y-auto   
                 justify-center bg-black/60`}
             onClick={onClose}
             aria-modal="true"
@@ -115,6 +114,8 @@ export const CollectionItemModal = ({ item, onClose }: CollectionItemModalProps)
                     rounded-2xl xs:rounded-none sm:rounded-2xl
                     p-4 pt-8
                     xs:min-h-[100dvh]
+                    max-h-[100dvh]
+                    overflow-y-auto
                 `}
                 onClick={e => e.stopPropagation()}
             >

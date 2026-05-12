@@ -305,7 +305,7 @@ export const AllGamesContent = memo(({
                 equal = equal && prevProps.displayItems === nextProps.displayItems || (
                     nextProps.displayItems
                         .every((item, index) =>
-                            item.collectionId === prevProps.displayItems[index].collectionId)
+                            item.collectionId === prevProps.displayItems[index]?.collectionId)
                 );
                 break;
             default:
