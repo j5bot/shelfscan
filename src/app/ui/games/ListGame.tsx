@@ -1,8 +1,11 @@
+import { ComponentModeMap } from '@/app/lib/types/modes';
+import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties, memo, ReactNode } from 'react';
 
 export type ListGameProps = {
+    collectionId?: number;
     bottomLeftIcon?: ReactNode;
     cornerIcon?: ReactNode;
     detailUrl?: string;
@@ -18,10 +21,14 @@ export type ListGameProps = {
     imageUrl?: string;
     /** When provided, clicking the thumbnail opens an action (e.g. a modal) instead of navigating. */
     onClick?: () => void;
+    modeMap?: ComponentModeMap;
 };
 
-export const ListGame = (props: ListGameProps) => {
+const emptyModeMap = {} as ComponentModeMap;
+
+export const ListGame = memo((props: ListGameProps) => {
     const {
+        collectionId,
         bottomLeftIcon,
         cornerIcon,
         detailUrl,
@@ -36,7 +43,12 @@ export const ListGame = (props: ListGameProps) => {
         thumbnailUrl,
         imageUrl,
         onClick,
+        modeMap = emptyModeMap,
     } = props;
+
+    const ratingForm = collectionId && modeMap.batchRating ? <RatingForm
+        collectionId={collectionId}
+    /> : null;
 
     const thumbnail = <ThumbnailBox
         alt={name}
@@ -87,6 +99,8 @@ export const ListGame = (props: ListGameProps) => {
                 </div>
             </div>
             {thumbnailContent}
+            {ratingForm}
         </div>
     </li>;
-};
+});
+ListGame.displayName = 'ListGame';

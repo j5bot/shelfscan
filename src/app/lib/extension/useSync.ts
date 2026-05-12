@@ -20,7 +20,7 @@ export const useSync = () => {
             return;
         }
         setSyncOn(newValue);
-    });
+    }, [syncOn]);
 
     return {
         syncOn,

@@ -1,7 +1,6 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import {
     DocumentMessageDetail,
-    DocumentMessageResponseDetail
 } from '@/app/lib/extension/messageTypes';
 import {
     Modes,
@@ -9,13 +8,12 @@ import {
     DisabledModes,
     CollectionModeSetting
 } from '@/app/lib/extension/types';
+import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
-import { useDispatch, useSelector } from '@/app/lib/hooks';
+import { useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
-import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { BggCollectionItem, BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
@@ -26,7 +24,6 @@ import React, {
     SyntheticEvent,
     useCallback,
     useEffect,
-    useRef,
     useState
 } from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -312,7 +309,7 @@ export const useExtension = (params?: UseExtension) => {
     };
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document.forms.namedItem('rating-form');
+        const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);
         const formData = form ? new FormData(form) : undefined;
 
         dispatchExtensionMessage({
@@ -326,6 +323,10 @@ export const useExtension = (params?: UseExtension) => {
         });
 
         const target = e.currentTarget?.previousElementSibling as HTMLDivElement;
+        if (!target || target.tagName.toLowerCase() !== 'button') {
+            return;
+        }
+
         void target.offsetWidth;
         target.classList.add('add-pulse');
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
@@ -472,7 +473,8 @@ export const useExtension = (params?: UseExtension) => {
                         <FaSave className="w-6 h-6 text-[#e07ca4]" />
                     </button>}
             </div>
-            {ratingFormOpen && <form name="rating-form" className="pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
+            {ratingFormOpen && <form name={`rating-form-${collectionId ?? info?.id ?? 'unknown'}`}
+                                     className="pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
                 <div className="rating rating-sm rating-half">
                     <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
                     {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
@@ -546,91 +548,3 @@ export const useExtension = (params?: UseExtension) => {
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };
 
-export const useExtensionMessaging = () => {
-    const dispatch = useDispatch();
-    const username = useSelector(state => state.bgg.user?.user);
-
-    const [listening, setListening] = useState<boolean>(false);
-    const messagesRef = useRef<Record<number, [DocumentMessageDetail, DocumentMessageResponseDetail | undefined]>>({});
-    const promisesRef = useRef<Record<number, PromiseWithResolvers<DocumentMessageResponseDetail | undefined>>>({});
-
-    const dispatchExtensionMessage = useCallback((detail: Partial<DocumentMessageDetail>) => {
-        const isResponse = detail.type?.endsWith('-response');
-        const timestamp = isResponse ?
-                          (detail as DocumentMessageResponseDetail).sourceMessage.timestamp
-                                     : detail.timestamp ? detail.timestamp : Date.now();
-
-        const matchingMessages = messagesRef.current[timestamp!];
-
-        if (matchingMessages) {
-            const sourceMessage = matchingMessages[0];
-
-            if (detail.type!.endsWith('response')) {
-                messagesRef.current[timestamp!] = [sourceMessage, detail as DocumentMessageResponseDetail];
-                return promisesRef.current[timestamp!].resolve(detail as DocumentMessageResponseDetail);
-            }
-        }
-
-        const timestampedDetail: Partial<DocumentMessageDetail> = { timestamp, ...detail };
-        const ce = new CustomEvent('shelfscan-sync', {
-            detail: timestampedDetail,
-        });
-        document.dispatchEvent(ce);
-
-        if (!matchingMessages) {
-            messagesRef.current[timestamp!] = [timestampedDetail as DocumentMessageDetail, undefined];
-            promisesRef.current[timestamp!] = Promise.withResolvers<DocumentMessageResponseDetail | undefined>()
-        }
-
-        return promisesRef.current[timestamp!].promise;
-    }, []);
-
-    useEffect(() => {
-        if (!username || listening) {
-            return;
-        }
-        if (!username) {
-            return;
-        }
-        window.addEventListener('message', event => {
-            if (event.origin !== 'https://boardgamegeek.com') {
-                return;
-            }
-
-            const { data: detail } = event;
-
-            dispatchExtensionMessage(detail);
-
-            const collectionItem = detail.response?.collectionItem ?? detail.response;
-
-            if (!(username &&
-                  detail.type.endsWith('-response') &&
-                    collectionItem?.collid)) {
-                return;
-            }
-            if (detail.type.startsWith('sell') || detail.type.startsWith('get')) {
-                return;
-            }
-            const { shouldRemove } = detail.response ?? {};
-            dispatch(updateCollectionItems({
-                username,
-                items: {
-                    [collectionItem?.collid]:
-                        getCollectionItemFromObject(
-                            collectionItem as Record<string, unknown>),
-                },
-                update: true,
-                remove: shouldRemove,
-                extend: true,
-            }));
-        });
-        setListening(true);
-    }, [username, listening, setListening]);
-
-    return { dispatchExtensionMessage, messages: messagesRef.current, promises: promisesRef.current };
-};
-
-export const ExtensionMessaging = () => {
-    useExtensionMessaging();
-    return <></>;
-};

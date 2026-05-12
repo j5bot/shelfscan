@@ -1,5 +1,6 @@
 'use client';
 
+import { useSync } from '@/app/lib/extension/useSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
@@ -28,6 +29,7 @@ import {
     FaHeart,
     FaList,
     FaRecycle,
+    FaStar,
     FaTableCells,
 } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
@@ -89,11 +91,17 @@ export default function CollectionPage() {
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory } = useScanHistory();
+    const { syncOn } = useSync();
+    const [batchRate, setBatchRate] = useState<boolean>(false);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
     const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
     const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
+
+    const modeMap = useMemo(() => ({
+        batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
+    }), [syncOn, batchRate, view]);
 
     const {
         reduxItems,
@@ -337,6 +345,8 @@ export default function CollectionPage() {
                     }
                     return (
                         <ListGame
+                            collectionId={item.collectionId!}
+                            modeMap={modeMap}
                             keyValue={item.collectionId.toString()}
                             name={item.name}
                             thumbnailUrl={thumbnailUrl}
@@ -574,21 +584,36 @@ export default function CollectionPage() {
                 <div className="w-12/12 md:w-11/12 p-3 xs:p-2 md:p-4 pb-10 rounded-xl bg-base-100 text-sm">
                     <div className="flex justify-center items-center gap-3 relative">
                         <h1 className="text-3xl text-center">Collection</h1>
-                        {username && (
-                            <button
-                                className="btn btn-sm rounded-md"
-                                onClick={() => refreshCollection()}
-                                disabled={isRefreshing}
-                                aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
-                                title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
-                            >
-                                <FaArrowsRotate
-                                    className={isRefreshing ? 'animate-spin' : ''}
-                                    aria-hidden="true"
-                                />
-                            </button>
-                        )}
-
+                        <div className="flex justify-start gap-1">
+                            {username && (
+                                <button
+                                    className="btn btn-sm rounded-md"
+                                    onClick={() => refreshCollection()}
+                                    disabled={isRefreshing}
+                                    aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
+                                    title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
+                                >
+                                    <FaArrowsRotate
+                                        className={isRefreshing ? 'animate-spin' : ''}
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            )}
+                            {view === CollectionViews.LARGE_GRID && syncOn && (
+                                <button
+                                    className={`btn btn-sm rounded-md ${
+                                        batchRate ? 'btn-primary' : ''
+                                    }`}
+                                    onClick={() => setBatchRate(!batchRate)}
+                                    aria-label="Toggle Bulk Rating"
+                                    aria-pressed={batchRate}
+                                >
+                                    <FaStar
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            )}
+                        </div>
                         <div
                             className="absolute top-1 right-0 flex items-center gap-0.5"
                             role="group"

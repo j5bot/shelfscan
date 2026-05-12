@@ -1,6 +1,6 @@
 import { addImageDataToCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import { useCachedImage, type ResolvedImageProps } from '@/app/lib/hooks/useCachedImage';
-import React, { CSSProperties, Suspense, use } from 'react';
+import React, { CSSProperties, memo, Suspense, use } from 'react';
 
 export type ThumbnailBoxProps = {
     alt: string;
@@ -120,7 +120,7 @@ const ThumbnailBoxInner = ({ src, placeholderPromise, cachePromise, size, styles
     );
 };
 
-export const ThumbnailBox = (props: ThumbnailBoxProps) => {
+export const ThumbnailBox = memo((props: ThumbnailBoxProps) => {
     const { alt = props.url, url, imageUrl, styles, size } = props;
 
     const cachedImageProps = useCachedImage({
@@ -148,4 +148,5 @@ export const ThumbnailBox = (props: ThumbnailBoxProps) => {
             <ThumbnailBoxInner src={imageUrl ?? url} {...cachedImageProps} size={size} styles={styles} />
         </Suspense>
     );
-};
+});
+ThumbnailBox.displayName = 'ThumbnailBox';
