@@ -1,14 +1,13 @@
-import { useRating } from '@/app/lib/extension/useRating';
+import { useRating } from '../../lib/extension/useRating';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 
 type RatingFormProps = {
     collectionId: number;
 };
 
-const RATINGS = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10] as const;
+const Ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10] as const;
 
 const getBgClassName = (newRating: number): string => {
     switch (true) {
@@ -23,18 +22,21 @@ const getBgClassName = (newRating: number): string => {
 export const RatingForm = memo(({
     collectionId,
 }: RatingFormProps) => {
-    const item = useSelector((state: RootState) => state.bgg.collection.users[state.bgg.user?.user!].items[collectionId]);
-    const userRating = item.rating ?? 0;
+    const item = useSelector((state: RootState) => {
+        const username = state.bgg.user.user?.toLowerCase() ?? '';
+        return state.bgg.collection.users[username].items[collectionId]
+    });
 
     const { createAddRating } = useRating();
 
     const addRating = useCallback(createAddRating({
-        collectionId: item.collectionId,
-        gameId: item.objectId,
-        versionId: item.versionId,
-        name: item.name,
+        collectionId: item?.collectionId,
+        gameId: item?.objectId,
+        versionId: item?.versionId,
+        name: item?.name,
     }), [item]);
 
+    const userRating = item?.rating ?? 0;
     const [newRating, setNewRating] = useState<number>(item?.rating ?? 0);
 
     const handleNewRating = useCallback((rating: number) => {
@@ -42,18 +44,22 @@ export const RatingForm = memo(({
         addRating?.();
     }, [addRating, setNewRating]);
 
+    if (!item) {
+        return null;
+    }
+
     const bgClassName = getBgClassName(newRating);
 
     return (<form name={`rating-form-${collectionId ?? item.objectId ?? 'unknown'}`}
-                  className="flex justify-center pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
+                  className="flex justify-center pt-1.5 xs:scale-90 relative xs:-left-2.5">
         <div className="rating rating-sm rating-half">
             <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
-            {RATINGS.map((rating, index) => (
+            {Ratings.map((rating, index) => (
                 <input key={index} type="radio" name="rating"
                        className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'} ${bgClassName}`}
                        aria-label={rating.toString()}
                        value={rating}
-                       defaultChecked={userRating >= rating && userRating < (RATINGS[index + 1] ?? 11)}
+                       defaultChecked={userRating >= rating && userRating < (Ratings[index + 1] ?? 11)}
                        onChange={() => handleNewRating(rating)}
                 />
             ))}

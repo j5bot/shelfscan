@@ -28,7 +28,8 @@ import {
     FaEye,
     FaHeart,
     FaList,
-    FaRecycle, FaStar,
+    FaRecycle,
+    FaStar,
     FaTableCells,
 } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
@@ -600,8 +601,12 @@ export default function CollectionPage() {
                             )}
                             {view === CollectionViews.LARGE_GRID && syncOn && (
                                 <button
-                                    className="btn btn-sm rounded-md"
+                                    className={`btn btn-sm rounded-md ${
+                                        batchRate ? 'btn-primary' : ''
+                                    }`}
                                     onClick={() => setBatchRate(!batchRate)}
+                                    aria-label="Toggle Bulk Rating"
+                                    aria-pressed={batchRate}
                                 >
                                     <FaStar
                                         aria-hidden="true"

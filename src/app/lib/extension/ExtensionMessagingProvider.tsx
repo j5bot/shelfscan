@@ -34,7 +34,11 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
     const promisesRef = useRef<Record<number, PromiseWithResolvers<DocumentMessageResponseDetail | undefined>>>({});
 
     const dispatchExtensionMessage = useCallback<DispatchExtensionMessage>((detail) => {
-        const isResponse = detail.type?.endsWith('-response');
+        if (!detail.type) {
+            console.error('message missing type', detail);
+            return;
+        }
+        const isResponse = detail.type.endsWith('-response');
         const timestamp = isResponse
             ? (detail as DocumentMessageResponseDetail).sourceMessage.timestamp
             : detail.timestamp ?? Date.now();
@@ -48,7 +52,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
         if (matchingMessages) {
             const sourceMessage = matchingMessages[0];
 
-            if (detail.type!.endsWith('response')) {
+            if (detail.type.endsWith('response')) {
                 messagesRef.current[timestamp!] = [sourceMessage, detail as DocumentMessageResponseDetail];
                 return promisesRef.current[timestamp!].resolve(detail as DocumentMessageResponseDetail);
             }
@@ -67,7 +71,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
             return;
         }
 
-        window.addEventListener('message', event => {
+        const messageHandler = (event: MessageEvent) => {
             if (event.origin !== 'https://boardgamegeek.com') {
                 return;
             }
@@ -97,8 +101,14 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
                 remove: shouldRemove,
                 extend: true,
             }));
-        });
+        };
+
+        window.addEventListener('message', messageHandler);
         listeningRef.current = true;
+
+        return () => {
+            window.removeEventListener('message', messageHandler);
+        };
     }, [username, dispatch, dispatchExtensionMessage]);
 
     return (

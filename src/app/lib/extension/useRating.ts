@@ -1,7 +1,7 @@
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 
 type CreateAddRatingParams = {
     collectionId?: number;
@@ -21,6 +21,9 @@ export const useRating = () => {
         versionId,
         name,
     }: CreateAddRatingParams) => () => {
+        if (!userId) {
+            return;
+        }
         const formName = `rating-form-${collectionId ?? gameId ?? 'unknown'}`;
         const form = document.forms.namedItem(formName ?? '');
         const formData = form ? new FormData(form) : undefined;
@@ -34,7 +37,7 @@ export const useRating = () => {
             versionId,
             formValues: Object.fromEntries(formData ?? []),
         });
-    }, [userId]);
+    }, [userId, dispatchExtensionMessage]);
 
     return { createAddRating };
 };

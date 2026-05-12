@@ -1,10 +1,8 @@
-import { useRating } from '@/app/lib/extension/useRating';
-import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
-import { CSSProperties, memo, ReactNode, useCallback, useMemo, useState } from 'react';
+import { CSSProperties, memo, ReactNode } from 'react';
 
 export type ListGameProps = {
     collectionId?: number;
@@ -101,8 +99,8 @@ export const ListGame = memo((props: ListGameProps) => {
                 </div>
             </div>
             {thumbnailContent}
+            {ratingForm}
         </div>
-        {ratingForm}
     </li>;
 });
 ListGame.displayName = 'ListGame';
