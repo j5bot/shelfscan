@@ -10,6 +10,22 @@ export type PlaysIconProps = SVGProps<any> & {
 
 export const PlaysIcon = memo((props: PlaysIconProps) => {
     const { plays, width, height = 48, backgroundColor, strokeColor } = props;
+    const playsStringLength = plays > 0 ? plays.toString().length : 1;
+    let textRatio = 0.6;
+    switch (playsStringLength) {
+        case 2:
+            textRatio = 0.5;
+            break;
+        case 3:
+            textRatio = 0.4;
+            break;
+        case 4:
+            textRatio = 0.3;
+            break;
+        case 5:
+            textRatio = 0.25;
+            break;
+    }
 
     const styles = {
         width: width ?? height,
@@ -34,7 +50,7 @@ export const PlaysIcon = memo((props: PlaysIconProps) => {
             ></path>
         </svg>
         <span className="relative z-5" style={{
-            fontSize: `${height * 0.6}px`,
+            fontSize: `${height * textRatio}px`,
             lineHeight: `${height}px`,
             color: strokeColor,
         }}>{plays}</span>

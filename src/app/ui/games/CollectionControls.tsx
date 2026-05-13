@@ -12,6 +12,7 @@ import {
     ScanFilter,
     RatingFilter,
     RatingSource,
+    PlaysFilter,
     cycleThreeState,
 } from '@/app/lib/hooks/useCollectionFilters';
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
@@ -23,6 +24,7 @@ import {
     FaBarcode,
     FaCalendar,
     FaCheck,
+    FaDice,
     FaFilter,
     FaHeart,
     FaRecycle,
@@ -350,6 +352,50 @@ export const CollectionControls = <F extends string>({
                             icon={<FaStar size={12} aria-hidden="true" />}
                             onChange={v => setFilter('rating', v as RatingFilter)}
                             title="Rating Filter"
+                        />
+                    )}
+
+                    {/* Plays toggle */}
+                    {filters.plays === 'played' ? (
+                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5 flex-wrap">
+                            <ThreeStateToggle
+                                value={filters.plays}
+                                states={['default', 'played', 'notplayed'] as const}
+                                onLabel="Played"
+                                offLabel="Not Played"
+                                icon={<FaDice size={12} aria-hidden="true" />}
+                                onChange={v => setFilter('plays', v as PlaysFilter)}
+                                title="Plays Filter"
+                            />
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="input input-bordered input-xs w-14 rounded-sm"
+                                placeholder="Min"
+                                value={filters.playsMin}
+                                onChange={e => setFilter('playsMin', e.target.value)}
+                                aria-label="Minimum plays"
+                            />
+                            <span className="text-xs text-base-content/50">–</span>
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="input input-bordered input-xs w-14 rounded-sm"
+                                placeholder="Max"
+                                value={filters.playsMax}
+                                onChange={e => setFilter('playsMax', e.target.value)}
+                                aria-label="Maximum plays"
+                            />
+                        </div>
+                    ) : (
+                        <ThreeStateToggle
+                            value={filters.plays}
+                            states={['default', 'played', 'notplayed'] as const}
+                            onLabel="Played"
+                            offLabel="Not Played"
+                            icon={<FaDice size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('plays', v as PlaysFilter)}
+                            title="Plays Filter"
                         />
                     )}
 
