@@ -9,7 +9,13 @@ import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import Link from 'next/link';
-import { forwardRef, memo, type CSSProperties, type ReactNode, type RefObject } from 'react';
+import React, {
+    forwardRef,
+    memo,
+    type CSSProperties,
+    type ReactNode,
+    type RefObject,
+} from 'react';
 import {
     FaBarcode,
     FaCheck,
@@ -178,6 +184,8 @@ export const AllGamesContent = memo(({
     refreshCollection,
     onSelectItem,
 }: AllGamesContentProps) => {
+    const username = useSelector((state: RootState) => state.bgg.user.user);
+
     switch (state.status) {
         case CollectionLoadStatuses.LOADING:
             return (
@@ -209,7 +217,10 @@ export const AllGamesContent = memo(({
             return (
                 <div className="flex flex-col items-center gap-4 p-8 pt-10 text-center">
                     <p className="text-lg">
-                        Your collection is empty. Start scanning games to see them here!
+                        {username ?
+                         `Your collection is empty. Start scanning games to see them here!`
+                             : `We can't display your collection without your BGG username ... please fill out the form above!`
+                        }
                     </p>
                     <Link
                         href="/"
