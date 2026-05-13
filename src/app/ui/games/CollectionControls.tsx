@@ -166,6 +166,7 @@ type CollectionControlsProps<F extends string> = {
 };
 
 const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
+const sanitizeNonNegativeIntegerInput = (value: string): string => value.replace(/\D/g, '');
 
 export const CollectionControls = <F extends string>({
     sortFields,
@@ -356,24 +357,25 @@ export const CollectionControls = <F extends string>({
                     )}
 
                     {/* Plays toggle */}
-                    {filters.plays === 'played' ? (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5 flex-wrap">
-                            <ThreeStateToggle
-                                value={filters.plays}
-                                states={['default', 'played', 'notplayed'] as const}
-                                onLabel="Played"
-                                offLabel="Not Played"
-                                icon={<FaDice size={12} aria-hidden="true" />}
-                                onChange={v => setFilter('plays', v as PlaysFilter)}
-                                title="Plays Filter"
-                            />
+                    <ThreeStateToggle
+                        value={filters.plays}
+                        states={['default', 'played', 'notplayed'] as const}
+                        onLabel="Played"
+                        offLabel="Not Played"
+                        icon={<FaDice size={12} aria-hidden="true" />}
+                        onChange={v => setFilter('plays', v as PlaysFilter)}
+                        title="Plays Filter"
+                    />
+                    {filters.plays === 'played' && (
+                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
                             <input
                                 type="text"
                                 inputMode="numeric"
                                 className="input input-bordered input-xs w-14 rounded-sm"
                                 placeholder="Min"
                                 value={filters.playsMin}
-                                onChange={e => setFilter('playsMin', e.target.value)}
+                                onChange={e => setFilter('playsMin',
+                                    sanitizeNonNegativeIntegerInput(e.target.value))}
                                 aria-label="Minimum plays"
                             />
                             <span className="text-xs text-base-content/50">–</span>
@@ -383,20 +385,11 @@ export const CollectionControls = <F extends string>({
                                 className="input input-bordered input-xs w-14 rounded-sm"
                                 placeholder="Max"
                                 value={filters.playsMax}
-                                onChange={e => setFilter('playsMax', e.target.value)}
+                                onChange={e => setFilter('playsMax',
+                                    sanitizeNonNegativeIntegerInput(e.target.value))}
                                 aria-label="Maximum plays"
                             />
                         </div>
-                    ) : (
-                        <ThreeStateToggle
-                            value={filters.plays}
-                            states={['default', 'played', 'notplayed'] as const}
-                            onLabel="Played"
-                            offLabel="Not Played"
-                            icon={<FaDice size={12} aria-hidden="true" />}
-                            onChange={v => setFilter('plays', v as PlaysFilter)}
-                            title="Plays Filter"
-                        />
                     )}
 
                     {/* Trade toggle */}
