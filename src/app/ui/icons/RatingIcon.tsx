@@ -1,6 +1,7 @@
 import { memo } from 'react';
 
 export type RatingIconProps = {
+    isAverage?: boolean;
     rating: number;
     width?: number;
     height?: number;
@@ -18,17 +19,17 @@ const getRatingColor = (rating: number) => {
         case rating < 4:
             return {
                 backgroundColor: 'var(--color-orange-400)',
-                strokeColor: 'var(--color-orange-800)',
+                strokeColor: 'var(--color-orange-600)',
             };
         case rating < 5.5:
             return {
                 backgroundColor: 'var(--color-yellow-400)',
-                strokeColor: 'var(--color-yellow-800)',
+                strokeColor: 'var(--color-yellow-600)',
             };
         case rating < 7:
             return {
                 backgroundColor: 'var(--color-lime-400)',
-                strokeColor: 'var(--color-lime-800)',
+                strokeColor: 'var(--color-lime-600)',
             };
         default:
             return {
@@ -39,10 +40,10 @@ const getRatingColor = (rating: number) => {
 };
 
 export const RatingIcon = memo((props: RatingIconProps) => {
-    const { rating, width, height = 48, backgroundColor, strokeColor } = props;
+    const { isAverage, rating, width, height = 48, backgroundColor, strokeColor } = props;
 
     const colors = getRatingColor(rating);
-    const backgroundColorFinal = backgroundColor ?? colors.backgroundColor;
+    const backgroundColorFinal = isAverage ? (strokeColor ?? colors.strokeColor) : backgroundColor ?? colors.backgroundColor;
     const strokeColorFinal = strokeColor ?? colors.strokeColor;
 
     const styles = {
@@ -70,7 +71,7 @@ export const RatingIcon = memo((props: RatingIconProps) => {
         <span className="relative z-5" style={{
             fontSize: `${height * 0.6}px`,
             lineHeight: `${height}px`,
-            color: strokeColorFinal,
+            color: isAverage ? 'white' : strokeColorFinal,
         }}>{Math.floor(rating)}</span>
     </div>;
 });

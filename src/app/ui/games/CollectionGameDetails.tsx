@@ -28,9 +28,11 @@ const statusIconsMap = {
 const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
     const icons: CollectionHeaderIcon[] = [];
     const rating = item.rating ?? item.averageRating ?? 0;
+    const isAverage = !item.rating;
     const plays = item.plays ?? 0;
 
     const ratingIcon = rating > 0 ? <div className="scale-80 md:scale-none"><RatingIcon
+        isAverage={isAverage}
         rating={rating}
         height={40}
     /></div> : null;

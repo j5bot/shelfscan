@@ -57,8 +57,10 @@ export const ListGame = memo((props: ListGameProps) => {
     } = props;
 
     const resolvedRating = rating ?? averageRating ?? 0;
+    const isAverage = !rating;
 
     const ratingIcon = resolvedRating > 0 ? <RatingIcon
+        isAverage={isAverage}
         rating={resolvedRating}
         height={size === 'small' ? 24 : 30}
     /> : null;
