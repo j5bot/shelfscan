@@ -1,8 +1,12 @@
+import { useSelector } from '@/app/lib/hooks';
+import { RootState } from '@/app/lib/redux/store';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
+import { SizeKey } from '@/app/ui/games/AllGamesContent';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
+import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import Link from 'next/link';
-import { CSSProperties, memo, ReactNode } from 'react';
+import React, { CSSProperties, memo, ReactNode } from 'react';
 
 export type ListGameProps = {
     collectionId?: number;
@@ -14,6 +18,7 @@ export type ListGameProps = {
     imageContainerStyles?: CSSProperties;
     keyValue: string;
     name: string;
+    size?: SizeKey;
     thumbnailSize: number;
     statusIcon: ReactNode;
     statusText: string;
@@ -37,6 +42,7 @@ export const ListGame = memo((props: ListGameProps) => {
         imageContainerStyles,
         keyValue,
         name,
+        size = 'small',
         thumbnailSize,
         statusIcon,
         statusText,
@@ -46,17 +52,31 @@ export const ListGame = memo((props: ListGameProps) => {
         modeMap = emptyModeMap,
     } = props;
 
-    const ratingForm = collectionId && modeMap.batchRating ? <RatingForm
-        collectionId={collectionId}
+    const item = useSelector((state: RootState) => {
+        const username = state.bgg.user.user?.toLowerCase() ?? '';
+        return state.bgg.collection.users[username].items[collectionId ?? 0]
+    });
+
+    const rating = item.rating ?? item.averageRating ?? 0;
+    const ratingIcon = rating > 0 ? <RatingIcon
+        rating={rating}
+        height={size === 'small' ? 24 : 30}
     /> : null;
 
-    const thumbnail = <ThumbnailBox
-        alt={name}
-        url={thumbnailUrl}
-        imageUrl={imageUrl}
-        size={thumbnailSize}
-        styles={imageContainerStyles}
-    />;
+    const ratingForm = collectionId && modeMap.batchRating ? <RatingForm
+        item={item}
+    /> : null;
+
+    const thumbnail = <div className="relative">
+        <ThumbnailBox
+            alt={name}
+            url={thumbnailUrl}
+            imageUrl={imageUrl}
+            size={thumbnailSize}
+            styles={imageContainerStyles}
+        />
+        {ratingIcon && <div className="absolute flex justify-center bottom-[-3] w-full z-9">{ratingIcon}</div>}
+    </div>;
 
     const thumbnailContent = onClick ? (
         <button

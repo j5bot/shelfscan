@@ -19,7 +19,7 @@ import {
 } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 
-type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished';
+export type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished' | 'rating' | 'averageRating';
 
 const THUMBNAIL_SIZE = 100;
 
@@ -74,14 +74,17 @@ type ModeMap = {
     batchRating: boolean;
 };
 
+export type SizeKey = keyof typeof ThumbnailSizes;
+
 type GridItemProps = {
     collectionId: number;
+    sizeKey: SizeKey;
     thumbnailSize: number;
     modeMap: ModeMap;
     onSelectItem: (item: BggCollectionItem) => void;
 };
 
-const GridItem = ({ collectionId, thumbnailSize, modeMap, onSelectItem }: GridItemProps) => {
+const GridItem = ({ collectionId, sizeKey, thumbnailSize, modeMap, onSelectItem }: GridItemProps) => {
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';
         return state.bgg.collection.users[username].items[collectionId]
@@ -110,6 +113,7 @@ const GridItem = ({ collectionId, thumbnailSize, modeMap, onSelectItem }: GridIt
     }
     return (
         <ListGame
+            size={sizeKey}
             collectionId={item.collectionId!}
             modeMap={modeMap}
             keyValue={item.collectionId.toString()}
@@ -254,6 +258,7 @@ export const AllGamesContent = memo(({
                             totalCount={displayItems.length}
                             components={{ List: makeGridContainer('large') }}
                             itemContent={index => <GridItem
+                                sizeKey="large"
                                 collectionId={displayItems[index].collectionId} thumbnailSize={ThumbnailSizes['large']}
                                 onSelectItem={onSelectItem} modeMap={modeMap}
                             />}
@@ -265,6 +270,7 @@ export const AllGamesContent = memo(({
                             totalCount={displayItems.length}
                             components={{ List: makeGridContainer('small') }}
                             itemContent={index => <GridItem
+                                sizeKey="small"
                                 collectionId={displayItems[index].collectionId} thumbnailSize={ThumbnailSizes['small']}
                                 onSelectItem={onSelectItem} modeMap={modeMap}
                             />}                        />;

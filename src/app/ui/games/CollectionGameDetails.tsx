@@ -8,6 +8,7 @@ import {
     collectionVersionToVersion
 } from '@/app/lib/utils/gameAdapters';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
+import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import React, { type ReactNode } from 'react';
 import { type IconType } from 'react-icons';
 import { FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
@@ -26,6 +27,11 @@ const statusIconsMap = {
 
 const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
     const icons: CollectionHeaderIcon[] = [];
+    const rating = item.rating ?? item.averageRating ?? 0;
+    const ratingIcon = rating > 0 ? <div className="scale-80 md:scale-none"><RatingIcon
+        rating={rating}
+        height={40}
+    /></div> : null;
 
     Object.keys(statusIconsMap).reduce((acc: CollectionHeaderIcon[], statusKey: string) => {
         if (!item.statuses[statusKey as keyof typeof item.statuses]) {
@@ -36,6 +42,7 @@ const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
     }, icons);
 
     return <>
+        {ratingIcon}
         {icons.map(({ title, Icon }) => (
             <div
                 key={title}

@@ -13,7 +13,7 @@ import { useSelector } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { AllGamesContent } from '@/app/ui/games/AllGamesContent';
+import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -26,7 +26,6 @@ import {
     FaTableCells,
 } from 'react-icons/fa6';
 
-type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished';
 type NotInCollectionSortField = 'name' | 'lastScanned';
 
 
@@ -138,6 +137,16 @@ export default function CollectionPage() {
                                ) - (
                                    b.yearPublished ?? 0
                                ),
+        },
+        {
+            field: 'rating',
+            label: 'Rating',
+            compare: (a, b) => (a.rating ?? 0) - (b.rating ?? 0),
+        },
+        {
+            field: 'averageRating',
+            label: 'Avg. Rating',
+            compare: (a, b) => (a.averageRating ?? 0) - (b.averageRating ?? 0),
         },
     ], [lastScannedMap]);
 
