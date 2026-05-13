@@ -120,6 +120,21 @@ export default function CollectionPage() {
             },
         },
         {
+            field: 'rating',
+            label: 'Rating',
+            compare: (a, b) => (a.rating ?? 0) - (b.rating ?? 0),
+        },
+        {
+            field: 'averageRating',
+            label: 'Avg. Rating',
+            compare: (a, b) => (a.averageRating ?? 0) - (b.averageRating ?? 0),
+        },
+        {
+            field: 'plays',
+            label: 'Plays',
+            compare: (a, b) => (a.plays ?? 0) - (b.plays ?? 0),
+        },
+        {
             field: 'dateLastScanned',
             label: 'Scanned',
             compare: (a, b) =>
@@ -137,16 +152,6 @@ export default function CollectionPage() {
                                ) - (
                                    b.yearPublished ?? 0
                                ),
-        },
-        {
-            field: 'rating',
-            label: 'Rating',
-            compare: (a, b) => (a.rating ?? 0) - (b.rating ?? 0),
-        },
-        {
-            field: 'averageRating',
-            label: 'Avg. Rating',
-            compare: (a, b) => (a.averageRating ?? 0) - (b.averageRating ?? 0),
         },
     ], [lastScannedMap]);
 

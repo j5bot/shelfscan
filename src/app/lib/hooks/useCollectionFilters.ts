@@ -14,6 +14,7 @@ export type VerificationFilter = 'default' | 'verified' | 'notverified';
 export type ScanFilter = 'default' | 'scanned' | 'notscanned';
 export type RatingFilter = 'default' | 'rated' | 'notrated';
 export type RatingSource = 'user' | 'average';
+export type PlaysFilter = 'default' | 'played' | 'notplayed';
 
 export type CollectionFilters = {
     ownership: OwnershipFilter;
@@ -29,6 +30,9 @@ export type CollectionFilters = {
     ratingSource: RatingSource;
     ratingMin: string;
     ratingMax: string;
+    plays: PlaysFilter;
+    playsMin: string;
+    playsMax: string;
 };
 
 const DEFAULT_FILTERS: CollectionFilters = {
@@ -45,6 +49,9 @@ const DEFAULT_FILTERS: CollectionFilters = {
     ratingSource: 'user',
     ratingMin: '',
     ratingMax: '',
+    plays: 'default',
+    playsMin: '',
+    playsMax: '',
 };
 
 const LS_KEY = 'collection-filters';
@@ -112,7 +119,8 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             filters.preorder !== 'default' ||
             filters.verification !== 'default' ||
             filters.scan !== 'default' ||
-            filters.rating !== 'default'
+            filters.rating !== 'default' ||
+            filters.plays !== 'default'
         ),
         [filters],
     );
@@ -180,6 +188,17 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                     const max = filters.ratingMax !== '' ? parseFloat(filters.ratingMax) : undefined;
                     if (min !== undefined && !isNaN(min) && ratingValue < min) { return false; }
                     if (max !== undefined && !isNaN(max) && ratingValue > max) { return false; }
+                }
+
+                // Plays
+                if (filters.plays === 'notplayed') {
+                    if ((item.plays ?? 0) > 0) { return false; }
+                } else if (filters.plays === 'played') {
+                    if ((item.plays ?? 0) === 0) { return false; }
+                    const min = filters.playsMin !== '' ? parseInt(filters.playsMin, 10) : undefined;
+                    const max = filters.playsMax !== '' ? parseInt(filters.playsMax, 10) : undefined;
+                    if (min !== undefined && !isNaN(min) && (item.plays ?? 0) < min) { return false; }
+                    if (max !== undefined && !isNaN(max) && (item.plays ?? 0) > max) { return false; }
                 }
 
                 return true;

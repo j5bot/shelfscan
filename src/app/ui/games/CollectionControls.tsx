@@ -12,6 +12,7 @@ import {
     ScanFilter,
     RatingFilter,
     RatingSource,
+    PlaysFilter,
     cycleThreeState,
 } from '@/app/lib/hooks/useCollectionFilters';
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
@@ -23,6 +24,7 @@ import {
     FaBarcode,
     FaCalendar,
     FaCheck,
+    FaDice,
     FaFilter,
     FaHeart,
     FaRecycle,
@@ -164,6 +166,7 @@ type CollectionControlsProps<F extends string> = {
 };
 
 const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
+const removeNonDigits = (value: string): string => value.replace(/\D/g, '');
 
 export const CollectionControls = <F extends string>({
     sortFields,
@@ -351,6 +354,42 @@ export const CollectionControls = <F extends string>({
                             onChange={v => setFilter('rating', v as RatingFilter)}
                             title="Rating Filter"
                         />
+                    )}
+
+                    {/* Plays toggle */}
+                    <ThreeStateToggle
+                        value={filters.plays}
+                        states={['default', 'played', 'notplayed'] as const}
+                        onLabel="Played"
+                        offLabel="Not Played"
+                        icon={<FaDice size={12} aria-hidden="true" />}
+                        onChange={v => setFilter('plays', v as PlaysFilter)}
+                        title="Plays Filter"
+                    />
+                    {filters.plays === 'played' && (
+                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="input input-bordered input-xs w-14 rounded-sm"
+                                placeholder="Min"
+                                value={filters.playsMin}
+                                onChange={e => setFilter('playsMin',
+                                    removeNonDigits(e.target.value))}
+                                aria-label="Minimum plays"
+                            />
+                            <span className="text-xs text-base-content/50">–</span>
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                className="input input-bordered input-xs w-14 rounded-sm"
+                                placeholder="Max"
+                                value={filters.playsMax}
+                                onChange={e => setFilter('playsMax',
+                                    removeNonDigits(e.target.value))}
+                                aria-label="Maximum plays"
+                            />
+                        </div>
                     )}
 
                     {/* Trade toggle */}

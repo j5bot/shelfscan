@@ -1,6 +1,6 @@
-import { memo, SVGProps } from 'react';
+import { memo } from 'react';
 
-export type RatingIconProps = SVGProps<any> & {
+export type RatingIconProps = {
     rating: number;
     width?: number;
     height?: number;
