@@ -9,7 +9,6 @@ import { RootState } from '@/app/lib/redux/store';
 import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { hasSeenTour } from '@/app/lib/tours';
-import { ScanHistoryError, ScanHistoryMatchStatus } from '@/app/lib/types/scanHistory';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';

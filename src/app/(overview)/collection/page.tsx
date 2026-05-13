@@ -13,11 +13,12 @@ import { useSelector } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { KeyboardEvent, useCallback, useMemo, useState } from 'react';
+import { KeyboardEvent, Suspense, useCallback, useMemo, useState } from 'react';
 import {
     FaArrowsRotate,
     FaBorderAll,
@@ -271,12 +272,15 @@ export default function CollectionPage() {
                                     />
                                 </button>
                             )}
-                            {view === CollectionViews.LARGE_GRID && syncOn && (
+                            {syncOn && (
                                 <button
                                     className={`btn btn-sm rounded-md ${
                                         batchRate ? 'btn-primary' : ''
                                     }`}
-                                    onClick={() => setBatchRate(!batchRate)}
+                                    onClick={() => {
+                                        setView(CollectionViews.LARGE_GRID);
+                                        setBatchRate(!batchRate);
+                                    }}
                                     aria-label="Toggle Bulk Rating"
                                     aria-pressed={batchRate}
                                 >
@@ -355,6 +359,9 @@ export default function CollectionPage() {
                         </button>
                     </div>
 
+                    <Suspense>
+                        <BggCollectionForm />
+                    </Suspense>
                     <section
                         ref={sectionRef}
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
