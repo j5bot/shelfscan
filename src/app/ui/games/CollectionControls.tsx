@@ -166,7 +166,7 @@ type CollectionControlsProps<F extends string> = {
 };
 
 const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
-const sanitizeNonNegativeIntegerInput = (value: string): string => value.replace(/\D/g, '');
+const removeNonDigits = (value: string): string => value.replace(/\D/g, '');
 
 export const CollectionControls = <F extends string>({
     sortFields,
@@ -375,7 +375,7 @@ export const CollectionControls = <F extends string>({
                                 placeholder="Min"
                                 value={filters.playsMin}
                                 onChange={e => setFilter('playsMin',
-                                    sanitizeNonNegativeIntegerInput(e.target.value))}
+                                    removeNonDigits(e.target.value))}
                                 aria-label="Minimum plays"
                             />
                             <span className="text-xs text-base-content/50">–</span>
@@ -386,7 +386,7 @@ export const CollectionControls = <F extends string>({
                                 placeholder="Max"
                                 value={filters.playsMax}
                                 onChange={e => setFilter('playsMax',
-                                    sanitizeNonNegativeIntegerInput(e.target.value))}
+                                    removeNonDigits(e.target.value))}
                                 aria-label="Maximum plays"
                             />
                         </div>
