@@ -19,7 +19,7 @@ import {
 } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 
-export type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished' | 'rating' | 'averageRating';
+export type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished' | 'rating' | 'averageRating' | 'plays';
 
 const THUMBNAIL_SIZE = 100;
 

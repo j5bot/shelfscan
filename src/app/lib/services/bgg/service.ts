@@ -172,6 +172,7 @@ export const getCollectionFromXml = (xml?: string) => {
             const rating = elementGetter(item, false, 'stats > rating', 'value');
             const averageRating = elementGetter(item, false, 'stats > rating > average', 'value');
             const tradeCondition = elementGetter(item, false, 'conditiontext');
+            const plays = elementGetter(item, true, 'numplays');
 
             const statuses = status ? PossibleStatuses.reduce((acc: BggCollectionStatuses, attributeName: string) => {
                 return Object.assign(acc, {[attributeName]: status.getAttribute(attributeName) === '1'})
@@ -198,6 +199,7 @@ export const getCollectionFromXml = (xml?: string) => {
                 wishlistPriority,
                 rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
                 averageRating: averageRating ? parseFloat(averageRating.toString()) : undefined,
+                plays,
                 tradeCondition,
             } as BggCollectionItem;
         })

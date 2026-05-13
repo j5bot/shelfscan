@@ -57,7 +57,7 @@ export const ListGame = memo((props: ListGameProps) => {
         return state.bgg.collection.users[username].items[collectionId ?? 0]
     });
 
-    const rating = item.rating ?? item.averageRating ?? 0;
+    const rating = item?.rating ?? item?.averageRating ?? 0;
     const ratingIcon = rating > 0 ? <RatingIcon
         rating={rating}
         height={size === 'small' ? 24 : 30}

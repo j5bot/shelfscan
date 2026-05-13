@@ -148,6 +148,11 @@ export default function CollectionPage() {
             label: 'Avg. Rating',
             compare: (a, b) => (a.averageRating ?? 0) - (b.averageRating ?? 0),
         },
+        {
+            field: 'plays',
+            label: 'Plays',
+            compare: (a, b) => (a.plays ?? 0) - (b.plays ?? 0),
+        },
     ], [lastScannedMap]);
 
     const allGamesFilterFn = useCallback(

@@ -4,10 +4,10 @@ import { RootState } from '@/app/lib/redux/store';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
 import {
     collectionItemToGame,
-    collectionItemToGameUPCInfo,
     collectionVersionToVersion
 } from '@/app/lib/utils/gameAdapters';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
+import { PlaysIcon } from '@/app/ui/icons/PlaysIcon';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import React, { type ReactNode } from 'react';
 import { type IconType } from 'react-icons';
@@ -28,9 +28,18 @@ const statusIconsMap = {
 const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
     const icons: CollectionHeaderIcon[] = [];
     const rating = item.rating ?? item.averageRating ?? 0;
+    const plays = item.plays ?? 0;
+
     const ratingIcon = rating > 0 ? <div className="scale-80 md:scale-none"><RatingIcon
         rating={rating}
         height={40}
+    /></div> : null;
+
+    const playsIcon = plays > 0 ? <div className="scale-80 md:scale-none"><PlaysIcon
+        plays={plays}
+        height={40}
+        backgroundColor="var(--color-blue-400)"
+        strokeColor="var(--color-blue-800)"
     /></div> : null;
 
     Object.keys(statusIconsMap).reduce((acc: CollectionHeaderIcon[], statusKey: string) => {
@@ -42,7 +51,7 @@ const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
     }, icons);
 
     return <>
-        {ratingIcon}
+        {ratingIcon} {playsIcon}
         {icons.map(({ title, Icon }) => (
             <div
                 key={title}
