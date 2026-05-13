@@ -118,7 +118,7 @@ const SortControlsInner = <F extends string>({
 }: SortControlsInnerProps<F>) => (
     <div className="flex items-center gap-1 shrink-0">
         <select
-            className="select select-bordered select-sm rounded-sm w-22 pl-2"
+            className="select select-bordered select-sm rounded-sm w-25 pl-2"
             value={sortField}
             onChange={e => onSortClick(e.target.value as F)}
             aria-label="Sort by field"

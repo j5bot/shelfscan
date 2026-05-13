@@ -1,10 +1,9 @@
+import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { useRating } from '../../lib/extension/useRating';
-import { useSelector } from '@/app/lib/hooks';
-import { RootState } from '@/app/lib/redux/store';
 import { memo, useCallback, useState } from 'react';
 
 type RatingFormProps = {
-    collectionId: number;
+    item: BggCollectionItem;
 };
 
 const Ratings = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10] as const;
@@ -20,13 +19,8 @@ const getBgClassName = (newRating: number): string => {
 };
 
 export const RatingForm = memo(({
-    collectionId,
+    item,
 }: RatingFormProps) => {
-    const item = useSelector((state: RootState) => {
-        const username = state.bgg.user.user?.toLowerCase() ?? '';
-        return state.bgg.collection.users[username].items[collectionId]
-    });
-
     const { createAddRating } = useRating();
 
     const addRating = useCallback(createAddRating({
@@ -50,10 +44,10 @@ export const RatingForm = memo(({
 
     const bgClassName = getBgClassName(newRating);
 
-    return (<form name={`rating-form-${collectionId ?? item.objectId ?? 'unknown'}`}
+    return (<form name={`rating-form-${item.collectionId ?? item.objectId ?? 'unknown'}`}
                   className="flex justify-center pt-1.5 xs:scale-90 relative xs:-left-2.5">
         <div className="rating rating-sm rating-half">
-            <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
+            <input type="hidden" className="hidden" name="collectionId" value={item.collectionId} />
             {Ratings.map((rating, index) => (
                 <input key={index} type="radio" name="rating"
                        className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'} ${bgClassName}`}
