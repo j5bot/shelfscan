@@ -1,6 +1,6 @@
-import { memo, SVGProps } from 'react';
+import { memo } from 'react';
 
-export type PlaysIconProps = SVGProps<any> & {
+export type PlaysIconProps = {
     plays: number;
     width?: number;
     height?: number;

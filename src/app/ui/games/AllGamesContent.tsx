@@ -115,6 +115,8 @@ const GridItem = ({ collectionId, sizeKey, thumbnailSize, modeMap, onSelectItem 
         <ListGame
             size={sizeKey}
             collectionId={item.collectionId!}
+            rating={item.rating}
+            averageRating={item.averageRating}
             modeMap={modeMap}
             keyValue={item.collectionId.toString()}
             name={item.name}

@@ -10,6 +10,8 @@ import React, { CSSProperties, memo, ReactNode } from 'react';
 
 export type ListGameProps = {
     collectionId?: number;
+    rating?: number;
+    averageRating?: number;
     bottomLeftIcon?: ReactNode;
     cornerIcon?: ReactNode;
     detailUrl?: string;
@@ -34,6 +36,8 @@ const emptyModeMap = {} as ComponentModeMap;
 export const ListGame = memo((props: ListGameProps) => {
     const {
         collectionId,
+        rating,
+        averageRating,
         bottomLeftIcon,
         cornerIcon,
         detailUrl,
@@ -52,19 +56,15 @@ export const ListGame = memo((props: ListGameProps) => {
         modeMap = emptyModeMap,
     } = props;
 
-    const item = useSelector((state: RootState) => {
-        const username = state.bgg.user.user?.toLowerCase() ?? '';
-        return state.bgg.collection.users[username].items[collectionId ?? 0]
-    });
+    const resolvedRating = rating ?? averageRating ?? 0;
 
-    const rating = item?.rating ?? item?.averageRating ?? 0;
-    const ratingIcon = rating > 0 ? <RatingIcon
-        rating={rating}
+    const ratingIcon = resolvedRating > 0 ? <RatingIcon
+        rating={resolvedRating}
         height={size === 'small' ? 24 : 30}
     /> : null;
 
     const ratingForm = collectionId && modeMap.batchRating ? <RatingForm
-        item={item}
+        collectionId={collectionId}
     /> : null;
 
     const thumbnail = <div className="relative">
