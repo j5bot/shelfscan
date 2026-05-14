@@ -38,8 +38,12 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
         const state = store.getState();
         const promises = readyGames.map(code => {
             const [infoId, versionId] = gameSelections[code] ?? [];
-            const infoIndex = gameDataMap[code]?.bgg_info
-                                  ?.findIndex(info => info.id === infoId) ?? 0;
+            let infoIndex = infoId
+                            ? gameDataMap[code]?.bgg_info?.findIndex(info => info.id === infoId)
+                            : 0;
+            if (infoIndex === -1) {
+                infoIndex = 0;
+            }
             const info = gameDataMap[code]?.bgg_info?.[infoIndex];
             if (!info) {
                 return;
