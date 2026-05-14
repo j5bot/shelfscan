@@ -440,7 +440,7 @@ export const CollectionControls = <F extends string>({
                                 <option value="2">Love to Have</option>
                                 <option value="3">Like to Have</option>
                                 <option value="4">Considering</option>
-                                <option value="5">Don't Buy</option>
+                                <option value="5">Don&apos;t Buy</option>
                             </select>
                         </div>
                     ) : (

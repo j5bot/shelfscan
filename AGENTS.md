@@ -38,10 +38,13 @@ pnpm install          # Install dependencies
 pnpm dev              # Start dev server (next dev)
 pnpm build            # Production build (next build) — used by Vercel
 pnpm start            # Start production server (next start)
-pnpm lint             # Run ESLint (next lint)
+pnpm lint             # Run ESLint (ESLINT_USE_FLAT_CONFIG=false next lint .)
+pnpm test             # Run tests once (vitest run)
+pnpm test:watch       # Run tests in watch mode (vitest)
+pnpm test:coverage    # Run tests with coverage (vitest run --coverage)
 ```
 
-There is **no test suite** configured (no test files, no test runner).
+**Test suite**: Vitest with jsdom environment. Tests live in `tests/` (mirrors `src/` structure). All test files import testing primitives from `tests/setup.ts` (re-exports `describe`, `it`, `expect`, `vi`, etc. from vitest — swap runner by changing only that file). Config: `vitest.config.ts`.
 
 ---
 
@@ -75,6 +78,9 @@ shelfscan/
 │       │   ├── page.tsx       # Home / scanner page
 │       │   ├── loading.tsx    # Suspense loading fallback
 │       │   ├── about/         # /about page
+│       │   ├── batch/         # /batch — batch-add games to BGG collection
+│       │   ├── collection/    # /collection — view BGG collection
+│       │   ├── data-builder/  # /data-builder — experimental BPMN form builder
 │       │   ├── extension/     # /extension page
 │       │   └── upc/[id]/     # /upc/:id — single UPC detail page
 │       ├── lib/               # Shared logic (non-UI)
@@ -85,6 +91,7 @@ shelfscan/
 │       │   ├── GameUPCDataProvider.tsx
 │       │   ├── NextStepProvider.tsx
 │       │   ├── PluginMapProvider.tsx
+│       │   ├── ScanHistoryProvider.tsx  # Scan history (Dexie-backed, useScanHistory hook)
 │       │   ├── SelectVersionProvider.tsx
 │       │   ├── SettingsProvider.tsx
 │       │   ├── TailwindProvider.tsx
@@ -92,6 +99,13 @@ shelfscan/
 │       │   │   ├── database.ts      # Main DB (settings, plugins, collections)
 │       │   │   └── cacheDatabase.ts # Cache DB (images, responses)
 │       │   ├── extension/     # Browser extension communication
+│       │   │   ├── ExtensionMessagingProvider.tsx  # Context provider for extension messaging
+│       │   │   ├── messageTypes.ts
+│       │   │   ├── types.ts
+│       │   │   ├── useBatchSync.ts
+│       │   │   ├── useExtension.tsx
+│       │   │   ├── useRating.ts
+│       │   │   └── useSync.ts
 │       │   ├── hooks/         # Custom React hooks
 │       │   ├── plugins/       # Plugin system (built-in + JSON definitions)
 │       │   ├── redux/         # Redux store, slices
@@ -106,13 +120,23 @@ shelfscan/
 │       │   ├── tours/         # nextstepjs tour definitions
 │       │   ├── types/         # TypeScript type definitions
 │       │   └── utils/         # Pure utility functions (array, image, size, transforms, xml)
+│       │       ├── fetchQueue.ts    # p-queue throttle wrapper — use enqueueFetch() for API calls
+│       │       ├── formKeyTransform.ts
+│       │       ├── gameAdapters.ts  # Adapters between BGG/GameUPC types and internal Game/Version types
+│       │       └── ...
 │       └── ui/                # React UI components
 │           ├── Scanner.tsx    # Barcode scanner component
 │           ├── NavDrawer.tsx  # Navigation drawer
-│           ├── games/         # Game display components (Scanlist, GameDetails, SelectVersion, Thumbnail)
+│           ├── DataBuilder.tsx  # BPMN form builder UI (@bpmn-io/form-js)
+│           ├── ScanToasts.tsx   # Toast notifications for scan events
+│           ├── games/         # Game display components (Scanlist, GameDetails, SelectVersion, Thumbnail,
+│           │                  #   CollectionGameDetails, CollectionItemModal, NotInCollectionContent,
+│           │                  #   UnmatchedScansTab, ListGame, ListGameRow, GameListContainer, renderers)
+│           ├── batch/         # BatchAddButton — bulk BGG collection add
 │           ├── settings/      # Settings management UI
 │           ├── extension/     # Extension-related UI
 │           ├── forms/         # Form input components
+│           ├── icons/         # Icon components
 │           └── tour/          # Tour card component
 ```
 
@@ -128,7 +152,7 @@ shelfscan/
 
 ### State Management — Hybrid Approach
 1. **Redux Toolkit** — Global state for BGG user and collection data. Store created per-request via `makeStore()` pattern. Typed hooks exported from `lib/hooks/index.ts`.
-2. **React Context** — Feature-specific state via provider components (Codes, GameSelections, GameUPCData, Settings, Plugins, TailwindBreakpoint, SelectVersion, NextStep). These are nested in `(overview)/layout.tsx`.
+2. **React Context** — Feature-specific state via provider components. Current nesting order in `(overview)/layout.tsx` (outermost → innermost): `Provider` (Redux) → `SettingsProvider` → `TailwindProvider` → `PluginMapProvider` → `CodesProvider` → `GameSelectionsProvider` → `GameUPCDataProvider` → `ScanHistoryProvider` → `NextStepProvider` → `ExtensionMessagingProvider`.
 3. **Dexie (IndexedDB)** — Persistent client-side storage for settings, plugins, collections, and cached images/responses. Two databases: `db` (main) and `cache`.
 
 ### Barcode Scanning
@@ -155,7 +179,23 @@ shelfscan/
 2. **GameUPC API** (`api.gameupc.com`) — UPC lookup, game matching, verification. Requires `GAMEUPC_TOKEN`. Falls back to test endpoint if token missing.
 
 ### Browser Extension
-- Extension types and hooks are in `src/app/lib/extension/`.
+- Extension types, hooks, and context are in `src/app/lib/extension/`.
+- `ExtensionMessagingProvider` wraps the app and provides messaging context; consume via hooks in `src/app/lib/extension/` (`useExtension`, `useSync`, `useBatchSync`, `useRating`).
+
+### Scan History
+- `ScanHistoryProvider` stores per-scan records (UPC, match status, game name, BGG ID, timestamps) in the main Dexie `db` under the `scanHistory` table.
+- Cap: 20,000 entries; unmatched entries older than 30 days are pruned automatically.
+- Duplicate suppression: same UPC within 5 minutes is treated as a duplicate.
+- Consume via `useScanHistory()` — exposes `scanHistory`, `unmatchedScans`, `recordScan`, `updateEntry`, `clearHistory`, `associateScans`.
+- Types: `src/app/lib/types/scanHistory.ts` (`ScanHistoryEntry`, `ScanHistoryMatchStatus`, `ScanHistoryError`).
+
+### API Fetch Queue
+- All external API calls that need throttling should go through `enqueueFetch()` from `src/app/lib/utils/fetchQueue.ts`.
+- Backed by `p-queue` (concurrency 1, 300 ms interval) to prevent BGG/GameUPC rate-limiting.
+
+### Game Type Adapters
+- `src/app/lib/utils/gameAdapters.ts` provides conversion functions between the external types (`BggCollectionItem`, `GameUPCBggInfo`, `BggVersion`, `GameUPCBggVersion`) and the internal `Game` / `Version` types.
+- Use these adapters rather than inline mapping when bridging API responses to UI state.
 
 ---
 
@@ -165,16 +205,25 @@ shelfscan/
 |---|---|
 | `src/app/(overview)/layout.tsx` | Provider nesting order — all context providers are composed here |
 | `src/app/(overview)/page.tsx` | Main scanner page — ties together scanning, UPC lookup, and display |
+| `src/app/(overview)/collection/page.tsx` | BGG collection viewer |
+| `src/app/(overview)/batch/page.tsx` | Batch-add games to BGG collection |
 | `src/app/lib/actions.ts` | Server Actions — BGG API proxy with auth |
 | `gameupc-hooks/server` | Server Actions — GameUPC API proxy with auth |
 | `src/app/lib/GameUPCDataProvider.tsx` | GameUPC context provider backed by `gameupc-hooks/useGameUPC` |
-| `src/app/lib/database/database.ts` | Dexie schema — settings, plugins, collections |
+| `src/app/lib/ScanHistoryProvider.tsx` | Scan history context — records, updates, clears scan entries |
+| `src/app/lib/extension/ExtensionMessagingProvider.tsx` | Browser extension messaging context |
+| `src/app/lib/database/database.ts` | Dexie schema — settings, plugins, collections, scanHistory |
 | `src/app/lib/database/cacheDatabase.ts` | Dexie schema — image and response caching |
 | `src/app/lib/redux/store.ts` | Redux store factory |
+| `src/app/lib/redux/bgg/collection/selectors.ts` | Memoized collection selectors |
 | `src/app/lib/plugins/plugins.ts` | Plugin system — built-in plugins and plugin map construction |
+| `src/app/lib/utils/fetchQueue.ts` | Throttled fetch queue via `p-queue` (`enqueueFetch`) |
+| `src/app/lib/utils/gameAdapters.ts` | Type adapters between BGG/GameUPC and internal Game/Version types |
 | `src/app/ui/Scanner.tsx` | Barcode scanner UI — responsive sizing, camera selection |
 | `next.config.ts` | `serverExternalPackages`, allowed image domains, dev origins |
 | `package.json` | `pnpm.overrides`, `pnpm.patchedDependencies`, `peerDependencyRules` |
+| `vitest.config.ts` | Vitest configuration (jsdom, coverage) |
+| `tests/setup.ts` | Vitest re-export shim — all test files import primitives from here |
 
 ---
 
@@ -185,7 +234,8 @@ shelfscan/
 - **pnpm overrides**: `@undecaf/zbar-wasm` is overridden to `^0.11.0` to ensure all transitive deps use the same version.
 - **Peer dependency rules**: TypeScript 6 and ESLint 10 are explicitly allowed for packages that haven't updated their peer dep ranges.
 - **`next.lock/`**: Contains locked CDN resources used by Next.js. Not a typical lockfile.
-- **No test framework**: There are no tests. If adding tests, consider Vitest (aligns with the Vite ecosystem Next.js 16 uses) or Jest.
+- **Test framework**: Vitest (jsdom). Run `pnpm test`. Coverage via `pnpm test:coverage`. All test primitives imported from `tests/setup.ts`.
+- **`react-scan`** (devDependency): React performance profiler — active only in dev, not deployed.
 
 ---
 
@@ -210,7 +260,8 @@ shelfscan/
 ### Adding a New Redux Slice
 1. Create a new directory under `src/app/lib/redux/bgg/` (or a sibling to `bgg/`).
 2. Export a slice with `createSlice` from `@reduxjs/toolkit`.
-3. Register it in the appropriate `combineReducers` call or in `store.ts`.
+3. Add a `selectors.ts` sibling file for memoized/computed selectors (see `collection/selectors.ts` as reference).
+4. Register it in the appropriate `combineReducers` call or in `store.ts`.
 
 ### Adding a New Plugin
 1. Create a JSON file in `src/app/lib/plugins/` following the `ShelfScanPlugin` type.

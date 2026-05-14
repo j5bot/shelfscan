@@ -26,6 +26,7 @@ export const useInfoCollectionStatus = (): UseInfoCollectionStatus => {
     const { codes, removeCode, setCodes } = useCodes();
     const { gameSelections } = useGameSelections();
 
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     return useMemo(() => {
         return codes.reduce((acc, code) => {
             const {

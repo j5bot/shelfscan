@@ -336,3 +336,4 @@ export const AllGamesContent = memo(({
     }, true);
 });
 
+AllGamesContent.displayName = 'AllGamesContent';

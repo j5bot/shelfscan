@@ -13,14 +13,10 @@ type DispatchExtensionMessage = (
 
 type ExtensionMessagingContextValue = {
     dispatchExtensionMessage: DispatchExtensionMessage;
-    messages: Record<number, [DocumentMessageDetail, DocumentMessageResponseDetail | undefined]>;
-    promises: Record<number, PromiseWithResolvers<DocumentMessageResponseDetail | undefined>>;
 };
 
 const ExtensionMessagingContext = createContext<ExtensionMessagingContextValue>({
     dispatchExtensionMessage: () => undefined,
-    messages: {},
-    promises: {},
 });
 
 export const useExtensionMessaging = () => useContext(ExtensionMessagingContext);
@@ -114,8 +110,6 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
     return (
         <ExtensionMessagingContext.Provider value={{
             dispatchExtensionMessage,
-            messages: messagesRef.current,
-            promises: promisesRef.current,
         }}>
             {children}
         </ExtensionMessagingContext.Provider>

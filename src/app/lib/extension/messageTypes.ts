@@ -1,4 +1,4 @@
-type MergeTypes<TypesArray extends any[], Res = {}> = TypesArray extends [
+type MergeTypes<TypesArray extends unknown[], Res = object> = TypesArray extends [
                  infer Head,
                  ...infer Rem,
              ]
@@ -8,7 +8,7 @@ type MergeTypes<TypesArray extends any[], Res = {}> = TypesArray extends [
 type OnlyFirst<F, S> = F & { [Key in keyof Omit<S, keyof F>]?: never };
 
 export type OneOf<
-    TypesArray extends any[],
+    TypesArray extends unknown[],
     Res = never,
     AllProperties = MergeTypes<TypesArray>,
 > = TypesArray extends [infer Head, ...infer Rem]

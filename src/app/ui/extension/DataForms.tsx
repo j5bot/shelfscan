@@ -122,6 +122,30 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
         return () => { active = false; };
     }, []);
 
+    const handleGetDataResponse = (body: string) => {
+        const segments = body.split('\n', 2);
+        if (!segments[1]) {
+            return;
+        }
+
+        let storedData: Record<string, unknown>;
+        try {
+            storedData = JSON.parse(segments[1]);
+        } catch (e) {
+            console.error('Failed to parse stored data', e);
+            return;
+        }
+        setData(storedData);
+
+        forms.forEach(form => {
+            const viewer = viewersRef.current.get(form.id!);
+            if (!viewer) {
+                return;
+            }
+            viewer.importSchema(form.schema, storedData[form.schema.id]!).then();
+        })
+    };
+
     useEffect(() => {
         if (forms.length === 0 || !collectionId || !userId) {
             return;
@@ -154,29 +178,6 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
         };
     }, [forms.length, collectionId, userId]);
 
-    const handleGetDataResponse = (body: string) => {
-        const segments = body.split('\n', 2);
-        if (!segments[1]) {
-            return;
-        }
-        
-        let storedData: Record<string, unknown>;
-        try {
-            storedData = JSON.parse(segments[1]);
-        } catch (e) {
-            console.error('Failed to parse stored data', e);
-            return;
-        }
-        setData(storedData);
-
-        forms.forEach(form => {
-            const viewer = viewersRef.current.get(form.id!);
-            if (!viewer) {
-                return;
-            }
-            viewer.importSchema(form.schema, storedData[form.schema.id]!).then();
-        })
-    };
 
     const handleViewerReady = useCallback((id: number, viewer: FormViewer) => {
         viewersRef.current.set(id, viewer);

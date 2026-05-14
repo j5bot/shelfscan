@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
         minimumCacheTTL: 2678400, // 31 days
     },
     turbopack: {
-        root: './'
+        root: __dirname,
     }
 };
 

@@ -26,7 +26,7 @@ export const useBatchSync = () => {
             versionId: versionId,
             formValues: {},
         });
-    }, [userId]);
+    }, [userId, dispatchExtensionMessage]);
 
     return {
         syncOn,

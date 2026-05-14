@@ -37,5 +37,6 @@ export const useImageMismatch = (
         };
     }, [infoMismatch, versionMismatch, infoId, versionId]);
 
+    // eslint-disable-next-line react-hooks/refs
     return promiseRef.current;
 };

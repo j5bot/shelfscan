@@ -19,6 +19,7 @@ export const useSync = () => {
         if (syncOn === newValue) {
             return;
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSyncOn(newValue);
     }, [syncOn]);
 

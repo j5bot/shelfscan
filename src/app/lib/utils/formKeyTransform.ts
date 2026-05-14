@@ -68,7 +68,7 @@ export const generateKeyFromLabel = (key: string, label: string | undefined, use
     }
 
     // Convert to lowercase, remove special chars, replace spaces with hyphens
-    let slug = makeUnique(slugify(label), usedKeys);
+    const slug = makeUnique(slugify(label), usedKeys);
 
     if (!slug) {
         return key;
