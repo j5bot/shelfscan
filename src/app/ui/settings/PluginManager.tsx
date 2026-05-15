@@ -22,6 +22,7 @@ export const PluginManager = () => {
     const pluginTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         reloadPlugins().then();
     }, [plugins]);
 

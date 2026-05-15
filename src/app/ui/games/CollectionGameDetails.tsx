@@ -1,4 +1,3 @@
-import { useExtension } from '@/app/lib/extension/useExtension';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';

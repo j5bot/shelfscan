@@ -1,5 +1,3 @@
-import { useSelector } from '@/app/lib/hooks';
-import { RootState } from '@/app/lib/redux/store';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { SizeKey } from '@/app/ui/games/AllGamesContent';

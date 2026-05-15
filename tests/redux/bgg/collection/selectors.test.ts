@@ -119,7 +119,6 @@ describe('bgg/collection/selectors', () => {
         });
 
         it('returns an empty object when there is no collection for the current user', () => {
-            const state = makeState({ username: 'nobody' });
             // State has no collection entry for 'nobody'
             const emptyUsersState = ({
                 bgg: {

@@ -10,7 +10,7 @@ export type UseInfoCollectionStatus = Record<PossibleStatusWithAllAndNone, strin
     codes: string[];
     enrichedCodes: Record<string, Record<PossibleStatusWithAllAndNone, boolean>>;
     removeCode: (code: string) => void;
-    setCodes: (codes: string[]) => void;
+    setCodes: (codes: string[] | ((prev: string[]) => string[])) => void;
 };
 
 export const useInfoCollectionStatus = (): UseInfoCollectionStatus => {
@@ -26,6 +26,7 @@ export const useInfoCollectionStatus = (): UseInfoCollectionStatus => {
     const { codes, removeCode, setCodes } = useCodes();
     const { gameSelections } = useGameSelections();
 
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     return useMemo(() => {
         return codes.reduce((acc, code) => {
             const {

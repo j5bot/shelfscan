@@ -5,7 +5,7 @@ import {
 } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 export type Codes = string[];
 
@@ -15,7 +15,7 @@ const CodesContext =
         addHistoryID: (code: string, historyID: number) => void;
         getHistoryIDs: (code: string) => number[];
         removeCode: (code: string) => void;
-        setCodes: (codes: Codes | ((prev: Codes) => Codes)) => void;
+        setCodes: (codes: Codes | ((prev: Codes) => string[])) => void;
         loaded: boolean;
     }>({
         codes: [],
@@ -41,9 +41,15 @@ export const CodesProvider = ({ children }: Props) => {
 
     const persistKey = username ? `${username.toLowerCase()}|codes` : undefined;
     const persistKeyRef = useRef(persistKey);
-    persistKeyRef.current = persistKey;
     const codesRef = useRef(codes);
-    codesRef.current = codes;
+
+    useLayoutEffect(() => {
+        persistKeyRef.current = persistKey;
+    }, [persistKey]);
+
+    useLayoutEffect(() => {
+        codesRef.current = codes;
+    }, [codes]);
 
     const setCodes = useCallback((newCodes: Codes | ((prev: Codes) => Codes)) => {
         setCodesInner(prev => {
@@ -66,6 +72,7 @@ export const CodesProvider = ({ children }: Props) => {
     // load persisted codes from db
     useEffect(() => {
         if (!persistKey) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setLoaded(true);
             return;
         }

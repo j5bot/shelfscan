@@ -6,7 +6,7 @@ import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import { forwardRef, type CSSProperties, type ReactNode } from 'react';
-import { FaArrowsRotate, FaBarcode } from 'react-icons/fa6';
+import { FaArrowsRotate, FaBarcode, FaCheck } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 
 type NotInCollectionSortField = 'name' | 'lastScanned';
@@ -60,6 +60,10 @@ type NotInCollectionContentProps = {
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
     hasActiveFilters: boolean;
     resetFilters: () => void;
+    // Selection mode
+    selectionMode: boolean;
+    selectedIds: Set<number>;
+    onToggleSelection: (entry: NotInCollectionEntry) => void;
 };
 
 export const NotInCollectionContent = ({
@@ -81,6 +85,9 @@ export const NotInCollectionContent = ({
     setFilter,
     hasActiveFilters,
     resetFilters,
+    selectionMode,
+    selectedIds,
+    onToggleSelection,
 }: NotInCollectionContentProps) => {
     if (!collectionHasData) {
         return (
@@ -105,18 +112,34 @@ export const NotInCollectionContent = ({
         );
     }
 
-    const renderGridItem = (entry: NotInCollectionEntry, thumbnailSize: number) => (
-        <ListGame
-            keyValue={entry.id.toString()}
-            name={entry.gameName ?? entry.upc}
-            thumbnailUrl={entry.thumbnailUrl ?? ''}
-            thumbnailSize={thumbnailSize}
-            statusText="Not in collection"
-            cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
-            statusIcon={null}
-            detailUrl={`/upc/${entry.upc}`}
-        />
-    );
+    const renderGridItem = (entry: NotInCollectionEntry, thumbnailSize: number) => {
+        const isSelected = selectedIds.has(entry.id);
+        const canSelectEntry = entry.bggId !== undefined;
+        return (
+            <div
+                className={`relative${selectionMode && canSelectEntry ? ' cursor-pointer' : ''}${selectionMode && !canSelectEntry ? ' opacity-40' : ''}`}
+                onClick={selectionMode && canSelectEntry ? () => onToggleSelection(entry) : undefined}
+            >
+                <ListGame
+                    keyValue={entry.id.toString()}
+                    name={entry.gameName ?? entry.upc}
+                    thumbnailUrl={entry.thumbnailUrl ?? ''}
+                    thumbnailSize={thumbnailSize}
+                    statusText="Not in collection"
+                    cornerIcon={<FaBarcode className="shrink-0" title="Scanned" />}
+                    statusIcon={null}
+                    detailUrl={selectionMode ? undefined : `/upc/${entry.upc}`}
+                />
+                {selectionMode && isSelected && (
+                    <div className="absolute inset-0 flex items-center justify-center z-10 bg-primary/20 rounded-md pointer-events-none">
+                        <div className="bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow">
+                            <FaCheck className="text-primary text-2xl" aria-hidden="true" />
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     let content: ReactNode = displayItems.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-8 text-center">
@@ -140,13 +163,20 @@ export const NotInCollectionContent = ({
                         totalCount={displayItems.length}
                         itemContent={index => {
                             const entry = displayItems[index];
+                            const isSelected = selectedIds.has(entry.id);
+                            const canSelectEntry = entry.bggId !== undefined;
                             return (
-                                <div className="pt-1">
+                                <div className={`pt-1${selectionMode && !canSelectEntry ? ' opacity-40' : ''}`}>
                                     <ListGameRow
                                         name={entry.gameName ?? entry.upc}
                                         thumbnailUrl={entry.thumbnailUrl ?? ''}
                                         detailUrl={`/upc/${entry.upc}`}
                                         isScanned={true}
+                                        onClick={selectionMode && canSelectEntry ? () => onToggleSelection(entry) : undefined}
+                                        extraBadges={selectionMode && isSelected
+                                            ? <FaCheck size={13} className="text-primary" aria-label="Selected" />
+                                            : undefined
+                                        }
                                     />
                                 </div>
                             );

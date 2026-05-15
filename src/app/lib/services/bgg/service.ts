@@ -217,10 +217,14 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
 
     return {
         ...commonDetails,
-        objectId: object.objectid,
-        versionId: version?.id ?? object.versionid,
+        objectId: typeof object.objectid === 'string' ? parseInt(object.objectid, 10) : object.objectid,
+        versionId: version?.id ?? (
+            typeof object.versionid === 'string'
+                ? parseInt(object.versionid as string, 10)
+                : object.versionid
+        ),
         subType: object.subtype ?? 'boardgame',
-        collectionId: object.collid,
+        collectionId: typeof object.collid === 'string' ? parseInt(object.collid, 10) : object.collid,
         version,
         statuses: object.status,
         lastModified: object.lastmodified,

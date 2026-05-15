@@ -1,6 +1,5 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { useRating } from '../../lib/extension/useRating';
 import { memo, useCallback, useState } from 'react';
 
@@ -28,16 +27,15 @@ export const RatingForm = memo(({
         return state.bgg.collection.users[username].items[collectionId ?? 0]
     });
 
-    const rating = item?.rating ?? item?.averageRating ?? 0;
 
     const { createAddRating } = useRating();
 
-    const addRating = useCallback(createAddRating({
+    const addRating = createAddRating({
         collectionId: item?.collectionId,
         gameId: item?.objectId,
         versionId: item?.versionId,
         name: item?.name,
-    }), [item]);
+    });
 
     const userRating = item?.rating ?? 0;
     const [newRating, setNewRating] = useState<number>(item?.rating ?? 0);

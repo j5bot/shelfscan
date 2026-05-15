@@ -24,9 +24,10 @@ export const useBatchSync = () => {
             name: info.name,
             gameId: info.id,
             versionId: versionId,
+            info,
             formValues: {},
         });
-    }, [userId]);
+    }, [userId, dispatchExtensionMessage]);
 
     return {
         syncOn,

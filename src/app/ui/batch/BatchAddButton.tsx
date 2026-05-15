@@ -60,7 +60,7 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
             onComplete?.(results.filter(r => r !== undefined));
             setIsAdding(false);
         });
-    }, [isAdding, readyGames, gameDataMap, store, addGameToCollection, onComplete]);
+    }, [isAdding, readyGames, gameDataMap, store, addGameToCollection, onComplete, gameSelections]);
 
     const pendingCount = codes.length - readyGames.length;
 

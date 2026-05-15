@@ -20,6 +20,7 @@ export const BggCollectionForm = ()=> {
         if (!(currentUsername || settingsUsername)) {
             return;
         }
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUsername(currentUsername ?? settingsUsername as string);
     }, [currentUsername, settingsUsername, setUsername]);
 

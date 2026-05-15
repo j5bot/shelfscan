@@ -1,6 +1,5 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
 import { ReactNode } from 'react';

@@ -71,6 +71,7 @@ export const useCollectionData = ({ username }: UseCollectionDataOptions): UseCo
 
     useEffect(() => {
         mountedRef.current = true;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         loadCollection().then();
         return () => { mountedRef.current = false; };
     }, [loadCollection]);

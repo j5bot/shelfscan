@@ -21,6 +21,7 @@ export const PaymentMethodSelect = ({
         useState<string[] | undefined>(paymentMethod);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPaymentMethodValues(paymentMethod);
     }, [paymentMethod.join(',')]);
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useSync } from '@/app/lib/extension/useSync';
+import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
@@ -9,22 +10,26 @@ import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
 import { useTitle } from '@/app/lib/hooks/useTitle';
-import { useSelector } from '@/app/lib/hooks';
+import { useSelector, useStore } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
+import { getCollectionInfoByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { KeyboardEvent, Suspense, useCallback, useMemo, useState } from 'react';
+import { type GameUPCBggInfo } from 'gameupc-hooks/types';
+import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,
     FaBorderAll,
+    FaCloudArrowUp,
     FaList,
     FaStar,
     FaTableCells,
+    FaXmark,
 } from 'react-icons/fa6';
 
 type NotInCollectionSortField = 'name' | 'lastScanned';
@@ -36,12 +41,23 @@ export default function CollectionPage() {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory } = useScanHistory();
     const { syncOn } = useSync();
+    const { canBatch, addGameToCollection } = useBatchSync();
     const [batchRate, setBatchRate] = useState<boolean>(false);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
     const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
     const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
+
+    // ── Not-in-collection selection state ─────────────────────────────────────
+    const [selectionMode, setSelectionMode] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [addedNames, setAddedNames] = useState<string[]>([]);
+    const [isAdding, setIsAdding] = useState(false);
+    const addToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const store = useStore();
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
@@ -56,6 +72,30 @@ export default function CollectionPage() {
         clearRefreshError,
         announceText,
     } = useCollectionData({ username });
+
+    // ── Selection mode handlers ────────────────────────────────────────────────
+    const handleToggleSelectionMode = useCallback(() => {
+        setSelectionMode(v => !v);
+        setSelectedIds(new Set());
+    }, []);
+
+    const handleToggleSelection = useCallback((entry: NotInCollectionEntry) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(entry.id)) {
+                next.delete(entry.id);
+            } else {
+                next.add(entry.id);
+            }
+            return next;
+        });
+    }, []);
+
+    const handleRequestAddSelected = useCallback(() => {
+        if (selectedIds.size === 0) { return; }
+        setShowConfirmModal(true);
+    }, [selectedIds.size]);
+
 
     const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
         activeTab === CollectionTabs.ALL_GAMES && state.status === CollectionLoadStatuses.LOADED,
@@ -219,6 +259,51 @@ export default function CollectionPage() {
         storageKeyPrefix: 'collection-not-in',
     });
 
+    const handleAddSelected = useCallback(async () => {
+        setShowConfirmModal(false);
+        setIsAdding(true);
+
+        const reduxState = store.getState();
+        const selectedEntries = notInCollectionItems.filter(
+            e => selectedIds.has(e.id) && e.bggId !== undefined,
+        );
+
+        const promises = selectedEntries.map(entry => {
+            const { collectionId } = getCollectionInfoByObjectId([reduxState, entry.bggId!]);
+            const info: GameUPCBggInfo = {
+                id: entry.bggId!,
+                name: entry.gameName ?? entry.upc,
+                confidence: 100,
+                thumbnail_url: entry.thumbnailUrl ?? '',
+                page_url: `https://boardgamegeek.com/boardgame/${entry.bggId}`,
+                image_url: entry.thumbnailUrl ?? '',
+                data_url: '',
+                update_url: '',
+                version_status: 'none',
+                versions: [],
+            };
+            return addGameToCollection(info, undefined, collectionId)?.then(
+                result => result ? (entry.gameName ?? entry.upc) : undefined,
+            );
+        });
+
+        const results = await Promise.all(promises);
+        const names = results.filter((r): r is string => r !== undefined);
+
+        setIsAdding(false);
+        setSelectionMode(false);
+        setSelectedIds(new Set());
+
+        if (names.length > 0) {
+            setAddedNames(names);
+            if (addToastTimerRef.current !== null) { clearTimeout(addToastTimerRef.current); }
+            addToastTimerRef.current = setTimeout(() => {
+                addToastTimerRef.current = null;
+                setAddedNames([]);
+            }, 5000);
+        }
+    }, [selectedIds, notInCollectionItems, store, addGameToCollection]);
+
     // ── Tab keyboard navigation ────────────────────────────────────────────────
     const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>, tab: typeof activeTab) => {
         if (e.key === 'ArrowRight' && tab === CollectionTabs.ALL_GAMES) {
@@ -362,6 +447,46 @@ export default function CollectionPage() {
                     <Suspense>
                         <BggCollectionForm />
                     </Suspense>
+                    {canBatch && activeTab === CollectionTabs.NOT_IN_COLLECTION && (
+                        <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
+                            <button
+                                type="button"
+                                className={`btn btn-sm rounded-md ${selectionMode ? 'btn-primary' : 'text-base-content/70'}`}
+                                onClick={handleToggleSelectionMode}
+                                aria-pressed={selectionMode}
+                            >
+                                {selectionMode ? 'Exit Select' : 'Select Items'}
+                            </button>
+                            {selectionMode && selectedIds.size > 0 && (
+                                <button
+                                    type="button"
+                                    className={`btn rounded-full pointer-events-auto
+                                        bg-[#e07ca4] text-white
+                                        flex items-center justify-center gap-2
+                                        uppercase text-base font-sharetech
+                                        pl-6 pr-6 pt-2 pb-2
+                                        ${isAdding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
+                                    onClick={handleRequestAddSelected}
+                                    disabled={isAdding}
+                                    aria-label={`Add ${selectedIds.size} game${selectedIds.size !== 1 ? 's' : ''} to collection`}
+                                >
+                                    {isAdding
+                                     ? <span className="loading loading-bars loading-sm" />
+                                     : <FaCloudArrowUp className="w-4 h-4" />
+                                    }
+                                    Add {selectedIds.size} Game{selectedIds.size !== 1 ? 's' : ''} to Collection
+                                </button>
+                            )}
+                            {selectionMode && (
+                                <span className="text-xs text-base-content/60 pr-1">
+                                    {selectedIds.size > 0
+                                     ? `${selectedIds.size} selected`
+                                     : ''
+                                    }
+                                </span>
+                            )}
+                        </div>
+                    )}
                     <section
                         ref={sectionRef}
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
@@ -413,12 +538,87 @@ export default function CollectionPage() {
                                 setFilter={setFilter}
                                 hasActiveFilters={hasActiveFilters}
                                 resetFilters={resetFilters}
+                                selectionMode={selectionMode}
+                                selectedIds={selectedIds}
+                                onToggleSelection={handleToggleSelection}
                             />
                         )}
                     </section>
                 </div>
             </div>
             <CollectionItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+            {addedNames.length > 0 && (
+                <div
+                    className="toast toast-top toast-center z-50"
+                    onClick={() => setAddedNames([])}
+                >
+                    <div role="status" className="alert alert-success shadow-lg cursor-pointer">
+                        <span className="text-sm">
+                            Added {addedNames.length} game{addedNames.length !== 1 ? 's' : ''} to collection:&nbsp;
+                            {addedNames.join(', ')}
+                        </span>
+                    </div>
+                </div>
+            )}
+            {showConfirmModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+                    onClick={() => setShowConfirmModal(false)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Confirm add to collection"
+                >
+                    <div
+                        className="relative bg-base-100 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            className="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
+                            onClick={() => setShowConfirmModal(false)}
+                            aria-label="Close"
+                        >
+                            <FaXmark />
+                        </button>
+                        <h2 className="text-lg font-semibold mb-2">
+                            Add to BGG Collection?
+                        </h2>
+                        <p className="text-sm text-base-content/70 mb-3">
+                            Add {selectedIds.size} game{selectedIds.size !== 1 ? 's' : ''} to your BGG collection:
+                        </p>
+                        <ul className="text-sm mb-5 max-h-48 overflow-y-auto space-y-1 pl-3">
+                            {notInCollectionItems
+                                .filter(e => selectedIds.has(e.id) && e.bggId !== undefined)
+                                .map(e => (
+                                    <li key={e.id} className="truncate list-disc text-base-content/80">
+                                        {e.gameName ?? e.upc}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-ghost"
+                                onClick={() => setShowConfirmModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-primary gap-1"
+                                onClick={handleAddSelected}
+                                disabled={isAdding}
+                            >
+                                {isAdding
+                                    ? <span className="loading loading-bars loading-xs" />
+                                    : <FaCloudArrowUp />
+                                }
+                                Add to Collection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

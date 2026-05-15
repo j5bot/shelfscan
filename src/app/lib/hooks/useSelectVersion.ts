@@ -85,8 +85,8 @@ export const useSelectVersion = (id: string) => {
 
     const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
         if (infoIndex === -1) {
-            delete gameSelections[id];
-            setGameSelections(gameSelections);
+            const { [id]: _, ...newSelections } = gameSelections;
+            setGameSelections(newSelections);
             return;
         }
         if (versionIndex === -1) {
