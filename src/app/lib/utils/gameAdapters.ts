@@ -25,6 +25,14 @@ export const gameUPCVersionToVersion = (version: GameUPCBggVersion): Version => 
     language: version.language,
 });
 
+export const gameUPCInfoToCollectionItem =
+    (info: GameUPCBggInfo): Partial<BggCollectionItem> => ({
+        objectId: info.id,
+        name: info.name,
+        thumbnail: info.thumbnail_url,
+        image: info.image_url,
+    });
+
 export const collectionItemToGame = (item: BggCollectionItem): Game => ({
     id: item.objectId,
     name: item.name,

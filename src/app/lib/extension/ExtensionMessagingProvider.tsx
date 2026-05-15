@@ -5,6 +5,7 @@ import {
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
+import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef } from 'react';
 
 type DispatchExtensionMessage = (
@@ -85,13 +86,20 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
                 return;
             }
 
-            const { shouldRemove } = detail.response ?? {};
+            const { shouldRemove, entry } = detail.response ?? {};
+            const info = entry?.info ? gameUPCInfoToCollectionItem(entry.info) : {};
+
+            const updatedItem = {
+                ...info,
+                ...getCollectionItemFromObject(
+                    collectionItem as Record<string, unknown>,
+                )
+            };
+
             dispatch(updateCollectionItems({
                 username,
                 items: {
-                    [collectionItem?.collid]: getCollectionItemFromObject(
-                        collectionItem as Record<string, unknown>,
-                    ),
+                    [collectionItem?.collid]: updatedItem,
                 },
                 update: true,
                 remove: shouldRemove,

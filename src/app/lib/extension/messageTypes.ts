@@ -1,3 +1,5 @@
+import { GameUPCBggInfo } from 'gameupc-hooks/types';
+
 type MergeTypes<TypesArray extends unknown[], Res = object> = TypesArray extends [
                  infer Head,
                  ...infer Rem,
@@ -23,6 +25,7 @@ export type Game = {
     versionId: number;
     formValues?: Record<string, unknown>;
     timestamp: number;
+    info?: GameUPCBggInfo;
 };
 
 export type Trade = Game;
