@@ -30,12 +30,12 @@ export const RatingForm = memo(({
 
     const { createAddRating } = useRating();
 
-    const addRating = useCallback(() => createAddRating({
+    const addRating = createAddRating({
         collectionId: item?.collectionId,
         gameId: item?.objectId,
         versionId: item?.versionId,
         name: item?.name,
-    })(), [item, createAddRating]);
+    });
 
     const userRating = item?.rating ?? 0;
     const [newRating, setNewRating] = useState<number>(item?.rating ?? 0);
