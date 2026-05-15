@@ -38,7 +38,7 @@ pnpm install          # Install dependencies
 pnpm dev              # Start dev server (next dev)
 pnpm build            # Production build (next build) — used by Vercel
 pnpm start            # Start production server (next start)
-pnpm lint             # Run ESLint (ESLINT_USE_FLAT_CONFIG=false next lint .)
+pnpm lint             # Run ESLint (pnpm exec eslint .)
 pnpm test             # Run tests once (vitest run)
 pnpm test:watch       # Run tests in watch mode (vitest)
 pnpm test:coverage    # Run tests with coverage (vitest run --coverage)
