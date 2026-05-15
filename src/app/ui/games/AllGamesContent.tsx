@@ -96,6 +96,10 @@ const GridItem = ({ collectionId, sizeKey, thumbnailSize, modeMap, onSelectItem 
         return state.bgg.collection.users[username].items[collectionId]
     });
 
+    if (!item) {
+        return null;
+    }
+
     const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
     let statusText: string;
     let cornerIcon: ReactNode;

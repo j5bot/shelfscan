@@ -47,9 +47,8 @@ const rewriteImageSrc = (src: string): string => src
     .replace('https://cf.geekdo-static.com/', '/bgg-static/')
     .replace('https://gameupc.com/assets/img/', '/gameupc-images/');
 
-// @ts-expect-error — ImageBlobReduce is loaded via script tag, not typed
 const resizeBlob = async (blob: Blob): Promise<Blob> => {
-    const ImageBlobReduce = (window as Record<string, unknown>)['ImageBlobReduce'] as {
+    const ImageBlobReduce = (window as unknown as Record<string, unknown>)['ImageBlobReduce'] as {
         new (): { toCanvas: (blob: Blob, opts: { max: number }) => Promise<HTMLCanvasElement> };
     };
     const reduce = new ImageBlobReduce();

@@ -6,7 +6,7 @@ import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import { forwardRef, type CSSProperties, type ReactNode } from 'react';
-import { FaArrowsRotate, FaBarcode, FaCheck, FaCloudArrowUp } from 'react-icons/fa6';
+import { FaArrowsRotate, FaBarcode, FaCheck } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 
 type NotInCollectionSortField = 'name' | 'lastScanned';
@@ -61,13 +61,9 @@ type NotInCollectionContentProps = {
     hasActiveFilters: boolean;
     resetFilters: () => void;
     // Selection mode
-    canSelect: boolean;
     selectionMode: boolean;
     selectedIds: Set<number>;
-    onToggleSelectionMode: () => void;
     onToggleSelection: (entry: NotInCollectionEntry) => void;
-    onRequestAddSelected: () => void;
-    isAdding: boolean;
 };
 
 export const NotInCollectionContent = ({
@@ -89,13 +85,9 @@ export const NotInCollectionContent = ({
     setFilter,
     hasActiveFilters,
     resetFilters,
-    canSelect,
     selectionMode,
     selectedIds,
-    onToggleSelectionMode,
     onToggleSelection,
-    onRequestAddSelected,
-    isAdding,
 }: NotInCollectionContentProps) => {
     if (!collectionHasData) {
         return (
@@ -217,26 +209,6 @@ export const NotInCollectionContent = ({
 
     return (
         <>
-            {canSelect && (
-                <div className="flex items-center justify-between gap-2 pt-2 pb-1">
-                    <button
-                        type="button"
-                        className={`btn btn-sm rounded-md ${selectionMode ? 'btn-primary' : 'btn-ghost'}`}
-                        onClick={onToggleSelectionMode}
-                        aria-pressed={selectionMode}
-                    >
-                        {selectionMode ? 'Cancel' : 'Select Items'}
-                    </button>
-                    {selectionMode && (
-                        <span className="text-xs text-base-content/60">
-                            {selectedIds.size > 0
-                                ? `${selectedIds.size} selected`
-                                : 'Tap items to select'
-                            }
-                        </span>
-                    )}
-                </div>
-            )}
             <CollectionControls
                 sortFields={sortFields}
                 sortField={sortField}
@@ -252,28 +224,6 @@ export const NotInCollectionContent = ({
                 stickyTop={0}
             />
             {content}
-            {selectionMode && selectedIds.size > 0 && (
-                <div className="fixed bottom-6 left-0 right-0 flex justify-center z-40 pointer-events-none">
-                    <button
-                        type="button"
-                        className={`btn rounded-full shadow-lg pointer-events-auto
-                            bg-[#e07ca4] text-white
-                            flex items-center justify-center gap-2
-                            uppercase text-base font-sharetech
-                            pl-6 pr-6 pt-2 pb-2
-                            ${isAdding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
-                        onClick={onRequestAddSelected}
-                        disabled={isAdding}
-                        aria-label={`Add ${selectedIds.size} game${selectedIds.size !== 1 ? 's' : ''} to collection`}
-                    >
-                        {isAdding
-                            ? <span className="loading loading-bars loading-sm" />
-                            : <FaCloudArrowUp className="w-4 h-4" />
-                        }
-                        Add {selectedIds.size} Game{selectedIds.size !== 1 ? 's' : ''} to Collection
-                    </button>
-                </div>
-            )}
         </>
     );
 };

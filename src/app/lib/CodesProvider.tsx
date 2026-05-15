@@ -15,7 +15,7 @@ const CodesContext =
         addHistoryID: (code: string, historyID: number) => void;
         getHistoryIDs: (code: string) => number[];
         removeCode: (code: string) => void;
-        setCodes: (codes: Codes | ((prev: Codes) => Codes)) => void;
+        setCodes: (codes: Codes | ((prev: Codes) => string[])) => void;
         loaded: boolean;
     }>({
         codes: [],

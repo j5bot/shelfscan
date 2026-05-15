@@ -10,7 +10,7 @@ export type UseInfoCollectionStatus = Record<PossibleStatusWithAllAndNone, strin
     codes: string[];
     enrichedCodes: Record<string, Record<PossibleStatusWithAllAndNone, boolean>>;
     removeCode: (code: string) => void;
-    setCodes: (codes: string[]) => void;
+    setCodes: (codes: string[] | ((prev: string[]) => string[])) => void;
 };
 
 export const useInfoCollectionStatus = (): UseInfoCollectionStatus => {

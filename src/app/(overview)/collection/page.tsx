@@ -447,6 +447,46 @@ export default function CollectionPage() {
                     <Suspense>
                         <BggCollectionForm />
                     </Suspense>
+                    {canBatch && activeTab === CollectionTabs.NOT_IN_COLLECTION && (
+                        <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
+                            <button
+                                type="button"
+                                className={`btn btn-sm rounded-md ${selectionMode ? 'btn-primary' : 'text-base-content/70'}`}
+                                onClick={handleToggleSelectionMode}
+                                aria-pressed={selectionMode}
+                            >
+                                {selectionMode ? 'Exit Select' : 'Select Items'}
+                            </button>
+                            {selectionMode && selectedIds.size > 0 && (
+                                <button
+                                    type="button"
+                                    className={`btn rounded-full pointer-events-auto
+                                        bg-[#e07ca4] text-white
+                                        flex items-center justify-center gap-2
+                                        uppercase text-base font-sharetech
+                                        pl-6 pr-6 pt-2 pb-2
+                                        ${isAdding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
+                                    onClick={handleRequestAddSelected}
+                                    disabled={isAdding}
+                                    aria-label={`Add ${selectedIds.size} game${selectedIds.size !== 1 ? 's' : ''} to collection`}
+                                >
+                                    {isAdding
+                                     ? <span className="loading loading-bars loading-sm" />
+                                     : <FaCloudArrowUp className="w-4 h-4" />
+                                    }
+                                    Add {selectedIds.size} Game{selectedIds.size !== 1 ? 's' : ''} to Collection
+                                </button>
+                            )}
+                            {selectionMode && (
+                                <span className="text-xs text-base-content/60 pr-1">
+                                    {selectedIds.size > 0
+                                     ? `${selectedIds.size} selected`
+                                     : ''
+                                    }
+                                </span>
+                            )}
+                        </div>
+                    )}
                     <section
                         ref={sectionRef}
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
@@ -498,13 +538,9 @@ export default function CollectionPage() {
                                 setFilter={setFilter}
                                 hasActiveFilters={hasActiveFilters}
                                 resetFilters={resetFilters}
-                                canSelect={canBatch}
                                 selectionMode={selectionMode}
                                 selectedIds={selectedIds}
-                                onToggleSelectionMode={handleToggleSelectionMode}
                                 onToggleSelection={handleToggleSelection}
-                                onRequestAddSelected={handleRequestAddSelected}
-                                isAdding={isAdding}
                             />
                         )}
                     </section>

@@ -85,18 +85,20 @@ export const useSelectVersion = (id: string) => {
 
     const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
         if (infoIndex === -1) {
-            const { [id]: _, ...rest } = gameSelections;
-            setGameSelections(rest);
+            delete gameSelections[id];
+            setGameSelections(gameSelections);
             return;
         }
         if (versionIndex === -1) {
             setSelectedInfoId(infos[infoIndex].id);
-            setGameSelections({ ...gameSelections, [id]: [infos[infoIndex].id] });
+            gameSelections[id] = [infos[infoIndex].id];
+            setGameSelections(gameSelections);
             return;
         }
         setSelectedInfoId(infos[infoIndex].id);
         setSelectedVersionId(versions[versionIndex].version_id);
-        setGameSelections({ ...gameSelections, [id]: [infos[infoIndex].id, versions[versionIndex].version_id] });
+        gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
+        setGameSelections(gameSelections);
     }, [id, gameSelections, setGameSelections, infos, versions]);
 
     const restorePreviousSelection = () => {
