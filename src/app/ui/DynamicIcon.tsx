@@ -92,9 +92,9 @@ export const DynamicReactIcon = <T extends { icon: string; }>(props: T) => {
         if (iconName && library) {
             loadIcon().then();
         } else {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIconNode(null);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [iconName, library]);
 
     return iconNode;

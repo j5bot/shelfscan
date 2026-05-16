@@ -30,7 +30,9 @@ type AvatarProps = {
 };
 
 const AvatarInner = ({ cachePromise }: UseCachedImage) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { alt, type: _type, ...imageProps } = use(cachePromise) ?? {};
+    // eslint-disable-next-line @next/next/no-img-element
     return <img className="bg-[#d9d4e6] rounded-full border-gray-400 border-4" alt={alt} {...imageProps} width={64} height={64} />;
 };
 

@@ -25,6 +25,7 @@ const PresentList = (props: TourCardProps) => {
         if (!codes.includes(testUPC)) {
             setCodes([...codes, testUPC]);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return <div className="flex flex-col gap-2">

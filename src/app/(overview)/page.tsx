@@ -71,6 +71,7 @@ export default function Page() {
             return;
         }
         setCodes(Object.keys(gameDataMap));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [setCodes, hasGameDataMap]);
 
     useEffect(() => {

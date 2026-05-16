@@ -176,6 +176,7 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
             window.clearTimeout(timeoutId);
             window.removeEventListener('message', handler);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [forms.length, collectionId, userId]);
 
 

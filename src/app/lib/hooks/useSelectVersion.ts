@@ -85,6 +85,7 @@ export const useSelectVersion = (id: string) => {
 
     const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
         if (infoIndex === -1) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { [id]: _, ...newSelections } = gameSelections;
             setGameSelections(newSelections);
             return;
@@ -148,7 +149,7 @@ export const useSelectVersion = (id: string) => {
     }, [
         id,
         selectedInfoId,
-        gameDataMap[id],
+        gameData,
         firstInfo,
         infosLength,
         setCurrentInfoIndex,
@@ -174,6 +175,7 @@ export const useSelectVersion = (id: string) => {
         setCurrentVersionIndex(null);
         setSelectedVersionId(undefined);
         setHoverVersionIndex(null);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         id,
         gameData,
@@ -186,6 +188,7 @@ export const useSelectVersion = (id: string) => {
 
     useEffect(() => {
         restorePreviousSelection();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, infos, searchQuery]);
 
     const infoClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {

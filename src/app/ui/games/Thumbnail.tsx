@@ -80,6 +80,7 @@ const ThumbnailBoxImage = ({ promise, className }: { promise: ResolvedImageProps
     }
 
     const { alt, type, ...imageProps } = resolved;
+    // eslint-disable-next-line @next/next/no-img-element
     return <img alt={alt}
          className={`object-contain transition-[filter] duration-200 rounded-xs ${type === 'placeholder' ? 'blur-xs' : ''} ${className ?? ''}`}
          {...imageProps}

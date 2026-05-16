@@ -45,6 +45,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
             }
             loadUser(username as string, rememberMe as boolean, true);
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return <SettingsContext.Provider value={{

@@ -22,7 +22,6 @@ import { DataForms } from '@/app/ui/extension/DataForms';
 import React, {
     Fragment,
     SyntheticEvent,
-    useCallback,
     useEffect,
     useState
 } from 'react';
@@ -212,6 +211,7 @@ export const useExtension = (params?: UseExtension) => {
         setFormValues(Object.assign(formValues, {
             tradeCondition: collectionItem?.tradeCondition
         }));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [collectionItem?.tradeCondition]);
 
     useEffect(() => {
@@ -248,21 +248,22 @@ export const useExtension = (params?: UseExtension) => {
                 setFormValues(infoFormValues);
             }
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         if (update) {
-            setDisabledModes(Object.assign({}, disabledModes, { collection: false }));
+            setDisabledModes(prev => Object.assign({}, prev, { collection: false }));
             return;
         }
 
         switch (currentMode) {
             case 'previous':
             case 'clear':
-                setDisabledModes(Object.assign({}, disabledModes, { collection: true }));
+                setDisabledModes(prev => Object.assign({}, prev, { collection: true }));
                 break;
             default:
-                setDisabledModes(Object.assign({}, disabledModes, { collection: false }));
+                setDisabledModes(prev => Object.assign({}, prev, { collection: false }));
                 break;
         }
     }, [update, currentMode, setDisabledModes]);
