@@ -20,10 +20,11 @@ export const PaymentMethodSelect = ({
     const [paymentMethodValues, setPaymentMethodValues] =
         useState<string[] | undefined>(paymentMethod);
 
+    const paymentMethodKey = paymentMethod.join(',');
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPaymentMethodValues(paymentMethod);
-    }, [paymentMethod.join(',')]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [paymentMethodKey]);;
 
     return <>
         <input type="hidden" name="paymentMethod"

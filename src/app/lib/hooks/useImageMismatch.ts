@@ -1,7 +1,7 @@
 import { bggGetThingsXml } from '@/app/lib/actions';
 import { bggGetImageUrl } from '@/app/lib/services/bgg/service';
 import { getPageDOM } from '@/app/lib/utils/xml';
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useTransition } from 'react';
 
 export const useImageMismatch = (
     infoMismatch: boolean,
@@ -35,8 +35,8 @@ export const useImageMismatch = (
         return () => {
             promiseRef.current = null;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [infoMismatch, versionMismatch, infoId, versionId]);
 
-    // eslint-disable-next-line react-hooks/refs
     return promiseRef.current;
 };

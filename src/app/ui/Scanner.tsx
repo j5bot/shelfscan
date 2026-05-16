@@ -63,7 +63,7 @@ export function Scanner(props: ScannerProps) {
                 play: () => Promise.resolve(),
             };
         }
-    }, [breakpoint]);
+    }, []);
 
     const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
     const [deviceId, setDeviceId] = useState<string>();

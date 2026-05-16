@@ -59,8 +59,8 @@ export const CodesProvider = ({ children }: Props) => {
     }, []);
 
     const removeCode = useCallback((code: string) => {
-        setCodes(codes.filter(c => c !== code));
-    }, [codes]);
+        setCodes(prev => prev.filter(c => c !== code));
+    }, [setCodes]);
 
     const addHistoryID = (code: string, historyID: number) => {
         const ids = historyIDsRef.current[code] ?? [];

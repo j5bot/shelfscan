@@ -6,7 +6,6 @@ import {
     clearScanHistory,
     database,
     getScanHistory,
-    getScanHistoryCount,
     updateScanHistoryEntry,
 } from '@/app/lib/database/database';
 import {

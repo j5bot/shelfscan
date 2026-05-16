@@ -32,7 +32,7 @@ export const useLoadUser = () => {
             username,
             items,
         }));
-    }, [items, username, userXml]);
+    }, [items, username, userXml, dispatch]);
 
     const loadUser = (
         username?: string,

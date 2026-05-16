@@ -89,7 +89,7 @@ export const useTailwindBreakpointDetect = () => {
 
     useLayoutEffect(() => {
         checkBreakpoint();
-    }, []);
+    }, [checkBreakpoint]);
 
     return breakpoint;
 };
@@ -115,7 +115,7 @@ export const useTailwindDarkModeDetect = () => {
     useLayoutEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         checkDarkMode();
-    }, []);
+    }, [checkDarkMode]);
 
     return darkMode;
 };

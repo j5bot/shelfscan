@@ -88,9 +88,11 @@ export const useCachedImage = (
 
     const placeholderSrcPromise =
         useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(),
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             [normalSrc, placeholder, normalImageId]);
     const cachedSrcPromise =
         useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(),
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             [normalSrc, placeholder, normalImageId]);
 
     const urlRef = useRef<string | undefined>(undefined);
@@ -234,6 +236,7 @@ export const useCachedImage = (
                 urlRef.current = undefined;
             }
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [normalSrc, placeholder, normalImageId]);
 
     return {
