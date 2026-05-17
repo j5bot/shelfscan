@@ -20,7 +20,7 @@ export type ModeSettingFormProps = {
     setFormValues: SetFormValues;
 };
 
-export type CollectionModeSetting = {
+export type ModeSetting = {
     updateOnly?: boolean;
     label: ReactNode;
     listText?: string;
@@ -35,4 +35,7 @@ export type CollectionModeSetting = {
         collectionItem: BggCollectionItem
     ) => void;
 }
-export type CollectionModeSettings = Record<Modes['collection'], CollectionModeSetting>;
+export type CollectionModeSettings = Record<Modes['collection'], ModeSetting>;
+export type PlayModeSettings = Record<Modes['play'], ModeSetting>;
+export type ModeSettings = Record<Modes[keyof Modes], ModeSetting>
+export type ModeSettingKey = keyof ModeSettings;

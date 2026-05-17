@@ -1,23 +1,18 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import {
-    DocumentMessageDetail,
-} from '@/app/lib/extension/messageTypes';
-import {
     Modes,
-    CollectionModeSettings,
     DisabledModes,
-    CollectionModeSetting
+    ModeSetting, ModeSettings
 } from '@/app/lib/extension/types';
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
+import { MakeModeSettings } from '@/app/lib/extension/utils';
 import { useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { BggCollectionItem, BggCollectionStatuses, BGGPlayer } from '@/app/lib/types/bgg';
+import { BggCollectionItem, BGGPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
-import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
-import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import { DataForms } from '@/app/ui/extension/DataForms';
 import React, {
     Fragment,
@@ -28,144 +23,20 @@ import React, {
 import { FaSave } from 'react-icons/fa';
 import {
     FaChevronDown,
-    FaCircleInfo,
-    FaClock,
-    FaCloudArrowUp,
-    FaDice,
-    FaHeart,
-    FaPlus,
-    FaRecycle,
     FaStar,
-    FaTag,
-    FaXmark,
 } from 'react-icons/fa6';
-
-const makeAddToCollectionModeSettings = (
-    collectionId: number | undefined,
-    update: boolean,
-    statuses?: BggCollectionStatuses,
-): CollectionModeSettings =>
-    ({
-        add: {
-            label: update && (statuses?.own || collectionId !== undefined) ? 'Set' : 'Add',
-            listText: update ?
-                      statuses?.own ? 'Set Info' :
-                        collectionId !== undefined ? 'Set as Owned' : 'Add to Owned'
-                      : 'Add to Owned',
-            icon: update && (statuses?.own || collectionId !== undefined) ?
-                  <FaCloudArrowUp className="w-4 h-4 mr-0.5 shrink-0" /> :
-                    <FaPlus className="w-4 h-4 shrink-0" />,
-            width: 'xs:w-19 w-21',
-        },
-        trade: {
-            label: 'Trade',
-            listText: update && (statuses?.fortrade || collectionId !== undefined) ?
-                      'Set Trade Info' :
-                      'Add for Trade',
-            icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
-            width: 'xs:w-23 w-25',
-            form: ({ formValues, setFormValues }) => {
-                return <form name="trade" className="pb-2">
-                    <input type="text"
-                           name="tradeCondition"
-                           className="input text-sm p-2"
-                           placeholder="Trade Condition"
-                           defaultValue={formValues?.['tradeCondition']}
-                           onChange={event => setFormValues(
-                               Object.assign(formValues, { tradeCondition: event.currentTarget.value })
-                           )}
-                    />
-                </form>;
-            },
-            validator: (formData: FormData)=> {
-                const formValues = Object.fromEntries(formData ?? []);
-                return !!(formValues['tradeCondition'] as string | undefined)?.length;
-            }
-        },
-        wishlist: {
-            label: 'Wish',
-            listText: 'Add to Wishlist',
-            icon: <FaHeart className="ml-0.5 w-3 h-4 shrink-0" />,
-            width: 'xs:w-19.5 w-21.5',
-            shouldShow: (statuses, update) => !(statuses?.wishlist || update),
-        },
-        previous: {
-            updateOnly: true,
-            label: 'Had It',
-            listText: 'Previously Owned',
-            icon: <FaClock className="w-3.5 h-3.5 mr-0.5 shrink-0" />,
-            width: 'xs:w-22.5 w-24.5',
-            shouldShow: (_, update) => update,
-        },
-        clear: {
-            updateOnly: true,
-            label: 'Clear',
-            listText: 'Clear Statuses',
-            icon: <FaXmark className="w-4 h-4 shrink-0" />,
-            width: 'xs:w-23 w-25',
-            form: () => {
-                return <form name="clear" className="self-start xs:self-center xs:pb-2 xs:pt-0 pt-2">
-                    <label className="flex flex-wrap gap-1 items-center text-xs">
-                        <input name="shouldRemove"
-                               value="remove"
-                               type="checkbox"
-                               className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" />
-                        Remove
-                    </label>
-                </form>;
-            },
-            shouldShow: (_, update) => update,
-        },
-        sell: {
-            label: 'Sell',
-            listText: 'Add to Market',
-            icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
-            width: 'xs:w-20.5 w-22.5',
-            form: AddToMarketForm,
-            validator: (formData: FormData) => {
-                const formValues = Object.fromEntries(formData ?? []);
-                const required = [
-                    'currency', 'price',
-                    'condition', 'notes',
-                    'paymentMethod',
-                    'country', 'shipLocation',
-                ];
-                if (formValues['shipLocation'] === 'usandothers') {
-                    required.push('shipAreas');
-                }
-                return required.every(field =>
-                    !!((formValues[field] as string | undefined))?.length);
-            }
-        },
-        info: {
-            updateOnly: true,
-            label: 'Info',
-            listText: 'Private Info',
-            icon: <FaCircleInfo className="w-4 h-4 mr-0.5 shrink-0" />,
-            width: 'xs:w-23 w-25',
-            form: AddInfoForm,
-            shouldShow: (_, update) => update,
-            message: (
-                userId: string,
-                dispatchExtensionMessage: (detail: Partial<DocumentMessageDetail>) => void,
-                collectionItem: BggCollectionItem,
-            ) => {
-                dispatchExtensionMessage({
-                    userId,
-                    type: 'infoLoad',
-                    collectionId: collectionItem.collectionId,
-                    gameId: collectionItem.objectId,
-                    versionId: collectionItem.versionId,
-                });
-            },
-        },
-    });
 
 type UseExtension = {
     info?: GameUPCBggInfo;
     version?: GameUPCBggVersion;
     view?: 'version' | 'collection'
 }
+
+export type MakeModeBlockParams = {
+    modeKey: keyof Modes;
+    defaultMode: Modes[keyof Modes];
+    addFn: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
+};
 
 export const useExtension = (params?: UseExtension) => {
     const { info, version, view = 'version' } = params ?? {};
@@ -189,13 +60,160 @@ export const useExtension = (params?: UseExtension) => {
     const { rating: collectionRating, statuses } = collectionItem ?? {};
 
     const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
-    const addToCollectionModeSettings =
-        makeAddToCollectionModeSettings(collectionItem?.collectionId, update, statuses);
-    const allowedModes = Object.entries(addToCollectionModeSettings)
-        .map(([mode, settings]) => !update ? settings.updateOnly ? undefined : mode : mode)
-        .filter(x => x);
-    const currentMode = allowedModes.includes(modes.collection) ? modes.collection : 'add';
-    const atcMode = addToCollectionModeSettings[currentMode];
+
+    const createUpdateModeFn =
+        (type: keyof Modes, mode: Modes[keyof Modes], setting: ModeSetting)  =>
+            (e: SyntheticEvent<HTMLElement>) => {
+                if (userId && collectionItem && setting.message) {
+                    setting.message(userId, dispatchExtensionMessage, collectionItem);
+                }
+                return updateModes(e, Object.assign({}, modes, { [type]: mode }));
+            };
+
+    const addToCollection = (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
+        const form = document
+            .forms.namedItem(modes.collection);
+        const formData = form ? new FormData(form) : undefined;
+        if (modeSetting.validator && formData && !modeSetting.validator(formData)) {
+            // TODO: handle invalid cases
+            return;
+        }
+
+        dispatchExtensionMessage({
+            userId,
+            type: modes.collection,
+            collectionId: update ? collectionId : undefined,
+            name: version?.name ?? info?.name,
+            gameId: info?.id,
+            versionId: version?.version_id,
+            formValues: Object.fromEntries(formData ?? []),
+        });
+
+        const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+    };
+
+    const addPlay = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
+        const currentDate = new Date();
+        const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
+
+        dispatchExtensionMessage({
+            userId,
+            type: 'plays',
+            name: version?.name ?? info?.name,
+            gameId: info?.id,
+            versionId: version?.version_id,
+            date: dateString,
+        });
+
+        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
+        void target.offsetWidth;
+        target.classList.add('add-pulse');
+        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+    };
+
+    const makeModeBlock = ({
+        modeKey,
+        defaultMode,
+        addFn,
+    }: MakeModeBlockParams) => {
+        const modeSettings =
+            MakeModeSettings[modeKey](collectionItem?.collectionId, update, statuses) as ModeSettings;
+        const allowedModes = Object.entries(modeSettings)
+            .map(([mode, settings]) => !update ? settings.updateOnly ? undefined : mode : mode)
+            .filter(x => x);
+        const currentMode = allowedModes.includes(modes[modeKey]) ? modes[modeKey] : defaultMode;
+        const modeSetting = modeSettings[currentMode];
+
+        const ModeForm = modeSetting?.form;
+
+        return {
+            currentMode,
+            block: modeSetting && (
+                <Fragment key={`${modeKey}-block`}>
+                    <div data-collapse={`${modeKey}-block`}
+                         className={`relative z-[9] shrink-0 ${modeSetting.width} mr-0.5`}>
+                        <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${modeSetting.width}`}></div>
+                        <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${modeSetting.width}`}>
+                            <input type="checkbox" className="xs:h-7 h-8" style={{
+                                padding: 0,
+                            }} />
+                            <button disabled={disabledModes[modeKey]}
+                                    className={`collapse-title
+                                    absolute right-0 top-0
+                                    collection-button cursor-pointer rounded-r-full
+                                    flex items-center
+                                    bg-[#e07ca4bb] text-white
+                                    p-1 xs:h-7 h-8 w-4.5`}>
+                                <FaChevronDown className="w-2 h-2" />
+                            </button>
+                            <button disabled={disabledModes[modeKey]}
+                                    className={`collection-button cursor-pointer rounded-l-full
+                                absolute top-0 left-0 right-5
+                                flex justify-start items-center
+                                ${disabledModes[modeKey] ? 'bg-gray-300' : 'bg-[#e07ca4]'}
+                                text-white
+                                p-1 pl-1.5 xs:h-7 h-8
+                                z-40
+                                xs:font-stretch-semi-condensed xs:tracking-tight
+                                text-sm`}
+                                    onClick={e => addFn(modeSetting, e)}
+                            >
+                                {modeSetting.icon}
+                                <div className="p-0.5 font-semibold uppercase">
+                                    {modeSetting.label}
+                                </div>
+                            </button>
+                            <div className={`collapse-content p-0 min-w-33`}>
+                                <div className={`mt-1
+                                border border-[#e07ca4] rounded-md
+                                bg-overlay
+                                text-xs leading-5.5`}>
+                                    <ul className="menu w-full p-0 m-0" data-collapse-key={`${modeKey}-block`}>
+                                        {
+                                            Object.entries(modeSettings)
+                                                .map(([key, setting], index, array) => {
+                                                    const mode = key as Modes[keyof Modes];
+                                                    const shouldShow = setting.shouldShow ? setting.shouldShow(
+                                                        statuses ?? null,
+                                                        update) : true;
+
+                                                    if (!shouldShow) {
+                                                        return null;
+                                                    }
+
+                                                    return <li key={mode}
+                                                               onClick={createUpdateModeFn(modeKey,
+                                                                   mode,
+                                                                   setting)}
+                                                               className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b border-[#e07ca433]' : ''}`.trim()}
+                                                    >{setting.listText}</li>
+                                                })
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {ModeForm && <ModeForm formValues={formValues} setFormValues={setFormValues} />}
+                </Fragment>
+            ),
+        };
+    };
+
+    const { currentMode: currentATCMode, block: addToCollectionBlock } = syncOn && userId ? makeModeBlock({
+        modeKey: 'collection',
+        defaultMode: 'add',
+        addFn: addToCollection,
+    }) : {};
+
+    const { block: addPlayBlock } = syncOn && userId ? makeModeBlock({
+        modeKey: 'play',
+        defaultMode: 'quick',
+        addFn: addPlay,
+    }) : {};
 
     useEffect(() => {
         if (collectionId) {
@@ -257,7 +275,7 @@ export const useExtension = (params?: UseExtension) => {
             return;
         }
 
-        switch (currentMode) {
+        switch (currentATCMode) {
             case 'previous':
             case 'clear':
                 setDisabledModes(prev => Object.assign({}, prev, { collection: true }));
@@ -266,7 +284,7 @@ export const useExtension = (params?: UseExtension) => {
                 setDisabledModes(prev => Object.assign({}, prev, { collection: false }));
                 break;
         }
-    }, [update, currentMode, setDisabledModes]);
+    }, [update, currentATCMode, setDisabledModes]);
 
     const updateModes = async (
         event: SyntheticEvent<HTMLElement>,
@@ -282,31 +300,6 @@ export const useExtension = (params?: UseExtension) => {
 
         await setSetting('extensionModes', modes);
         setModes(modes);
-    }
-
-    const addToCollection = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document
-            .forms.namedItem(modes.collection);
-        const formData = form ? new FormData(form) : undefined;
-        if (atcMode.validator && formData && !atcMode.validator(formData)) {
-            // TODO: handle invalid cases
-            return;
-        }
-
-        dispatchExtensionMessage({
-            userId,
-            type: modes.collection,
-            collectionId: update ? collectionId : undefined,
-            name: version?.name ?? info?.name,
-            gameId: info?.id,
-            versionId: version?.version_id,
-            formValues: Object.fromEntries(formData ?? []),
-        });
-
-        const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
     };
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
@@ -332,118 +325,6 @@ export const useExtension = (params?: UseExtension) => {
         target.classList.add('add-pulse');
         setTimeout(() => target.classList.remove('add-pulse'), 2500);
     };
-
-    const addPlay = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const currentDate = new Date();
-        const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
-
-        dispatchExtensionMessage({
-            userId,
-            type: 'plays',
-            name: version?.name ?? info?.name,
-            gameId: info?.id,
-            versionId: version?.version_id,
-            date: dateString,
-        });
-
-        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
-    };
-
-    const ATCForm = atcMode?.form;
-
-    const createUpdateModeFn =
-        (mode: Modes['collection'], setting: CollectionModeSetting)  =>
-            (e: SyntheticEvent<HTMLElement>) => {
-                if (userId && collectionItem && setting.message) {
-                    setting.message(userId, dispatchExtensionMessage, collectionItem);
-                }
-                return updateModes(e, Object.assign({}, modes, { collection: mode }));
-            };
-
-    const addToCollectionBlock = atcMode && syncOn && userId && (
-        <Fragment key="atcb">
-            <div data-collapse="atcb" className={`relative z-[9] shrink-0 ${atcMode.width} mr-0.5`}>
-                <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${atcMode.width}`}></div>
-                <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${atcMode.width}`}>
-                    <input type="checkbox" className="xs:h-7 h-8" style={{
-                        padding: 0,
-                    }}/>
-                    <button disabled={disabledModes.collection}
-                            className={`collapse-title
-                                absolute right-0 top-0
-                                collection-button cursor-pointer rounded-r-full
-                                flex items-center
-                                bg-[#e07ca4bb] text-white
-                                p-1 xs:h-7 h-8 w-4.5`}>
-                        <FaChevronDown className="w-2 h-2" />
-                    </button>
-                    <button disabled={disabledModes.collection}
-                        className={`collection-button cursor-pointer rounded-l-full
-                            absolute top-0 left-0 right-5
-                            flex justify-start items-center
-                            ${disabledModes.collection ? 'bg-gray-300' : 'bg-[#e07ca4]'}
-                            text-white
-                            p-1 pl-1.5 xs:h-7 h-8
-                            z-40
-                            xs:font-stretch-semi-condensed xs:tracking-tight
-                            text-sm`}
-                        onClick={addToCollection}
-                    >
-                        {atcMode.icon}
-                        <div className="p-0.5 font-semibold uppercase">
-                            {atcMode.label}
-                        </div>
-                    </button>
-                    <div className={`collapse-content p-0 min-w-33`}>
-                        <div className={`mt-1
-                            border border-[#e07ca4] rounded-md
-                            bg-overlay
-                            text-xs leading-5.5`}>
-                            <ul className="menu w-full p-0 m-0" data-collapse-key="atcb">
-                                {
-                                    Object.entries(addToCollectionModeSettings).map(([key, setting], index, array) => {
-                                        const mode = key as Modes['collection'];
-                                        const shouldShow = setting.shouldShow ? setting.shouldShow(statuses ?? null, update) : true;
-
-                                        if (!shouldShow) {
-                                            return null;
-                                        }
-
-                                        return <li key={mode} onClick={createUpdateModeFn(mode, setting)}
-                                            className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b border-[#e07ca433]' : ''}`.trim()}
-                                        >{setting.listText}</li>
-                                    })
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {ATCForm && <ATCForm formValues={formValues} setFormValues={setFormValues} />}
-        </Fragment>
-    );
-
-    const addPlayBlock = syncOn && userId && (
-        <div key="apb" className="relative shrink-0 xs:w-24 w-26 xs:h-7 h-8">
-            <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-24 w-26" />
-            <button
-                className={`collection-button cursor-pointer rounded-full
-                    relative
-                    flex justify-start items-center                            
-                    bg-[#e07ca4] text-white
-                    p-1 pl-1.5 xs:h-7 h-8
-                    xs:font-stretch-condensed xs:tracking-tight
-                    text-sm`}
-                onClick={addPlay}
-            >
-                <FaDice className="w-4 h-4" />
-                <div className="p-1 font-semibold uppercase">Log Play</div>
-            </button>
-        </div>
-    );
 
     const toggleRatingForm = () => {
         setRatingFormOpen(!ratingFormOpen);
