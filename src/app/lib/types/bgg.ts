@@ -106,11 +106,18 @@ export type BggCollection = {
     versions: BggVersionsByStatus;
 };
 
-export type BGGPlayer = {
+export type BggPlayer = {
     name: string;
     userid: number;
     username: string;
     repeat: boolean;
     avatar?: string;
     avatarfile?: string;
+};
+
+export type BggLocation = {
+    location: string;
+};
+export type BggLocations = {
+    locations: BggLocation[];
 };

@@ -11,7 +11,7 @@ import { useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { BggCollectionItem, BGGPlayer } from '@/app/lib/types/bgg';
+import { BggCollectionItem, BggPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { DataForms } from '@/app/ui/extension/DataForms';
 import React, {
@@ -47,7 +47,7 @@ export const useExtension = (params?: UseExtension) => {
     const [newRating, setNewRating] = useState<number>(-1);
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick' });
     const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false });
-    const [players, setPlayers] = useState<BGGPlayer[]>();
+    const [players, setPlayers] = useState<BggPlayer[]>();
     const [update, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
 
