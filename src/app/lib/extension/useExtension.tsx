@@ -96,8 +96,21 @@ export const useExtension = (params?: UseExtension) => {
     };
 
     const addPlay = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const currentDate = new Date();
-        const dateString = `${currentDate.getFullYear()}/${(currentDate.getMonth() + 1) % 12}/${currentDate.getDate()}`;
+        const form = document.forms.namedItem(modes.play);
+        const formData = form ? new FormData(form) : undefined;
+
+        const dateValue = formData?.get('date') as string | undefined;
+        let dateString: string;
+        if (dateValue) {
+            // date input produces YYYY-MM-DD
+            const [year, month, day] = dateValue.split('-');
+            dateString = `${year}/${month}/${day}`;
+        } else {
+            const d = new Date();
+            dateString = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+        }
+
+        const formEntries = formData ? Object.fromEntries(formData) : {};
 
         dispatchExtensionMessage({
             userId,
@@ -106,6 +119,8 @@ export const useExtension = (params?: UseExtension) => {
             gameId: info?.id,
             versionId: version?.version_id,
             date: dateString,
+            location: (formEntries['location'] as string | undefined) || undefined,
+            formValues: formEntries,
         });
 
         const target = e.currentTarget.previousElementSibling as HTMLDivElement;

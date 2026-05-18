@@ -47,5 +47,12 @@ Fields / values that can be set in the form / modal include the following:
 - [ ] Add form field for players with dropdown, search/add new functionality, and multiple select to `DetailedPlayForm`
   - A list of the players returned from the `getPlayers` message type should be displayed in the 
     dropdown, allowing for multiple selection without a search being performed
+
+### Phase 3: Player Search Functionality
+
+- [ ] Implement search functionality for players in the player dropdown of `DetailedPlayForm`
   - Search functionality should utilize the `searchPlayer` message type to query BGG for 
-    existing players and wait for the response before displaying results in the dropdown
+    existing players and wait for the response before displaying results in the dropdown.
+  - A user should be able to hit enter after typing in the search box to add a new player if the
+    desired player is not found in the search results.  This should add the new player to the 
+    dropdown options and select it.

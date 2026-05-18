@@ -1,6 +1,6 @@
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
 import { CollectionModeSettings, PlayModeSettings } from '@/app/lib/extension/types';
-import { BggCollectionItem, BggCollectionStatuses } from '@/app/lib/types/bgg';
+import { BggCollectionItem, BggCollectionStatuses, BggPlayer } from '@/app/lib/types/bgg';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import { DetailedPlayForm } from '@/app/ui/extension/DetailedPlayForm';
@@ -14,6 +14,13 @@ import {
     FaRecycle, FaTag, FaXmark
 } from 'react-icons/fa6';
 import { GiChessPawn } from 'react-icons/gi';
+
+export const makeNonUserPlayer = (name: string): BggPlayer => ({
+    name,
+    username: '',
+    disambiguator: Math.random(),
+    selected: false,
+});
 
 export const makeAddPlayModeSettings = (): PlayModeSettings =>
     ({

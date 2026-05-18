@@ -108,11 +108,13 @@ export type BggCollection = {
 
 export type BggPlayer = {
     name: string;
-    userid: number;
+    userid?: number;
     username: string;
-    repeat: boolean;
+    repeat?: boolean;
+    selected?: boolean;
     avatar?: string;
     avatarfile?: string;
+    disambiguator?: number;
 };
 
 export type BggLocation = {

@@ -57,33 +57,40 @@ export type DocumentMessageDetailType =
     | 'ratings'
     | 'recheckAuth'
     | 'plays'
-    | 'searchPlayers'
+    | 'searchPlayer'
     | 'sell'
     | 'setData'
     | 'storeAccount'
     | 'trade'
     | 'wishlist';
 
+export type BaseDocumentMessageDetail = {
+    type: DocumentMessageDetailType;
+    timestamp: number;
+};
+
 export type DocumentMessageDetailResponseType =
     `${DocumentMessageDetailType}-response`;
 
-export type DocumentMessageNeedsAuthDetail = {
+export type DocumentMessageNeedsAuthDetail = BaseDocumentMessageDetail & {
     needsAuth: boolean;
 };
 
-export type DocumentMessageLookupDetail = {
+export type DocumentMessageLookupDetail = BaseDocumentMessageDetail & {
     userId: string;
     lookupMap: unknown;
 };
 
-export type DocumentMessageSourceDetail = {
-    type: DocumentMessageDetailType;
-    timestamp: number;
-} & OneOf<
+export type DocumentMessageSearchPlayerDetail = BaseDocumentMessageDetail &{
+    query: string;
+};
+
+export type DocumentMessageSourceDetail = OneOf<
     [
         DocumentMessageNeedsAuthDetail,
         DocumentMessageLookupDetail,
-        ShelfScanEntry,
+        DocumentMessageSearchPlayerDetail,
+        ShelfScanEntry
     ]
 >;
 
