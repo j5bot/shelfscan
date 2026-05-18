@@ -99,15 +99,13 @@ export const useExtension = (params?: UseExtension) => {
         const form = document.forms.namedItem(modes.play);
         const formData = form ? new FormData(form) : undefined;
 
-        const dateValue = formData?.get('date') as string | undefined;
+        const dateValue = formData?.get('playdate') as string | undefined;
         let dateString: string;
         if (dateValue) {
-            // date input produces YYYY-MM-DD
-            const [year, month, day] = dateValue.split('-');
-            dateString = `${year}/${month}/${day}`;
+            dateString = dateValue;
         } else {
             const d = new Date();
-            dateString = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+            dateString = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
         }
 
         const formEntries = formData ? Object.fromEntries(formData) : {};
@@ -119,7 +117,7 @@ export const useExtension = (params?: UseExtension) => {
             gameId: info?.id,
             versionId: version?.version_id,
             date: dateString,
-            location: (formEntries['location'] as string | undefined) || undefined,
+            playdate: dateString,
             formValues: formEntries,
         });
 
@@ -135,7 +133,12 @@ export const useExtension = (params?: UseExtension) => {
         addFn,
     }: MakeModeBlockParams) => {
         const modeSettings =
-            MakeModeSettings[modeKey](collectionItem?.collectionId, update, statuses) as ModeSettings;
+            MakeModeSettings[modeKey]({
+                collectionId: collectionItem?.collectionId,
+                update,
+                statuses,
+                addFn,
+            }) as ModeSettings;
         const allowedModes = Object.entries(modeSettings)
             .map(([mode, settings]) => !update ? settings.updateOnly ? undefined : mode : mode)
             .filter(x => x);
@@ -164,11 +167,11 @@ export const useExtension = (params?: UseExtension) => {
                                     p-1 xs:h-7 h-8 w-4.5`}>
                                 <FaChevronDown className="w-2 h-2" />
                             </button>
-                            <button disabled={disabledModes[modeKey]}
+                            <button disabled={disabledModes[modeKey] || !!modeSetting.addFn}
                                     className={`collection-button cursor-pointer rounded-l-full
                                 absolute top-0 left-0 right-5
                                 flex justify-start items-center
-                                ${disabledModes[modeKey] ? 'bg-gray-300' : 'bg-[#e07ca4]'}
+                                ${disabledModes[modeKey] || !!modeSetting.addFn ? 'bg-gray-300' : 'bg-[#e07ca4]'}
                                 text-white
                                 p-1 pl-1.5 xs:h-7 h-8
                                 z-40
@@ -212,7 +215,7 @@ export const useExtension = (params?: UseExtension) => {
                             </div>
                         </div>
                     </div>
-                    {ModeForm && <ModeForm formValues={formValues} setFormValues={setFormValues} />}
+                    {ModeForm && <ModeForm formValues={formValues} setFormValues={setFormValues} addFn={modeSetting.addFn}/>}
                 </Fragment>
             ),
         };

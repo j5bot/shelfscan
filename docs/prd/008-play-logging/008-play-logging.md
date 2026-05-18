@@ -56,3 +56,8 @@ Fields / values that can be set in the form / modal include the following:
   - A user should be able to hit enter after typing in the search box to add a new player if the
     desired player is not found in the search results.  This should add the new player to the 
     dropdown options and select it.
+
+### Phase 4: Modal Dialog Integration
+- [ ] Refactor `DetailedPlayForm` to be displayed in a modal dialog instead of directly on the page
+  - Execute the `addFn` function to submit the play log
+  - 

@@ -36,12 +36,9 @@ export type Rating = Game;
 
 export type Play = Game & {
     date: string;
-    location?: string;
-    players?: string;
+    playdate: string;
     versionId?: number;
 };
-
-export type ShelfScanEntry = Game | Trade | Wishlist | Play;
 
 export type DocumentMessageDetailType =
     | 'ack'
@@ -68,6 +65,8 @@ export type BaseDocumentMessageDetail = {
     type: DocumentMessageDetailType;
     timestamp: number;
 };
+
+export type ShelfScanEntry = BaseDocumentMessageDetail & (Game | Trade | Wishlist | Play);
 
 export type DocumentMessageDetailResponseType =
     `${DocumentMessageDetailType}-response`;

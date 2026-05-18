@@ -1,9 +1,10 @@
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
-import { CollectionModeSettings, PlayModeSettings } from '@/app/lib/extension/types';
+import { CollectionModeSettings, ModeSetting, PlayModeSettings } from '@/app/lib/extension/types';
 import { BggCollectionItem, BggCollectionStatuses, BggPlayer } from '@/app/lib/types/bgg';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import { DetailedPlayForm } from '@/app/ui/extension/DetailedPlayForm';
+import { SyntheticEvent } from 'react';
 import {
     FaCircleInfo,
     FaClock,
@@ -15,6 +16,13 @@ import {
 } from 'react-icons/fa6';
 import { GiChessPawn } from 'react-icons/gi';
 
+type MakeModeSettingsParams = {
+    collectionId: number | undefined;
+    update: boolean;
+    statuses?: BggCollectionStatuses;
+    addFn?: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
+};
+
 export const makeNonUserPlayer = (name: string): BggPlayer => ({
     name,
     username: '',
@@ -22,7 +30,9 @@ export const makeNonUserPlayer = (name: string): BggPlayer => ({
     selected: false,
 });
 
-export const makeAddPlayModeSettings = (): PlayModeSettings =>
+export const makeAddPlayModeSettings = ({
+    addFn,
+}: MakeModeSettingsParams): PlayModeSettings =>
     ({
         quick: {
             label: 'Play',
@@ -36,14 +46,15 @@ export const makeAddPlayModeSettings = (): PlayModeSettings =>
             icon: <GiChessPawn className="w-4.5 h-4.5 mb-1 shrink-0" />,
             width: 'xs:w-27.5 w-29.5',
             form: DetailedPlayForm,
+            addFn: addFn,
         },
     });
 
-export const makeAddToCollectionModeSettings = (
-    collectionId: number | undefined,
-    update: boolean,
-    statuses?: BggCollectionStatuses,
-): CollectionModeSettings =>
+export const makeAddToCollectionModeSettings = ({
+    collectionId,
+    update,
+    statuses,
+}: MakeModeSettingsParams): CollectionModeSettings =>
     ({
         add: {
             label: update && (statuses?.own || collectionId !== undefined) ? 'Set' : 'Add',

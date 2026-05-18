@@ -18,7 +18,11 @@ const DURATION_OPTIONS: DurationOption[] = [
     { label: 'Other', value: 'other' },
 ];
 
-export const DetailedPlayForm = ({ formValues, setFormValues }: ModeSettingFormProps) => {
+export const DetailedPlayForm = ({
+    formValues,
+    setFormValues,
+    addFn,
+}: ModeSettingFormProps) => {
     const { players, locations: fetchedLocations, addLocation, addPlayer, searchPlayers } = usePlayData();
 
     const [locationOptions, setLocationOptions] = useState<string[]>(fetchedLocations);
@@ -173,7 +177,7 @@ export const DetailedPlayForm = ({ formValues, setFormValues }: ModeSettingFormP
                 <label className="w-16 shrink-0">Date</label>
                 <input
                     type="date"
-                    name="date"
+                    name="playdate"
                     max={TODAY}
                     defaultValue={TODAY}
                     className="input input-xs text-xs flex-1 min-w-0"
