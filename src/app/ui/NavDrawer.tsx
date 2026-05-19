@@ -140,7 +140,7 @@ export const NavDrawer = () => {
             <div className="drawer-content absolute top-4 right-5">
                 <label htmlFor="nav-drawer" className="drawer-button"><FaBars className="w-5.5 h-5.5" /></label>
             </div>
-            <div className="drawer-side z-[100]">
+            <div className="drawer-side z-100">
                 <label htmlFor="nav-drawer" aria-label="close sidebar" className="drawer-overlay" />
                 <div className="bg-overlay bg-base-200 min-h-full w-1/2 md:w-80 p-2 mr-0">
                     {username && <div className="flex flex-wrap gap-2 p-2">
@@ -172,7 +172,16 @@ export const NavDrawer = () => {
                         </li>}
                         {refreshCollectionItem}
                     </ul>
-                    <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t-1">
+                    {syncOn &&
+                       <ul className="w-full list-none menu text-base-content p-0 py-2 border-t-gray-300 border-t">
+                           <li className="w-full">
+                               <Link className="flex gap-2 grow" href="/data-builder/" onNavigate={closeOnNavigate}>
+                                   <FaTableList className="inline" /> Data Builder
+                               </Link>
+                           </li>
+                       </ul>
+                    }
+                    <ul className="w-full list-none menu text-base-content p-0 pt-2 border-t-gray-300 border-t">
                         <li className="w-full">
                             <Link className="flex gap-2 grow" href="/extension/" onNavigate={closeOnNavigate}>
                                 <FaGlobe className="inline" /> Extension
@@ -187,11 +196,6 @@ export const NavDrawer = () => {
                             <Link className="flex gap-2 grow" href="https://boardgamegeek.com/blog/16520/shelfscan-news"
                                   target="_blank" onNavigate={closeOnNavigate}>
                                 <FaNewspaper className="inline" /> Blog
-                            </Link>
-                        </li>
-                        <li className="w-full">
-                            <Link className="flex gap-2 grow" href="/data-builder/" onNavigate={closeOnNavigate}>
-                                <FaTableList className="inline" /> Data Builder
                             </Link>
                         </li>
                         <li className="w-full mt-6">
