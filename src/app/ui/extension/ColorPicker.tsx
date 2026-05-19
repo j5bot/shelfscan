@@ -76,7 +76,7 @@ export const ColorPicker = ({ value, onChange, rowRef }: ColorPickerProps) => {
             <button
                 ref={buttonRef}
                 type="button"
-                className="w-6.5 h-5.5 rounded border border-base-300 overflow-hidden shrink-0"
+                className="w-7 h-6 rounded border border-base-300 overflow-hidden shrink-0"
                 onClick={() => setOpen(prev => !prev)}
                 title={selectedColor?.name ?? 'No color selected'}
                 aria-label={`Color: ${selectedColor?.name ?? 'None'}`}

@@ -24,7 +24,7 @@ export const PlayerRow = ({ player, playData, onUpdate }: PlayerRowProps) => {
                 type="text"
                 placeholder="Score"
                 value={playData.score ?? ''}
-                className="input input-xs text-xs pl-1.5 pr-1.5 w-12.5"
+                className="input input-xs text-xs pl-1.5 pr-1.5 w-14"
                 onChange={e => onUpdate(
                     Object.assign({}, player, playData, { score: e.currentTarget.value }) as BggPlayerPlay,
                 )}

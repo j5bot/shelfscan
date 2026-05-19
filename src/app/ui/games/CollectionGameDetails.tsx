@@ -3,7 +3,8 @@ import { RootState } from '@/app/lib/redux/store';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
 import {
     collectionItemToGame,
-    collectionVersionToVersion, createSlug
+    collectionVersionToVersion,
+    createSlug
 } from '@/app/lib/utils/gameAdapters';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
 import { PlaysIcon } from '@/app/ui/icons/PlaysIcon';

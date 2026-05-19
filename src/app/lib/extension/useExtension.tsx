@@ -1,5 +1,5 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
-import { DocumentMessageResponseDetail, ShelfScanEntry } from '@/app/lib/extension/messageTypes';
+import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
 import {
     Modes,
     DisabledModes,

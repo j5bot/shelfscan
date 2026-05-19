@@ -5,7 +5,7 @@ import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
 import { ExtensionMessagingProvider } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
-import { PlayDataProvider } from '../lib/extension/PlayDataProvider';
+import { PlayDataProvider } from '@/app/lib/extension/PlayDataProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { ScanHistoryProvider } from '@/app/lib/ScanHistoryProvider';
 import { SettingsProvider } from '@/app/lib/SettingsProvider';
