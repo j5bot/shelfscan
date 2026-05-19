@@ -23,9 +23,9 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
         setFormValues(Object.assign(formValues, { [field]: value }));
     };
 
-    return <form name="info">
+    return <form name="info" className="pt-1">
         <PrivateComment formValues={formValues} setFormValues={setFormValues} />
-        <div className="flex gap-0.5">
+        <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['pp_currency'] ?? 'USD'}
                             setValue={setValue}
                             field="pp_currency"
@@ -36,7 +36,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
                         label="Paid"
             />
         </div>
-        <div className="flex gap-0.5">
+        <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['cv_currency'] ?? 'USD'}
                             setValue={setValue}
             />
@@ -47,7 +47,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
             />
         </div>
         <div className="flex gap-0.5 m-0.5">
-            <FaCheckToSlot className="h-8 w-8 mr-0.5" />
+            <FaCheckToSlot className="h-7 w-7 mr-0.5" />
             <DateSelect date={formValues?.['acquisitiondate']} setValue={setValue}
                         field="acquisitiondate"
             />
@@ -56,8 +56,8 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
                        label="Acq. Note"
            />
         </div>
-        <div className="flex gap-0.5 m-0.5">
-            <FaCheckDouble className="h-8 w-8 mr-0.5" />
+        <div className="flex gap-0.5 m-0.5 mt-0">
+            <FaCheckDouble className="h-7 w-7 mr-0.5" />
             <DateSelect date={formValues?.['invdate']} setValue={setValue}
                         field="invdate"
             />

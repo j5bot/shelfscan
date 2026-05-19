@@ -75,7 +75,7 @@ export const makeAddToCollectionModeSettings = ({
             icon: <FaRecycle className="w-3.5 h-4 mr-0.5 shrink-0" />,
             width: 'xs:w-23 w-25',
             form: ({ formValues, setFormValues }) => {
-                return <form name="trade" className="pb-2">
+                return <form name="trade" className="pb-2 pt-1">
                     <input type="text"
                            name="tradeCondition"
                            className="input text-sm p-2"
