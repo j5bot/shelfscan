@@ -274,7 +274,7 @@ export const CountrySelect = ({ country, setValue }:
     { country: string; setValue: SetFormValue }
 ) =>
     <select name="country"
-            className={`select select-sm select-condensed pl-1.5 p-1`}
+            className={`select select-sm select-condensed pl-1.5 p-1 w-full`}
             value={country}
             onChange={event =>
                 setValue('country', event.currentTarget.value)}

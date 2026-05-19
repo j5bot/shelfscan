@@ -98,7 +98,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
         </div>
     );
 
-    return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5 pt-1">
+    return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5 pt-1 max-w-md">
         <div className="flex gap-0.5">
             {showCurrencyAndPrice}
         </div>
