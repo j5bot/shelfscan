@@ -27,10 +27,10 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
     const username = useSelector(state => state.bgg.user?.user);
 
     const listeningRef = useRef<boolean>(false);
-    const messagesRef = useRef<Record<number, [DocumentMessageDetail, DocumentMessageResponseDetail | undefined]>>({});
-    const promisesRef = useRef<Record<number, PromiseWithResolvers<DocumentMessageResponseDetail | undefined>>>({});
+    const messagesRef = useRef<Record<string, [DocumentMessageDetail, DocumentMessageResponseDetail | undefined]>>({});
+    const promisesRef = useRef<Record<string, PromiseWithResolvers<DocumentMessageResponseDetail | undefined>>>({});
 
-    const dispatchExtensionMessage = useCallback<DispatchExtensionMessage>((detail) => {
+    const dispatchExtensionMessage = useCallback<DispatchExtensionMessage>((detail: Partial<DocumentMessageDetail>) => {
         if (!detail.type) {
             console.error('message missing type', detail);
             return;
@@ -39,8 +39,12 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
         const timestamp = isResponse
             ? (detail as DocumentMessageResponseDetail).sourceMessage.timestamp
             : detail.timestamp ?? Date.now();
-
-        const matchingMessages = messagesRef.current[timestamp!];
+        const key = isResponse
+                    ? (detail as DocumentMessageResponseDetail).sourceMessage.type
+                    : detail.type;
+        const messageKey = `${key}-${timestamp}`;
+        
+        const matchingMessages = messagesRef.current[messageKey];
 
         const timestampedDetail: Partial<DocumentMessageDetail> = { timestamp, ...detail };
         const ce = new CustomEvent('shelfscan-sync', { detail: timestampedDetail });
@@ -50,17 +54,17 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
             const sourceMessage = matchingMessages[0];
 
             if (detail.type.endsWith('response')) {
-                messagesRef.current[timestamp!] = [sourceMessage, detail as DocumentMessageResponseDetail];
-                return promisesRef.current[timestamp!].resolve(detail as DocumentMessageResponseDetail);
+                messagesRef.current[messageKey] = [sourceMessage, detail as DocumentMessageResponseDetail];
+                return promisesRef.current[messageKey].resolve(detail as DocumentMessageResponseDetail);
             }
         }
 
         if (!matchingMessages) {
-            messagesRef.current[timestamp!] = [timestampedDetail as DocumentMessageDetail, undefined];
-            promisesRef.current[timestamp!] = Promise.withResolvers<DocumentMessageResponseDetail | undefined>();
+            messagesRef.current[messageKey] = [timestampedDetail as DocumentMessageDetail, undefined];
+            promisesRef.current[messageKey] = Promise.withResolvers<DocumentMessageResponseDetail | undefined>();
         }
 
-        return promisesRef.current[timestamp!].promise;
+        return promisesRef.current[messageKey].promise;
     }, []);
 
     useEffect(() => {

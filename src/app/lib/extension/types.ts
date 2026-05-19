@@ -1,5 +1,5 @@
 import { BggCollectionItem, BggCollectionStatuses } from '@/app/lib/types/bgg';
-import { ReactNode } from 'react';
+import { ReactNode, SyntheticEvent } from 'react';
 
 export type FormValues = Record<string, string>;
 export type SetFormValues = (formValues: FormValues) => void;
@@ -18,9 +18,12 @@ export type DisabledModes = {
 export type ModeSettingFormProps = {
     formValues: Record<string, string>;
     setFormValues: SetFormValues;
+    addFn?: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
+    onClose?: () => void;
+    gameName?: string;
 };
 
-export type CollectionModeSetting = {
+export type ModeSetting = {
     updateOnly?: boolean;
     label: ReactNode;
     listText?: string;
@@ -34,5 +37,9 @@ export type CollectionModeSetting = {
         dispatchExtensionMessage: (detail: object) => void,
         collectionItem: BggCollectionItem
     ) => void;
+    addFn?: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
 }
-export type CollectionModeSettings = Record<Modes['collection'], CollectionModeSetting>;
+export type CollectionModeSettings = Record<Modes['collection'], ModeSetting>;
+export type PlayModeSettings = Record<Modes['play'], ModeSetting>;
+export type ModeSettings = Record<Modes[keyof Modes], ModeSetting>
+export type ModeSettingKey = keyof ModeSettings;

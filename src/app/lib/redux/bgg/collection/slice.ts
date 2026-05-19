@@ -1,4 +1,4 @@
-import { setCollection } from '@/app/lib/database/database';
+import { setCollection, updateCollectionItemNumPlays } from '@/app/lib/database/database';
 import {
     BggCollection,
     BggCollectionMap,
@@ -148,11 +148,29 @@ export const bggCollectionSlice = createSlice({
                 newState?.users[username].items
             ).then();
         },
+        updateNumPlays: (
+            state,
+            action: PayloadAction<{
+                username: string;
+                collectionId: number;
+                numplays: number;
+            }>,
+        ) => {
+            const { username: user, collectionId, numplays } = action.payload;
+            const username = user.toLowerCase();
+            const item = state.users[username]?.items[collectionId];
+            if (!item) {
+                return;
+            }
+            item.plays = numplays;
+            updateCollectionItemNumPlays(username, collectionId, numplays).then();
+        },
     },
 });
 
 export const {
     updateCollectionItems,
+    updateNumPlays,
 } = bggCollectionSlice.actions;
 
 export default bggCollectionSlice.reducer;

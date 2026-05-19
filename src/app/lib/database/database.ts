@@ -116,6 +116,20 @@ export const setCollection = async (id: string, value: BggCollectionMap) => {
     }
 };
 
+export const updateCollectionItemNumPlays = async (id: string, collectionId: number, numplays: number) => {
+    const entry = await database.collections.get(id);
+    if (!entry?.value[collectionId]) {
+        return;
+    }
+    await database.collections.put({
+        id,
+        value: {
+            ...entry.value,
+            [collectionId]: { ...entry.value[collectionId], plays: numplays },
+        },
+    });
+};
+
 export const getPlugin = async (id: string) =>
     await database.plugins.get(id);
 
