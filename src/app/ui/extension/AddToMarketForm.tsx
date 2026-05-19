@@ -78,7 +78,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     );
     const country = (showIcon: boolean) => (
         <div className="flex gap-0.5 items-center w-full">
-            {showIcon && <FaMapMarkerAlt className="h-4 w-3.5 mr-0.5" />}
+            {showIcon && <FaMapMarkerAlt className="h-4 w-4 mr-0.5" />}
             <CountrySelect
                 country={values?.['country'] ?? 'United States'}
                 setValue={setValue}
@@ -98,7 +98,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
         </div>
     );
 
-    return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
+    return <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5 pt-1 max-w-md">
         <div className="flex gap-0.5">
             {showCurrencyAndPrice}
         </div>

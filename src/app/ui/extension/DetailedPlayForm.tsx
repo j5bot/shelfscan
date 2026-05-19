@@ -234,7 +234,7 @@ export const DetailedPlayForm = ({
         >
             <div
                 className={`relative bg-overlay
-                    w-full xs:max-w-xs sm:max-w-sm
+                    w-full max-w-md
                     rounded-2xl xs:rounded-none
                     p-4 pt-8
                     max-h-dvh overflow-y-auto`}
@@ -399,22 +399,6 @@ export const DetailedPlayForm = ({
                 </div>
             )}
 
-
-            {/* Quantity */}
-            <div className="flex items-center gap-1.5">
-                <label className="w-16 shrink-0">Quantity</label>
-                <input
-                    type="number"
-                    name="quantity"
-                    min={1}
-                    defaultValue={1}
-                    className="input input-xs text-xs w-20"
-                    onChange={e =>
-                        setFormValues(Object.assign({}, formValues, { quantity: e.currentTarget.value }))
-                    }
-                />
-            </div>
-
             {/* Location combobox */}
             <div className="flex items-center gap-1.5">
                 <label className="w-16 shrink-0">Location</label>
@@ -430,9 +414,9 @@ export const DetailedPlayForm = ({
                     />
                     {locationDropdownOpen && filteredLocations.length > 0 && (
                         <ul className={`absolute z-20 mt-0.5 w-full
-                                        bg-base-100 border border-base-300
-                                        rounded-box shadow-md
-                                        max-h-32 overflow-y-auto p-1`}>
+                                bg-base-100 border border-base-300
+                                rounded-box shadow-md
+                                max-h-32 overflow-y-auto p-1`}>
                             {filteredLocations.map(loc => (
                                 <li
                                     key={loc}
@@ -445,6 +429,36 @@ export const DetailedPlayForm = ({
                         </ul>
                     )}
                 </div>
+            </div>
+
+            {/* Comments */}
+            <div className="flex items-start gap-1.5">
+                <label className="w-16 shrink-0 pt-0.5">Comments</label>
+                <textarea
+                    name="comments"
+                    placeholder="Comments"
+                    className={`textarea textarea-xs text-xs flex-1 min-w-0 min-h-8 h-8
+                        overflow-hidden overflow-ellipsis
+                        focus:h-16 focus:overflow-auto`}
+                    onChange={e =>
+                        setFormValues(Object.assign({}, formValues, { comments: e.currentTarget.value }))
+                    }
+                />
+            </div>
+
+            {/* Quantity */}
+            <div className="flex items-center gap-1.5">
+                <label className="w-16 shrink-0">Quantity</label>
+                <input
+                    type="number"
+                    name="quantity"
+                    min={1}
+                    defaultValue={1}
+                    className="input input-xs text-xs w-20"
+                    onChange={e =>
+                        setFormValues(Object.assign({}, formValues, { quantity: e.currentTarget.value }))
+                    }
+                />
             </div>
 
             {/* Duration */}

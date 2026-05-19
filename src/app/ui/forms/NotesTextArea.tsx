@@ -16,7 +16,7 @@ export const NotesTextArea = ({ notes, setValue }: {
 
     return <textarea name="notes"
               rows={2}
-              className="textarea text-xs pl-1.5 p-1"
+              className="textarea text-xs pl-1.5 p-1 w-full"
               placeholder="Seller Notes"
               value={tempValue}
               onChange={changeHandler}

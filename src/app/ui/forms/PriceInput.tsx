@@ -26,7 +26,7 @@ export const PriceInput = ({
     return <input
         type="text"
         name={field}
-        className="input text-sm h-7 pl-1.5 pt-1 pb-1"
+        className="input text-sm h-7 pl-1.5 pt-1 pb-1 grow"
         placeholder={label}
         value={disabled ? price : tempValue}
         disabled={disabled}
