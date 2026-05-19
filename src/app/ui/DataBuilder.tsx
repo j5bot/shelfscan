@@ -108,7 +108,7 @@ export const DataBuilder = () => {
     };
 
     return (
-        <div className="data-builder w-full max-w-6xl mx-auto px-4 pb-10">
+        <div className="data-builder w-full max-w-6xl mx-auto px-4 pb-4">
             <dialog ref={openDialogRef} className="modal">
                 <div className="modal-box min-w-96">
                     <form method="dialog">
