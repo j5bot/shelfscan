@@ -19,6 +19,8 @@ export type ModeSettingFormProps = {
     formValues: Record<string, string>;
     setFormValues: SetFormValues;
     addFn?: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
+    onClose?: () => void;
+    gameName?: string;
 };
 
 export type ModeSetting = {

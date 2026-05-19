@@ -3,22 +3,28 @@
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
 import { useSync } from '@/app/lib/extension/useSync';
-import { BggLocations, BggPlayer } from '@/app/lib/types/bgg';
+import { BggLocations, BggPlayer, BggPlayerPlay } from '@/app/lib/types/bgg';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 type PlayDataContextValue = {
     players: Record<string, BggPlayer>;
+    playData: Record<string, BggPlayerPlay>;
     locations: string[];
     addLocation: (location: string) => void;
-    addPlayer: (player: BggPlayer) => void;
+    addUpdatePlayer: (player: BggPlayer) => void;
+    addUpdatePlayData: (play: BggPlayerPlay) => void;
+    clearPlayData: () => void;
     searchPlayers: (query: string) => Promise<BggPlayer[]>;
 };
 
 const PlayDataContext = createContext<PlayDataContextValue>({
     players: {},
+    playData: {},
     locations: [],
     addLocation: () => undefined,
-    addPlayer: () => undefined,
+    addUpdatePlayer: () => undefined,
+    addUpdatePlayData: () => undefined,
+    clearPlayData: () => undefined,
     searchPlayers: () => Promise.resolve([]),
 });
 
@@ -29,6 +35,7 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
     const { userId } = useSync();
 
     const [players, setPlayers] = useState<Record<string, BggPlayer>>({});
+    const [playData, setPlayData] = useState<Record<string, BggPlayerPlay>>({});
     const [locations, setLocations] = useState<string[]>([]);
 
     useEffect(() => {
@@ -67,14 +74,22 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
         setLocations(prev => prev.includes(location) ? prev : [...prev, location]);
     };
 
-    const addPlayer = useCallback((player: BggPlayer) => {
+    const addUpdatePlayer = useCallback((player: BggPlayer) => {
         setPlayers(prev => {
             const id = player.username.length > 0 ? player.username : player.name;
-            if (prev[id]) {
-                return prev;
-            }
             return Object.assign({}, prev, { [id]: player });
         });
+    }, []);
+
+    const addUpdatePlayData = useCallback((play: BggPlayerPlay) => {
+        setPlayData(prev => {
+            const id = play.username.length > 0 ? play.username : play.name;
+            return Object.assign({}, prev, { [id]: play });
+        });
+    }, []);
+
+    const clearPlayData = useCallback(() => {
+        setPlayData({});
     }, []);
 
     const searchPlayers = useCallback(async (query: string): Promise<BggPlayer[]> => {
@@ -89,7 +104,16 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
     }, [dispatchExtensionMessage]);
 
     return (
-        <PlayDataContext.Provider value={{ players, locations, addLocation, addPlayer, searchPlayers }}>
+        <PlayDataContext.Provider value={{
+            players,
+            playData,
+            locations,
+            addLocation,
+            addUpdatePlayer,
+            addUpdatePlayData,
+            clearPlayData,
+            searchPlayers
+        }}>
             {children}
         </PlayDataContext.Provider>
     );

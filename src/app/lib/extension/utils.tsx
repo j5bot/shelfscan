@@ -46,7 +46,7 @@ export const makeAddPlayModeSettings = ({
             icon: <GiChessPawn className="w-4.5 h-4.5 mb-1 shrink-0" />,
             width: 'xs:w-27.5 w-29.5',
             form: DetailedPlayForm,
-            addFn: addFn,
+            addFn,
         },
     });
 

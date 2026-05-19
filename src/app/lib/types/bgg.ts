@@ -117,6 +117,14 @@ export type BggPlayer = {
     disambiguator?: number;
 };
 
+export type BggPlayerPlay = BggPlayer & {
+    score?: string;
+    rating?: string;
+    color?: string;
+    startPosition?: number;
+    win?: boolean;
+};
+
 export type BggLocation = {
     location: string;
 };

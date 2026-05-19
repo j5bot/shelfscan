@@ -58,6 +58,22 @@ Fields / values that can be set in the form / modal include the following:
     dropdown options and select it.
 
 ### Phase 4: Modal Dialog Integration
-- [ ] Refactor `DetailedPlayForm` to be displayed in a modal dialog instead of directly on the page
-  - Execute the `addFn` function to submit the play log
-  - 
+- [ ] Refactor `DetailedPlayForm` to be displayed in a modal dialog, similar to the 
+  collection details dialog, instead of directly on the page
+  - Execute the `addFn` function to submit the play log using the pink style button
+  - Include a cancel button to close the modal without submitting the play log
+
+### Phase 5: Color Picker and Miscellaneous Improvements
+
+- [ ] Replace the color input for the play log with a color picker that allows users to select 
+  from a predefined set of named CSS colors
+  - Colors are: Red, Yellow, Green, Blue, White, Black, Gray, Orange, Purple, Pink, Tan, Brown, 
+    Lime, Lavender, Navy, Olive, Teal, Silver, Gold (using color names)
+  - Picker should be a tooltip-like dropdown that appears when the user clicks on the color input,
+    as wide as the play data input row, and should display the color options in a grid format with the color name displayed on hover
+  - When a color is selected, the color input should be updated to show the selected color
+  - When no color is selected, the color input should display an opaque rainbow gradient with a 
+    line through it, indicating that no color is selected, and the play log should be logged without a color value
+- [ ] When the detail form is closed, play data should be cleared
+- [ ] Add a confirmation message when the play log is completed, indicating that a play of the 
+  specified game on the specified date has been logged

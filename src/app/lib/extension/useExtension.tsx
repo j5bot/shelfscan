@@ -1,16 +1,18 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
+import { DocumentMessageResponseDetail, ShelfScanEntry } from '@/app/lib/extension/messageTypes';
 import {
     Modes,
     DisabledModes,
-    ModeSetting, ModeSettings
+    ModeSetting, ModeSettings, ModeSettingFormProps
 } from '@/app/lib/extension/types';
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
-import { useSelector } from '@/app/lib/hooks';
+import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
+import { updateNumPlays } from '@/app/lib/redux/bgg/collection/slice';
 import { BggCollectionItem, BggPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { DataForms } from '@/app/ui/extension/DataForms';
@@ -36,11 +38,15 @@ export type MakeModeBlockParams = {
     modeKey: keyof Modes;
     defaultMode: Modes[keyof Modes];
     addFn: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
+    formKey?: number;
+    setFormKey?: (key: number | ((prev: number) => number)) => void;
+    formProps?: Partial<ModeSettingFormProps>;
 };
 
 export const useExtension = (params?: UseExtension) => {
     const { info, version, view = 'version' } = params ?? {};
-    const { syncOn, userId } = useSync();
+    const { syncOn, userId, currentUsername } = useSync();
+    const dispatch = useDispatch();
     const { dispatchExtensionMessage } = useExtensionMessaging();
 
     const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
@@ -50,6 +56,7 @@ export const useExtension = (params?: UseExtension) => {
     const [players, setPlayers] = useState<BggPlayer[]>();
     const [update, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
+    const [detailedPlayKey, setDetailedPlayKey] = useState<number>(0);
 
     const { collectionId, collection } =
         useSelector((state) =>
@@ -79,6 +86,12 @@ export const useExtension = (params?: UseExtension) => {
             return;
         }
 
+        const formEntries = formData ? Object.assign(
+            {},
+            formValues,
+            Object.fromEntries(formData)
+        ): formValues;
+
         dispatchExtensionMessage({
             userId,
             type: modes.collection,
@@ -86,7 +99,7 @@ export const useExtension = (params?: UseExtension) => {
             name: version?.name ?? info?.name,
             gameId: info?.id,
             versionId: version?.version_id,
-            formValues: Object.fromEntries(formData ?? []),
+            formValues: formEntries,
         });
 
         const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
@@ -108,10 +121,15 @@ export const useExtension = (params?: UseExtension) => {
             dateString = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
         }
 
-        const formEntries = formData ? Object.fromEntries(formData) : {};
+        const formEntries = formData ? Object.assign(
+            {},
+            formValues,
+            Object.fromEntries(formData)
+        ): formValues;
 
         dispatchExtensionMessage({
             userId,
+            collectionId,
             type: 'plays',
             name: version?.name ?? info?.name,
             gameId: info?.id,
@@ -119,18 +137,37 @@ export const useExtension = (params?: UseExtension) => {
             date: dateString,
             playdate: dateString,
             formValues: formEntries,
+        })?.then((detail: DocumentMessageResponseDetail | undefined) => {
+            if (!detail?.response) {
+                return;
+            }
+            const { response } = detail;
+            const { numplays } = (response ?? {}) as { numplays?: number };
+
+            if (numplays != null && collectionId && currentUsername) {
+                dispatch(updateNumPlays({
+                    username: currentUsername,
+                    collectionId,
+                    numplays,
+                }));
+            }
         });
 
-        const target = e.currentTarget.previousElementSibling as HTMLDivElement;
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+        const target = e.currentTarget.previousElementSibling as HTMLDivElement | null;
+        if (target) {
+            void target.offsetWidth;
+            target.classList.add('add-pulse');
+            setTimeout(() => target.classList.remove('add-pulse'), 2500);
+        }
     };
 
     const makeModeBlock = ({
         modeKey,
         defaultMode,
         addFn,
+        formKey,
+        setFormKey,
+        formProps,
     }: MakeModeBlockParams) => {
         const modeSettings =
             MakeModeSettings[modeKey]({
@@ -146,6 +183,11 @@ export const useExtension = (params?: UseExtension) => {
         const modeSetting = modeSettings[currentMode];
 
         const ModeForm = modeSetting?.form;
+
+        const handleButtonClick = modeSetting.addFn
+                                  ? () => setFormKey?.(k => k + 1)
+                                  : (e: SyntheticEvent<HTMLButtonElement>) =>
+                                      addFn(modeSetting, e);
 
         return {
             currentMode,
@@ -167,17 +209,17 @@ export const useExtension = (params?: UseExtension) => {
                                     p-1 xs:h-7 h-8 w-4.5`}>
                                 <FaChevronDown className="w-2 h-2" />
                             </button>
-                            <button disabled={disabledModes[modeKey] || !!modeSetting.addFn}
+                            <button disabled={disabledModes[modeKey]}
                                     className={`collection-button cursor-pointer rounded-l-full
                                 absolute top-0 left-0 right-5
                                 flex justify-start items-center
-                                ${disabledModes[modeKey] || !!modeSetting.addFn ? 'bg-gray-300' : 'bg-[#e07ca4]'}
+                                ${disabledModes[modeKey] ? 'bg-gray-300' : 'bg-[#e07ca4]'}
                                 text-white
                                 p-1 pl-1.5 xs:h-7 h-8
                                 z-40
                                 xs:font-stretch-semi-condensed xs:tracking-tight
                                 text-sm`}
-                                    onClick={e => addFn(modeSetting, e)}
+                                    onClick={handleButtonClick}
                             >
                                 {modeSetting.icon}
                                 <div className="p-0.5 font-semibold uppercase">
@@ -215,7 +257,13 @@ export const useExtension = (params?: UseExtension) => {
                             </div>
                         </div>
                     </div>
-                    {ModeForm && <ModeForm formValues={formValues} setFormValues={setFormValues} addFn={modeSetting.addFn}/>}
+                    {ModeForm && <ModeForm
+                        key={formKey}
+                        formValues={formValues}
+                        setFormValues={setFormValues}
+                        addFn={modeSetting.addFn}
+                        {...(formProps ?? {})}
+                    />}
                 </Fragment>
             ),
         };
@@ -231,6 +279,9 @@ export const useExtension = (params?: UseExtension) => {
         modeKey: 'play',
         defaultMode: 'quick',
         addFn: addPlay,
+        formKey: detailedPlayKey,
+        setFormKey: setDetailedPlayKey,
+        formProps: { gameName: version?.name ?? info?.name },
     }) : {};
 
     useEffect(() => {

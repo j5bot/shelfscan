@@ -3,11 +3,12 @@ import { RootState } from '@/app/lib/redux/store';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
 import {
     collectionItemToGame,
-    collectionVersionToVersion
+    collectionVersionToVersion, createSlug
 } from '@/app/lib/utils/gameAdapters';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
 import { PlaysIcon } from '@/app/ui/icons/PlaysIcon';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
+import Link from 'next/link';
 import React, { type ReactNode } from 'react';
 import { type IconType } from 'react-icons';
 import { FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
@@ -36,12 +37,16 @@ const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
         height={40}
     /></div> : null;
 
-    const playsIcon = plays > 0 ? <div className="scale-80 md:scale-none"><PlaysIcon
-        plays={plays}
-        height={40}
-        backgroundColor="var(--color-blue-400)"
-        strokeColor="var(--color-blue-800)"
-    /></div> : null;
+    const playsIcon = plays > 0 ? <div className="scale-80 md:scale-none">
+        <Link href={`https://boardgamegeek.com/boardgame/${item.objectId}/${createSlug(item.name)}/mygames/plays`} target="_blank">
+            <PlaysIcon
+                plays={plays}
+                height={40}
+                backgroundColor="var(--color-blue-400)"
+                strokeColor="var(--color-blue-800)"
+            />
+        </Link>
+    </div> : null;
 
     Object.keys(statusIconsMap).reduce((acc: CollectionHeaderIcon[], statusKey: string) => {
         if (!item.statuses[statusKey as keyof typeof item.statuses]) {

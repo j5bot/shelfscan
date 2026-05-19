@@ -1,16 +1,18 @@
-import { ModeSettingFormProps } from '@/app/lib/extension/types';
+import { ModeSettingFormProps, ModeSetting } from '@/app/lib/extension/types';
 import { makeNonUserPlayer } from '@/app/lib/extension/utils';
 import { usePlayData } from '@/app/lib/extension/PlayDataProvider';
+import { PlayerRow } from '@/app/ui/extension/PlayerRow';
 import { type BggPlayer } from '@/app/lib/types/bgg';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import { FaChevronDown, FaSpinner, FaUsers } from 'react-icons/fa6';
+import { FaChevronDown, FaCircleCheck, FaSpinner, FaUsers, FaXmark } from 'react-icons/fa6';
+import { GiChessPawn } from 'react-icons/gi';
 
 const TODAY = new Date().toISOString().split('T')[0];
 
 type DurationOption = { label: string; value: string };
 
-const DURATION_OPTIONS: DurationOption[] = [
+const DurationOptions: DurationOption[] = [
     { label: '30 min', value: '30' },
     { label: '1 hr', value: '60' },
     { label: '2 hr', value: '120' },
@@ -22,8 +24,24 @@ export const DetailedPlayForm = ({
     formValues,
     setFormValues,
     addFn,
+    onClose,
+    gameName,
 }: ModeSettingFormProps) => {
-    const { players, locations: fetchedLocations, addLocation, addPlayer, searchPlayers } = usePlayData();
+    const {
+        players,
+        playData,
+        locations: fetchedLocations,
+        addLocation,
+        addUpdatePlayer,
+        addUpdatePlayData,
+        clearPlayData,
+        searchPlayers,
+    } = usePlayData();
+
+    const [isOpen, setIsOpen] = useState<boolean>(true);
+    const [confirmed, setConfirmed] = useState<boolean>(false);
+    const [playDate, setPlayDate] = useState<string>(TODAY);
+    const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [locationOptions, setLocationOptions] = useState<string[]>(fetchedLocations);
     const [locationInput, setLocationInput] = useState<string>(formValues['location'] ?? '');
@@ -59,6 +77,49 @@ export const DetailedPlayForm = ({
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    // Close modal on Escape
+    useEffect(() => {
+        const handler = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                handleCancel();
+            }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Clean up auto-close timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (closeTimeoutRef.current) {
+                clearTimeout(closeTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    const handleCancel = () => {
+        clearPlayData();
+        setIsOpen(false);
+        onClose?.();
+    };
+
+    const handleSubmit = (e: React.SyntheticEvent<HTMLButtonElement>) => {
+        const formPlayers = selectedPlayers.map(pid => {
+            const player = players[pid] ?? makeNonUserPlayer(pid);
+            return Object.assign({}, player, playData[pid] ?? {});
+        });
+        // Mutate formValues in place so addFn closure sees the updated players
+        setFormValues(Object.assign(formValues, { players: JSON.stringify(formPlayers) }));
+        addFn?.({} as ModeSetting, e);
+        clearPlayData();
+        setConfirmed(true);
+        closeTimeoutRef.current = setTimeout(() => {
+            setIsOpen(false);
+            onClose?.();
+        }, 2000);
+    };
+
     const handleLocationChange = (value: string) => {
         setLocationInput(value);
         setLocationDropdownOpen(true);
@@ -87,16 +148,10 @@ export const DetailedPlayForm = ({
     };
 
     const togglePlayer = useCallback((id: string) => {
-        setSelectedPlayers(prev => {
-            const next = prev.includes(id)
-                ? prev.filter(p => p !== id)
-                : [...prev, id];
-            const formPlayers = next.map(pid => players[pid] ?? makeNonUserPlayer(pid));
-            setFormValues(Object.assign({}, formValues, { players: JSON.stringify(formPlayers) }));
-            return next;
-        });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [players, formValues]);
+        setSelectedPlayers(prev =>
+            prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id],
+        );
+    }, []);
 
     // Debounced player search
     useEffect(() => {
@@ -136,14 +191,14 @@ export const DetailedPlayForm = ({
         );
         if (!exactMatch) {
             const newPlayer = makeNonUserPlayer(query);
-            addPlayer(newPlayer);
+            addUpdatePlayer(newPlayer);
             togglePlayer(query);
         }
         setPlayerSearchQuery('');
     };
 
     const selectSearchResult = (id: string, player: BggPlayer) => {
-        addPlayer(player);
+        addUpdatePlayer(player);
         togglePlayer(id);
     };
 
@@ -165,12 +220,59 @@ export const DetailedPlayForm = ({
 
     const durationMinutes = duration === 'other' ? customDuration : duration;
 
+    if (!addFn || !isOpen) {
+        return null;
+    }
+
     return (
-        <form name="detailed" className="pb-2 flex flex-col gap-1.5 text-xs">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+            onClick={handleCancel}
+            aria-modal="true"
+            role="dialog"
+            aria-label="Log Detailed Play"
+        >
+            <div
+                className={`relative bg-overlay
+                    w-full xs:max-w-xs sm:max-w-sm
+                    rounded-2xl xs:rounded-none
+                    p-4 pt-8
+                    max-h-dvh overflow-y-auto`}
+                onClick={e => e.stopPropagation()}
+            >
+                <button
+                    type="button"
+                    className="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
+                    onClick={handleCancel}
+                    aria-label="Close"
+                >
+                    <FaXmark />
+                </button>
+
+                <h3 className="font-semibold text-sm mb-3 uppercase tracking-wide">Log Detailed Play</h3>
+
+                {confirmed ? (
+                    <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+                        <FaCircleCheck className="text-[#e07ca4] w-9 h-9" />
+                        <div>
+                            <p className="font-semibold text-sm">Play logged!</p>
+                            {gameName && (
+                                <p className="text-xs text-base-content/60 mt-1">
+                                    <strong>{gameName}</strong>
+                                    {' on '}
+                                    {new Date(playDate + 'T00:00:00').toLocaleDateString(undefined, {
+                                        year: 'numeric', month: 'long', day: 'numeric',
+                                    })}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                <>
+                <form name="detailed" className="flex flex-col gap-1.5 text-xs">
             {/* Hidden fields for FormData consumption in addPlay */}
             <input type="hidden" name="location" value={locationInput} />
             <input type="hidden" name="duration" value={durationMinutes} />
-            <input type="hidden" name="players" value={selectedPlayers.join(',')} />
 
             {/* Date */}
             <div className="flex items-center gap-1.5">
@@ -181,11 +283,122 @@ export const DetailedPlayForm = ({
                     max={TODAY}
                     defaultValue={TODAY}
                     className="input input-xs text-xs flex-1 min-w-0"
-                    onChange={e =>
-                        setFormValues(Object.assign({}, formValues, { date: e.currentTarget.value }))
-                    }
+                    onChange={e => {
+                        setPlayDate(e.currentTarget.value);
+                        setFormValues(Object.assign({}, formValues, { date: e.currentTarget.value }));
+                    }}
                 />
             </div>
+
+            {/* Players multi-select with search */}
+            <div className="flex items-start gap-1.5">
+                <label className="w-16 shrink-0 pt-0.5">Players</label>
+                <div ref={playersRef} className="relative flex-1 min-w-0">
+                    <button
+                        type="button"
+                        className="btn btn-xs w-full flex justify-between items-center gap-1 bg-white"
+                        onClick={() => setPlayersOpen(prev => !prev)}
+                    >
+                        <FaUsers className="w-3 h-3 shrink-0" />
+                        <span className="truncate flex-1 text-left">
+                    {selectedPlayers.length > 0
+                     ? selectedPlayers.join(', ')
+                     : 'Select players'}
+                </span>
+                        <FaChevronDown className="w-2.5 h-2.5 shrink-0" />
+                    </button>
+                    {playersOpen && (
+                        <div className={`absolute z-40 mt-0.5 w-full
+                                bg-base-100 border border-base-300
+                                rounded-box shadow-md p-1`}>
+                            {/* Search input */}
+                            <div className="flex items-center gap-1 mb-1 px-1">
+                                <FaSearch className="w-2.5 h-2.5 shrink-0 text-base-content/50" />
+                                <input
+                                    type="text"
+                                    value={playerSearchQuery}
+                                    placeholder="Search players…"
+                                    className="input input-xs text-xs flex-1 min-w-0"
+                                    onChange={e => setPlayerSearchQuery(e.currentTarget.value)}
+                                    onKeyDown={handlePlayerSearchKeyDown}
+                                    autoFocus
+                                />
+                                {isSearchingPlayers && (
+                                    <FaSpinner className="w-3 h-3 shrink-0 animate-spin text-base-content/50" />
+                                )}
+                            </div>
+                            {/* Player list */}
+                            <ul className="max-h-32 overflow-y-auto">
+                                {(() => {
+                                    const listEntries = playerSearchQuery.trim()
+                                                        ? Object.entries(playerSearchResults)
+                                                        : Object.entries(players);
+                                    if (playerSearchQuery.trim() && !isSearchingPlayers && listEntries.length === 0) {
+                                        return (
+                                            <li className="px-2 py-1 text-base-content/50 italic">
+                                                No results — press Enter to add &ldquo;{playerSearchQuery}&rdquo;
+                                            </li>
+                                        );
+                                    }
+                                    return listEntries.map(([id, player]) => {
+                                        const label = player.name.length > 0
+                                                      ? <div className="flex flex-col"><div>{player.name}</div>
+                                                {player.username
+                                                 ? <div className="text-[0.5rem] text-gray-500">{player.username}</div>
+                                                 : null}</div>
+                                                      : player.username;
+                                        const checked = selectedPlayers.includes(id);
+                                        const isFromSearch = playerSearchQuery.trim().length > 0;
+                                        return (
+                                            <li
+                                                key={id}
+                                                className={`flex items-center gap-1.5 cursor-pointer
+                                                    px-2 py-0.5 rounded hover:bg-base-200`}
+                                                onMouseDown={e => {
+                                                    e.preventDefault();
+                                                    if (isFromSearch) {
+                                                        selectSearchResult(id, player);
+                                                    } else {
+                                                        togglePlayer(id);
+                                                    }
+                                                    setPlayerSearchQuery('');
+                                                }}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    readOnly
+                                                    checked={checked}
+                                                    className="checkbox checkbox-xs pointer-events-none"
+                                                />
+                                                <span>{label}</span>
+                                            </li>
+                                        );
+                                    });
+                                })()}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Per-player score / color / win */}
+            {selectedPlayers.length > 0 && (
+                <div className="flex flex-col gap-1 mb-0.5 bg-white border ml-5 pl-1.5 pr-1.5 p-[0.5em] border-gray-200 dark:bg-gray-700 rounded-md">
+                    {selectedPlayers.map(id => {
+                        const player = players[id] ?? makeNonUserPlayer(id);
+                        const pd = playData[id] ?? {};
+                        return (
+                            <PlayerRow
+                                key={id}
+                                player={player}
+                                playData={pd}
+                                onUpdate={addUpdatePlayData}
+                            />
+                        );
+                    })}
+                </div>
+            )}
+
 
             {/* Quantity */}
             <div className="flex items-center gap-1.5">
@@ -238,12 +451,12 @@ export const DetailedPlayForm = ({
             <div className="flex items-center gap-1.5">
                 <label className="w-16 shrink-0">Duration</label>
                 <select
-                    className="select select-xs text-xs flex-1 min-w-0"
+                    className="select select-xs text-xs flex-1 min-w-0 pl-2"
                     value={duration}
                     onChange={e => handleDurationChange(e.currentTarget.value)}
                 >
                     <option value="">—</option>
-                    {DURATION_OPTIONS.map(opt => (
+                    {DurationOptions.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                 </select>
@@ -251,7 +464,7 @@ export const DetailedPlayForm = ({
                     <input
                         type="number"
                         min={1}
-                        placeholder="min"
+                        placeholder="Mins."
                         value={customDuration}
                         className="input input-xs text-xs w-16"
                         onChange={e => handleCustomDurationChange(e.currentTarget.value)}
@@ -274,96 +487,33 @@ export const DetailedPlayForm = ({
                 />
             </div>
 
-            {/* Players multi-select with search */}
-            <div className="flex items-start gap-1.5">
-                <label className="w-16 shrink-0 pt-0.5">Players</label>
-                <div ref={playersRef} className="relative flex-1 min-w-0">
-                    <button
-                        type="button"
-                        className="btn btn-xs w-full flex justify-between items-center gap-1"
-                        onClick={() => setPlayersOpen(prev => !prev)}
-                    >
-                        <FaUsers className="w-3 h-3 shrink-0" />
-                        <span className="truncate flex-1 text-left">
-                            {selectedPlayers.length > 0
-                                ? selectedPlayers.join(', ')
-                                : 'Select players'}
-                        </span>
-                        <FaChevronDown className="w-2.5 h-2.5 shrink-0" />
-                    </button>
-                    {playersOpen && (
-                        <div className={`absolute z-20 mt-0.5 w-full
-                                        bg-base-100 border border-base-300
-                                        rounded-box shadow-md p-1`}>
-                            {/* Search input */}
-                            <div className="flex items-center gap-1 mb-1 px-1">
-                                <FaSearch className="w-2.5 h-2.5 shrink-0 text-base-content/50" />
-                                <input
-                                    type="text"
-                                    value={playerSearchQuery}
-                                    placeholder="Search players…"
-                                    className="input input-xs text-xs flex-1 min-w-0"
-                                    onChange={e => setPlayerSearchQuery(e.currentTarget.value)}
-                                    onKeyDown={handlePlayerSearchKeyDown}
-                                    autoFocus
-                                />
-                                {isSearchingPlayers && (
-                                    <FaSpinner className="w-3 h-3 shrink-0 animate-spin text-base-content/50" />
-                                )}
-                            </div>
-                            {/* Player list */}
-                            <ul className="max-h-32 overflow-y-auto">
-                                {(() => {
-                                    const listEntries = playerSearchQuery.trim()
-                                        ? Object.entries(playerSearchResults)
-                                        : Object.entries(players);
-                                    if (playerSearchQuery.trim() && !isSearchingPlayers && listEntries.length === 0) {
-                                        return (
-                                            <li className="px-2 py-1 text-base-content/50 italic">
-                                                No results — press Enter to add &ldquo;{playerSearchQuery}&rdquo;
-                                            </li>
-                                        );
-                                    }
-                                    return listEntries.map(([id, player]) => {
-                                        const label = player.name.length > 0
-                                                      ? <div className="flex flex-col"><div>{player.name}</div>
-                                                          {player.username
-                                                              ? <div className="text-[0.5rem] text-gray-500">{player.username}</div>
-                                                              : null}</div>
-                                                      : player.username;
-                                        const checked = selectedPlayers.includes(id);
-                                        const isFromSearch = playerSearchQuery.trim().length > 0;
-                                        return (
-                                            <li
-                                                key={id}
-                                                className={`flex items-center gap-1.5 cursor-pointer
-                                                            px-2 py-0.5 rounded hover:bg-base-200`}
-                                                onMouseDown={e => {
-                                                    e.preventDefault();
-                                                    if (isFromSearch) {
-                                                        selectSearchResult(id, player);
-                                                    } else {
-                                                        togglePlayer(id);
-                                                    }
-                                                    setPlayerSearchQuery('');
-                                                }}
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    readOnly
-                                                    checked={checked}
-                                                    className="checkbox checkbox-xs pointer-events-none"
-                                                />
-                                                <span>{label}</span>
-                                            </li>
-                                        );
-                                    });
-                                })()}
-                            </ul>
-                        </div>
-                    )}
-                </div>
-            </div>
         </form>
+
+        {/* Modal action buttons */}
+        <div className="flex gap-2 justify-end mt-4 pt-3 border-t border-base-300">
+            <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={handleCancel}
+            >
+                Cancel
+            </button>
+            <button
+                type="button"
+                className={`collection-button cursor-pointer rounded-full
+                    flex items-center gap-1
+                    bg-[#e07ca4] text-white
+                    p-1 pl-2 pr-3
+                    text-sm font-semibold uppercase`}
+                onClick={handleSubmit}
+            >
+                <GiChessPawn className="w-4 h-4" />
+                Log Play
+            </button>
+        </div>
+        </>
+        )}
+    </div>
+</div>
     );
 };

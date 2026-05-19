@@ -43,9 +43,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
                     ? (detail as DocumentMessageResponseDetail).sourceMessage.type
                     : detail.type;
         const messageKey = `${key}-${timestamp}`;
-
-        // console.log('timestamp', messageKey, timestamp, detail.timestamp);
-
+        
         const matchingMessages = messagesRef.current[messageKey];
 
         const timestampedDetail: Partial<DocumentMessageDetail> = { timestamp, ...detail };
