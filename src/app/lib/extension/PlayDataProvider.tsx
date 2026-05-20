@@ -1,5 +1,3 @@
-'use client';
-
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
 import { useSync } from '@/app/lib/extension/useSync';
@@ -9,7 +7,6 @@ import {
     ReactNode,
     useCallback,
     useContext,
-    useEffect,
     useRef,
     useState
 } from 'react';
@@ -95,21 +92,6 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
             return emptyInitialData;
         });
     };
-
-    useEffect(() => {
-        if (!(userId && syncOn) || loadedRef.current) {
-            return;
-        }
-        let active = true;
-
-        getInitialData(active).then();
-
-        return () => {
-            active = false;
-            loadedRef.current = false;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userId, syncOn]);
 
     const addLocation = (location: string) => {
         setLocations(prev => prev.includes(location) ? prev : [...prev, location]);
