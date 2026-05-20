@@ -96,21 +96,6 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
         });
     };
 
-    useEffect(() => {
-        if (!(userId && syncOn) || loadedRef.current) {
-            return;
-        }
-        let active = true;
-
-        getInitialData(active).then();
-
-        return () => {
-            active = false;
-            loadedRef.current = false;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userId, syncOn]);
-
     const addLocation = (location: string) => {
         setLocations(prev => prev.includes(location) ? prev : [...prev, location]);
     };
