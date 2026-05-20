@@ -1,5 +1,3 @@
-'use client';
-
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
 import { useSync } from '@/app/lib/extension/useSync';
@@ -9,7 +7,6 @@ import {
     ReactNode,
     useCallback,
     useContext,
-    useEffect,
     useRef,
     useState
 } from 'react';
