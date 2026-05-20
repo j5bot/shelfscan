@@ -8,7 +8,14 @@ import { FaSearch } from 'react-icons/fa';
 import { FaChevronDown, FaCircleCheck, FaSpinner, FaUsers, FaXmark } from 'react-icons/fa6';
 import { GiChessPawn } from 'react-icons/gi';
 
-const TODAY = new Date().toISOString().split('T')[0];
+const todayDate = new Date();
+const TODAY = `${
+    todayDate.getFullYear()
+}-${
+    String(todayDate.getMonth() + 1).padStart(2, '0')
+}-${
+    String(todayDate.getDate()).padStart(2, '0')
+}`;
 
 type DurationOption = { label: string; value: string };
 
@@ -28,9 +35,11 @@ export const DetailedPlayForm = ({
     gameName,
 }: ModeSettingFormProps) => {
     const {
+        loaded,
         players,
         playData,
         locations: fetchedLocations,
+        getInitialData,
         addLocation,
         addUpdatePlayer,
         addUpdatePlayData,
@@ -58,6 +67,13 @@ export const DetailedPlayForm = ({
 
     const locationRef = useRef<HTMLDivElement>(null);
     const playersRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (loaded) {
+            return;
+        }
+        getInitialData(true).then();
+    }, []);
 
     // Sync locationOptions when provider data arrives
     useEffect(() => {

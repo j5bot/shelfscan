@@ -117,8 +117,14 @@ export const useExtension = (params?: UseExtension) => {
         if (dateValue) {
             dateString = dateValue;
         } else {
-            const d = new Date();
-            dateString = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+            const todayDate = new Date();
+            dateString = `${
+                todayDate.getFullYear()
+            }-${
+                String(todayDate.getMonth() + 1).padStart(2, '0')
+            }-${
+                String(todayDate.getDate()).padStart(2, '0')
+            }`;
         }
 
         const formEntries = formData ? Object.assign(

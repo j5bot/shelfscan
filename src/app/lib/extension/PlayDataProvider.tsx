@@ -4,12 +4,30 @@ import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingPro
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
 import { useSync } from '@/app/lib/extension/useSync';
 import { BggLocations, BggPlayer, BggPlayerPlay } from '@/app/lib/types/bgg';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import {
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
+
+type PlayersMap = Record<string, BggPlayer>;
+type PlayDataMap = Record<string, BggPlayerPlay>;
+
+type PlayDataInitialData = {
+    players: PlayersMap;
+    locations: string[];
+};
 
 type PlayDataContextValue = {
-    players: Record<string, BggPlayer>;
-    playData: Record<string, BggPlayerPlay>;
+    loaded: boolean;
+    players: PlayersMap;
+    playData: PlayDataMap;
     locations: string[];
+    getInitialData: (active: boolean | undefined) => Promise<PlayDataInitialData>;
     addLocation: (location: string) => void;
     addUpdatePlayer: (player: BggPlayer) => void;
     addUpdatePlayData: (play: BggPlayerPlay) => void;
@@ -17,10 +35,14 @@ type PlayDataContextValue = {
     searchPlayers: (query: string) => Promise<BggPlayer[]>;
 };
 
+const emptyInitialData: PlayDataInitialData = { players: {}, locations: [] };
+
 const PlayDataContext = createContext<PlayDataContextValue>({
+    loaded: false,
     players: {},
     playData: {},
     locations: [],
+    getInitialData: () => Promise.resolve(emptyInitialData),
     addLocation: () => undefined,
     addUpdatePlayer: () => undefined,
     addUpdatePlayData: () => undefined,
@@ -32,43 +54,62 @@ export const usePlayData = () => useContext(PlayDataContext);
 
 export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
     const { dispatchExtensionMessage } = useExtensionMessaging();
-    const { userId } = useSync();
+    const { userId, syncOn } = useSync();
+    const loadedRef = useRef<boolean>(false);
 
     const [players, setPlayers] = useState<Record<string, BggPlayer>>({});
     const [playData, setPlayData] = useState<Record<string, BggPlayerPlay>>({});
     const [locations, setLocations] = useState<string[]>([]);
 
-    useEffect(() => {
-        if (!userId) {
-            return;
-        }
-        let active = true;
-
+    const getInitialData = async (active: boolean | undefined = true) => {
         const playersPromise = dispatchExtensionMessage({ userId, type: 'getPlayers' }) as
             Promise<{ response?: BggPlayer[] }> | undefined;
 
         const locationsPromise = dispatchExtensionMessage({ userId, type: 'getLocations' }) as
             Promise<{ response?: BggLocations }> | undefined;
 
-        Promise.all([playersPromise, locationsPromise]).then(([playersResp, locationsResp]) => {
+        let players: PlayersMap = {} as PlayersMap;
+        let locations: string[] = [];
+
+        return Promise.all([playersPromise, locationsPromise]).then(([playersResp, locationsResp]) => {
+            console.log('Loaded play data:', { playersResp, locationsResp });
             if (!active) {
-                return;
+                return emptyInitialData;
             }
+            loadedRef.current = true;
             if (playersResp?.response) {
-                setPlayers(playersResp.response.reduce((acc, player) => {
+                players = playersResp.response.reduce((acc, player) => {
                     const id = player.username.length > 0 ? player.username : player.name;
                     acc[id] = player;
                     return acc;
-                }, {} as Record<string, BggPlayer>));
+                }, {} as Record<string, BggPlayer>);
+                setPlayers(players);
             }
             if (locationsResp?.response?.locations) {
-                setLocations(locationsResp.response.locations.map(l => l.location));
+                locations = locationsResp.response.locations.map(l => l.location);
+                setLocations(locations);
             }
+            return { players, locations };
+        }).catch(reason => {
+            console.error('Error loading play data:', reason);
+            return emptyInitialData;
         });
+    };
 
-        return () => { active = false; };
+    useEffect(() => {
+        if (!(userId && syncOn) || loadedRef.current) {
+            return;
+        }
+        let active = true;
+
+        getInitialData(active).then();
+
+        return () => {
+            active = false;
+            loadedRef.current = false;
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userId]);
+    }, [userId, syncOn]);
 
     const addLocation = (location: string) => {
         setLocations(prev => prev.includes(location) ? prev : [...prev, location]);
@@ -105,9 +146,11 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <PlayDataContext.Provider value={{
+            loaded: loadedRef.current,
             players,
             playData,
             locations,
+            getInitialData,
             addLocation,
             addUpdatePlayer,
             addUpdatePlayData,
