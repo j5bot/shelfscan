@@ -183,4 +183,4 @@ your device.</p>
     </>;
 };
 
-export default AboutPage;
+export default WorkflowPage;
