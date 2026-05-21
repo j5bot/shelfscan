@@ -177,6 +177,41 @@ X mark in the bottom right corner, which limits the games shown
 to those that do not appear in the scan history that is saved on
 your device.</p>
 
+<h2 className="text-lg pt-2" id="collection-quick-filtering">Collection Quick Filtering</h2>
+
+<p>ShelfScan provides the ability to quickly filter your collection
+by various criteria, and to sort the filtered collection by
+several different attributes.</p>
+<p>The <a href="/extension">ShelfScan
+Extension</a> is <b>not</b> required for this workflow, and the
+<a href="https://www.shelfscan.io/collection">Collection View</a> in
+general is available to all users.</p>
+<p><img src="/images/workflows/filter-buttons.png" className="w-full"/>
+</p>
+<p>Above you can see the quick filter buttons and what filtering they
+are associated with.</p>
+<p>Most filters have an 'on', 'not', and 'off' state, which you
+toggle through by clicking on the button.</p>
+<p>In the 'on' state, only games that match the filter criteria will
+be shown.</p>
+<p>In the 'not' state, only games that do not match the filter
+criteria will be shown.</p>
+<p>In the 'off' state, the filter is not applied and all games will
+be shown regardless of that criteria.</p>
+<p>Some filters, such as the 'Rating' and 'Plays' filters, also have
+min and max input fields to allow you to narrow the results to a
+specific range.  The 'Wishlist' filter also has a parameter -
+a priority selection dropdown.</p>
+<p>You can combine multiple filters to narrow your search and find
+just the games you are interested in.  For example, you could
+select an 'Owned' filter and 'Rating' filter, and enter min and
+max rating values to find all the games in your collection that you
+have rated poorly.</p>
+<p><img src="/images/workflows/search-and-sort.png" className="w-full"/>
+</p>
+<p>The top of the filter section shows a title text search, a button
+to turn the filter button bar off, the sorting options, and a
+button to change the sort direction.</p>
 
             </div>
         </div>
