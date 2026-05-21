@@ -1,5 +1,3 @@
-import { VersionIcon } from '@/app/ui/icons/VersionIcon';
-import { useState } from 'react';
 import {
     CollectionFilters,
     OwnershipFilter,
@@ -18,7 +16,8 @@ import {
     VersionFilter,
 } from '@/app/lib/hooks/useCollectionFilters';
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
-import { CSSProperties, ReactNode } from 'react';
+import { VersionIcon } from '@/app/ui/icons/VersionIcon';
+import { CSSProperties, ReactNode, useState } from 'react';
 import {
     FaArrowDown,
     FaArrowUp,
@@ -40,8 +39,6 @@ import {
 import { SiTarget } from 'react-icons/si';
 
 // ── Three-state toggle ────────────────────────────────────────────────────────
-
-
 type ThreeStateToggleProps<S extends string> = {
     value: S;
     states: readonly [S, S, S]; // [default, on, off]

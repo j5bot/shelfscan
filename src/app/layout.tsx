@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: `ShelfScan`,
-    description: 'Board game UPC scanner / GameUPC.com API updater',
+    description: 'Board game collection manager, play logger, and UPC scanner',
 };
 
 export default function RootLayout({
