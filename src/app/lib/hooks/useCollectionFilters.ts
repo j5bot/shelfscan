@@ -7,6 +7,7 @@ export type OwnershipFilter = 'default' | 'own' | 'prevowned' | 'notowned';
 export type TradeFilter = 'default' | 'fortrade' | 'nottrade';
 export type WantFilter = 'default' | 'want' | 'wanttoplay' | 'wanttobuy';
 export type ConditionFilter = 'default' | 'has' | 'not';
+export type VersionFilter = 'default' | 'versioned' | 'notversioned';
 export type WishlistFilter = 'default' | 'wishlist' | 'notwishlist';
 export type WishlistPriorityFilter = 'default' | '1' | '2' | '3' | '4' | '5';
 export type PreorderFilter = 'default' | 'preordered' | 'notpreordered';
@@ -21,6 +22,7 @@ export type CollectionFilters = {
     trade: TradeFilter;
     want: WantFilter;
     condition: ConditionFilter;
+    version: VersionFilter;
     wishlist: WishlistFilter;
     wishlistPriority: WishlistPriorityFilter;
     preorder: PreorderFilter;
@@ -40,6 +42,7 @@ const DEFAULT_FILTERS: CollectionFilters = {
     trade: 'default',
     want: 'default',
     condition: 'default',
+    version: 'default',
     wishlist: 'default',
     wishlistPriority: 'default',
     preorder: 'default',
@@ -114,6 +117,7 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             filters.trade !== 'default' ||
             filters.want !== 'default' ||
             filters.condition !== 'default' ||
+            filters.version !== 'default' ||
             filters.wishlist !== 'default' ||
             filters.wishlistPriority !== 'default' ||
             filters.preorder !== 'default' ||
@@ -151,6 +155,10 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                 // Condition
                 if (filters.condition === 'has' && !item.tradeCondition) { return false; }
                 if (filters.condition === 'not' && !!item.tradeCondition) { return false; }
+
+                // Version
+                if (filters.version === 'versioned' && !item.version?.id) { return false; }
+                if (filters.version === 'notversioned' && !!item.version?.id) { return false; }
 
                 // Wishlist
                 if (filters.wishlist === 'wishlist' && !statuses.wishlist) { return false; }

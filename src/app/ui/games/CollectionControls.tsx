@@ -1,3 +1,4 @@
+import { VersionIcon } from '@/app/ui/icons/VersionIcon';
 import { useState } from 'react';
 import {
     CollectionFilters,
@@ -14,6 +15,7 @@ import {
     RatingSource,
     PlaysFilter,
     cycleThreeState,
+    VersionFilter,
 } from '@/app/lib/hooks/useCollectionFilters';
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
 import { CSSProperties, ReactNode } from 'react';
@@ -70,7 +72,7 @@ const ThreeStateToggle = <S extends string>({
                                    : offLabel;
 
     const colorClass = isDefault
-                       ? 'btn-ghost text-base-content/40 bg-[#efefef]'
+                       ? 'text-base-content/40 bg-[#efefef]'
                        : isOn
                          ? 'btn-success text-success-content'
                          : 'btn-error text-error-content';
@@ -131,7 +133,7 @@ const SortControlsInner = <F extends string>({
         </select>
         <button
             type="button"
-            className="btn btn-xs btn-ghost pl-0.5 pr-0.5"
+            className="btn btn-xs pl-0.5 pr-0.5"
             onClick={() => onSortClick(sortField)}
             aria-label={sortDirection === 'asc' ? 'Sort ascending' : 'Sort descending'}
             title={sortDirection === 'asc' ? 'Ascending' : 'Descending'}
@@ -200,7 +202,7 @@ export const CollectionControls = <F extends string>({
                 />
                 <button
                     type="button"
-                    className={`btn relative btn-xs shrink-0 pl-1 pr-1 rounded-sm ${showFilters || hasActiveFilters ? 'btn-primary' : 'btn-ghost text-base-content/40'}`}
+                    className={`btn relative btn-xs shrink-0 pl-1 pr-1 rounded-sm ${showFilters || hasActiveFilters ? 'btn-primary' : 'text-base-content/40'}`}
                     onClick={() => setShowFilters(v => !v)}
                     aria-label={showFilters ? 'Hide filters' : 'Show filters'}
                     aria-expanded={showFilters}
@@ -208,7 +210,7 @@ export const CollectionControls = <F extends string>({
                 >
                     <FaFilter size={11} aria-hidden="true" />
                     {hasActiveFilters && !showFilters && (
-                        <div className="absolute top-[-3px] right-[-3px] rounded-full bg-accent w-[0.5rem] h-[0.5rem]"
+                        <div className="absolute -top-0.75 -right-0.75 rounded-full bg-accent w-2 h-2"
                              aria-label="Active filters" />
                     )}
                 </button>
@@ -229,9 +231,34 @@ export const CollectionControls = <F extends string>({
                      role="group"
                      aria-label="Filter games">
 
-                    {/* Ownership toggle + dropdown */}
-                    {filters.ownership !== 'default' ? (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                    <div className="flex flex-wrap gap-0.5 bg-white rounded-md items-center"
+                         role="group"
+                         aria-label="Collection filters"
+                    >
+                        {/* Ownership toggle + dropdown */}
+                        {filters.ownership !== 'default' ? (
+                            <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                                <ThreeStateToggle
+                                    value={filters.ownership}
+                                    states={['default', 'own', 'notowned'] as const}
+                                    onLabel="Owned"
+                                    offLabel="Not Owned"
+                                    icon={<FaCheck size={12} aria-hidden="true" />}
+                                    onChange={v => setFilter('ownership', v as OwnershipFilter)}
+                                    title="Ownership Status"
+                                />
+                                <select
+                                    className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 shrink-0"
+                                    value={filters.ownership}
+                                    onChange={e => setFilter('ownership', e.target.value as OwnershipFilter)}
+                                    aria-label="Filter by ownership"
+                                >
+                                    <option value="own">Owned</option>
+                                    <option value="prevowned">Previous</option>
+                                    <option value="notowned">Not Owned</option>
+                                </select>
+                            </div>
+                        ) : (
                             <ThreeStateToggle
                                 value={filters.ownership}
                                 states={['default', 'own', 'notowned'] as const}
@@ -241,67 +268,89 @@ export const CollectionControls = <F extends string>({
                                 onChange={v => setFilter('ownership', v as OwnershipFilter)}
                                 title="Ownership Status"
                             />
-                            <select
-                                className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 flex-shrink-0"
-                                value={filters.ownership}
-                                onChange={e => setFilter('ownership', e.target.value as OwnershipFilter)}
-                                aria-label="Filter by ownership"
-                            >
-                                <option value="own">Owned</option>
-                                <option value="prevowned">Previous</option>
-                                <option value="notowned">Not Owned</option>
-                            </select>
-                        </div>
-                    ) : (
-                        <ThreeStateToggle
-                            value={filters.ownership}
-                            states={['default', 'own', 'notowned'] as const}
-                            onLabel="Owned"
-                            offLabel="Not Owned"
-                            icon={<FaCheck size={12} aria-hidden="true" />}
-                            onChange={v => setFilter('ownership', v as OwnershipFilter)}
-                            title="Ownership Status"
-                        />
-                    )}
+                        )}
 
-                    {/* Want toggle + dropdown */}
-                    {filters.want !== 'default' ? (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                        {/* Want toggle + dropdown */}
+                        {filters.want !== 'default' ? (
+                            <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                                <button
+                                    type="button"
+                                    className="btn btn-xs btn-success text-success-content rounded-sm gap-0.5"
+                                    onClick={() => setFilter('want', 'default')}
+                                    aria-label="Clear want filter"
+                                    title="Want Status"
+                                >
+                                    <SiTarget size={12} aria-hidden="true" />
+                                </button>
+                                <select
+                                    className="pl-2 select rounded-sm select-bordered select-xs w-30 shrink-0"
+                                    value={filters.want}
+                                    onChange={e => setFilter('want', e.target.value as WantFilter)}
+                                    aria-label="Filter by want status"
+                                >
+                                    <option value="want">Want in Trade</option>
+                                    <option value="wanttoplay">Want to Play</option>
+                                    <option value="wanttobuy">Want to Buy</option>
+                                </select>
+                            </div>
+                        ) : (
                             <button
                                 type="button"
-                                className="btn btn-xs btn-success text-success-content rounded-sm gap-0.5"
-                                onClick={() => setFilter('want', 'default')}
-                                aria-label="Clear want filter"
+                                className="btn btn-xs text-base-content/40 bg-[#efefef] rounded-sm gap-0.5"
+                                onClick={() => setFilter('want', 'wanttobuy')}
+                                aria-label="Filter by want status"
                                 title="Want Status"
                             >
                                 <SiTarget size={12} aria-hidden="true" />
                             </button>
-                            <select
-                                className="pl-2 select rounded-sm select-bordered select-xs w-30 flex-shrink-0"
-                                value={filters.want}
-                                onChange={e => setFilter('want', e.target.value as WantFilter)}
-                                aria-label="Filter by want status"
-                            >
-                                <option value="want">Want in Trade</option>
-                                <option value="wanttoplay">Want to Play</option>
-                                <option value="wanttobuy">Want to Buy</option>
-                            </select>
-                        </div>
-                    ) : (
-                        <button
-                            type="button"
-                            className="btn btn-xs btn-ghost text-base-content/40 bg-[#efefef] rounded-sm gap-0.5"
-                            onClick={() => setFilter('want', 'wanttobuy')}
-                            aria-label="Filter by want status"
-                            title="Want Status"
-                        >
-                            <SiTarget size={12} aria-hidden="true" />
-                        </button>
-                    )}
+                        )}
 
-                    {/* Rating toggle */}
-                    {filters.rating === 'rated' ? (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5 flex-wrap">
+                        {/* Rating toggle */}
+                        {filters.rating === 'rated' ? (
+                            <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5 flex-wrap">
+                                <ThreeStateToggle
+                                    value={filters.rating}
+                                    states={['default', 'rated', 'notrated'] as const}
+                                    onLabel="Rated"
+                                    offLabel="Not Rated"
+                                    icon={<FaStar size={12} aria-hidden="true" />}
+                                    onChange={v => setFilter('rating', v as RatingFilter)}
+                                    title="Rating Filter"
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-xs btn-primary rounded-sm gap-0.5"
+                                    onClick={() => setFilter('ratingSource',
+                                        filters.ratingSource === 'user' ? 'average' : 'user' as RatingSource)}
+                                    aria-label={filters.ratingSource === 'user' ? 'Filter by user rating' : 'Filter by average rating'}
+                                    title={filters.ratingSource === 'user' ? 'User Rating' : 'Average Rating'}
+                                >
+                                    {filters.ratingSource === 'user'
+                                        ? <FaUser size={12} aria-hidden="true" />
+                                        : <FaUserGroup size={12} aria-hidden="true" />
+                                    }
+                                </button>
+                                <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    className="input input-bordered input-xs w-14 rounded-sm"
+                                    placeholder="Min"
+                                    value={filters.ratingMin}
+                                    onChange={e => setFilter('ratingMin', e.target.value)}
+                                    aria-label="Minimum rating"
+                                />
+                                <span className="text-xs text-base-content/50">–</span>
+                                <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    className="input input-bordered input-xs w-14 rounded-sm"
+                                    placeholder="Max"
+                                    value={filters.ratingMax}
+                                    onChange={e => setFilter('ratingMax', e.target.value)}
+                                    aria-label="Maximum rating"
+                                />
+                            </div>
+                        ) : (
                             <ThreeStateToggle
                                 value={filters.rating}
                                 states={['default', 'rated', 'notrated'] as const}
@@ -311,196 +360,170 @@ export const CollectionControls = <F extends string>({
                                 onChange={v => setFilter('rating', v as RatingFilter)}
                                 title="Rating Filter"
                             />
+                        )}
+
+                        {/* Plays toggle */}
+                        <ThreeStateToggle
+                            value={filters.plays}
+                            states={['default', 'played', 'notplayed'] as const}
+                            onLabel="Played"
+                            offLabel="Not Played"
+                            icon={<FaDice size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('plays', v as PlaysFilter)}
+                            title="Plays Filter"
+                        />
+                        {filters.plays === 'played' && (
+                            <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    className="input input-bordered input-xs w-14 rounded-sm"
+                                    placeholder="Min"
+                                    value={filters.playsMin}
+                                    onChange={e => setFilter('playsMin',
+                                        removeNonDigits(e.target.value))}
+                                    aria-label="Minimum plays"
+                                />
+                                <span className="text-xs text-base-content/50">–</span>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    className="input input-bordered input-xs w-14 rounded-sm"
+                                    placeholder="Max"
+                                    value={filters.playsMax}
+                                    onChange={e => setFilter('playsMax',
+                                        removeNonDigits(e.target.value))}
+                                    aria-label="Maximum plays"
+                                />
+                            </div>
+                        )}
+
+                        {/* Trade toggle */}
+                        <ThreeStateToggle
+                            value={filters.trade}
+                            states={['default', 'fortrade', 'nottrade'] as const}
+                            onLabel="For Trade"
+                            offLabel="Not For Trade"
+                            icon={<FaRecycle size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('trade', v as TradeFilter)}
+                            title="Trade Status"
+                        />
+
+                        {/* Condition toggle */}
+                        <ThreeStateToggle
+                            value={filters.condition}
+                            states={['default', 'has', 'not'] as const}
+                            onLabel="Has Condition"
+                            offLabel="No Condition"
+                            icon={<FaSignal size={12}
+                                            style={{ transform: 'scaleX(-1)' } as CSSProperties}
+                                            aria-hidden="true" />}
+                            onChange={v => setFilter('condition', v as ConditionFilter)}
+                            title="Condition Status"
+                        />
+
+                        {/* Wishlist Priority — only shown when wishlist filter is active */}
+                        {filters.wishlist !== 'default' ? (
+                            <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+                                <ThreeStateToggle
+                                    value={filters.wishlist}
+                                    states={['default', 'wishlist', 'notwishlist'] as const}
+                                    onLabel="On Wishlist"
+                                    offLabel="Not on Wishlist"
+                                    icon={<FaHeart size={12} aria-hidden="true" />}
+                                    onChange={v => setFilter('wishlist', v as WishlistFilter)}
+                                    title="Wishlist Status"
+                                />
+                                <select
+                                    className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 shrink-0"
+                                    value={filters.wishlistPriority}
+                                    onChange={e => setFilter('wishlistPriority',
+                                        e.target.value as WishlistPriorityFilter)}
+                                    aria-label="Filter by wishlist priority"
+                                >
+                                    <option value="default">Any Priority</option>
+                                    <option value="1">Must Have</option>
+                                    <option value="2">Love to Have</option>
+                                    <option value="3">Like to Have</option>
+                                    <option value="4">Considering</option>
+                                    <option value="5">Don&apos;t Buy</option>
+                                </select>
+                            </div>
+                        ) : (
+                             <ThreeStateToggle
+                                 value={filters.wishlist}
+                                 states={['default', 'wishlist', 'notwishlist'] as const}
+                                 onLabel="On Wishlist"
+                                 offLabel="Not on Wishlist"
+                                 icon={<FaHeart size={12} aria-hidden="true" />}
+                                 onChange={v => setFilter('wishlist', v as WishlistFilter)}
+                                 title="Wishlist Status"
+                             />
+                         )}
+
+                        {/* Preorder toggle */}
+                        <ThreeStateToggle
+                            value={filters.preorder}
+                            states={['default', 'preordered', 'notpreordered'] as const}
+                            onLabel="Preordered"
+                            offLabel="Not Preordered"
+                            icon={<FaCalendar size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('preorder', v as PreorderFilter)}
+                            title="Preorder Status"
+                        />
+                    </div>
+
+                    <div className="flex flex-wrap gap-0.5 bg-white rounded-md items-center"
+                            role="group"
+                            aria-label="Other filters"
+                    >
+                    {/* Version toggle */}
+                        <ThreeStateToggle
+                            value={filters.version}
+                            states={['default', 'versioned', 'notversioned'] as const}
+                            onLabel="Versioned"
+                            offLabel="Not Versioned"
+                            icon={<VersionIcon height={12} aria-hidden="true" />}
+                            onChange={v => setFilter('version', v as VersionFilter)}
+                            title="Versioned Status"
+                        />
+
+                        {/* Verification toggle */}
+                        <ThreeStateToggle
+                            value={filters.verification}
+                            states={['default', 'verified', 'notverified'] as const}
+                            onLabel="Verified"
+                            offLabel="Not Verified"
+                            icon={<FaThumbsUp size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('verification', v as VerificationFilter)}
+                            title="Verification Status"
+                        />
+
+                        {/* Scan toggle */}
+                        <ThreeStateToggle
+                            value={filters.scan}
+                            states={['default', 'scanned', 'notscanned'] as const}
+                            onLabel="Scanned"
+                            offLabel="Not Scanned"
+                            icon={<FaBarcode size={12} aria-hidden="true" />}
+                            onChange={v => setFilter('scan', v as ScanFilter)}
+                            title="Scan Status"
+                        />
+
+                        {/* Reset */}
+                        {hasActiveFilters && (
                             <button
                                 type="button"
-                                className="btn btn-xs btn-primary rounded-sm gap-0.5"
-                                onClick={() => setFilter('ratingSource',
-                                    filters.ratingSource === 'user' ? 'average' : 'user' as RatingSource)}
-                                aria-label={filters.ratingSource === 'user' ? 'Filter by user rating' : 'Filter by average rating'}
-                                title={filters.ratingSource === 'user' ? 'User Rating' : 'Average Rating'}
+                                className="btn btn-xs btn-ghost text-base-content/60"
+                                onClick={resetFilters}
+                                aria-label="Reset all filters"
+                                title="Reset filters"
                             >
-                                {filters.ratingSource === 'user'
-                                    ? <FaUser size={12} aria-hidden="true" />
-                                    : <FaUserGroup size={12} aria-hidden="true" />
-                                }
+                                <FaXmark size={12} aria-hidden="true" />
+                                Reset
                             </button>
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                className="input input-bordered input-xs w-14 rounded-sm"
-                                placeholder="Min"
-                                value={filters.ratingMin}
-                                onChange={e => setFilter('ratingMin', e.target.value)}
-                                aria-label="Minimum rating"
-                            />
-                            <span className="text-xs text-base-content/50">–</span>
-                            <input
-                                type="text"
-                                inputMode="decimal"
-                                className="input input-bordered input-xs w-14 rounded-sm"
-                                placeholder="Max"
-                                value={filters.ratingMax}
-                                onChange={e => setFilter('ratingMax', e.target.value)}
-                                aria-label="Maximum rating"
-                            />
-                        </div>
-                    ) : (
-                        <ThreeStateToggle
-                            value={filters.rating}
-                            states={['default', 'rated', 'notrated'] as const}
-                            onLabel="Rated"
-                            offLabel="Not Rated"
-                            icon={<FaStar size={12} aria-hidden="true" />}
-                            onChange={v => setFilter('rating', v as RatingFilter)}
-                            title="Rating Filter"
-                        />
-                    )}
-
-                    {/* Plays toggle */}
-                    <ThreeStateToggle
-                        value={filters.plays}
-                        states={['default', 'played', 'notplayed'] as const}
-                        onLabel="Played"
-                        offLabel="Not Played"
-                        icon={<FaDice size={12} aria-hidden="true" />}
-                        onChange={v => setFilter('plays', v as PlaysFilter)}
-                        title="Plays Filter"
-                    />
-                    {filters.plays === 'played' && (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                className="input input-bordered input-xs w-14 rounded-sm"
-                                placeholder="Min"
-                                value={filters.playsMin}
-                                onChange={e => setFilter('playsMin',
-                                    removeNonDigits(e.target.value))}
-                                aria-label="Minimum plays"
-                            />
-                            <span className="text-xs text-base-content/50">–</span>
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                className="input input-bordered input-xs w-14 rounded-sm"
-                                placeholder="Max"
-                                value={filters.playsMax}
-                                onChange={e => setFilter('playsMax',
-                                    removeNonDigits(e.target.value))}
-                                aria-label="Maximum plays"
-                            />
-                        </div>
-                    )}
-
-                    {/* Trade toggle */}
-                    <ThreeStateToggle
-                        value={filters.trade}
-                        states={['default', 'fortrade', 'nottrade'] as const}
-                        onLabel="For Trade"
-                        offLabel="Not For Trade"
-                        icon={<FaRecycle size={12} aria-hidden="true" />}
-                        onChange={v => setFilter('trade', v as TradeFilter)}
-                        title="Trade Status"
-                    />
-
-                    {/* Condition toggle */}
-                    <ThreeStateToggle
-                        value={filters.condition}
-                        states={['default', 'has', 'not'] as const}
-                        onLabel="Has Condition"
-                        offLabel="No Condition"
-                        icon={<FaSignal size={12}
-                                        style={{ transform: 'scaleX(-1)' } as CSSProperties}
-                                        aria-hidden="true" />}
-                        onChange={v => setFilter('condition', v as ConditionFilter)}
-                        title="Condition Status"
-                    />
-
-                    {/* Wishlist Priority — only shown when wishlist filter is active */}
-                    {filters.wishlist !== 'default' ? (
-                        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
-                            <ThreeStateToggle
-                                value={filters.wishlist}
-                                states={['default', 'wishlist', 'notwishlist'] as const}
-                                onLabel="On Wishlist"
-                                offLabel="Not on Wishlist"
-                                icon={<FaHeart size={12} aria-hidden="true" />}
-                                onChange={v => setFilter('wishlist', v as WishlistFilter)}
-                                title="Wishlist Status"
-                            />
-                            <select
-                                className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 flex-shrink-0"
-                                value={filters.wishlistPriority}
-                                onChange={e => setFilter('wishlistPriority',
-                                    e.target.value as WishlistPriorityFilter)}
-                                aria-label="Filter by wishlist priority"
-                            >
-                                <option value="default">Any Priority</option>
-                                <option value="1">Must Have</option>
-                                <option value="2">Love to Have</option>
-                                <option value="3">Like to Have</option>
-                                <option value="4">Considering</option>
-                                <option value="5">Don&apos;t Buy</option>
-                            </select>
-                        </div>
-                    ) : (
-                         <ThreeStateToggle
-                             value={filters.wishlist}
-                             states={['default', 'wishlist', 'notwishlist'] as const}
-                             onLabel="On Wishlist"
-                             offLabel="Not on Wishlist"
-                             icon={<FaHeart size={12} aria-hidden="true" />}
-                             onChange={v => setFilter('wishlist', v as WishlistFilter)}
-                             title="Wishlist Status"
-                         />
-                     )}
-
-                    {/* Preorder toggle */}
-                    <ThreeStateToggle
-                        value={filters.preorder}
-                        states={['default', 'preordered', 'notpreordered'] as const}
-                        onLabel="Preordered"
-                        offLabel="Not Preordered"
-                        icon={<FaCalendar size={12} aria-hidden="true" />}
-                        onChange={v => setFilter('preorder', v as PreorderFilter)}
-                        title="Preorder Status"
-                    />
-
-                    {/* Verification toggle */}
-                    <ThreeStateToggle
-                        value={filters.verification}
-                        states={['default', 'verified', 'notverified'] as const}
-                        onLabel="Verified"
-                        offLabel="Not Verified"
-                        icon={<FaThumbsUp size={12} aria-hidden="true" />}
-                        onChange={v => setFilter('verification', v as VerificationFilter)}
-                        title="Verification Status"
-                    />
-
-                    {/* Scan toggle */}
-                    <ThreeStateToggle
-                        value={filters.scan}
-                        states={['default', 'scanned', 'notscanned'] as const}
-                        onLabel="Scanned"
-                        offLabel="Not Scanned"
-                        icon={<FaBarcode size={12} aria-hidden="true" />}
-                        onChange={v => setFilter('scan', v as ScanFilter)}
-                        title="Scan Status"
-                    />
-
-                    {/* Reset */}
-                    {hasActiveFilters && (
-                        <button
-                            type="button"
-                            className="btn btn-xs btn-ghost text-base-content/60"
-                            onClick={resetFilters}
-                            aria-label="Reset all filters"
-                            title="Reset filters"
-                        >
-                            <FaXmark size={12} aria-hidden="true" />
-                            Reset
-                        </button>
-                    )}
+                        )}
+                    </div>
                 </div>
             )}
         </div>
