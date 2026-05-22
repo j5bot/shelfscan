@@ -44,9 +44,10 @@ const WorkflowsPage = () => {
                                 Extension</Link> to be installed in your browser, and for you
                                 to be an active <Link className="underline" href="https://boardgamegeek.com/support">BGG Supporter</Link> or Free Trial user.</p>
 
-
-
-<p><img alt="BatchScan View" src="/images/workflows/batch-scan.jpg" /></p>
+                            <div className="flex justify-center py-3 px-1">
+                                <img className="rounded-md max-w-full max-h-120 border border-gray-400"
+                                     alt="Batch Scan View" src="/images/workflows/batch-scan.jpg" />
+                            </div>
 
                             <p>Simply go to <Link className="underline" href="/batch">https://www.shelfscan.io/batch</Link> (Batch Scan in the navigation) and begin scanning game UPCs using
                                 your
@@ -84,7 +85,10 @@ const WorkflowsPage = () => {
                                 workflow as described above, or on the <Link className="underline" href="/">Individual
                                     Scan</Link> view.</p>
 
-<p><img alt="Individual Scan View" src="/images/workflows/individual-scan.jpg" /></p>
+                            <div className="flex justify-center py-3 px-1">
+                                <img className="rounded-md max-w-full max-h-120 border border-gray-400"
+                                     alt="Individual Scan View" src="/images/workflows/individual-scan.jpg" />
+                            </div>
 
                             <p>The Individual Scan view allows you to have more control over the
                                 details of the game in your collection, particularly the version
@@ -94,15 +98,24 @@ const WorkflowsPage = () => {
                                 everyone's scans.</p>
                             <p>To remove a game from your collection:</p>
 
+                            <div className="flex justify-center py-3 px-1">
+                                <video className="max-w-full max-h-120 border border-gray-400 rounded-md" controls={true}>
+                                    <source src="/videos/workflows/clear-status.webm" type="video/webm" />
+                                </video>
+                            </div>
+
                             <ol className="list-decimal pl-5 pt-2">
-                                <li>Scan the game from the <Link className="underline" href="/">Individual Scan view</Link></li>
+                                <li>Scan the game from the <Link className="underline" href="/">Individual
+                                    Scan view</Link> or look it up in your <Link
+                                    className="underline" href="/collection">Collection</Link></li>
                                 <li>Click through to the game details page</li>
                                 <li>Make sure that the game is marked as in your collection (a
-                                    checkmark appears at the top of the page)
+                                    checkmark appears at the top of the page/dialog)
                                 </li>
                                 <li>Make sure that 'Update in Collection' is switched on, in the
                                     bottom of the action area, to the right of the game's thumbnail
-                                    image
+                                    image on the scan details page, bottom left above the thumbnail
+                                    image on the collection details page.
                                 </li>
                                 <li>Click the arrow next to the 'Set Info' button/dropdown (the
                                     first one) and select 'Clear Statuses'
@@ -210,10 +223,12 @@ const WorkflowsPage = () => {
                                 Extension</Link> is <b>not</b> required for this workflow, and the <Link
                                 className="underline" href="/collection">Collection View</Link> in
                                 general is available to all users.</p>
-                            <p><img src="/images/workflows/filter-buttons.png"
-                                      className="w-full"
-                                      alt="Filter Buttons" />
-                            </p>
+
+                            <div className="flex justify-center py-3 px-1">
+                                <img src="/images/workflows/filter-buttons.png"
+                                          className="max-w-full"
+                                          alt="Filter Buttons" />
+                            </div>
                             <p>Above you can see the quick filter buttons and what filtering they
                                 are associated with.</p>
                             <p>Most filters have an 'on', 'not', and 'off' state, which you
@@ -233,9 +248,10 @@ const WorkflowsPage = () => {
                                 select an 'Owned' filter and 'Rating' filter, and enter min and
                                 max rating values to find all the games in your collection that you
                                 have rated poorly.</p>
-                            <p><img src="/images/workflows/search-and-sort.png"
-                                    className="w-full" alt="Search and Sort Bar" />
-                            </p>
+                            <div className="flex justify-center py-3 px-1">
+                                <img src="/images/workflows/search-and-sort.png"
+                                    className="max-w-full" alt="Search and Sort Bar" />
+                            </div>
                             <p>The top of the filter section shows a title text search, a button
                                 to turn the filter button bar off, the sorting options, and a
                                 button to change the sort direction.</p>
