@@ -82,7 +82,7 @@ const WorkflowsPage = () => {
                                     Supporter</Link> or Free Trial user.</p>
                             <p>When you acquire new games, add them with the same Batch Scan
                                 workflow as described above, or on the <Link className="underline" href="/">Individual
-                                    Scan</Link> view.</p
+                                    Scan</Link> view.</p>
 
 <p><img alt="Individual Scan View" src="/images/workflows/individual-scan.jpg" /></p>
 
