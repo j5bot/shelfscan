@@ -43,6 +43,11 @@ const WorkflowsPage = () => {
                             <p>This workflow requires the <Link className="underline" href="/extension">ShelfScan
                                 Extension</Link> to be installed in your browser, and for you
                                 to be an active <Link className="underline" href="https://boardgamegeek.com/support">BGG Supporter</Link> or Free Trial user.</p>
+
+
+
+<p><img alt="BatchScan View" src="/images/workflows/batch-scan.jpg" /></p>
+
                             <p>Simply go to <Link className="underline" href="/batch">https://www.shelfscan.io/batch</Link> (Batch Scan in the navigation) and begin scanning game UPCs using
                                 your
                                 camera.
@@ -77,7 +82,10 @@ const WorkflowsPage = () => {
                                     Supporter</Link> or Free Trial user.</p>
                             <p>When you acquire new games, add them with the same Batch Scan
                                 workflow as described above, or on the <Link className="underline" href="/">Individual
-                                    Scan</Link> view.</p>
+                                    Scan</Link> view.</p
+
+<p><img alt="Individual Scan View" src="/images/workflows/individual-scan.jpg" /></p>
+
                             <p>The Individual Scan view allows you to have more control over the
                                 details of the game in your collection, particularly the version
                                 of the game that you own. It also puts verification of the mapping
