@@ -33,61 +33,79 @@ const WorkflowsPage = () => {
                 <div className="flex flex-col gap-1 pt-2">
                     <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
                         <input type="radio" name="workflows" />
-                        <h2 className="collapse-title text-lg px-3 py-0.5" id="initial-collection-loading">Initial
+                        <h2 className="collapse-title text-lg px-3 py-0.5"
+                            id="initial-collection-loading">Initial
                             Collection
                             Loading</h2>
                         <div className="collapse-content">
 
                             <p>ShelfScan provides a streamlined process for the initial loading
                                 of your collection into BGG.</p>
-                            <p>This workflow requires the <Link className="underline" href="/extension">ShelfScan
+                            <p>This workflow requires the <Link className="underline"
+                                                                href="/extension">ShelfScan
                                 Extension</Link> to be installed in your browser, and for you
-                                to be an active <Link className="underline" href="https://boardgamegeek.com/support">BGG Supporter</Link> or Free Trial user.</p>
+                                to be an active <Link className="underline"
+                                                      href="https://boardgamegeek.com/support">BGG
+                                    Supporter</Link> or Free Trial user.</p>
 
                             <div className="flex justify-center py-3 px-1">
-                                <img className="rounded-md max-w-full max-h-120 border border-gray-400"
-                                     alt="Batch Scan View" src="/images/workflows/batch-scan.jpg" />
+                                <Link href="/batch"><img className="rounded-md max-w-full max-h-120 border
+                                    border-gray-400"
+                                                         alt="Batch Scan View"
+                                                         src="/images/workflows/batch-scan.jpg" />
+                                </Link>
                             </div>
 
-                            <p>Simply go to <Link className="underline" href="/batch">https://www.shelfscan.io/batch</Link> (Batch Scan in the navigation) and begin scanning game UPCs using
+                            <p>Simply go to <Link className="underline"
+                                                  href="/batch">Batch
+                                Scan View</Link> and begin scanning game UPCs using
                                 your
                                 camera.
                             </p>
                             <p>There are separate tabs for games that are already in
                                 your collection and freshly scanned games, so you can make sure
                                 you don't accidentally add duplicates.</p>
-                            <p>When you're done with a grouping of games, click the 'Add [X] Games
-                                to
-                                Collection' button to add the games to your BGG
-                                collection. You can add duplicates of owned games if you are on the
-                                'Owned' tab when you click the button.</p>
+                            <p>When you're done with a grouping of games, click
+                                the <img alt="Add X Games to Collection"
+                                         src="/images/workflows/add-games-to-collection.png"
+                                         className="inline-block" /> button
+                                to add the games to your BGG
+                                collection. You can add duplicates of owned games if you are on
+                                the <span className="font-sharetech">Own</span> tab when you click
+                                the button.</p>
                             <p>The symbol on the ShelfScan extension will spin, indicating that the
                                 BGG
-                                update
-                                is in progress. Once the symbol stops spinning,
+                                update is in progress. Once the symbol stops spinning,
                                 the games will have been added to your collection.</p>
                         </div>
                     </div>
 
                     <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
                         <input type="radio" name="workflows" />
-                        <h2 className="collapse-title text-lg px-3 py-0.5" id="collection-maintenance">Collection
+                        <h2 className="collapse-title text-lg px-3 py-0.5"
+                            id="collection-maintenance">Collection
                             Maintenance</h2>
                         <div className="collapse-content">
 
                             <p>It is simple to maintain an existing BGG collection with ShelfScan
                                 as games are added and removed.</p>
-                            <p>This workflow requires the <Link className="underline" href="/extension">ShelfScan
+                            <p>This workflow requires the <Link className="underline"
+                                                                href="/extension">ShelfScan
                                 Extension</Link> to be installed in your browser, and for you
-                                to be an active <Link className="underline" href="https://boardgamegeek.com/support">BGG
+                                to be an active <Link className="underline"
+                                                      href="https://boardgamegeek.com/support">BGG
                                     Supporter</Link> or Free Trial user.</p>
                             <p>When you acquire new games, add them with the same Batch Scan
-                                workflow as described above, or on the <Link className="underline" href="/">Individual
-                                    Scan</Link> view.</p>
+                                workflow as described above, or on the <Link className="underline"
+                                                                             href="/">Individual
+                                    Scan View</Link>.</p>
 
                             <div className="flex justify-center py-3 px-1">
-                                <img className="rounded-md max-w-full max-h-120 border border-gray-400"
-                                     alt="Individual Scan View" src="/images/workflows/individual-scan.jpg" />
+                                <Link href="/">
+                                    <img className="rounded-md max-w-full max-h-120 border border-gray-400"
+                                         alt="Individual Scan View"
+                                         src="/images/workflows/individual-scan.jpg" />
+                                </Link>
                             </div>
 
                             <p>The Individual Scan view allows you to have more control over the
@@ -99,31 +117,46 @@ const WorkflowsPage = () => {
                             <p>To remove a game from your collection:</p>
 
                             <div className="flex justify-center py-3 px-1">
-                                <video className="max-w-full max-h-120 border border-gray-400 rounded-md" controls={true}>
-                                    <source src="/videos/workflows/clear-status.webm" type="video/webm" />
+                                <video className="max-w-full max-h-120 border border-gray-400 rounded-md"
+                                       controls={true}>
+                                    <source src="/videos/workflows/clear-status.webm"
+                                            type="video/webm" />
                                 </video>
                             </div>
 
                             <ol className="list-decimal pl-5 pt-2">
                                 <li>Scan the game from the <Link className="underline" href="/">Individual
-                                    Scan view</Link> or look it up in your <Link
+                                    Scan View</Link> or look it up in your <Link
                                     className="underline" href="/collection">Collection</Link></li>
                                 <li>Click through to the game details page</li>
                                 <li>Make sure that the game is marked as in your collection (a
                                     checkmark appears at the top of the page/dialog)
                                 </li>
-                                <li>Make sure that 'Update in Collection' is switched on, in the
+                                <li>Make sure that <img alt="Update in Collection"
+                                                        src="/images/workflows/update-in-collection.png"
+                                                        className="inline-block"
+                                /> is switched on, in the
                                     bottom of the action area, to the right of the game's thumbnail
                                     image on the scan details page, bottom left above the thumbnail
                                     image on the collection details page.
                                 </li>
-                                <li>Click the arrow next to the 'Set Info' button/dropdown (the
-                                    first one) and select 'Clear Statuses'
+                                <li>Click the arrow next to the <img alt="Set"
+                                                                     src="/images/workflows/set-arrow.png"
+                                                                     className="inline-block h-6" /> button/dropdown
+                                    (the first one) and select <img alt="Clear Statuses"
+                                        src="/images/workflows/clear-statuses.png"
+                                        className="inline-block h-6" />
                                 </li>
-                                <li>Make sure that the 'Remove' switch near the button is turned
-                                    on
+                                <li>Make sure that the <img alt="Remove switch"
+                                                            src="/images/workflows/remove-switch.png"
+                                                            className="inline-block m-0.5"
+                                                            /> switch near the button is turned on
                                 </li>
-                                <li>Click the 'Clear' button to remove the game from your
+                                <li>Click the <img alt="Clear"
+                                    src="/images/workflows/clear-button.png"
+                                                   className="inline-block h-6"
+                                /> button
+                                    to remove the game from your
                                     collection
                                 </li>
                             </ol>
@@ -131,18 +164,19 @@ const WorkflowsPage = () => {
                                 will spin, indicating that the BGG update is in progress. Once
                                 the symbol stops spinning, the game will have been removed from
                                 your collection.</p>
-                            <p>Beyond 'Add', and 'Clear Status' discussed above, there are many
+                            <p>Beyond <span className="font-sharetech">Add</span>,
+                                and <span className="font-sharetech">Clear Status</span> discussed above, there are many
                                 other collection status update actions you can take
                                 from the details page using the first button, such as setting
-                                the game as 'For Trade' and indicating the trade condition.</p>
-                            <p>All the current 'Add' actions are:</p>
+                                the game as <span className="font-sharetech">For Trade</span> and indicating the trade condition.</p>
+                            <p>All the current Add actions are:</p>
                             <ul className="list-disc pl-5">
                                 <li>Add to Owned</li>
                                 <li>Add for Trade</li>
                                 <li>Add to Wishlist</li>
                                 <li>Add to Market</li>
                             </ul>
-                            <p>All the current 'Update' actions are:</p>
+                            <p>All the current Update actions are:</p>
                             <ul className="list-disc pl-5">
                                 <li>Set Info (game and version)</li>
                                 <li>Set Trade Info (trade condition and for trade status)</li>
@@ -162,16 +196,19 @@ const WorkflowsPage = () => {
 
                     <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
                         <input type="radio" name="workflows" />
-                        <h2 className="collapse-title text-lg px-3 py-0.5" id="collection-audit">Collection
+                        <h2 className="collapse-title text-lg px-3 py-0.5"
+                            id="collection-audit">Collection
                             Audit</h2>
                         <div className="collapse-content">
 
-                            <p>ShelfScan's collection audit workflow allows you to quickly verify
+                            <p>ShelfScan's collection audit workflow allows you to methodically verify
                                 the accuracy of your collection data on BGG, and make additions
                                 and subtractions as needed.</p>
-                            <p>This workflow requires the <Link className="underline" href="/extension">ShelfScan
+                            <p>This workflow requires the <Link className="underline"
+                                                                href="/extension">ShelfScan
                                 Extension</Link> to be installed in your browser, and for you
-                                to be an active <Link className="underline" href="https://boardgamegeek.com/support">BGG
+                                to be an active <Link className="underline"
+                                                      href="https://boardgamegeek.com/support">BGG
                                     Supporter</Link> or Free Trial user.</p>
                             <p><i>Users who do not have the extension can still perform an audit
                                 by scanning games, but all BGG updates will need to be
@@ -196,7 +233,8 @@ const WorkflowsPage = () => {
                             <h3>After Scanning</h3>
                             <p>After you have completed scanning, you can go to
                                 the <Link className="underline" href="/collection">Collection
-                                    View</Link> to review the games which you scanned that are not in
+                                    View</Link> to review the games which you scanned that are not
+                                in
                                 your collection and review the games in your collection that you did
                                 not scan.</p>
                             <p>To see the games that are not in your collection, click the 'Not
@@ -220,14 +258,16 @@ const WorkflowsPage = () => {
                                 by various criteria, and to sort the filtered collection by
                                 several different attributes.</p>
                             <p>The <Link className="underline" href="/extension">ShelfScan
-                                Extension</Link> is <b>not</b> required for this workflow, and the <Link
-                                className="underline" href="/collection">Collection View</Link> in
+                                Extension</Link> is <b>not</b> required for this workflow, and
+                                the <Link
+                                    className="underline" href="/collection">Collection
+                                    View</Link> in
                                 general is available to all users.</p>
 
                             <div className="flex justify-center py-3 px-1">
                                 <img src="/images/workflows/filter-buttons.png"
-                                          className="max-w-full"
-                                          alt="Filter Buttons" />
+                                     className="max-w-full"
+                                     alt="Filter Buttons" />
                             </div>
                             <p>Above you can see the quick filter buttons and what filtering they
                                 are associated with.</p>
@@ -250,7 +290,7 @@ const WorkflowsPage = () => {
                                 have rated poorly.</p>
                             <div className="flex justify-center py-3 px-1">
                                 <img src="/images/workflows/search-and-sort.png"
-                                    className="max-w-full" alt="Search and Sort Bar" />
+                                     className="max-w-full" alt="Search and Sort Bar" />
                             </div>
                             <p>The top of the filter section shows a title text search, a button
                                 to turn the filter button bar off, the sorting options, and a
@@ -275,8 +315,10 @@ const WorkflowsPage = () => {
                         application. A small tablet or a phone with a large screen will work
                         well.</p>
 
-                    <p>To use a computer with ShelfScan, on iOS Continuity Camera can be used so that
-                        your phone acts as a wireless handheld camera for the application.  There are also
+                    <p>To use a computer with ShelfScan, on iOS Continuity Camera can be used so
+                        that
+                        your phone acts as a wireless handheld camera for the application. There are
+                        also
                         programs available on Android OS to achieve the same functionality.</p>
                 </div>
             </div>
