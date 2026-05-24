@@ -155,7 +155,7 @@ export const SelectVersion = () => {
                 <div id="select-game" className="flex gap-2 items-center">
                     <CollapsibleList
                         title={gameTitle}
-                        className="text-sm flex justify-start items-center md:text-md overflow-x-scroll overflow-y-visible min-h-[125px]"
+                        className="text-sm flex justify-start items-center md:text-md overflow-x-scroll overflow-y-visible min-h-31.25"
                         type="info"
                         items={infos}
                         selectedItemIndex={currentInfoIndex}
@@ -172,7 +172,7 @@ export const SelectVersion = () => {
                 >
                     <CollapsibleList
                         title={versionTitle}
-                        className="text-sm flex justify-start md:text-md overflow-x-scroll overflow-y-visible min-h-[110px]"
+                        className="text-sm flex justify-start md:text-md overflow-x-scroll overflow-y-visible min-h-27.5"
                         type="version"
                         items={versions}
                         selectedItemIndex={currentVersionIndex}

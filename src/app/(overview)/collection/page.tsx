@@ -20,7 +20,7 @@ import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGames
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { type GameUPCBggInfo } from 'gameupc-hooks/types';
+import { type GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,
@@ -39,7 +39,7 @@ export default function CollectionPage() {
     useTitle('ShelfScan | Collection');
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
-    const { scanHistory } = useScanHistory();
+    const { scanHistory, lastScannedMap } = useScanHistory();
     const { syncOn } = useSync();
     const { canBatch, addGameToCollection } = useBatchSync();
     const [batchRate, setBatchRate] = useState<boolean>(false);
@@ -100,19 +100,6 @@ export default function CollectionPage() {
     const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
         activeTab === CollectionTabs.ALL_GAMES && state.status === CollectionLoadStatuses.LOADED,
     );
-
-    const lastScannedMap = useMemo(() => {
-        const map = new Map<number, number>();
-        for (const entry of scanHistory) {
-            if (entry.bggId !== undefined) {
-                const existing = map.get(entry.bggId) ?? 0;
-                if (entry.timestamp > existing) {
-                    map.set(entry.bggId, entry.timestamp);
-                }
-            }
-        }
-        return map;
-    }, [scanHistory]);
 
     const scannedSet = useMemo(() => {
         const set = new Set<number>();

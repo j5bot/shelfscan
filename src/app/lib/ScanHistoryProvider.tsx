@@ -19,7 +19,7 @@ import {
     ReactNode,
     useCallback,
     useContext,
-    useEffect,
+    useEffect, useMemo,
     useRef,
     useState
 } from 'react';
@@ -60,6 +60,8 @@ type RecordScanResult =
 
 type ScanHistoryContextValue = {
     scanHistory: ScanHistoryEntry[];
+    lastScannedMap: Map<number, number>;
+    upcMap: Map<number, string>;
     unmatchedScans: ScanHistoryEntry[];
     scanError: string | null;
     clearScanError: () => void;
@@ -71,6 +73,8 @@ type ScanHistoryContextValue = {
 
 const ScanHistoryContext = createContext<ScanHistoryContextValue>({
     scanHistory: [],
+    lastScannedMap: new Map(),
+    upcMap: new Map(),
     unmatchedScans: [],
     scanError: null,
     clearScanError: () => undefined,
@@ -119,6 +123,21 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadHistory().then();
     }, [loadHistory]);
+
+    const { lastScannedMap, upcMap } = useMemo(() => {
+        const map = new Map<number, number>();
+        const upcMap = new Map<number, string>();
+        for (const entry of scanHistory) {
+            if (entry.bggId !== undefined) {
+                const existing = map.get(entry.bggId) ?? 0;
+                if (entry.timestamp > existing) {
+                    map.set(entry.bggId, entry.timestamp);
+                    upcMap.set(entry.bggId, entry.upc)
+                }
+            }
+        }
+        return { lastScannedMap: map, upcMap };
+    }, [scanHistory]);
 
     const recordScan = async (opts: RecordScanOptions): Promise<RecordScanResult> => {
         const now = Date.now();
@@ -222,6 +241,8 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
 
     const scanHistoryProviderValue = {
         scanHistory,
+        lastScannedMap,
+        upcMap,
         unmatchedScans,
         scanError,
         clearScanError,

@@ -30,6 +30,7 @@ export type GameDetailsProps = {
     /** When provided, a search form is rendered inside the component. */
     search?: GameDetailsSearchProps;
     header?: ReactNode;
+    versionSelect?: ReactNode;
     children?: ReactNode;
     /** Thumbnail size in px. When >= 250, a vertical stacked layout is used. Defaults to 150. */
     thumbnailSize?: number;
@@ -44,6 +45,7 @@ export const GameDetails = ({
     search,
     header,
     children,
+    versionSelect,
     view,
     thumbnailSize = 150,
 }: GameDetailsProps) => {
@@ -132,6 +134,11 @@ export const GameDetails = ({
                         }}
                     />
                     {versionInfo}
+                    {view === 'collection' && (
+                        <div className="flex flex-col gap-1 w-full grow">
+                            {versionSelect}
+                        </div>
+                    )}
                 </div>
             ) : (
                 <div className="flex gap-2 items-stretch justify-center pb-2">
@@ -145,6 +152,7 @@ export const GameDetails = ({
                     </div>
                     <div className="flex flex-col gap-1 w-full grow xs:max-w-46.25 lg:max-w-2/3">
                         {versionInfo}
+                        {view === 'collection' && versionSelect}
                         {view === 'version' && children && <div className={`grow max-w-60 pb-0.5 ${version ? '' : 'pt-1'}`}>
                             {(game?.id ?? defaultGame?.id) && children}
                         </div>}
