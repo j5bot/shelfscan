@@ -11,7 +11,8 @@ import {
     collectionItemToGame,
     collectionVersionToGameUPCVersion,
     collectionVersionToVersion,
-    createSlug, gameUPCVersionToVersion
+    createSlug,
+    gameUPCVersionToVersion
 } from '@/app/lib/utils/gameAdapters';
 import { CollapsibleList, CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
