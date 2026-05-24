@@ -5,8 +5,9 @@ import { collectionItemToGame, collectionItemToGameUPCInfo } from '@/app/lib/uti
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { CollectionGameDetails } from '@/app/ui/games/CollectionGameDetails';
 import { template } from '@blakeembrey/template';
+import { GameUPCBggVersion } from 'gameupc-hooks/types';
 import Link from 'next/link';
-import React, { SyntheticEvent, useEffect } from 'react';
+import React, { SyntheticEvent, useEffect, useState } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 
 const MODAL_THUMBNAIL_SIZE = 400;
@@ -25,7 +26,10 @@ type CollectionItemModalContentProps = {
 const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) => {
     const game = collectionItemToGame(item);
     const info = collectionItemToGameUPCInfo(item);
-    const { primaryActions, secondaryActions, settings } = useExtension({ info, version: info.versions?.[0], view: 'collection' });
+
+    const [version, setVersion] = useState<GameUPCBggVersion>(info.versions?.[0]);
+
+    const { primaryActions, secondaryActions, settings } = useExtension({ info, version, view: 'collection' });
     const actionTemplates = usePlugins('link.actions');
 
     const pluginActions = actionTemplates?.game?.map((actionPlugin, index) => {
@@ -55,7 +59,10 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
 
     return (
         <>
-            <CollectionGameDetails item={item} thumbnailSize={MODAL_THUMBNAIL_SIZE}>
+            <CollectionGameDetails
+                item={item} thumbnailSize={MODAL_THUMBNAIL_SIZE}
+                setVersion={setVersion}
+            >
                 {primaryActions && (
                     <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
                         {primaryActions}

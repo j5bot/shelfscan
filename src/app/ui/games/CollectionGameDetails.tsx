@@ -86,6 +86,7 @@ const computeCollectionHeader = (item: BggCollectionItem): ReactNode => {
 
 type CollectionGameDetailsProps = Omit<GameDetailsProps, 'view'> & {
     item: BggCollectionItem;
+    setVersion: (version: GameUPCBggVersion) => void;
 };
 
 const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center block">Select Version</h4>
@@ -96,10 +97,17 @@ const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center blo
  * renders without a search form. Accepts children for future BGG-specific
  * information such as rating and play count.
  */
-export const CollectionGameDetails = ({ item, header, children, thumbnailSize }: CollectionGameDetailsProps) => {
+export const CollectionGameDetails = ({
+    item,
+    header,
+    children,
+    thumbnailSize,
+    setVersion,
+}: CollectionGameDetailsProps) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const liveItem = useSelector(state => username ? state.bgg.collection.users[username].items[item.collectionId] : undefined);
     const bggId = liveItem?.objectId;
+    const versionId = liveItem?.versionId;
 
     const { upcMap } = useScanHistory();
     const { gameDataMap, getGameData, isGetPending } = useGameUPCData();
@@ -122,6 +130,7 @@ export const CollectionGameDetails = ({ item, header, children, thumbnailSize }:
 
         const currentVersion = parseInt(index, 10);
         setCurrentVersionIndex(currentVersion);
+        setVersion(versions[currentVersion]);
     }) as CollapsibleListProps<unknown>['onSelect'];
 
     const [isLoading, startGetVersions] = useTransition();
@@ -186,6 +195,19 @@ export const CollectionGameDetails = ({ item, header, children, thumbnailSize }:
             active = false;
         };
     }, [bggId, isGetPending, isLoading, versions]);
+
+    useEffect(() => {
+        if (!versionId) {
+            return;
+        }
+        const versionIndex = versions?.findIndex(
+            version => version.version_id === versionId
+        );
+        if (versionIndex < 0) {
+            return;
+        }
+        setCurrentVersionIndex(versionIndex);
+    }, [versions]);
 
     const versionsContent = <div
         id="select-version"
