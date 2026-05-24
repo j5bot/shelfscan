@@ -15,6 +15,7 @@ import { FaSignOutAlt, FaSync } from 'react-icons/fa';
 import {
     FaBarcode,
     FaBars,
+    FaDiagramProject,
     FaGear,
     FaGlobe,
     FaLayerGroup,
@@ -187,6 +188,13 @@ export const NavDrawer = () => {
                                 <FaGlobe className="inline" /> Extension
                             </Link>
                         </li>
+
+                        <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/workflows/" onNavigate={closeOnNavigate}>
+                                <FaDiagramProject className="inline" /> Workflows
+                            </Link>
+                        </li>
+
                         <li className="w-full">
                             <Link className="flex gap-2 grow" href="/about/" onNavigate={closeOnNavigate}>
                                 <MdQuestionAnswer className="inline" /> About
