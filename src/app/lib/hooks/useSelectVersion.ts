@@ -5,10 +5,21 @@ import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/
 import { RootState } from '@/app/lib/redux/store';
 import { PossibleStatusWithAll } from '@/app/lib/types/bgg';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
+import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 
-export const useSelectVersion = (id: string) => {
+type UseSelectVersionParams = {
+    id?: string;
+    infos?: GameUPCBggInfo[];
+    versions?: GameUPCBggVersion[];
+};
+
+export const useSelectVersion = ({
+    id,
+    infos: infosParam = [],
+    versions: versionsParam = [],
+}: UseSelectVersionParams) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const searchParams = useSearchParams();
     const searchQuery = searchParams.get('q');
@@ -32,7 +43,7 @@ export const useSelectVersion = (id: string) => {
         setUpdater(username);
     }, [username, setUpdater]);
 
-    const { bgg_info_status: status, bgg_info: infos } = gameDataMap[id] ?? {};
+    const { bgg_info_status: status, bgg_info: infos = infosParam } = gameDataMap[id ?? ''] ?? {};
 
     const defaultImageUrl = infos?.[0]?.image_url;
     const [currentInfoIndex, setCurrentInfoIndex] = useState<number | null>(infos?.length === 1 ? 0 : null);
@@ -44,18 +55,18 @@ export const useSelectVersion = (id: string) => {
     const [hoverVersionIndex, setHoverVersionIndex] = useState<number | null>(null);
 
     const info = infos?.[currentInfoIndex ?? -1];
-    const versions = info?.versions;
+    const versions = info?.versions ?? versionsParam;
     const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
 
     const updateGameUPC = () => {
-        if (!selectedInfoId || isSubmitPending) {
+        if (!(selectedInfoId && id) || isSubmitPending) {
             return;
         }
         submitOrVerifyGame(id, selectedInfoId, selectedVersionId);
     };
 
     const removeGameUPC = () => {
-        if (!selectedInfoId || isRemovePending) {
+        if (!(selectedInfoId && id) || isRemovePending) {
             return;
         }
         removeGame(id, selectedInfoId, selectedVersionId);
@@ -67,7 +78,7 @@ export const useSelectVersion = (id: string) => {
     } = useSelector(state =>
         getIndexesInCollectionFromInfos([state, infos, ['own', 'fortrade', 'wishlist', 'all']]));
 
-    const gameData = gameDataMap[id];
+    const gameData = gameDataMap[id ?? ''];
 
     useEffect(() => {
         if (!id) {
@@ -80,10 +91,16 @@ export const useSelectVersion = (id: string) => {
     }, [id, gameData, getGameData]);
 
     const searchGameUPC = (search: string) => {
+        if (!id) {
+            return;
+        }
         getGameData(id, search).then();
     };
 
     const setCurrentSelection = useCallback((infoIndex: number, versionIndex: number) => {
+        if (!id) {
+            return;
+        }
         if (infoIndex === -1) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { [id]: _, ...newSelections } = gameSelections;
@@ -103,7 +120,7 @@ export const useSelectVersion = (id: string) => {
     }, [id, gameSelections, setGameSelections, infos, versions]);
 
     const restorePreviousSelection = () => {
-        if (!gameSelections[id]) {
+        if (!(id && gameSelections[id])) {
             return;
         }
         const selection = gameSelections[id];

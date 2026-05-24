@@ -34,7 +34,7 @@ export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, 
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="relative w-[100px] h-[100px] flex justify-center items-center">
+    return <div className="relative w-25 h-25 flex justify-center items-center">
         <Thumbnail alt={name} url={thumbnail_url} size={100} className="h-full" />
         <div className="absolute top-0 left-0 bottom-0 right-0 flex flex-wrap gap-1 justify-center items-center">
             {isInfoInCollection(index, 'own') ? (
@@ -46,44 +46,47 @@ export const renderItem = (context: SelectVersionContext, info: GameUPCBggInfo, 
                     <FaEye size={24} className={`text-white mt-1 ml-1`} title="Found" />
                 </div>
             )}
-            <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+            {confidence >= 0 && <div className="bg-[#000000aa] h-8 w-8 rounded-full">
                 <SvgCssGauge className={`w-6 h-6 confidence-level shrink-0 m-1`}
                              color={confidenceLevelColor}
                              fill={confidenceLevelColor}
                              value={confidence} />
-            </div>
+            </div>}
         </div>
     </div>;
 };
 
 export const renderVersionItem = (context: SelectVersionContext, item: GameUPCBggVersion, index: number): ReactNode => {
     const { confidence, name, language, published, thumbnail_url } = item;
-    const { isVersionInCollection } = context;
+    const { isVersionInCollection, currentVersionIndex } = context;
 
     const confidenceLevelColor = getConfidenceLevelColor(confidence);
 
-    return <div className="relative w-[210px] h-[80px] flex justify-center items-center">
+    return <div className={`relative w-52.5 h-20
+            ${currentVersionIndex === index ? 'bg-purple-100' : ''}
+            rounded-r-md
+            flex justify-center items-center`}>
         <Thumbnail alt={name} url={thumbnail_url} size={75} className="h-full" />
-        <div className="absolute top-0 left-0 bottom-0 right-[135px]">
+        <div className="absolute top-0 left-0 bottom-0 right-33.75">
             <div className="flex gap-1 justify-center items-center w-full h-full">
-                {isVersionInCollection(index, 'own') ? (
+                {isVersionInCollection?.(index, 'own') ? (
                     <div className="bg-[#000000aa] h-8 w-8 rounded-full">
                         <FaCheck size={24} className={`text-white mt-1 ml-1`} title="In Collection" />
                     </div>
-                ) : isVersionInCollection(index, 'all') && (
+                ) : isVersionInCollection?.(index, 'all') && (
                     <div className="bg-[#000000aa] h-8 w-8 rounded-full">
                         <FaEye size={24} className={`text-white mt-1 ml-1`} title="Found" />
                     </div>
                 )}
-                <div className="bg-[#000000aa] h-8 w-8 rounded-full">
+                {confidence >= 0 && <div className="bg-[#000000aa] h-8 w-8 rounded-full">
                     <SvgCssGauge className={`w-6 h-6 confidence-level shrink-0 m-1`}
                                  color={confidenceLevelColor}
                                  fill={confidenceLevelColor}
                                  value={confidence} />
-                </div>
+                </div>}
             </div>
         </div>
-        <div className="flex flex-col border-l-1 border-base-300 w-[135px] pl-1.5 pr-1">
+        <div className="flex flex-col border-l border-base-300 w-33.75 pl-1.5 pr-1">
             <div className="text-xs">{name}</div>
             <div className="text-accent text-xs pt-1.5">{language} {published}</div>
         </div>
@@ -126,27 +129,27 @@ export const renderSelectedItem = (
         <div className="flex items-center gap-2 text-balance">
             {item?.name}
             {
-                isInCollection('own') ?
+                isInCollection?.('own') ?
                     <FaCheck className="tooltip inline-block" data-tooltip="In Collection" /> :
-                    isInCollection('all') && <FaEye className="tooltip inline-block" data-tooltip="Found" />
+                    isInCollection?.('all') && <FaEye className="tooltip inline-block" data-tooltip="Found" />
             }
             {
-                isInCollection('fortrade') &&
+                isInCollection?.('fortrade') &&
                 <FaRecycle className="w-3 h-3 tooltip inline-block" data-tooltip="In Tradelist" />
             }
             {
-                isInCollection('wishlist') &&
+                isInCollection?.('wishlist') &&
                 <FaHeart className="w-3 h-3 tooltip inline-block" data-tooltip="In Wishlist" />
             }
         </div>
         <div className={selectedItemClasses} data-confidence={item?.confidence}>
-            <SvgCssGauge
+            {confidence >= 0 && <SvgCssGauge
                 className="confidence-level m-0.5"
                 duration={0.5}
                 fill={confidenceLevelColor}
                 color={confidenceLevelColor}
                 value={confidence}
-            />
+            />}
             {showUpdate && (
                 <button
                     disabled={isUpdating}
@@ -173,5 +176,17 @@ export const renderSelectedItem = (
                 </button>
             )}
         </div>
+    </div>;
+};
+
+export const renderSelectedCollectionItem = (
+    item: GameUPCBggInfo | GameUPCBggVersion
+) => {
+    if (!item) {
+        return;
+    }
+
+    return <div className="flex justify-center font-sharetech uppercase">
+        Select Version
     </div>;
 };

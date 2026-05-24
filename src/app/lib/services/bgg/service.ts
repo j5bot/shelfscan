@@ -80,17 +80,8 @@ export const getCommonDetailsFromObject = (object: BggRawObject) => {
     return { name, yearPublished };
 };
 
-export const getVersionDetails = (item: Element | null) => {
-    if (!item) {
-        return;
-    }
-
-    const version = item.querySelector('version item');
-    if (!version) {
-        return;
-    }
-
-    const commonDetails = getCommonDetails(item);
+export const getVersionDetailsFromElement = (version: Element) => {
+    const commonDetails = getCommonDetails(version);
     const id = elementGetter(version, true, undefined, 'id');
     const image = elementGetter(version, false, 'image');
     const productCode = elementGetter(version, false, 'productcode');
@@ -104,6 +95,19 @@ export const getVersionDetails = (item: Element | null) => {
         languages,
         productCode,
     };
+};
+
+export const getVersionDetails = (item: Element | null) => {
+    if (!item) {
+        return;
+    }
+
+    const version = item.querySelector('version item');
+    if (!version) {
+        return;
+    }
+
+    return getVersionDetailsFromElement(version);
 };
 
 export const getVersionDetailsFromObject = (version: BggRawObject) => {
@@ -276,4 +280,13 @@ export const bggGetImageUrl = (
     }
 
     return '';
+};
+
+export const bggGetVersionsFromXML = (xml: string) => {
+    const doc = getPageDOM(xml, true);
+    const versionElements = Array.from(
+        doc.querySelectorAll('item[type=boardgameversion]')
+    );
+
+    return versionElements.map(getVersionDetailsFromElement);
 };

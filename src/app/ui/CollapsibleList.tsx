@@ -53,7 +53,7 @@ export const CollapsibleList =
         setItemsClosed(true);
     };
 
-    return itemsClosed && selectedItemIndex !== null ?
+    return itemsClosed && (selectedItemIndex ?? null) !== null ?
      <div
          className={`rounded-sm w-full mb-1 bg-[#f1eff9] dark:bg-yellow-700 p-2 ${(selectedItemIndex ?? -1) >= 0 && items.length > 1 ? 'cursor-pointer' : ''}`}
          onClick={items.length > 1 ? selectedItemClickHandler : undefined}
