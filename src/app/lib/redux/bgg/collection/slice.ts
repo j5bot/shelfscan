@@ -1,3 +1,5 @@
+'use client';
+
 import { setCollection, updateCollectionItemNumPlays } from '@/app/lib/database/database';
 import {
     BggCollection,

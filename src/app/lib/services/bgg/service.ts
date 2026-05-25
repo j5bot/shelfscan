@@ -219,6 +219,10 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
     const version = getVersionDetailsFromObject(object.version as BggRawObject);
     const privateInfo = getPrivateInfoFromObject(object);
 
+    // these values come from XML but not JSON so we need to keep undefined from overwriting them
+    const averageRatingBlock = object.averageRating ? { averageRating: object.averageRating } : {};
+    const ratingBlock = object.rating ? { rating: object.rating } : {};
+
     return {
         ...commonDetails,
         objectId: typeof object.objectid === 'string' ? parseInt(object.objectid, 10) : object.objectid,
@@ -233,10 +237,10 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         statuses: object.status,
         lastModified: object.lastmodified,
         wishlistPriority: object.wishlistpriority,
-        rating: object.rating,
-        averageRating: object.averageRating,
         tradeCondition: object.textfield?.conditiontext?.value,
         ...(Object.keys(privateInfo).length ? privateInfo : {}),
+        ...ratingBlock,
+        ...averageRatingBlock,
     } as BggCollectionItem;
 };
 
