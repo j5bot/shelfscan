@@ -2,9 +2,13 @@
 
 See the app at https://ShelfScan.io!
 
+Read about workflows and using the app [here](https://ShelfScan.io/workflows/)!
+
 Read about what you can
 do with it - and watch demo videos - on the
 [BGG blog](https://boardgamegeek.com/blog/16520/shelfscan-news).
+
+---
 
 This app began as a demo / implementation app for the
 https://gameupc.com APIs.
@@ -21,7 +25,8 @@ the app allows you to do things like:
 
 - Add the game to your BoardGameGeek collection
 - Post a copy of the game for sale in the BGG GeekMarket
-- Log a basic game play on BoardGameGeek
+- Log a game plays on BoardGameGeek
+- Much much more!
 
 A 'plugin' manager allows you to integrate other web apps with
 ShelfScan using simple JSON.
