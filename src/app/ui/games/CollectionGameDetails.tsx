@@ -151,20 +151,6 @@ export const CollectionGameDetails = ({
         }
 
         startGetVersions(async () => {
-            // prefer getting versions from GameUPC
-            if (upc) {
-                if (!active) {
-                    return;
-                }
-                const gameData = await getGameData(upc);
-                if (gameData) {
-                    setVersions(gameData?.bgg_info?.find(
-                        info => info.id === bggId
-                    )?.versions ?? []);
-                    return;
-                }
-            }
-
             if (!active) {
                 return;
             }
