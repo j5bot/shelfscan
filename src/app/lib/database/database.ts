@@ -32,6 +32,12 @@ export type DataFormEntity = {
 export type PluginEntity = ShelfScanPlugin;
 export type ShelfScanSettings = Record<string, SettingEntity['value']>;
 
+export type FilterEntity = {
+    id?: number;
+    name: string;
+    filters: Record<string, string>;
+};
+
 export const database = new Dexie('db') as Dexie & {
     settings: EntityTable<SettingEntity, 'id'>;
     plugins: EntityTable<PluginEntity, 'id'>;
@@ -39,6 +45,7 @@ export const database = new Dexie('db') as Dexie & {
     scanned: EntityTable<ScannedEntity, 'id'>;
     dataforms: EntityTable<DataFormEntity, 'id'>;
     scanHistory: EntityTable<ScanHistoryEntity, 'id'>;
+    filters: EntityTable<FilterEntity, 'id'>;
 };
 
 database.version(1).stores({
@@ -76,6 +83,16 @@ database.version(5).stores({
     scanned: '++id',
     dataforms: '++id',
     scanHistory: '++id, upc, status, timestamp, username, bggId',
+});
+
+database.version(6).stores({
+    settings: '++id',
+    plugins: '++id',
+    collections: '++id',
+    scanned: '++id',
+    dataforms: '++id',
+    scanHistory: '++id, upc, status, timestamp, username, bggId',
+    filters: '++id, name',
 });
 
 export const getSetting = async (id: string) =>

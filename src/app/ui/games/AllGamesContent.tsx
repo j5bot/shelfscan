@@ -1,6 +1,6 @@
 import { useSelector } from '@/app/lib/hooks';
 import { CollectionLoadStatuses, type CollectionLoadStatusData } from '@/app/lib/hooks/useCollectionData';
-import { type CollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
+import { type CollectionFilters, type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
 import { type SortFieldDef, type SortDirection } from '@/app/lib/hooks/useFilterSort';
 import { CollectionViews, type CollectionView } from '@/app/lib/hooks/useCollectionView';
 import { RootState } from '@/app/lib/redux/store';
@@ -162,6 +162,9 @@ type AllGamesContentProps = {
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
     hasActiveFilters: boolean;
     resetFilters: () => void;
+    savedFilters: FilterPreset[];
+    onSaveFilters: () => void;
+    onLoadFilter: (preset: FilterPreset) => void;
     refreshCollection: () => void;
     onSelectItem: (item: BggCollectionItem) => void;
 };
@@ -185,6 +188,9 @@ export const AllGamesContent = memo(({
     setFilter,
     hasActiveFilters,
     resetFilters,
+    savedFilters,
+    onSaveFilters,
+    onLoadFilter,
     refreshCollection,
     onSelectItem,
 }: AllGamesContentProps) => {
@@ -310,6 +316,9 @@ export const AllGamesContent = memo(({
                         setFilter={setFilter}
                         hasActiveFilters={hasActiveFilters}
                         resetFilters={resetFilters}
+                        savedFilters={savedFilters}
+                        onSaveFilters={onSaveFilters}
+                        onLoadFilter={onLoadFilter}
                         stickyTop={stickyTop}
                     />
                     {content}

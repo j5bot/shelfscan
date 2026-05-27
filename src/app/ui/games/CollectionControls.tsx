@@ -1,5 +1,6 @@
 import {
     CollectionFilters,
+    FilterPreset,
     OwnershipFilter,
     TradeFilter,
     WantFilter,
@@ -18,6 +19,7 @@ import {
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
 import { VersionIcon } from '@/app/ui/icons/VersionIcon';
 import { CSSProperties, ReactNode, useState } from 'react';
+import { FaSave } from 'react-icons/fa';
 import {
     FaArrowDown,
     FaArrowUp,
@@ -160,6 +162,10 @@ type CollectionControlsProps<F extends string> = {
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
     hasActiveFilters: boolean;
     resetFilters: () => void;
+    // Saved presets
+    savedFilters: FilterPreset[];
+    onSaveFilters: () => void;
+    onLoadFilter: (preset: FilterPreset) => void;
     // Sticky
     stickyTop: number;
 };
@@ -179,6 +185,9 @@ export const CollectionControls = <F extends string>({
     setFilter,
     hasActiveFilters,
     resetFilters,
+    savedFilters,
+    onSaveFilters,
+    onLoadFilter,
     stickyTop,
 }: CollectionControlsProps<F>) => {
     const [showFilters, setShowFilters] = useState(true);
@@ -232,6 +241,26 @@ export const CollectionControls = <F extends string>({
                          role="group"
                          aria-label="Collection filters"
                     >
+                        {/* Saved filter presets dropdown */}
+                        {savedFilters.length > 0 && (
+                            <select
+                                className="pl-2 select rounded-sm select-bordered select-xs w-30 shrink-0"
+                                value=""
+                                onChange={e => {
+                                    const preset = savedFilters.find(f => String(f.id) === e.target.value);
+                                    if (preset) { onLoadFilter(preset); }
+                                }}
+                                aria-label="Load saved filter set"
+                            >
+                                <option value="" disabled>Load preset…</option>
+                                {savedFilters.map(preset => (
+                                    <option key={preset.id} value={String(preset.id)}>
+                                        {preset.name}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+
                         {/* Ownership toggle + dropdown */}
                         {filters.ownership !== 'default' ? (
                             <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
@@ -509,16 +538,26 @@ export const CollectionControls = <F extends string>({
 
                         {/* Reset */}
                         {hasActiveFilters && (
-                            <button
-                                type="button"
-                                className="btn btn-xs btn-ghost text-base-content/60"
-                                onClick={resetFilters}
-                                aria-label="Reset all filters"
-                                title="Reset filters"
-                            >
-                                <FaXmark size={12} aria-hidden="true" />
-                                Reset
-                            </button>
+                            <div className="flex justify-end gap-1 ml-2">
+                                <button
+                                    type="button"
+                                    className="btn-xs btn-ghost text-base-content/60 cursor-pointer"
+                                    onClick={resetFilters}
+                                    aria-label="Reset all filters"
+                                    title="Reset filters"
+                                >
+                                    <FaXmark size={12} aria-hidden="true" />
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-xs btn-ghost text-base-content/60 cursor-pointer"
+                                    onClick={onSaveFilters}
+                                    aria-label="Save filters"
+                                    title="Save filters"
+                                >
+                                    <FaSave size={12} aria-hidden="true" />
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>

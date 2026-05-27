@@ -46,7 +46,16 @@ export default function CollectionPage() {
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
-    const { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn } = useCollectionFilters();
+    const {
+        filters,
+        setFilter,
+        resetFilters,
+        hasActiveFilters,
+        makeFilterFn,
+        savedFilters,
+        saveFilterPreset,
+        loadFilterPreset,
+    } = useCollectionFilters();
     const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
 
     // ── Not-in-collection selection state ─────────────────────────────────────
@@ -501,6 +510,9 @@ export default function CollectionPage() {
                                 setFilter={setFilter}
                                 hasActiveFilters={hasActiveFilters}
                                 resetFilters={resetFilters}
+                                savedFilters={savedFilters}
+                                onSaveFilters={saveFilterPreset}
+                                onLoadFilter={loadFilterPreset}
                                 refreshCollection={refreshCollection}
                                 onSelectItem={setSelectedItem}
                             />
@@ -525,6 +537,9 @@ export default function CollectionPage() {
                                 setFilter={setFilter}
                                 hasActiveFilters={hasActiveFilters}
                                 resetFilters={resetFilters}
+                                savedFilters={savedFilters}
+                                onSaveFilters={saveFilterPreset}
+                                onLoadFilter={loadFilterPreset}
                                 selectionMode={selectionMode}
                                 selectedIds={selectedIds}
                                 onToggleSelection={handleToggleSelection}
