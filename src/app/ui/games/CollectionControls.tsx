@@ -1,20 +1,20 @@
 import {
     CollectionFilters,
+    ConditionFilter,
+    cycleThreeState,
     FilterPreset,
     OwnershipFilter,
-    TradeFilter,
-    WantFilter,
-    ConditionFilter,
-    WishlistFilter,
-    WishlistPriorityFilter,
+    PlaysFilter,
     PreorderFilter,
-    VerificationFilter,
-    ScanFilter,
     RatingFilter,
     RatingSource,
-    PlaysFilter,
-    cycleThreeState,
+    ScanFilter,
+    TradeFilter,
+    VerificationFilter,
     VersionFilter,
+    WantFilter,
+    WishlistFilter,
+    WishlistPriorityFilter,
 } from '@/app/lib/hooks/useCollectionFilters';
 import { SortDirection } from '@/app/lib/hooks/useFilterSort';
 import { VersionIcon } from '@/app/ui/icons/VersionIcon';
@@ -31,9 +31,10 @@ import {
     FaFilter,
     FaHeart,
     FaRecycle,
+    FaSignal,
+    FaSliders,
     FaStar,
     FaThumbsUp,
-    FaSignal,
     FaUser,
     FaUserGroup,
     FaXmark,
@@ -190,7 +191,8 @@ export const CollectionControls = <F extends string>({
     onLoadFilter,
     stickyTop,
 }: CollectionControlsProps<F>) => {
-    const [showFilters, setShowFilters] = useState(true);
+    const [showFilters, setShowFilters] = useState<boolean>(true);
+    const [showPresets, setShowPresets] = useState<boolean>(false);
 
     return (
         <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties}>
@@ -241,10 +243,22 @@ export const CollectionControls = <F extends string>({
                          role="group"
                          aria-label="Collection filters"
                     >
-                        {/* Saved filter presets dropdown */}
                         {savedFilters.length > 0 && (
+                            <button
+                                type="button"
+                                className={`btn relative btn-condensed btn-xs shrink-0 rounded-sm ${showPresets ? 'btn-primary' : 'text-base-content/40'}`}
+                                onClick={() => setShowPresets(v => !v)}
+                                aria-label={showPresets ? 'Hide presets' : 'Show presets'}
+                                aria-expanded={showPresets}
+                                title={showPresets ? 'Hide presets' : 'Show presets'}
+                            >
+                                <FaSliders size={12} aria-hidden="true" />
+                            </button>
+                        )}
+                        {/* Saved filter presets dropdown */}
+                        {savedFilters.length > 0 && showPresets && (
                             <select
-                                className="pl-2 select rounded-sm select-bordered select-xs w-24 shrink-0"
+                                className="pl-2 select rounded-sm select-bordered select-xs w-23 shrink-0"
                                 value=""
                                 onChange={e => {
                                     const preset = savedFilters.find(f => String(f.id) === e.target.value);
@@ -309,7 +323,7 @@ export const CollectionControls = <F extends string>({
                                     <SiTarget size={12} aria-hidden="true" />
                                 </button>
                                 <select
-                                    className="pl-2 select rounded-sm select-bordered select-xs w-30 shrink-0"
+                                    className="pl-2 select rounded-sm select-bordered select-xs w-28 shrink-0"
                                     value={filters.want}
                                     onChange={e => setFilter('want', e.target.value as WantFilter)}
                                     aria-label="Filter by want status"
