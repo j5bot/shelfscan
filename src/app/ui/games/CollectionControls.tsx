@@ -79,7 +79,7 @@ const ThreeStateToggle = <S extends string>({
     return (
         <button
             type="button"
-            className={`btn btn-xs rounded-sm gap-0.5 ${colorClass}`}
+            className={`btn btn-condensed btn-xs rounded-sm gap-0.5 ${colorClass}`}
             title={label}
             aria-label={label}
             aria-pressed={!isDefault}
@@ -244,7 +244,7 @@ export const CollectionControls = <F extends string>({
                         {/* Saved filter presets dropdown */}
                         {savedFilters.length > 0 && (
                             <select
-                                className="pl-2 select rounded-sm select-bordered select-xs w-30 shrink-0"
+                                className="pl-2 select rounded-sm select-bordered select-xs w-24 shrink-0"
                                 value=""
                                 onChange={e => {
                                     const preset = savedFilters.find(f => String(f.id) === e.target.value);
@@ -252,7 +252,7 @@ export const CollectionControls = <F extends string>({
                                 }}
                                 aria-label="Load saved filter set"
                             >
-                                <option value="" disabled>Load preset…</option>
+                                <option value="" disabled>Presets…</option>
                                 {savedFilters.map(preset => (
                                     <option key={preset.id} value={String(preset.id)}>
                                         {preset.name}
@@ -301,7 +301,7 @@ export const CollectionControls = <F extends string>({
                             <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
                                 <button
                                     type="button"
-                                    className="btn btn-xs btn-success text-success-content rounded-sm gap-0.5"
+                                    className="btn btn-condensed btn-xs btn-success text-success-content rounded-sm gap-0.5"
                                     onClick={() => setFilter('want', 'default')}
                                     aria-label="Clear want filter"
                                     title="Want Status"
@@ -322,7 +322,7 @@ export const CollectionControls = <F extends string>({
                         ) : (
                             <button
                                 type="button"
-                                className="btn btn-xs text-base-content/40 bg-[#efefef] rounded-sm gap-0.5"
+                                className="btn btn-condensed btn-xs text-base-content/40 bg-[#efefef] rounded-sm gap-0.5"
                                 onClick={() => setFilter('want', 'wanttobuy')}
                                 aria-label="Filter by want status"
                                 title="Want Status"
@@ -345,7 +345,7 @@ export const CollectionControls = <F extends string>({
                                 />
                                 <button
                                     type="button"
-                                    className="btn btn-xs btn-primary rounded-sm gap-0.5"
+                                    className="btn btn-condensed btn-xs btn-primary rounded-sm gap-0.5"
                                     onClick={() => setFilter('ratingSource',
                                         filters.ratingSource === 'user' ? 'average' : 'user' as RatingSource)}
                                     aria-label={filters.ratingSource === 'user' ? 'Filter by user rating' : 'Filter by average rating'}

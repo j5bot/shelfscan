@@ -67,6 +67,19 @@ const DEFAULT_FILTERS: CollectionFilters = {
 const LS_KEY = 'collection-filters';
 const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as (keyof CollectionFilters)[];
 
+const getSerializableFilters = (filters: CollectionFilters): Record<string, string> => {
+    const result: Record<string, string> = {};
+    for (const key of FILTER_KEYS) {
+        const value = filters[key];
+        if (value === DEFAULT_FILTERS[key]) { continue; }
+        if ((key === 'ratingMin' || key === 'ratingMax' || key === 'ratingSource') && filters.rating !== 'rated') { continue; }
+        if ((key === 'playsMin' || key === 'playsMax') && filters.plays !== 'played') { continue; }
+        if (key === 'wishlistPriority' && filters.wishlist === 'default') { continue; }
+        result[key] = value;
+    }
+    return result;
+};
+
 const readInitialFilters = (): CollectionFilters => {
     if (typeof window === 'undefined') { return DEFAULT_FILTERS; }
 
@@ -134,13 +147,8 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
     }, []);
 
     useEffect(() => {
-        const params = new URLSearchParams();
-        for (const key of FILTER_KEYS) {
-            const value = filters[key];
-            if (value !== DEFAULT_FILTERS[key]) {
-                params.set(key, value);
-            }
-        }
+        const serialized = getSerializableFilters(filters);
+        const params = new URLSearchParams(serialized);
         const search = params.toString();
         const newUrl = search
             ? `${window.location.pathname}?${search}`
@@ -164,11 +172,10 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
         const name = window.prompt('Name for this filter set:');
         if (name === null || name.trim() === '') { return; }
         const trimmedName = name.trim();
-        const id = await database.filters.add({
-            name: trimmedName,
-            filters: filters as unknown as Record<string, string>,
-        });
-        setSavedFilters(prev => [...prev, { id: id as number, name: trimmedName, filters }]);
+        const serialized = getSerializableFilters(filters);
+        const id = await database.filters.add({ name: trimmedName, filters: serialized });
+        const restored = { ...DEFAULT_FILTERS, ...(serialized as Partial<CollectionFilters>) };
+        setSavedFilters(prev => [...prev, { id: id as number, name: trimmedName, filters: restored }]);
     }, [filters]);
 
     const loadFilterPreset = useCallback((preset: FilterPreset) => {

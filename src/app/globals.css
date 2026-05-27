@@ -188,3 +188,7 @@ svg[data-name=nextstep-arrow] > #triangle {
   display: flex;
   align-items: center;
 }
+
+.btn-condensed.btn-condensed {
+  padding-inline: calc(var(--btn-p) * 0.6);
+}
