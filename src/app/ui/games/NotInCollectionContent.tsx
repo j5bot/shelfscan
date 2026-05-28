@@ -1,4 +1,4 @@
-import { type CollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
+import { type CollectionFilters, type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, type CollectionView } from '@/app/lib/hooks/useCollectionView';
 import { type SortDirection, type SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { type NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
@@ -60,6 +60,9 @@ type NotInCollectionContentProps = {
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
     hasActiveFilters: boolean;
     resetFilters: () => void;
+    savedFilters: FilterPreset[];
+    onSaveFilters: () => void;
+    onLoadFilter: (preset: FilterPreset) => void;
     // Selection mode
     selectionMode: boolean;
     selectedIds: Set<number>;
@@ -85,6 +88,9 @@ export const NotInCollectionContent = ({
     setFilter,
     hasActiveFilters,
     resetFilters,
+    savedFilters,
+    onSaveFilters,
+    onLoadFilter,
     selectionMode,
     selectedIds,
     onToggleSelection,
@@ -221,6 +227,9 @@ export const NotInCollectionContent = ({
                 setFilter={setFilter}
                 hasActiveFilters={hasActiveFilters}
                 resetFilters={resetFilters}
+                savedFilters={savedFilters}
+                onSaveFilters={onSaveFilters}
+                onLoadFilter={onLoadFilter}
                 stickyTop={0}
             />
             {content}

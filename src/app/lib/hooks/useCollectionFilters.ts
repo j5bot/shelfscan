@@ -1,3 +1,4 @@
+import { database } from '@/app/lib/database/database';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -37,6 +38,12 @@ export type CollectionFilters = {
     playsMax: string;
 };
 
+export type FilterPreset = {
+    id: number;
+    name: string;
+    filters: CollectionFilters;
+};
+
 const DEFAULT_FILTERS: CollectionFilters = {
     ownership: 'default',
     trade: 'default',
@@ -58,9 +65,35 @@ const DEFAULT_FILTERS: CollectionFilters = {
 };
 
 const LS_KEY = 'collection-filters';
+const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as (keyof CollectionFilters)[];
 
-const readStoredFilters = (): CollectionFilters => {
+const getSerializableFilters = (filters: CollectionFilters): Record<string, string> => {
+    const result: Record<string, string> = {};
+    for (const key of FILTER_KEYS) {
+        const value = filters[key];
+        if (value === DEFAULT_FILTERS[key]) { continue; }
+        if ((key === 'ratingMin' || key === 'ratingMax' || key === 'ratingSource') && filters.rating !== 'rated') { continue; }
+        if ((key === 'playsMin' || key === 'playsMax') && filters.plays !== 'played') { continue; }
+        if (key === 'wishlistPriority' && filters.wishlist === 'default') { continue; }
+        result[key] = value;
+    }
+    return result;
+};
+
+const readInitialFilters = (): CollectionFilters => {
     if (typeof window === 'undefined') { return DEFAULT_FILTERS; }
+
+    const params = new URLSearchParams(window.location.search);
+    const hasUrlFilter = FILTER_KEYS.some(key => params.has(key));
+    if (hasUrlFilter) {
+        const partial: Record<string, string> = {};
+        for (const key of FILTER_KEYS) {
+            const val = params.get(key);
+            if (val !== null) { partial[key] = val; }
+        }
+        return { ...DEFAULT_FILTERS, ...(partial as Partial<CollectionFilters>) };
+    }
+
     try {
         const stored = localStorage.getItem(LS_KEY);
         if (!stored) { return DEFAULT_FILTERS; }
@@ -91,12 +124,36 @@ type UseCollectionFiltersResult = {
         scannedSet: Set<number>,
         verifiedSet: Set<number>,
     ) => (item: BggCollectionItem) => boolean;
+    savedFilters: FilterPreset[];
+    saveFilterPreset: () => Promise<void>;
+    loadFilterPreset: (preset: FilterPreset) => void;
 };
 
 export const useCollectionFilters = (): UseCollectionFiltersResult => {
-    const [filters, setFilters] = useState<CollectionFilters>(readStoredFilters);
+    const [filters, setFilters] = useState<CollectionFilters>(readInitialFilters);
+    const [savedFilters, setSavedFilters] = useState<FilterPreset[]>([]);
 
     useEffect(() => {
+        let active = true;
+        database.filters.toArray().then(items => {
+            if (!active) { return; }
+            setSavedFilters(items.map(item => ({
+                id: item.id!,
+                name: item.name,
+                filters: { ...DEFAULT_FILTERS, ...(item.filters as Partial<CollectionFilters>) },
+            })));
+        });
+        return () => { active = false; };
+    }, []);
+
+    useEffect(() => {
+        const serialized = getSerializableFilters(filters);
+        const params = new URLSearchParams(serialized);
+        const search = params.toString();
+        const newUrl = search
+            ? `${window.location.pathname}?${search}`
+            : window.location.pathname;
+        window.history.replaceState(null, '', newUrl);
         localStorage.setItem(LS_KEY, JSON.stringify(filters));
     }, [filters]);
 
@@ -109,6 +166,20 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
 
     const resetFilters = useCallback(() => {
         setFilters(DEFAULT_FILTERS);
+    }, []);
+
+    const saveFilterPreset = useCallback(async () => {
+        const name = window.prompt('Name for this filter set:');
+        if (name === null || name.trim() === '') { return; }
+        const trimmedName = name.trim();
+        const serialized = getSerializableFilters(filters);
+        const id = await database.filters.add({ name: trimmedName, filters: serialized });
+        const restored = { ...DEFAULT_FILTERS, ...(serialized as Partial<CollectionFilters>) };
+        setSavedFilters(prev => [...prev, { id: id as number, name: trimmedName, filters: restored }]);
+    }, [filters]);
+
+    const loadFilterPreset = useCallback((preset: FilterPreset) => {
+        setFilters(preset.filters);
     }, []);
 
     const hasActiveFilters = useMemo(
@@ -214,6 +285,14 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
         [filters],
     );
 
-    return { filters, setFilter, resetFilters, hasActiveFilters, makeFilterFn };
+    return {
+        filters,
+        setFilter,
+        resetFilters,
+        hasActiveFilters,
+        makeFilterFn,
+        savedFilters,
+        saveFilterPreset,
+        loadFilterPreset,
+    };
 };
-
