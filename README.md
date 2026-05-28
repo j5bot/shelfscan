@@ -10,34 +10,58 @@ do with it - and watch demo videos - on the
 
 ---
 
-This app began as a demo / implementation app for the
-https://gameupc.com APIs.
+ShelfScan is a board game UPC barcode scanner and [BoardGameGeek](https://boardgamegeek.com) 
+collection management web app.
 
-Its purpose is to allow someone to scan
-board game UPCs and work with the associated games
-returned by GameUPC.
+Scan game barcodes with your mobile device camera or webcam, look up game data via the
+[GameUPC API](https://gameupc.com), and interact with your
+[BoardGameGeek](https://boardgamegeek.com) collection — all from the browser.
 
-With just the app, you can help update the GameUPC database
-and audit your BoardGameGeek game collection.
+With just the app, you can:
 
-A browser extension which works along with
-the app allows you to do things like:
+- Scan game UPCs and identify games via the GameUPC database
+- Help update the GameUPC database by verifying game/version associations
+- Load and browse your BGG collection with rich filtering and sorting
+- Filter by ownership, trade status, wishlist, rating, plays, scan/verification status, and more
+- Save named filter presets and share filter state via URL
+- View scan history and see which scanned games are missing from your collection
+- Audit your collection by comparing physical games against your BGG data
 
-- Add the game to your BoardGameGeek collection
-- Post a copy of the game for sale in the BGG GeekMarket
-- Log a game plays on BoardGameGeek
-- Much much more!
+A browser extension (for **Firefox/Android** and **Safari/iOS**) works alongside the app
+and enables direct BGG updates with a low-cost subscription:
 
-A 'plugin' manager allows you to integrate other web apps with
-ShelfScan using simple JSON.
+- Add games to your BGG collection (individually or in bulk via Batch Scan)
+- Post games for sale in the BGG GeekMarket
+- Log game plays on BoardGameGeek
+- Set previously owned, for trade, wishlist, and other statuses
+- Much more — see the [Workflows page](https://shelfscan.io/workflows/)
 
-The app is built with `TypeScript`, `React`, `Next.js`,
-`tailwindcss`, and more, and utilizes my library
-`@react-barcode-scanner/components` for barcode
-scanning using a webcam or phone camera.
+A **plugin manager** lets you integrate other web apps and sites (e.g.
+[BG Stats](https://bgstatsapp.com), [Dust & Dice](https://dustanddice.app), 
+[Dice Tower](https://dicetower.com)) with ShelfScan using simple JSON definitions.
 
-At this time the app is not licensed for modification.  Message me
+---
+
+### Tech Stack
+
+| | |
+|---|---|
+| **Language** | TypeScript 6 |
+| **Framework** | Next.js 16 (App Router, Server Actions) |
+| **UI** | React 19 |
+| **Styling** | Tailwind CSS v4 + DaisyUI v5 |
+| **Scanning** | [`@react-barcode-scanner/components`](https://github.com/jmparsons/react-barcode-scanner) backed by [`@undecaf/zbar-wasm`](https://github.com/undecaf/zbar-wasm) |
+| **State** | Redux Toolkit + React Context |
+| **Persistence** | Dexie (IndexedDB) + localStorage |
+| **Data APIs** | BGG XML API v2 · GameUPC JSON API (via `gameupc-hooks`) |
+| **Testing** | Vitest |
+| **Package manager** | pnpm |
+| **Deployment** | Vercel |
+
+At this time the app is not licensed for modification. Message me
 if you'd like to discuss contributing or forking the app.
+
+---
 
 ### Sample Session
 
@@ -51,4 +75,3 @@ if you'd like to discuss contributing or forking the app.
 - [Sample verified game link](https://shelfscan.io/upc/111111111111)
 - [Sample needs-verification game link](https://shelfscan.io/upc/222222222222)
 - [Sample no information game link](https://shelfscan.io/upc/333333333333)
-<!-- - [Official testing barcodes](./assets/game-barcodes/testing/UPCs.md) -->
