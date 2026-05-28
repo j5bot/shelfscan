@@ -80,8 +80,8 @@ The tech stack would grow to be:
   library) [^actions] [^gameupc-hooks]
 - **Source Control:** [Git](https://git-scm.com/) / [GitHub](https://github.com/)
 - **Deployment:** [Vercel](https://vercel.com/) for hosting and deployment
-- **Caching & Database:
-  ** [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (
+- **Caching & Database:**
+  [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (
   via [Dexie.js](https://dexie.org/)) [^database]
 - **Persistence:** IndexedDB (via Dexie)
   and [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage)
