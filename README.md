@@ -10,8 +10,7 @@ do with it - and watch demo videos - on the
 
 ---
 
-ShelfScan is a board game UPC barcode scanner and [BoardGameGeek](https://boardgamegeek.com) 
-collection management web app.
+ShelfScan is a board game UPC barcode scanner and board game collection management web app.
 
 Scan game barcodes with your mobile device camera or webcam, look up game data via the
 [GameUPC API](https://gameupc.com), and interact with your
