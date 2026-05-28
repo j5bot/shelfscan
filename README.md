@@ -26,8 +26,8 @@ With just the app, you can:
 - View scan history and see which scanned games are missing from your collection
 - Audit your collection by comparing physical games against your BGG data
 
-A browser extension (for **Firefox/Android** and **Safari/iOS**) works alongside the app
-and enables direct BGG updates with a low-cost subscription:
+A browser extension for **Firefox/Android** and **Safari/iOS** and compatible desktop browsers works alongside the app
+and enables direct BGG updates. Updating is available to [BoardGameGeek supporters](https://boardgamegeek.com/support) with a low-cost subscription:
 
 - Add games to your BGG collection (individually or in bulk via Batch Scan)
 - Post games for sale in the BGG GeekMarket
