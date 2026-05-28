@@ -165,6 +165,9 @@ type AllGamesContentProps = {
     savedFilters: FilterPreset[];
     onSaveFilters: () => void;
     onLoadFilter: (preset: FilterPreset) => void;
+    onRenameFilter: (id: number) => void;
+    onDeleteFilter: (id: number) => void;
+    onDuplicateFilter: (id: number) => void;
     refreshCollection: () => void;
     onSelectItem: (item: BggCollectionItem) => void;
 };
@@ -191,6 +194,9 @@ export const AllGamesContent = memo(({
     savedFilters,
     onSaveFilters,
     onLoadFilter,
+    onRenameFilter,
+    onDeleteFilter,
+    onDuplicateFilter,
     refreshCollection,
     onSelectItem,
 }: AllGamesContentProps) => {
@@ -319,6 +325,9 @@ export const AllGamesContent = memo(({
                         savedFilters={savedFilters}
                         onSaveFilters={onSaveFilters}
                         onLoadFilter={onLoadFilter}
+                        onRenameFilter={onRenameFilter}
+                        onDeleteFilter={onDeleteFilter}
+                        onDuplicateFilter={onDuplicateFilter}
                         stickyTop={stickyTop}
                     />
                     {content}

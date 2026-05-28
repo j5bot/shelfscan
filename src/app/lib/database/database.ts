@@ -188,3 +188,9 @@ export const associateAnonymousScans = async (username: string): Promise<number>
         .modify({ username, updatedAt });
 };
 
+export const renameFilter = async (id: number, name: string) =>
+    await database.filters.update(id, { name });
+
+export const deleteFilter = async (id: number) =>
+    await database.filters.delete(id);
+

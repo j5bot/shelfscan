@@ -1,4 +1,4 @@
-import { database } from '@/app/lib/database/database';
+import { database, deleteFilter, renameFilter } from '@/app/lib/database/database';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -127,6 +127,9 @@ type UseCollectionFiltersResult = {
     savedFilters: FilterPreset[];
     saveFilterPreset: () => Promise<void>;
     loadFilterPreset: (preset: FilterPreset) => void;
+    renameFilterPreset: (id: number) => Promise<void>;
+    deleteFilterPreset: (id: number) => Promise<void>;
+    duplicateFilterPreset: (id: number) => Promise<void>;
 };
 
 export const useCollectionFilters = (): UseCollectionFiltersResult => {
@@ -172,15 +175,54 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
         const name = window.prompt('Name for this filter set:');
         if (name === null || name.trim() === '') { return; }
         const trimmedName = name.trim();
+        if (savedFilters.some(f => f.name === trimmedName)) {
+            window.alert(`A preset named "${trimmedName}" already exists.`);
+            return;
+        }
         const serialized = getSerializableFilters(filters);
         const id = await database.filters.add({ name: trimmedName, filters: serialized });
         const restored = { ...DEFAULT_FILTERS, ...(serialized as Partial<CollectionFilters>) };
         setSavedFilters(prev => [...prev, { id: id as number, name: trimmedName, filters: restored }]);
-    }, [filters]);
+    }, [filters, savedFilters]);
 
     const loadFilterPreset = useCallback((preset: FilterPreset) => {
         setFilters(preset.filters);
     }, []);
+
+    const renameFilterPreset = useCallback(async (id: number) => {
+        const preset = savedFilters.find(f => f.id === id);
+        if (!preset) { return; }
+        const name = window.prompt('New name for this filter set:', preset.name);
+        if (name === null || name.trim() === '') { return; }
+        const trimmedName = name.trim();
+        if (trimmedName !== preset.name && savedFilters.some(f => f.name === trimmedName)) {
+            window.alert(`A preset named "${trimmedName}" already exists.`);
+            return;
+        }
+        await renameFilter(id, trimmedName);
+        setSavedFilters(prev => prev.map(f => f.id === id ? { ...f, name: trimmedName } : f));
+    }, [savedFilters]);
+
+    const deleteFilterPreset = useCallback(async (id: number) => {
+        await deleteFilter(id);
+        setSavedFilters(prev => prev.filter(f => f.id !== id));
+    }, []);
+
+    const duplicateFilterPreset = useCallback(async (id: number) => {
+        const preset = savedFilters.find(f => f.id === id);
+        if (!preset) { return; }
+        const baseName = preset.name.replace(/ \(\d+\)$/, '');
+        const existingNames = new Set(savedFilters.map(f => f.name));
+        let suffix = 1;
+        let newName = `${baseName} (${suffix})`;
+        while (existingNames.has(newName)) {
+            suffix++;
+            newName = `${baseName} (${suffix})`;
+        }
+        const serialized = getSerializableFilters(preset.filters);
+        const newId = await database.filters.add({ name: newName, filters: serialized });
+        setSavedFilters(prev => [...prev, { id: newId as number, name: newName, filters: preset.filters }]);
+    }, [savedFilters]);
 
     const hasActiveFilters = useMemo(
         () => (
@@ -294,5 +336,8 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
         savedFilters,
         saveFilterPreset,
         loadFilterPreset,
+        renameFilterPreset,
+        deleteFilterPreset,
+        duplicateFilterPreset,
     };
 };
