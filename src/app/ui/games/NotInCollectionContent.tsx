@@ -63,6 +63,9 @@ type NotInCollectionContentProps = {
     savedFilters: FilterPreset[];
     onSaveFilters: () => void;
     onLoadFilter: (preset: FilterPreset) => void;
+    onRenameFilter: (id: number) => void;
+    onDeleteFilter: (id: number) => void;
+    onDuplicateFilter: (id: number) => void;
     // Selection mode
     selectionMode: boolean;
     selectedIds: Set<number>;
@@ -91,6 +94,9 @@ export const NotInCollectionContent = ({
     savedFilters,
     onSaveFilters,
     onLoadFilter,
+    onRenameFilter,
+    onDeleteFilter,
+    onDuplicateFilter,
     selectionMode,
     selectedIds,
     onToggleSelection,
@@ -230,6 +236,9 @@ export const NotInCollectionContent = ({
                 savedFilters={savedFilters}
                 onSaveFilters={onSaveFilters}
                 onLoadFilter={onLoadFilter}
+                onRenameFilter={onRenameFilter}
+                onDeleteFilter={onDeleteFilter}
+                onDuplicateFilter={onDuplicateFilter}
                 stickyTop={0}
             />
             {content}

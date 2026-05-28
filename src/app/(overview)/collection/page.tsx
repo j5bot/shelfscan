@@ -55,6 +55,9 @@ export default function CollectionPage() {
         savedFilters,
         saveFilterPreset,
         loadFilterPreset,
+        renameFilterPreset,
+        deleteFilterPreset,
+        duplicateFilterPreset,
     } = useCollectionFilters();
     const [selectedItem, setSelectedItem] = useState<BggCollectionItem | null>(null);
 
@@ -513,6 +516,9 @@ export default function CollectionPage() {
                                 savedFilters={savedFilters}
                                 onSaveFilters={saveFilterPreset}
                                 onLoadFilter={loadFilterPreset}
+                                onRenameFilter={renameFilterPreset}
+                                onDeleteFilter={deleteFilterPreset}
+                                onDuplicateFilter={duplicateFilterPreset}
                                 refreshCollection={refreshCollection}
                                 onSelectItem={setSelectedItem}
                             />
@@ -540,6 +546,9 @@ export default function CollectionPage() {
                                 savedFilters={savedFilters}
                                 onSaveFilters={saveFilterPreset}
                                 onLoadFilter={loadFilterPreset}
+                                onRenameFilter={renameFilterPreset}
+                                onDeleteFilter={deleteFilterPreset}
+                                onDuplicateFilter={duplicateFilterPreset}
                                 selectionMode={selectionMode}
                                 selectedIds={selectedIds}
                                 onToggleSelection={handleToggleSelection}
