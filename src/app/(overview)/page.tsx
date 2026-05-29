@@ -99,7 +99,9 @@ export default function Page() {
         />
         {breakpoint ? (
              <div className="flex flex-col w-full items-center p-3 sm:p-4">
-                 <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
+                 <div className="flex flex-col justify-center items-center gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
+                     {!(currentUsername || codes.length) && <h1 className="text-3xl sm:text-2xl my-4 text-center">For <span data-alternate-words="persnickety,picky">particular</span> people to<br />
+                         quickly curate their collections.</h1>}
                      <Suspense fallback={loader('Focusing...')}>
                          <div>
                              <Scanner onScan={onScan} />
@@ -128,13 +130,8 @@ export default function Page() {
                                  </div>
                              </>)
                              : (
-                                 <div className="w-full flex flex-col items-center justify-items-center text-center">
-                                     <h2 className="text-xl tracking-widest">No Game UPCs Scanned</h2>
-                                     <div className="mt-2 mb-2 text-sm">
-                                         <h3>- Scan UPCs, Then -</h3>
-                                         <UseCaseBadges />
-                                     </div>
-                                     <h4 className="text-lg">Check your shelf before you wreck yourself</h4>
+                                 <div className="w-full mt-2 mb-4 text-sm flex flex-col items-center justify-items-center text-center">
+                                     <UseCaseBadges />
                                  </div>
                              )}
                          </div>

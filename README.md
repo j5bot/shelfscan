@@ -19,12 +19,10 @@ Scan game barcodes with your mobile device camera or webcam, look up game data v
 With just the app, you can:
 
 - Scan game UPCs and identify games via the GameUPC database
-- Help update the GameUPC database by verifying game/version associations
-- Load and browse your BGG collection with rich filtering and sorting
-- Filter by ownership, trade status, wishlist, rating, plays, scan/verification status, and more
-- Save named filter presets and share filter state via URL
-- View scan history and see which scanned games are missing from your collection
 - Audit your collection by comparing physical games against your BGG data
+- Load and browse your BGG collection with rich filtering and sorting
+- View scan history and see which scanned games are missing from your collection
+- Help update the GameUPC database by verifying game/version associations
 
 A browser extension for **Firefox/Android** and **Safari/iOS** and compatible desktop browsers works alongside the app
 and enables direct BGG updates. Updating is available to [BoardGameGeek supporters](https://boardgamegeek.com/support) with a low-cost subscription:
