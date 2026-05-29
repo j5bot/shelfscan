@@ -23,21 +23,13 @@ const WhySupportPage = () => {
 
                 <h3 className="font-semibold mb-2">BGG Relies on You, We Rely on BGG</h3>
                 <p>
-                    The data used by ShelfScan to display your collection and other
-                    information is sourced directly from BoardGameGeek.  While BGG
-                    is a community-driven site, they people who run it rely on user support and ad
-                    revenue to pay to keep it running.
+                   The collection data and other information displayed in ShelfScan are sourced directly from BoardGameGeek. While BGG is a community-driven platform, the team that operates and maintains it depends on user support and advertising revenue to keep the site running.
                 </p>
                 <p>
-                    When you choose to use ShelfScan over the native BGG interface,
-                    you won't see the ads that keep the bills paid there.  This is the same as if
-                    you are a BoardGameGeek supporter at the $25 ad-block level or higher using the
-                    BGG site directly.
+                    When you use ShelfScan instead of the native BGG interface, you are no longer viewing the ads that help fund BoardGameGeek. In practice, this is equivalent to using BGG as a Supporter at the $25 ad-free level or higher.
                 </p>
                 <p>
-                    My ethical decision when building the browser extension that allows BGG
-                    updates through ShelfScan was to require that level of
-                    support in order to use all its features.
+                    Because of this, I made the ethical decision that the browser extension features allowing updates to BoardGameGeek through ShelfScan should require users to support BGG at that same level.
                 </p>
 
                 <p>Show your <Link className="underline"
