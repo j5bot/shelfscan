@@ -4,13 +4,8 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
-    FaDice,
     FaFirefox,
-    FaHeart,
-    FaPlus,
-    FaRecycle,
     FaSafari,
-    FaTag,
 } from 'react-icons/fa6';
 
 const WhySubscribePage = () => {
