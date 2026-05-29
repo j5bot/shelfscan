@@ -130,7 +130,7 @@ export default function Page() {
                                  </div>
                              </>)
                              : (
-                                 <div className="w-full mt-2 text-sm flex flex-col items-center justify-items-center text-center">
+                                 <div className="w-full mt-2 mb-4 text-sm flex flex-col items-center justify-items-center text-center">
                                      <UseCaseBadges />
                                  </div>
                              )}
