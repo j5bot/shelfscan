@@ -23,18 +23,19 @@ const ExtensionPage = () => {
                 p-4 pb-10 rounded-xl
                 bg-base-100 text-sm`}>
                 <h1 className="text-3xl text-center text-balance">
-                    ShelfScan Browser Extension
+                    Browser Extension
                 </h1>
 
                 <h3 className="font-semibold">Get the Browser Extension and Do More</h3>
-                <p className="m-1 font-bold">⚠️ <em>Using the browser extension after your free trial requires a BGG supporter account at the ad-block level.</em> ⚠️</p>
                 <p>
                     ShelfScan works together with a browser extension to add
                     lots of extra features that bring together BGG and the web app with a
-                    low-cost subscription.
+                    low-cost subscription (<Link href="/why-subscribe/"
+                                                 className="underline" target="_blank">why a subscription?</Link>) .
                 </p>
+
                 <h4 className="uppercase font-semibold pt-2 pb-3">Free Trial!</h4>
-                <ul className="font-sharetech text-lg pb-8">
+                <ul className="font-sharetech text-lg pb-2">
                     <li>[ <FaPlus className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Your Collection ]</li>
                     <li>[ <FaRecycle className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games For Trade ]</li>
                     <li>[ <FaHeart className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Wishlist ]</li>
@@ -52,6 +53,15 @@ const ExtensionPage = () => {
                         Join the Safari on iOS beta
                     </span>
                 </Link></p>
+
+                <p>Once your free trial is over, being a <Link href="https://boardgamegeek.com/support"
+                                                               className="underline"
+                                                               target="_blank">
+                    BGG Supporter
+                </Link> at the "ad block" level is required to use the extension.</p>
+
+                <p><Link href="/why-support/"
+                         className="underline" target="_blank">Why support BoardGameGeek?</Link></p>
             </div>
         </div>
     </>;
