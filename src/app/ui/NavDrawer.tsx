@@ -166,11 +166,11 @@ export const NavDrawer = () => {
                                 <FaLayerGroup className="inline" /> Batch Scan
                             </Link>
                         </li>}
-                        {syncOn && <li className="w-full">
+                        <li className="w-full">
                             <Link className="flex gap-2 grow" href="/collection" onNavigate={closeOnNavigate}>
                                 <FaList className="inline" /> Collection
                             </Link>
-                        </li>}
+                        </li>
                         {refreshCollectionItem}
                     </ul>
                     {syncOn &&
