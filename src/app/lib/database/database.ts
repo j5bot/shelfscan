@@ -1,5 +1,5 @@
 import { BggCollectionMap } from '@/app/lib/types/bgg';
-import { MarketPreferences } from '@/app/lib/types/market';
+import { GeekMarketProduct, MarketPreferences } from '@/app/lib/types/market';
 import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
@@ -14,6 +14,11 @@ export type SettingEntity = {
 export type CollectionEntity = {
     id: string;
     value: BggCollectionMap;
+};
+
+export type MarketEntity = {
+    id: string;
+    value: GeekMarketProduct[];
 };
 
 export type ScanHistoryEntity = ScanHistoryEntry;
@@ -42,6 +47,7 @@ export const database = new Dexie('db') as Dexie & {
     settings: EntityTable<SettingEntity, 'id'>;
     plugins: EntityTable<PluginEntity, 'id'>;
     collections: EntityTable<CollectionEntity, 'id'>;
+    markets: EntityTable<MarketEntity, 'id'>;
     scanned: EntityTable<ScannedEntity, 'id'>;
     dataforms: EntityTable<DataFormEntity, 'id'>;
     scanHistory: EntityTable<ScanHistoryEntity, 'id'>;
@@ -89,6 +95,17 @@ database.version(6).stores({
     settings: '++id',
     plugins: '++id',
     collections: '++id',
+    scanned: '++id',
+    dataforms: '++id',
+    scanHistory: '++id, upc, status, timestamp, username, bggId',
+    filters: '++id, name',
+});
+
+database.version(7).stores({
+    settings: '++id',
+    plugins: '++id',
+    collections: '++id',
+    markets: '++id',
     scanned: '++id',
     dataforms: '++id',
     scanHistory: '++id, upc, status, timestamp, username, bggId',
@@ -145,6 +162,18 @@ export const updateCollectionItemNumPlays = async (id: string, collectionId: num
             [collectionId]: { ...entry.value[collectionId], plays: numplays },
         },
     });
+};
+
+export const getMarket = async (id: string): Promise<GeekMarketProduct[] | undefined> =>
+    (await database.markets.get(id))?.value;
+
+export const setMarket = async (id: string, value: GeekMarketProduct[]): Promise<void> => {
+    const hasMarket = await database.markets.get(id);
+    if (hasMarket) {
+        await database.markets.put({ id, value });
+    } else {
+        await database.markets.add({ id, value });
+    }
 };
 
 export const getPlugin = async (id: string) =>

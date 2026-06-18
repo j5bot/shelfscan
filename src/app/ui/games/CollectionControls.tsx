@@ -3,6 +3,7 @@ import {
     ConditionFilter,
     cycleThreeState,
     FilterPreset,
+    MarketFilter,
     OwnershipFilter,
     PlaysFilter,
     PreorderFilter,
@@ -38,6 +39,7 @@ import {
     FaSignal,
     FaSliders,
     FaStar,
+    FaTag,
     FaTags,
     FaThumbsUp,
     FaUser,
@@ -165,6 +167,8 @@ type CollectionControlsProps<F extends string> = {
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
     hasActiveFilters: boolean;
     resetFilters: () => void;
+    // Marketplace filter data (only passed when market listings are loaded)
+    marketObjectIds?: Set<string>;
     // Saved presets
     savedFilters: FilterPreset[];
     onSaveFilters: () => void;
@@ -195,6 +199,7 @@ export const CollectionControls = <F extends string>({
     setFilter,
     hasActiveFilters,
     resetFilters,
+    marketObjectIds,
     savedFilters,
     onSaveFilters,
     onLoadFilter,
@@ -485,6 +490,17 @@ export const CollectionControls = <F extends string>({
         title="Scan Status"
     />;
 
+    const marketControl = marketObjectIds?.size ? (
+        <ThreeStateToggle
+            value={filters.market}
+            states={['default', 'inMarket', 'notInMarket'] as const}
+            onLabel="In Marketplace"
+            offLabel="Not in Marketplace"
+            icon={<FaTag size={12} aria-hidden="true" />}
+            onChange={v => setFilter('market', v as MarketFilter)}
+            title="Marketplace Status"
+        />
+    ) : null;
 
     const primaryFilterControls = [
         savedFiltersControls,
@@ -499,6 +515,7 @@ export const CollectionControls = <F extends string>({
         versionControl,
         verificationControl,
         scanControl,
+        marketControl,
     ];
 
     // @ts-ignore

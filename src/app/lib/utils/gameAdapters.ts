@@ -1,5 +1,6 @@
 import { type BggCollectionItem, type BggVersion } from '@/app/lib/types/bgg';
 import { type Game, type Version } from '@/app/lib/types/game';
+import { type GeekMarketProduct } from '@/app/lib/types/market';
 import { type GameUPCBggInfo, type GameUPCBggVersion } from 'gameupc-hooks/types';
 
 export const createSlug = (name: string): string => name
@@ -74,4 +75,25 @@ export const collectionItemToGameUPCInfo = (item: BggCollectionItem): GameUPCBgg
     version_status: 'none',
     versions: item.version ? [collectionVersionToGameUPCVersion(item.version)] : [],
 });
+
+export const geekMarketProductToGame = (product: GeekMarketProduct): Game => ({
+    id: Number(product.objectid),
+    name: product.objectlink?.name ?? product.version.name,
+    pageUrl: `https://boardgamegeek.com${product.objectlink?.href ?? product.producthref}`,
+    thumbnailUrl: product.version.imageSets?.square100?.src,
+    imageUrl: product.version.imageSets?.mediacard?.src,
+});
+
+export const geekMarketProductToVersion = (product: GeekMarketProduct): Version => {
+    const yearDescriptor = product.version.descriptors.find(d => d.name === 'yearpublished');
+    const published = yearDescriptor ? Number(yearDescriptor.displayValue) : undefined;
+    return {
+        versionId: Number(product.version.id),
+        name: product.version.name,
+        pageUrl: `https://boardgamegeek.com${product.version.href ?? ''}`,
+        thumbnailUrl: product.version.imageSets?.square100?.src,
+        imageUrl: product.version.imageSets?.mediacard?.src,
+        published: Number.isNaN(published) ? undefined : published,
+    };
+};
 

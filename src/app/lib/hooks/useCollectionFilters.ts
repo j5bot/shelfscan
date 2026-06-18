@@ -17,6 +17,7 @@ export type ScanFilter = 'default' | 'scanned' | 'notscanned';
 export type RatingFilter = 'default' | 'rated' | 'notrated';
 export type RatingSource = 'user' | 'average';
 export type PlaysFilter = 'default' | 'played' | 'notplayed';
+export type MarketFilter = 'default' | 'inMarket' | 'notInMarket';
 export type SearchMode = 'all' | 'name' | 'version' | 'tags';
 
 export type CollectionFilters = {
@@ -39,6 +40,7 @@ export type CollectionFilters = {
     playsMax: string;
     searchMode: SearchMode;
     searchText: string;
+    market: MarketFilter;
 };
 
 export type FilterPreset = {
@@ -65,6 +67,7 @@ const DEFAULT_FILTERS: CollectionFilters = {
     plays: 'default',
     playsMin: '',
     playsMax: '',
+    market: 'default',
     searchMode: 'all',
     searchText: '',
 };
@@ -204,6 +207,8 @@ type UseCollectionFiltersResult = {
         scannedSet: Set<number>,
         verifiedSet: Set<number>,
         tagMap: BggTagMap,
+        marketObjectIds?: Set<string>,
+        marketVersionIds?: Set<string>,
     ) => (item: BggCollectionItem) => boolean;
     savedFilters: FilterPreset[];
     saveFilterPreset: () => Promise<void>;
@@ -319,13 +324,20 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             filters.scan !== 'default' ||
             filters.rating !== 'default' ||
             filters.plays !== 'default' ||
+            filters.market !== 'default' ||
             filters.searchText !== ''
         ),
         [filters],
     );
 
     const makeFilterFn = useCallback(
-        (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap) => {
+        (
+            scannedSet: Set<number>,
+            verifiedSet: Set<number>,
+            tagMap: BggTagMap,
+            marketObjectIds?: Set<string>,
+            marketVersionIds?: Set<string>,
+        ) => {
             const { nameQuery, versionQuery, tagQueries, anyTextQuery } = parseUnifiedSearch(
                 filters.searchText,
                 filters.searchMode,
@@ -426,6 +438,16 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                 // Text search: tags (AND logic)
                 for (const tag of tagQueries) {
                     if (!(tagMap[tag]?.includes(item.collectionId))) { return false; }
+                }
+
+                // Marketplace — version-level match when both sides carry a version ID,
+                // object-level match otherwise.
+                if (filters.market !== 'default' && marketObjectIds !== undefined) {
+                    const isListed = (item.versionId !== undefined && marketVersionIds !== undefined)
+                        ? marketVersionIds.has(String(item.versionId))
+                        : marketObjectIds.has(String(item.objectId));
+                    if (filters.market === 'inMarket' && !isListed) { return false; }
+                    if (filters.market === 'notInMarket' && isListed) { return false; }
                 }
 
                 return true;

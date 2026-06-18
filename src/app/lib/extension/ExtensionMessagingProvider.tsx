@@ -4,7 +4,10 @@ import {
 } from '@/app/lib/extension/messageTypes';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
+import { setMarketListings } from '@/app/lib/redux/bgg/market/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
+import { GeekMarketProduct } from '@/app/lib/types/market';
+import { setMarket } from '@/app/lib/database/database';
 import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef } from 'react';
 
@@ -80,6 +83,15 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
             const { data: detail } = event;
 
             dispatchExtensionMessage(detail);
+
+            if (detail.type === 'marketLoad-response') {
+                const products = detail.response as GeekMarketProduct[] | undefined;
+                if (username && Array.isArray(products)) {
+                    dispatch(setMarketListings({ username, products }));
+                    setMarket(username, products).then();
+                }
+                return;
+            }
 
             const collectionItem = detail.response?.collectionItem ?? detail.response;
 

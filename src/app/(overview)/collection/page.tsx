@@ -7,6 +7,7 @@ import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCo
 import { parseUnifiedSearch, useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
 import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
+import { useMarketData } from '@/app/lib/hooks/useMarketData';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
 import { useTitle } from '@/app/lib/hooks/useTitle';
@@ -14,14 +15,16 @@ import { useSelector, useStore } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
+import { selectMarketObjectIds, selectMarketVersionIds } from '@/app/lib/redux/bgg/market/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
+import { MarketContent } from '@/app/ui/games/MarketContent';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { type GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
-import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,
     FaBorderAll,
@@ -29,6 +32,7 @@ import {
     FaList,
     FaStar,
     FaTableCells,
+    FaTag,
     FaXmark,
 } from 'react-icons/fa6';
 
@@ -129,11 +133,31 @@ export default function CollectionPage() {
         return set;
     }, [scanHistory]);
 
+    // ── Market data ───────────────────────────────────────────────────────────
+    const { products: marketProducts, isLoading: isMarketLoading, loadMarket } = useMarketData();
+
+    const marketObjectIds = useSelector((state: RootState) =>
+        selectMarketObjectIds([state, username]),
+    );
+    const marketVersionIds = useSelector((state: RootState) =>
+        selectMarketVersionIds([state, username]),
+    );
+
+    const loadMarketRef = useRef(loadMarket);
+    loadMarketRef.current = loadMarket;
+
+    useEffect(() => {
+        if (activeTab !== CollectionTabs.MARKET || marketProducts.length > 0) { return; }
+        loadMarketRef.current();
+    // Re-check only when the active tab changes; loadMarket guard prevents double-fire
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeTab]);
+
     const tagMap = useSelector((state: RootState) => selectTagMap([state]));
 
     const extraFilterFn = useMemo(
-        () => makeFilterFn(scannedSet, verifiedSet, tagMap),
-        [makeFilterFn, scannedSet, verifiedSet, tagMap],
+        () => makeFilterFn(scannedSet, verifiedSet, tagMap, marketObjectIds, marketVersionIds),
+        [makeFilterFn, scannedSet, verifiedSet, tagMap, marketObjectIds, marketVersionIds],
     );
 
     const allGamesSortFields = useMemo<
@@ -308,10 +332,28 @@ export default function CollectionPage() {
 
     // ── Tab keyboard navigation ────────────────────────────────────────────────
     const handleTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>, tab: typeof activeTab) => {
-        if (e.key === 'ArrowRight' && tab === CollectionTabs.ALL_GAMES) {
-            setActiveTab(CollectionTabs.NOT_IN_COLLECTION);
-        } else if (e.key === 'ArrowLeft' && tab === CollectionTabs.NOT_IN_COLLECTION) {
-            setActiveTab(CollectionTabs.ALL_GAMES);
+        if (e.key === 'ArrowRight') {
+            switch (true) {
+                case tab === CollectionTabs.ALL_GAMES:
+                    setActiveTab(CollectionTabs.NOT_IN_COLLECTION);
+                    break;
+                case tab === CollectionTabs.NOT_IN_COLLECTION:
+                    setActiveTab(CollectionTabs.MARKET);
+                    break;
+                default:
+                    break;
+            }
+        } else if (e.key === 'ArrowLeft') {
+            switch (true) {
+                case tab === CollectionTabs.MARKET:
+                    setActiveTab(CollectionTabs.NOT_IN_COLLECTION);
+                    break;
+                case tab === CollectionTabs.NOT_IN_COLLECTION:
+                    setActiveTab(CollectionTabs.ALL_GAMES);
+                    break;
+                default:
+                    break;
+            }
         }
     };
 
@@ -319,6 +361,19 @@ export default function CollectionPage() {
     const allGamesPanelId = `panel-${CollectionTabs.ALL_GAMES}`;
     const notInCollectionTabId = `tab-${CollectionTabs.NOT_IN_COLLECTION}`;
     const notInCollectionPanelId = `panel-${CollectionTabs.NOT_IN_COLLECTION}`;
+    const marketTabId = `tab-${CollectionTabs.MARKET}`;
+    const marketPanelId = `panel-${CollectionTabs.MARKET}`;
+
+    const activePanelId = activeTab === CollectionTabs.ALL_GAMES
+        ? allGamesPanelId
+        : activeTab === CollectionTabs.NOT_IN_COLLECTION
+            ? notInCollectionPanelId
+            : marketPanelId;
+    const activeTabLabelId = activeTab === CollectionTabs.ALL_GAMES
+        ? allGamesTabId
+        : activeTab === CollectionTabs.NOT_IN_COLLECTION
+            ? notInCollectionTabId
+            : marketTabId;
 
     return (
         <>
@@ -444,6 +499,19 @@ export default function CollectionPage() {
                         >
                             Not in Collection
                         </button>
+                        <button
+                            id={marketTabId}
+                            role="tab"
+                            aria-selected={activeTab === CollectionTabs.MARKET}
+                            aria-controls={marketPanelId}
+                            tabIndex={activeTab === CollectionTabs.MARKET ? 0 : -1}
+                            className={`tab${activeTab === CollectionTabs.MARKET ? ' tab-active' : ''}`}
+                            onClick={() => setActiveTab(CollectionTabs.MARKET)}
+                            onKeyDown={e => handleTabKeyDown(e, CollectionTabs.MARKET)}
+                        >
+                            <FaTag size={11} aria-hidden="true" className="mr-1" />
+                            Market
+                        </button>
                     </div>
 
                     <Suspense>
@@ -491,9 +559,9 @@ export default function CollectionPage() {
                     )}
                     <section
                         ref={sectionRef}
-                        id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
+                        id={activePanelId}
                         role="tabpanel"
-                        aria-labelledby={activeTab === CollectionTabs.ALL_GAMES ? allGamesTabId : notInCollectionTabId}
+                        aria-labelledby={activeTabLabelId}
                         className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-2 pt-0"
                     >
                         {activeTab === CollectionTabs.ALL_GAMES && (
@@ -505,6 +573,7 @@ export default function CollectionPage() {
                                 modeMap={modeMap}
                                 scannedSet={scannedSet}
                                 verifiedSet={verifiedSet}
+                                marketObjectIds={marketObjectIds}
                                 sortFields={allGamesSortFields}
                                 sortField={allGamesFilter.sortField}
                                 sortDirection={allGamesFilter.sortDirection}
@@ -522,6 +591,15 @@ export default function CollectionPage() {
                                 onDuplicateFilter={duplicateFilterPreset}
                                 refreshCollection={refreshCollection}
                                 onSelectItem={setSelectedItem}
+                            />
+                        )}
+                        {activeTab === CollectionTabs.MARKET && (
+                            <MarketContent
+                                products={marketProducts}
+                                isLoading={isMarketLoading}
+                                onRefresh={loadMarket}
+                                syncOn={syncOn}
+                                view={view}
                             />
                         )}
                         {activeTab === CollectionTabs.NOT_IN_COLLECTION && (

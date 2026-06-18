@@ -49,6 +49,7 @@ export type DocumentMessageDetailType =
     | 'getPlayers'
     | 'info'
     | 'infoLoad'
+    | 'marketLoad'
     | 'needsAuth'
     | 'previous'
     | 'ratings'
@@ -80,6 +81,10 @@ export type DocumentMessageLookupDetail = BaseDocumentMessageDetail & {
     lookupMap: unknown;
 };
 
+export type DocumentMessageMarketLoadDetail = BaseDocumentMessageDetail & {
+    userId: string;
+};
+
 export type DocumentMessageSearchPlayerDetail = BaseDocumentMessageDetail &{
     query: string;
 };
@@ -88,6 +93,7 @@ export type DocumentMessageSourceDetail = OneOf<
     [
         DocumentMessageNeedsAuthDetail,
         DocumentMessageLookupDetail,
+        DocumentMessageMarketLoadDetail,
         DocumentMessageSearchPlayerDetail,
         ShelfScanEntry
     ]

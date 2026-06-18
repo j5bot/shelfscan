@@ -151,6 +151,7 @@ type AllGamesContentProps = {
     modeMap: ModeMap;
     scannedSet: Set<number>;
     verifiedSet: Set<number>;
+    marketObjectIds?: Set<string>;
     sortFields: SortFieldDef<BggCollectionItem, AllGamesSortField>[];
     sortField: AllGamesSortField;
     sortDirection: SortDirection;
@@ -178,6 +179,7 @@ export const AllGamesContent = memo(({
     modeMap,
     scannedSet,
     verifiedSet,
+    marketObjectIds,
     sortFields,
     sortField,
     sortDirection,
@@ -315,6 +317,7 @@ export const AllGamesContent = memo(({
                         setFilter={setFilter}
                         hasActiveFilters={hasActiveFilters}
                         resetFilters={resetFilters}
+                        marketObjectIds={marketObjectIds}
                         savedFilters={savedFilters}
                         onSaveFilters={onSaveFilters}
                         onLoadFilter={onLoadFilter}

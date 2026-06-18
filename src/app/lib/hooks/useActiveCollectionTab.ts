@@ -3,16 +3,19 @@ import { useCallback, useState } from 'react';
 export const CollectionTabs = {
     ALL_GAMES: 'all-games',
     NOT_IN_COLLECTION: 'not-in-collection',
+    MARKET: 'market',
 } as const;
 
 export type CollectionTab = typeof CollectionTabs[keyof typeof CollectionTabs];
+
+const VALID_TABS = new Set<string>(Object.values(CollectionTabs));
 
 const LS_ACTIVE_TAB_KEY = 'collection-active-tab';
 
 const readStoredTab = (): CollectionTab => {
     if (typeof window === 'undefined') { return CollectionTabs.ALL_GAMES; }
     const stored = localStorage.getItem(LS_ACTIVE_TAB_KEY);
-    return (stored === CollectionTabs.ALL_GAMES || stored === CollectionTabs.NOT_IN_COLLECTION)
+    return stored !== null && VALID_TABS.has(stored)
         ? stored as CollectionTab
         : CollectionTabs.ALL_GAMES;
 };
