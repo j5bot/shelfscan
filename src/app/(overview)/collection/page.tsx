@@ -23,7 +23,7 @@ import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { MarketContent } from '@/app/ui/games/MarketContent';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { type GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
+import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import { KeyboardEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,
@@ -32,7 +32,6 @@ import {
     FaList,
     FaStar,
     FaTableCells,
-    FaTag,
     FaXmark,
 } from 'react-icons/fa6';
 
@@ -509,7 +508,6 @@ export default function CollectionPage() {
                             onClick={() => setActiveTab(CollectionTabs.MARKET)}
                             onKeyDown={e => handleTabKeyDown(e, CollectionTabs.MARKET)}
                         >
-                            <FaTag size={11} aria-hidden="true" className="mr-1" />
                             Market
                         </button>
                     </div>

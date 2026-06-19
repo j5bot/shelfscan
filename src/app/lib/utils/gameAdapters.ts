@@ -76,24 +76,27 @@ export const collectionItemToGameUPCInfo = (item: BggCollectionItem): GameUPCBgg
     versions: item.version ? [collectionVersionToGameUPCVersion(item.version)] : [],
 });
 
-export const geekMarketProductToGame = (product: GeekMarketProduct): Game => ({
+export const marketProductToGame = (product: GeekMarketProduct): Game => ({
     id: Number(product.objectid),
-    name: product.objectlink?.name ?? product.version.name,
+    name: product.objectlink?.name ?? product.version?.name,
     pageUrl: `https://boardgamegeek.com${product.objectlink?.href ?? product.producthref}`,
-    thumbnailUrl: product.version.imageSets?.square100?.src,
-    imageUrl: product.version.imageSets?.mediacard?.src,
+    thumbnailUrl: product.objectlink?.image?.images?.small?.src ?? '',
+    imageUrl: product.objectlink?.image?.images?.large?.src ?? '',
+    statusText: `${product.currencysymbol}${product.price} · ${product.prettycondition}`,
 });
 
-export const geekMarketProductToVersion = (product: GeekMarketProduct): Version => {
-    const yearDescriptor = product.version.descriptors.find(d => d.name === 'yearpublished');
+export const marketProductToVersion = (product: GeekMarketProduct): Version => {
+    const yearDescriptor = product.version?.descriptors.find(d => d.name === 'yearpublished');
     const published = yearDescriptor ? Number(yearDescriptor.displayValue) : undefined;
     return {
-        versionId: Number(product.version.id),
-        name: product.version.name,
-        pageUrl: `https://boardgamegeek.com${product.version.href ?? ''}`,
-        thumbnailUrl: product.version.imageSets?.square100?.src,
-        imageUrl: product.version.imageSets?.mediacard?.src,
+        versionId: Number(product.version?.id),
+        name: product.objectlink?.name ?? product.version?.name,
+        pageUrl: `https://boardgamegeek.com${product.producthref ?? ''}`,
+        thumbnailUrl: product.objectlink?.image?.images?.small?.src ?? '',
+        imageUrl: product.objectlink?.image?.images?.large?.src ?? '',
         published: Number.isNaN(published) ? undefined : published,
+        language: product.version?.descriptors?.find(d => d.name === 'language')?.displayValue ?? '',
+        statusText: `${product.currencysymbol}${product.price} · ${product.prettycondition}`,
     };
 };
 

@@ -10,8 +10,11 @@ export type MarketPreferences = {
 };
 
 export type GeekMarketProductImageSet = {
+    url?: string;
     src: string;
     'src@2x': string;
+    width?: number;
+    height?: number;
 };
 
 type GeekMarketProductVersionDescriptor = {
@@ -31,6 +34,7 @@ export type GeekMarketObjectLink = {
     id: string;
     name: string;
     href: string;
+    image?: GeekMarketProductImage;
 };
 
 export type GeekMarketProduct = {
@@ -56,6 +60,10 @@ export type GeekMarketProduct = {
     imagesets: Record<string, GeekMarketProductImageSet>;
     objectlink?: GeekMarketObjectLink;
     images?: unknown[];
+};
+
+export type GeekMarketProductImage = {
+    images?: Record<string, GeekMarketProductImageSet>;
 };
 
 export type GeekMarketProductMap = Record<string, GeekMarketProduct>;

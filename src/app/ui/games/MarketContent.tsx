@@ -2,6 +2,7 @@
 
 import { CollectionViews, type CollectionView } from '@/app/lib/hooks/useCollectionView';
 import { GeekMarketProduct } from '@/app/lib/types/market';
+import { marketProductToGame, marketProductToVersion } from '@/app/lib/utils/gameAdapters';
 import { GetExtensionLink } from '@/app/ui/GetExtensionLink';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
@@ -136,10 +137,12 @@ export const MarketContent = ({
     }
 
     const renderGridItem = (product: GeekMarketProduct, thumbnailSize: number) => {
-        const thumbnailUrl = (product.version?.imageSets ?? product.imagesets)?.mediacard?.['src@2x'] ?? '';
-        const name = product.version?.name ?? product.objectlink?.name ?? '';
-        const href = `${BGG_BASE}${product.producthref}`;
-        const statusText = `${product.currencysymbol}${product.price} · ${product.prettycondition}`;
+        const {
+            name,
+            thumbnailUrl = '',
+            statusText = '',
+            pageUrl: href,
+        } = product.version ? marketProductToVersion(product) : marketProductToGame(product);
 
         return (
             <ListGame

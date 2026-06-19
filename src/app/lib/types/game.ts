@@ -9,6 +9,7 @@ export type Game = {
     pageUrl: string;
     thumbnailUrl?: string;
     imageUrl?: string;
+    statusText?: string;
 };
 
 export type Version = {
@@ -19,5 +20,6 @@ export type Version = {
     imageUrl?: string;
     published?: number;
     language?: string;
+    statusText?: string;
 };
 
