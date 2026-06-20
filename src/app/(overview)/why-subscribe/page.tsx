@@ -4,6 +4,7 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
+    FaChrome,
     FaFirefox,
     FaSafari,
 } from 'react-icons/fa6';
@@ -46,6 +47,12 @@ const WhySubscribePage = () => {
                         Join the Extension's Safari on iOS beta
                     </span>
                 </Link></p>
+
+<p><Link className="flex items-center gap-2" href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/">
+                    <FaChrome className="w-6 h-6" /> <span className="underline">
+                        Download for Gear on iOS
+                    </span>
+                </Link> (<Link href="https://apps.apple.com/app/apple-store/id1458962238" target="_blank" className="underline">Gear browser</Link>)</p>
             </div>
         </div>
     </>;
