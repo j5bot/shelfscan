@@ -6,7 +6,6 @@ import Link from 'next/link';
 import {
     FaChrome,
     FaFirefox,
-    FaSafari,
 } from 'react-icons/fa6';
 
 const WhySubscribePage = () => {
@@ -42,15 +41,10 @@ const WhySubscribePage = () => {
                         Download the Extension for Firefox on Android
                     </span>
                 </Link></p>
-                <p><Link className="flex items-center gap-2" href="https://testflight.apple.com/join/rhZAHudK">
-                    <FaSafari className="w-6 h-6" /> <span className="underline">
-                        Join the Extension's Safari on iOS beta
-                    </span>
-                </Link></p>
 
 <p><Link className="flex items-center gap-2" href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/">
                     <FaChrome className="w-6 h-6" /> <span className="underline">
-                        Download for Gear on iOS
+                        Download for Gear on iOS / Chrome on Desktop
                     </span>
                 </Link> (<Link href="https://apps.apple.com/app/apple-store/id1458962238" target="_blank" className="underline">Gear browser</Link>)</p>
             </div>
