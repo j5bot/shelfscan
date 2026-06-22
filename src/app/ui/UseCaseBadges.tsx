@@ -110,7 +110,7 @@ export const UseCaseBadges = () => {
                     className={`${commonClasses} text-[#5107df66] dark:text-[#dd07dfee]`}
                     locationClassName="tooltip-top"
                 >
-                    Explore <Link href="/collection">Collection</Link>
+                    Explore <Link href="/collection" className="underline">Collection</Link>
                 </BadgeWithHelpTip>
                 {/*<BadgeWithHelpTip*/}
                 {/*    tooltipContent={updateGameUPCTooltipContent}*/}

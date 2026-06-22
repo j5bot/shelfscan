@@ -5,8 +5,8 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import React from 'react';
 import {
+    FaChrome,
     FaFirefox,
-    FaSafari,
 } from 'react-icons/fa6';
 
 const WorkflowsPage = () => {
@@ -26,7 +26,7 @@ const WorkflowsPage = () => {
                     <Link className="flex items-center justify-center gap-2 uppercase text-lg font-sharetech"
                           href="/extension">
                         <FaFirefox className="w-6 h-6" />
-                        <FaSafari className="w-6 h-6" />
+                        <FaChrome className="w-6 h-6" />
                         Get the Extension!
                     </Link></p>
 
