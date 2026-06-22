@@ -62,7 +62,7 @@ const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
     },
     'plugin.internal.BoardGameStats': {
         id: 'plugin.internal.BoardGameStats',
-        name: 'Board Game Stats Log Play Plugin',
+        name: 'BGStats Log Play Plugin',
         type: 'link',
         location: 'actions',
         templates: {
@@ -77,6 +77,31 @@ const disabledBuiltInPlugins: Record<string, ShelfScanPlugin> = {
             ],
             version: []
         }
+    },
+    'plugin.internal.BoardRecord': {
+        id: 'plugin.internal.BoardRecord',
+        name: 'BoardRecord Plugin',
+        type: 'link',
+        location: 'actions',
+        templates: {
+            game: [
+                {
+                    icon: 'fa6/FaChartLine',
+                    iconSize: 15,
+                    title: 'Stats',
+                    template: `boardrecord://game?bggid={{id}}`,
+                    className: 'xs:min-w-18 min-w-20'
+                },
+                {
+                    icon: 'tb/TbMeepleFilled',
+                    iconSize: 15,
+                    title: 'Log',
+                    template: 'boardrecord://play?bggid={{id}}',
+                    className: 'xs:min-w-16 min-w-18'
+                }
+            ],
+            version: []
+        },
     },
     'plugin.internal.DustAndDice': {
         id: 'plugin.internal.DustAndDice',
