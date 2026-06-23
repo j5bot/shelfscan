@@ -1,14 +1,20 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { FaDownload, FaUpload } from 'react-icons/fa6';
 
 export const ScanHistoryManager = () => {
-    const { scanHistory, clearHistory, associateScans, scanError, clearScanError } = useScanHistory();
+    const { scanHistory, clearHistory, associateScans, exportHistory, importHistory, scanError, clearScanError } = useScanHistory();
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
     const [associateStatus, setAssociateStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
     const [associatedCount, setAssociatedCount] = useState<number>(0);
     const [clearStatus, setClearStatus] = useState<'idle' | 'pending' | 'error'>('idle');
+    const [exportStatus, setExportStatus] = useState<'idle' | 'pending' | 'error'>('idle');
+    const [importStatus, setImportStatus] = useState<'idle' | 'pending' | 'success' | 'error'>('idle');
+    const [importedCount, setImportedCount] = useState<number>(0);
+    const [importError, setImportError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const anonymousCount = scanHistory.filter(e => !e.username).length;
 
@@ -35,6 +41,43 @@ export const ScanHistoryManager = () => {
             setClearStatus('idle');
             setAssociateStatus('idle');
             setAssociatedCount(0);
+        }
+    };
+
+    const handleExport = async () => {
+        setExportStatus('pending');
+        try {
+            await exportHistory();
+            setExportStatus('idle');
+        } catch {
+            setExportStatus('error');
+        }
+    };
+
+    const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!fileInputRef.current) { return; }
+        fileInputRef.current.value = '';
+        if (!file) { return; }
+
+        if (
+            scanHistory.length > 0 &&
+            !window.confirm(
+                `This will replace all ${scanHistory.length} existing scan${scanHistory.length !== 1 ? 's' : ''}. Continue?`,
+            )
+        ) {
+            return;
+        }
+
+        setImportStatus('pending');
+        setImportError(null);
+        try {
+            const { count } = await importHistory(file);
+            setImportedCount(count);
+            setImportStatus('success');
+        } catch (err) {
+            setImportError(err instanceof Error ? err.message : 'Import failed.');
+            setImportStatus('error');
         }
     };
 
@@ -84,6 +127,42 @@ export const ScanHistoryManager = () => {
                     </p>
                 )}
             </div>
+                <input
+                    type="file"
+                    accept="image/png"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={e => void handleImportFile(e)}
+                />
+                <div className="flex flex-wrap gap-2 mt-2">
+                    <button
+                        className="btn btn-sm btn-outline"
+                        disabled={exportStatus === 'pending' || scanHistory.length === 0}
+                        onClick={() => void handleExport()}
+                    >
+                        {exportStatus === 'pending'
+                            ? <span className="loading loading-spinner loading-xs" />
+                            : <><FaDownload /> Download</>}
+                    </button>
+                    <button
+                        className="btn btn-sm btn-outline"
+                        disabled={importStatus === 'pending'}
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        {importStatus === 'pending'
+                            ? <span className="loading loading-spinner loading-xs" />
+                            : <><FaUpload /> Import</>}
+                    </button>
+                </div>
+                {exportStatus === 'error' && (
+                    <p className="text-error text-xs mt-1">Export failed. Please try again.</p>
+                )}
+                {importStatus === 'success' && (
+                    <p className="text-success text-xs mt-1">Imported {importedCount} scan{importedCount !== 1 ? 's' : ''}.</p>
+                )}
+                {importStatus === 'error' && (
+                    <p className="text-error text-xs mt-1">{importError ?? 'Import failed. Please try again.'}</p>
+                )}
             {scanError && (
                 <div role="alert" className="alert alert-error text-xs mt-2 py-2">
                     <span>Error: {scanError}</span>
