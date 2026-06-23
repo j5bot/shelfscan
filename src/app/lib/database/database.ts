@@ -178,6 +178,15 @@ export const getScanHistory = async () =>
 export const clearScanHistory = async () =>
     await database.scanHistory.clear();
 
+export const bulkImportScanHistory = async (
+    entries: Omit<ScanHistoryEntity, 'id'>[],
+): Promise<void> => {
+    await database.transaction('rw', database.scanHistory, async () => {
+        await database.scanHistory.clear();
+        await database.scanHistory.bulkAdd(entries as ScanHistoryEntity[]);
+    });
+};
+
 export const getScanHistoryCount = async () =>
     await database.scanHistory.count();
 

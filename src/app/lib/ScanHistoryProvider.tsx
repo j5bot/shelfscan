@@ -3,11 +3,13 @@
 import {
     addScanHistoryEntry,
     associateAnonymousScans,
+    bulkImportScanHistory,
     clearScanHistory,
     database,
     getScanHistory,
     updateScanHistoryEntry,
 } from '@/app/lib/database/database';
+import { exportScanHistory, importScanHistory } from '@/app/lib/utils/scanHistoryImage';
 import {
     SCAN_HISTORY_SCHEMA_VERSION,
     ScanHistoryEntry,
@@ -70,6 +72,8 @@ type ScanHistoryContextValue = {
     updateEntry: (id: number, updates: UpdateScanOptions) => Promise<void>;
     clearHistory: () => Promise<boolean>;
     associateScans: (username: string) => Promise<number>;
+    exportHistory: () => Promise<void>;
+    importHistory: (file: File) => Promise<{ count: number }>;
 };
 
 const ScanHistoryContext = createContext<ScanHistoryContextValue>({
@@ -83,6 +87,8 @@ const ScanHistoryContext = createContext<ScanHistoryContextValue>({
     updateEntry: async () => undefined,
     clearHistory: async () => false,
     associateScans: async () => 0,
+    exportHistory: async () => undefined,
+    importHistory: async () => ({ count: 0 }),
 });
 
 export const useScanHistory = () => useContext(ScanHistoryContext);
@@ -236,6 +242,19 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         return count;
     }, []);
 
+    const exportHistory = useCallback(async (): Promise<void> => {
+        await exportScanHistory(scanHistory);
+    }, [scanHistory]);
+
+    const importHistory = useCallback(async (file: File): Promise<{ count: number }> => {
+        const entries = await importScanHistory(file);
+        await bulkImportScanHistory(entries);
+        const fresh = await getScanHistory();
+        setScanHistory(fresh);
+        scanHistoryCount.current = fresh.length;
+        return { count: fresh.length };
+    }, []);
+
     const unmatchedScans = scanHistory.filter(
         e => e.status === ScanHistoryMatchStatus.unmatched,
     );
@@ -251,6 +270,8 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         updateEntry,
         clearHistory,
         associateScans,
+        exportHistory,
+        importHistory,
     };
 
     return <ScanHistoryContext.Provider value={scanHistoryProviderValue}>
