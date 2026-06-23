@@ -34,7 +34,24 @@ const ExtensionPage = () => {
                                                  className="underline" target="_blank">why a subscription?</Link>) .
                 </p>
 
-                <h4 className="uppercase font-semibold pt-2 pb-3">Free Trial!</h4>
+                <p><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
+                         target="_blank"><FaFirefox className="w-6 h-6" /> <span className="underline">
+                        Download for Firefox on Android / Desktop
+                    </span>
+                </Link></p>
+                <p className="flex items-center gap-2">
+                    <Link href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
+                          target="_blank"><FaChrome className="w-6 h-6" />
+                    </Link>
+                    <Link className="underline" href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
+                          target="_blank">Download</Link> for
+                    <Link href="https://apps.apple.com/app/apple-store/id1458962238" target="_blank" className="underline">Gear on iOS</Link> / <Link
+                    href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
+                    target="_blank"
+                    className="underline">Chrome on Desktop</Link>
+                </p>
+
+                <h4 className="uppercase font-semibold pt-5 pb-3">Free 30 Day Trial!</h4>
                 <ul className="font-sharetech text-lg pb-2">
                     <li>[ <FaPlus className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games To Your Collection ]</li>
                     <li>[ <FaRecycle className="h-2.5 w-3.5 inline-block mr-0.5" /> Add Games For Trade ]</li>
@@ -43,16 +60,8 @@ const ExtensionPage = () => {
                     <li>[ <FaDice className="h-2.5 w-3 inline-block mr-1" /> Log Plays on BGG ]</li>
                 </ul>
 
-                <p><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/">
-                    <FaFirefox className="w-6 h-6" /> <span className="underline">
-                        Download for Firefox on Android
-                    </span>
-                </Link></p>
-                <p><Link className="flex items-center gap-2" href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/">
-                    <FaChrome className="w-6 h-6" /> <span className="underline">
-                        Download for Gear on iOS / Chrome on Desktop
-                    </span>
-                </Link> (<Link href="https://apps.apple.com/app/apple-store/id1458962238" target="_blank" className="underline">Gear browser</Link>)</p>
+                <p>Get more details about ShelfScan workflows on our{' '}
+                    <Link href="/workflows/" className="underline">workflows</Link> page.</p>
 
                 <p>Once your free trial is over, being a <Link href="https://boardgamegeek.com/support"
                                                                className="underline"
@@ -62,6 +71,8 @@ const ExtensionPage = () => {
 
                 <p><Link href="/why-support/"
                          className="underline" target="_blank">Why support BoardGameGeek?</Link></p>
+
+                <p>Note: As of June 28, 2026, the ShelfScan Browser Extension for Safari is no longer supported.</p>
             </div>
         </div>
     </>;
