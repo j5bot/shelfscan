@@ -196,7 +196,9 @@ export default function CollectionPage() {
     ], [lastScannedMap]);
 
     const allGamesFilterFn = useCallback(
-        (item: BggCollectionItem, query: string) => item.name.toLowerCase().includes(query),
+        (item: BggCollectionItem, query: string) =>
+            item.name.toLowerCase().includes(query) ||
+            (item.version?.name?.toLowerCase().includes(query) ?? false),
         [],
     );
 
