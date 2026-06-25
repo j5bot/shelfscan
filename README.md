@@ -24,7 +24,7 @@ With just the app, you can:
 - View scan history and see which scanned games are missing from your collection
 - Help update the GameUPC database by verifying game/version associations
 
-A browser extension for **Firefox/Android** and **Safari/iOS** and compatible desktop browsers works alongside the app
+A browser extension for **Firefox/Android** and **[Gear](https://gear4.app)/iOS** and compatible desktop browsers works alongside the app
 and enables direct BGG updates. Updating is available to [BoardGameGeek supporters](https://boardgamegeek.com/support) with a low-cost subscription:
 
 - Add games to your BGG collection (individually or in bulk via Batch Scan)
