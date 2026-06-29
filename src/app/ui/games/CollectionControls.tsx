@@ -503,15 +503,15 @@ export const CollectionControls = <F extends string>({
             <div className="flex gap-1 items-center">
                 <div className="flex flex-1 min-w-0">
                     <select
-                        className="select select-bordered select-sm rounded-r-none border-r-0 shrink-0 pl-2 w-24"
+                        className="select select-bordered select-sm rounded-r-none border-r-0 shrink-0 pl-2 w-18"
                         value={filters.searchMode}
                         onChange={e => setFilter('searchMode', e.target.value as SearchMode)}
                         aria-label="Search field"
                     >
-                        <option value="all">All</option>
-                        <option value="name">Name</option>
-                        <option value="version">Version</option>
-                        <option value="tags">Tags</option>
+                        <option value="all" selected={filter.searchMode === 'all'}>All</option>
+                        <option value="name"  selected={filter.searchMode === 'name'}>Name</option>
+                        <option value="version" selected={filter.searchMode === 'version'}>Version</option>
+                        <option value="tags" selected={filter.searchMode === 'tags'}>Tags</option>
                     </select>
                     <input
                         type="search"
