@@ -124,21 +124,30 @@ const parseTagFilter = (raw: string): string[] => {
     return tokens.map(t => (t.startsWith('#') ? t : `#${t}`).toLowerCase());
 };
 
+export type UnifiedSearch = {
+    nameQuery: string;
+    versionQuery: string;
+    tagQueries: string[];
+    // Set in All mode with no prefixes: OR match across name + version
+    anyTextQuery: string;
+};
+
 export const parseUnifiedSearch = (
     searchText: string,
     searchMode: SearchMode,
-): { nameQuery: string; versionQuery: string; tagQueries: string[] } => {
+): UnifiedSearch => {
+    const empty: UnifiedSearch = { nameQuery: '', versionQuery: '', tagQueries: [], anyTextQuery: '' };
     const trimmed = searchText.trim();
-    if (!trimmed) { return { nameQuery: '', versionQuery: '', tagQueries: [] }; }
+    if (!trimmed) { return empty; }
 
     if (searchMode === 'name') {
-        return { nameQuery: trimmed.toLowerCase(), versionQuery: '', tagQueries: [] };
+        return { ...empty, nameQuery: trimmed.toLowerCase() };
     }
     if (searchMode === 'version') {
-        return { nameQuery: '', versionQuery: trimmed.toLowerCase(), tagQueries: [] };
+        return { ...empty, versionQuery: trimmed.toLowerCase() };
     }
     if (searchMode === 'tags') {
-        return { nameQuery: '', versionQuery: '', tagQueries: parseTagFilter(trimmed) };
+        return { ...empty, tagQueries: parseTagFilter(trimmed) };
     }
 
     // mode === 'all': parse prefixes
@@ -149,8 +158,9 @@ export const parseUnifiedSearch = (
         matches.push({ key: m[1].toLowerCase(), index: m.index, length: m[0].length });
     }
 
+    // No prefixes → OR match across name and version
     if (matches.length === 0) {
-        return { nameQuery: trimmed.toLowerCase(), versionQuery: trimmed.toLowerCase(), tagQueries: [] };
+        return { ...empty, anyTextQuery: trimmed.toLowerCase() };
     }
 
     let nameQuery = '';
@@ -170,7 +180,7 @@ export const parseUnifiedSearch = (
         else if (key === 'tags') { tagQueries = parseTagFilter(value); }
     }
 
-    return { nameQuery, versionQuery, tagQueries };
+    return { nameQuery, versionQuery, tagQueries, anyTextQuery: '' };
 };
 
 // ── Three-state toggle cycle ───────────────────────────────────────────────────
@@ -316,7 +326,7 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
 
     const makeFilterFn = useCallback(
         (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap) => {
-            const { nameQuery, versionQuery, tagQueries } = parseUnifiedSearch(
+            const { nameQuery, versionQuery, tagQueries, anyTextQuery } = parseUnifiedSearch(
                 filters.searchText,
                 filters.searchMode,
             );
@@ -398,10 +408,17 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                     if (max !== undefined && !isNaN(max) && (item.plays ?? 0) > max) { return false; }
                 }
 
-                // Text search: name
+                // Text search: OR across name + version (All mode, no prefix)
+                if (anyTextQuery) {
+                    const nameMatch = item.name.toLowerCase().includes(anyTextQuery);
+                    const versionMatch = item.version?.name?.toLowerCase().includes(anyTextQuery) ?? false;
+                    if (!nameMatch && !versionMatch) { return false; }
+                }
+
+                // Text search: name (prefix or Name mode)
                 if (nameQuery && !item.name.toLowerCase().includes(nameQuery)) { return false; }
 
-                // Text search: version name
+                // Text search: version name (prefix or Version mode)
                 if (versionQuery && !(item.version?.name?.toLowerCase().includes(versionQuery) ?? false)) {
                     return false;
                 }

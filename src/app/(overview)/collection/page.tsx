@@ -244,9 +244,10 @@ export default function CollectionPage() {
     const notInCollectionExtraFilterFn = useCallback(
         (item: NotInCollectionEntry): boolean => {
             if (!filters.searchText.trim() || filters.searchMode === 'tags') { return true; }
-            const { nameQuery } = parseUnifiedSearch(filters.searchText, filters.searchMode);
-            if (!nameQuery) { return true; }
-            return (item.gameName ?? item.upc).toLowerCase().includes(nameQuery);
+            const { nameQuery, anyTextQuery } = parseUnifiedSearch(filters.searchText, filters.searchMode);
+            const query = nameQuery || anyTextQuery;
+            if (!query) { return true; }
+            return (item.gameName ?? item.upc).toLowerCase().includes(query);
         },
         [filters.searchText, filters.searchMode],
     );
