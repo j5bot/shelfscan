@@ -69,6 +69,7 @@ export type BggCollectionItem = {
     wishlistPriority?: number;
     lastModified: string;
     tradeCondition?: string;
+    comment?: string;
     rating?: number;
     averageRating?: number;
     plays?: number;
@@ -82,6 +83,8 @@ export type BggCollectionItem = {
     acquiredfrom?: string;
     invdate?: string;
     invlocation?: string;
+    haspartslist?: string;
+    wantpartslist?: string;
 };
 
 export type BggRawObject = {
@@ -98,12 +101,14 @@ export type BggCollectionMap = Record<BggCollectionId, BggCollectionItem>;
 export type BggCollectionImageMap = Record<BggImageId, BggCollectionId[]>;
 export type BggCollectionObjectMap = Record<BggObjectId, BggCollectionId[]>;
 export type BggCollectionVersionMap = Record<BggVersionId, BggCollectionId[]>;
+export type BggTagMap = Record<string, BggCollectionId[]>;
 
 export type BggCollection = {
     images: BggCollectionImageMap;
     items: BggCollectionMap;
     objects: BggObjectsByStatus;
     versions: BggVersionsByStatus;
+    tags: BggTagMap;
 };
 
 export type BggPlayer = {

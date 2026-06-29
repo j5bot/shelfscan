@@ -53,8 +53,6 @@ type NotInCollectionContentProps = {
     sortField: NotInCollectionSortField;
     sortDirection: SortDirection;
     onSortClick: (field: NotInCollectionSortField) => void;
-    filterText: string;
-    onFilterChange: (text: string) => void;
     displayItems: NotInCollectionEntry[];
     filters: CollectionFilters;
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
@@ -84,8 +82,6 @@ export const NotInCollectionContent = ({
     sortField,
     sortDirection,
     onSortClick,
-    filterText,
-    onFilterChange,
     displayItems,
     filters,
     setFilter,
@@ -226,9 +222,6 @@ export const NotInCollectionContent = ({
                 sortField={sortField}
                 sortDirection={sortDirection}
                 onSortClick={onSortClick}
-                filterId="not-in-collection-filter-input"
-                filterValue={filterText}
-                onFilterChange={onFilterChange}
                 filters={filters}
                 setFilter={setFilter}
                 hasActiveFilters={hasActiveFilters}

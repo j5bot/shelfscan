@@ -9,6 +9,7 @@ import {
     RatingFilter,
     RatingSource,
     ScanFilter,
+    SearchMode,
     TradeFilter,
     VerificationFilter,
     VersionFilter,
@@ -155,10 +156,6 @@ type CollectionControlsProps<F extends string> = {
     sortField: F;
     sortDirection: SortDirection;
     onSortClick: (field: F) => void;
-    // Filter text
-    filterId: string;
-    filterValue: string;
-    onFilterChange: (value: string) => void;
     // Status filters
     filters: CollectionFilters;
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
@@ -178,14 +175,18 @@ type CollectionControlsProps<F extends string> = {
 const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
 const removeNonDigits = (value: string): string => value.replace(/\D/g, '');
 
+const SEARCH_PLACEHOLDERS: Record<SearchMode, string> = {
+    all: 'name:… version:… #tag…',
+    name: 'Filter by name…',
+    version: 'Filter by version…',
+    tags: '#PnP #Review …',
+};
+
 export const CollectionControls = <F extends string>({
     sortFields,
     sortField,
     sortDirection,
     onSortClick,
-    filterId,
-    filterValue,
-    onFilterChange,
     filters,
     setFilter,
     hasActiveFilters,
@@ -498,18 +499,29 @@ export const CollectionControls = <F extends string>({
 
     return (
         <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties}>
-            {/* Row 1: text filter + sort + filter toggle */}
+            {/* Row 1: unified search (dropdown + input) + filter toggle + sort */}
             <div className="flex gap-1 items-center">
-                <label htmlFor={filterId} className="sr-only">Filter by name</label>
-                <input
-                    id={filterId}
-                    type="search"
-                    aria-label="Filter by name"
-                    placeholder="Filter by name…"
-                    value={filterValue}
-                    onChange={e => onFilterChange(e.target.value)}
-                    className="input input-bordered input-sm flex-1 min-w-0"
-                />
+                <div className="flex flex-1 min-w-0">
+                    <select
+                        className="select select-bordered select-sm rounded-r-none border-r-0 shrink-0 pl-2 w-18"
+                        value={filters.searchMode}
+                        onChange={e => setFilter('searchMode', e.target.value as SearchMode)}
+                        aria-label="Search field"
+                    >
+                        <option value="all" selected={filters.searchMode === 'all'}>All</option>
+                        <option value="name"  selected={filters.searchMode === 'name'}>Name</option>
+                        <option value="version" selected={filters.searchMode === 'version'}>Version</option>
+                        <option value="tags" selected={filters.searchMode === 'tags'}>Tags</option>
+                    </select>
+                    <input
+                        type="search"
+                        aria-label="Filter collection"
+                        placeholder={SEARCH_PLACEHOLDERS[filters.searchMode]}
+                        value={filters.searchText}
+                        onChange={e => setFilter('searchText', e.target.value)}
+                        className="input input-bordered input-sm flex-1 min-w-0 rounded-l-none"
+                    />
+                </div>
                 <button
                     type="button"
                     className={`btn relative btn-xs shrink-0 pl-1 pr-1 rounded-sm ${showFilters || hasActiveFilters ? 'btn-primary' : 'text-base-content/40'}`}

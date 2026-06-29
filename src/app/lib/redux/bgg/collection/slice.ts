@@ -5,6 +5,7 @@ import {
     BggCollection,
     BggCollectionMap,
     BggObjectsByStatus,
+    BggTagMap,
     BggVersionsByStatus,
     PossibleStatuses
 } from '@/app/lib/types/bgg';
@@ -45,11 +46,18 @@ const innerUpdateCollectionItems = (
             objectId,
             versionId,
             statuses,
+            comment,
+            collectionId,
+            haspartslist,
+            wantpartslist,
         } = item;
 
         const {
             versionId: previousVersionId,
             statuses: previousStatuses,
+            comment: previousComment,
+            haspartslist: previousHaspartslist,
+            wantpartslist: previousWantpartslist,
         } = previousItem;
 
         PossibleStatuses.forEach(status => {
@@ -102,8 +110,53 @@ const innerUpdateCollectionItems = (
         }
         state.objects.all = allObjects;
         state.versions.all = allVersions;
+
+        // Tags: extract hashtags from comment and update tag map
+        const tagMap: BggTagMap = state.tags ?? {};
+
+        const previousTagContainers = [previousComment, previousHaspartslist, previousWantpartslist];
+        const tagContainers = [comment, haspartslist, wantpartslist];
+
+        previousTagContainers.forEach(container => {
+            if (!container) {
+                return;
+            }
+            const tags = extractHashtags(container);
+            tags.forEach(tag => {
+                const ids = tagMap[tag];
+                if (ids) {
+                    const idx = ids.indexOf(collectionId);
+                    if (idx !== -1) { ids.splice(idx, 1); }
+                    if (ids.length === 0) { delete tagMap[tag]; }
+                }
+            })
+        })
+
+        if (!remove) {
+            tagContainers.forEach(container => {
+                if (!container) {
+                    return;
+                }
+                const tags = extractHashtags(container);
+                tags.forEach(tag => {
+                    if (!tagMap[tag]) {
+                        tagMap[tag] = [];
+                    }
+                    if (!tagMap[tag].includes(collectionId)) {
+                        tagMap[tag].push(collectionId);
+                    }
+                });
+            })
+        }
+
+        state.tags = tagMap;
     }
     return state.items;
+};
+
+const extractHashtags = (text: string): string[] => {
+    const matches = text.match(/#[\w-]+/g);
+    return matches ? matches.map(t => t.toLowerCase()) : [];
 };
 
 export type BggCollectionSliceState = {
@@ -139,6 +192,7 @@ export const bggCollectionSlice = createSlice({
                     images: {},
                     objects: {} as BggObjectsByStatus,
                     versions: {} as BggVersionsByStatus,
+                    tags: {},
                 };
             }
             innerUpdateCollectionItems(state.users[username], { items, remove, extend });
