@@ -1,5 +1,5 @@
 import { database, deleteFilter, renameFilter } from '@/app/lib/database/database';
-import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { BggCollectionItem, BggTagMap } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 // ── Filter types ───────────────────────────────────────────────────────────────
@@ -36,6 +36,7 @@ export type CollectionFilters = {
     plays: PlaysFilter;
     playsMin: string;
     playsMax: string;
+    tags: string;
 };
 
 export type FilterPreset = {
@@ -62,6 +63,7 @@ const DEFAULT_FILTERS: CollectionFilters = {
     plays: 'default',
     playsMin: '',
     playsMax: '',
+    tags: '',
 };
 
 const LS_KEY = 'collection-filters';
@@ -103,6 +105,13 @@ const readInitialFilters = (): CollectionFilters => {
     }
 };
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const parseTagFilter = (raw: string): string[] => {
+    const tokens = raw.trim().split(/[\s,]+/).filter(Boolean);
+    return tokens.map(t => (t.startsWith('#') ? t : `#${t}`).toLowerCase());
+};
+
 // ── Three-state toggle cycle ───────────────────────────────────────────────────
 
 export const cycleThreeState = <T extends string>(
@@ -123,6 +132,7 @@ type UseCollectionFiltersResult = {
     makeFilterFn: (
         scannedSet: Set<number>,
         verifiedSet: Set<number>,
+        tagMap: BggTagMap,
     ) => (item: BggCollectionItem) => boolean;
     savedFilters: FilterPreset[];
     saveFilterPreset: () => Promise<void>;
@@ -237,13 +247,14 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             filters.verification !== 'default' ||
             filters.scan !== 'default' ||
             filters.rating !== 'default' ||
-            filters.plays !== 'default'
+            filters.plays !== 'default' ||
+            filters.tags !== ''
         ),
         [filters],
     );
 
     const makeFilterFn = useCallback(
-        (scannedSet: Set<number>, verifiedSet: Set<number>) =>
+        (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap) =>
             (item: BggCollectionItem): boolean => {
                 const { statuses } = item;
 
@@ -320,6 +331,16 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                     const max = filters.playsMax !== '' ? parseInt(filters.playsMax, 10) : undefined;
                     if (min !== undefined && !isNaN(min) && (item.plays ?? 0) < min) { return false; }
                     if (max !== undefined && !isNaN(max) && (item.plays ?? 0) > max) { return false; }
+                }
+
+                // Tags (AND logic: item must appear in every requested tag's collid list)
+                if (filters.tags !== '') {
+                    const requestedTags = parseTagFilter(filters.tags);
+                    if (requestedTags.length > 0) {
+                        for (const tag of requestedTags) {
+                            if (!(tagMap[tag]?.includes(item.collectionId))) { return false; }
+                        }
+                    }
                 }
 
                 return true;

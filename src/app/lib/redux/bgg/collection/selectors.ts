@@ -1,11 +1,20 @@
 import { RootState } from '@/app/lib/redux/store';
 import {
+    BggTagMap,
     PossibleStatusWithAll
 } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { memoize } from 'proxy-memoize';
 
 // prefers rated item
+const EMPTY_TAG_MAP: BggTagMap = {};
+
+export const selectTagMap = memoize(([state]: [RootState]): BggTagMap => {
+    const username = state.bgg.user?.user?.toLowerCase();
+    if (!username) { return EMPTY_TAG_MAP; }
+    return state.bgg.collection.users[username]?.tags ?? EMPTY_TAG_MAP;
+}, { size: 10 });
+
 export const getCollectionInfoByObjectId =
     memoize(([state, id]: [RootState, number | undefined]) => {
         if (id === undefined) {

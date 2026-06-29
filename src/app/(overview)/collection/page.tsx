@@ -13,7 +13,7 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { useSelector, useStore } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
-import { getCollectionInfoByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
+import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
@@ -129,9 +129,11 @@ export default function CollectionPage() {
         return set;
     }, [scanHistory]);
 
+    const tagMap = useSelector((state: RootState) => selectTagMap([state]));
+
     const extraFilterFn = useMemo(
-        () => makeFilterFn(scannedSet, verifiedSet),
-        [makeFilterFn, scannedSet, verifiedSet],
+        () => makeFilterFn(scannedSet, verifiedSet, tagMap),
+        [makeFilterFn, scannedSet, verifiedSet, tagMap],
     );
 
     const allGamesSortFields = useMemo<

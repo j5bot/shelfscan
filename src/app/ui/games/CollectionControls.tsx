@@ -38,6 +38,7 @@ import {
     FaThumbsUp,
     FaUser,
     FaUserGroup,
+    FaTag,
     FaXmark,
 } from 'react-icons/fa6';
 import { SiTarget } from 'react-icons/si';
@@ -199,6 +200,7 @@ export const CollectionControls = <F extends string>({
     stickyTop,
 }: CollectionControlsProps<F>) => {
     const [showFilters, setShowFilters] = useState<boolean>(true);
+    const [showTagInput, setShowTagInput] = useState<boolean>(filters.tags !== '');
     const [showManageModal, setShowManageModal] = useState<boolean>(false);
     const presetsButtonRef = useRef<HTMLButtonElement>(null);
     const presetsOverlayRef = useRef<HTMLDivElement>(null);
@@ -481,6 +483,25 @@ export const CollectionControls = <F extends string>({
     />;
 
 
+    const tagFilterToggle = (
+        <button
+            type="button"
+            className={`btn btn-xs shrink-0 gap-0.5 ${showTagInput ? 'btn-primary' : 'btn-ghost text-base-content/60'}`}
+            onClick={() => {
+                if (showTagInput) {
+                    setFilter('tags', '');
+                }
+                setShowTagInput(v => !v);
+            }}
+            title="Filter by tag"
+            aria-label="Filter by tag"
+            aria-pressed={showTagInput}
+        >
+            <FaTag size={11} aria-hidden="true" />
+            Tags
+        </button>
+    );
+
     const primaryFilterControls = [
         savedFiltersControls,
         ownershipControls,
@@ -494,6 +515,7 @@ export const CollectionControls = <F extends string>({
         versionControl,
         verificationControl,
         scanControl,
+        tagFilterToggle,
     ];
 
     return (
@@ -534,6 +556,34 @@ export const CollectionControls = <F extends string>({
                     onSortClick={onSortClick}
                 />
             </div>
+
+            {/* Row 1b: tag filter input */}
+            {showTagInput && (
+                <div className="flex gap-1 items-center">
+                    <button
+                        type="button"
+                        className="btn btn-xs btn-primary shrink-0 gap-0.5"
+                        onClick={() => {
+                            setFilter('tags', '');
+                            setShowTagInput(false);
+                        }}
+                        aria-label="Clear tag filter"
+                        title="Clear tag filter"
+                    >
+                        <FaTag size={11} aria-hidden="true" />
+                        <FaXmark size={10} aria-hidden="true" />
+                    </button>
+                    <input
+                        type="search"
+                        aria-label="Filter by tags"
+                        placeholder="#PnP #Review …"
+                        value={filters.tags}
+                        onChange={e => setFilter('tags', e.target.value)}
+                        className="input input-bordered input-sm flex-1 min-w-0"
+                        autoFocus
+                    />
+                </div>
+            )}
 
             {/* Row 2: status filters */}
             {showFilters && (
