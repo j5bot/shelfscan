@@ -9,6 +9,7 @@ import {
     RatingFilter,
     RatingSource,
     ScanFilter,
+    SearchMode,
     TradeFilter,
     VerificationFilter,
     VersionFilter,
@@ -38,7 +39,6 @@ import {
     FaThumbsUp,
     FaUser,
     FaUserGroup,
-    FaTag,
     FaXmark,
 } from 'react-icons/fa6';
 import { SiTarget } from 'react-icons/si';
@@ -156,10 +156,6 @@ type CollectionControlsProps<F extends string> = {
     sortField: F;
     sortDirection: SortDirection;
     onSortClick: (field: F) => void;
-    // Filter text
-    filterId: string;
-    filterValue: string;
-    onFilterChange: (value: string) => void;
     // Status filters
     filters: CollectionFilters;
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
@@ -179,14 +175,18 @@ type CollectionControlsProps<F extends string> = {
 const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
 const removeNonDigits = (value: string): string => value.replace(/\D/g, '');
 
+const SEARCH_PLACEHOLDERS: Record<SearchMode, string> = {
+    all: 'name:… version:… #tag…',
+    name: 'Filter by name…',
+    version: 'Filter by version…',
+    tags: '#PnP #Review …',
+};
+
 export const CollectionControls = <F extends string>({
     sortFields,
     sortField,
     sortDirection,
     onSortClick,
-    filterId,
-    filterValue,
-    onFilterChange,
     filters,
     setFilter,
     hasActiveFilters,
@@ -200,7 +200,6 @@ export const CollectionControls = <F extends string>({
     stickyTop,
 }: CollectionControlsProps<F>) => {
     const [showFilters, setShowFilters] = useState<boolean>(true);
-    const [showTagInput, setShowTagInput] = useState<boolean>(filters.tags !== '');
     const [showManageModal, setShowManageModal] = useState<boolean>(false);
     const presetsButtonRef = useRef<HTMLButtonElement>(null);
     const presetsOverlayRef = useRef<HTMLDivElement>(null);
@@ -483,25 +482,6 @@ export const CollectionControls = <F extends string>({
     />;
 
 
-    const tagFilterToggle = (
-        <button
-            type="button"
-            className={`btn btn-xs shrink-0 gap-0.5 ${showTagInput ? 'btn-primary' : 'btn-ghost text-base-content/60'}`}
-            onClick={() => {
-                if (showTagInput) {
-                    setFilter('tags', '');
-                }
-                setShowTagInput(v => !v);
-            }}
-            title="Filter by tag"
-            aria-label="Filter by tag"
-            aria-pressed={showTagInput}
-        >
-            <FaTag size={11} aria-hidden="true" />
-            Tags
-        </button>
-    );
-
     const primaryFilterControls = [
         savedFiltersControls,
         ownershipControls,
@@ -515,23 +495,33 @@ export const CollectionControls = <F extends string>({
         versionControl,
         verificationControl,
         scanControl,
-        tagFilterToggle,
     ];
 
     return (
         <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties}>
-            {/* Row 1: text filter + sort + filter toggle */}
+            {/* Row 1: unified search (dropdown + input) + filter toggle + sort */}
             <div className="flex gap-1 items-center">
-                <label htmlFor={filterId} className="sr-only">Filter by name</label>
-                <input
-                    id={filterId}
-                    type="search"
-                    aria-label="Filter by name"
-                    placeholder="Filter by name…"
-                    value={filterValue}
-                    onChange={e => onFilterChange(e.target.value)}
-                    className="input input-bordered input-sm flex-1 min-w-0"
-                />
+                <div className="flex flex-1 min-w-0">
+                    <select
+                        className="select select-bordered select-sm rounded-r-none border-r-0 shrink-0 pl-2 w-24"
+                        value={filters.searchMode}
+                        onChange={e => setFilter('searchMode', e.target.value as SearchMode)}
+                        aria-label="Search field"
+                    >
+                        <option value="all">All</option>
+                        <option value="name">Name</option>
+                        <option value="version">Version</option>
+                        <option value="tags">Tags</option>
+                    </select>
+                    <input
+                        type="search"
+                        aria-label="Filter collection"
+                        placeholder={SEARCH_PLACEHOLDERS[filters.searchMode]}
+                        value={filters.searchText}
+                        onChange={e => setFilter('searchText', e.target.value)}
+                        className="input input-bordered input-sm flex-1 min-w-0 rounded-l-none"
+                    />
+                </div>
                 <button
                     type="button"
                     className={`btn relative btn-xs shrink-0 pl-1 pr-1 rounded-sm ${showFilters || hasActiveFilters ? 'btn-primary' : 'text-base-content/40'}`}
@@ -556,34 +546,6 @@ export const CollectionControls = <F extends string>({
                     onSortClick={onSortClick}
                 />
             </div>
-
-            {/* Row 1b: tag filter input */}
-            {showTagInput && (
-                <div className="flex gap-1 items-center">
-                    <button
-                        type="button"
-                        className="btn btn-xs btn-primary shrink-0 gap-0.5"
-                        onClick={() => {
-                            setFilter('tags', '');
-                            setShowTagInput(false);
-                        }}
-                        aria-label="Clear tag filter"
-                        title="Clear tag filter"
-                    >
-                        <FaTag size={11} aria-hidden="true" />
-                        <FaXmark size={10} aria-hidden="true" />
-                    </button>
-                    <input
-                        type="search"
-                        aria-label="Filter by tags"
-                        placeholder="#PnP #Review …"
-                        value={filters.tags}
-                        onChange={e => setFilter('tags', e.target.value)}
-                        className="input input-bordered input-sm flex-1 min-w-0"
-                        autoFocus
-                    />
-                </div>
-            )}
 
             {/* Row 2: status filters */}
             {showFilters && (

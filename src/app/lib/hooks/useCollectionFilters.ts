@@ -17,6 +17,7 @@ export type ScanFilter = 'default' | 'scanned' | 'notscanned';
 export type RatingFilter = 'default' | 'rated' | 'notrated';
 export type RatingSource = 'user' | 'average';
 export type PlaysFilter = 'default' | 'played' | 'notplayed';
+export type SearchMode = 'all' | 'name' | 'version' | 'tags';
 
 export type CollectionFilters = {
     ownership: OwnershipFilter;
@@ -36,7 +37,8 @@ export type CollectionFilters = {
     plays: PlaysFilter;
     playsMin: string;
     playsMax: string;
-    tags: string;
+    searchMode: SearchMode;
+    searchText: string;
 };
 
 export type FilterPreset = {
@@ -63,8 +65,12 @@ const DEFAULT_FILTERS: CollectionFilters = {
     plays: 'default',
     playsMin: '',
     playsMax: '',
-    tags: '',
+    searchMode: 'all',
+    searchText: '',
 };
+
+// Keys excluded from saved filter presets (search state is ephemeral)
+const PRESET_EXCLUDED_KEYS = new Set<keyof CollectionFilters>(['searchMode', 'searchText']);
 
 const LS_KEY = 'collection-filters';
 const FILTER_KEYS = Object.keys(DEFAULT_FILTERS) as (keyof CollectionFilters)[];
@@ -79,6 +85,12 @@ const getSerializableFilters = (filters: CollectionFilters): Record<string, stri
         if (key === 'wishlistPriority' && filters.wishlist === 'default') { continue; }
         result[key] = value;
     }
+    return result;
+};
+
+const getPresetFilters = (filters: CollectionFilters): Record<string, string> => {
+    const result = getSerializableFilters(filters);
+    for (const key of PRESET_EXCLUDED_KEYS) { delete result[key as string]; }
     return result;
 };
 
@@ -110,6 +122,55 @@ const readInitialFilters = (): CollectionFilters => {
 const parseTagFilter = (raw: string): string[] => {
     const tokens = raw.trim().split(/[\s,]+/).filter(Boolean);
     return tokens.map(t => (t.startsWith('#') ? t : `#${t}`).toLowerCase());
+};
+
+export const parseUnifiedSearch = (
+    searchText: string,
+    searchMode: SearchMode,
+): { nameQuery: string; versionQuery: string; tagQueries: string[] } => {
+    const trimmed = searchText.trim();
+    if (!trimmed) { return { nameQuery: '', versionQuery: '', tagQueries: [] }; }
+
+    if (searchMode === 'name') {
+        return { nameQuery: trimmed.toLowerCase(), versionQuery: '', tagQueries: [] };
+    }
+    if (searchMode === 'version') {
+        return { nameQuery: '', versionQuery: trimmed.toLowerCase(), tagQueries: [] };
+    }
+    if (searchMode === 'tags') {
+        return { nameQuery: '', versionQuery: '', tagQueries: parseTagFilter(trimmed) };
+    }
+
+    // mode === 'all': parse prefixes
+    const prefixPattern = /\b(name|version|tags):\s*/gi;
+    const matches: Array<{ key: string; index: number; length: number }> = [];
+    let m: RegExpExecArray | null;
+    while ((m = prefixPattern.exec(trimmed)) !== null) {
+        matches.push({ key: m[1].toLowerCase(), index: m.index, length: m[0].length });
+    }
+
+    if (matches.length === 0) {
+        return { nameQuery: trimmed.toLowerCase(), versionQuery: trimmed.toLowerCase(), tagQueries: [] };
+    }
+
+    let nameQuery = '';
+    let versionQuery = '';
+    let tagQueries: string[] = [];
+
+    const before = trimmed.slice(0, matches[0].index).trim();
+    if (before) { nameQuery = before.toLowerCase(); }
+
+    for (let i = 0; i < matches.length; i++) {
+        const { key, index, length } = matches[i];
+        const valueStart = index + length;
+        const valueEnd = i + 1 < matches.length ? matches[i + 1].index : trimmed.length;
+        const value = trimmed.slice(valueStart, valueEnd).trim();
+        if (key === 'name') { nameQuery = value.toLowerCase(); }
+        else if (key === 'version') { versionQuery = value.toLowerCase(); }
+        else if (key === 'tags') { tagQueries = parseTagFilter(value); }
+    }
+
+    return { nameQuery, versionQuery, tagQueries };
 };
 
 // ── Three-state toggle cycle ───────────────────────────────────────────────────
@@ -189,14 +250,14 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             window.alert(`A preset named "${trimmedName}" already exists.`);
             return;
         }
-        const serialized = getSerializableFilters(filters);
+        const serialized = getPresetFilters(filters);
         const id = await database.filters.add({ name: trimmedName, filters: serialized });
         const restored = { ...DEFAULT_FILTERS, ...(serialized as Partial<CollectionFilters>) };
         setSavedFilters(prev => [...prev, { id: id as number, name: trimmedName, filters: restored }]);
     }, [filters, savedFilters]);
 
     const loadFilterPreset = useCallback((preset: FilterPreset) => {
-        setFilters(preset.filters);
+        setFilters(prev => ({ ...preset.filters, searchMode: prev.searchMode, searchText: prev.searchText }));
     }, []);
 
     const renameFilterPreset = useCallback(async (id: number) => {
@@ -229,7 +290,7 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             suffix++;
             newName = `${baseName} (${suffix})`;
         }
-        const serialized = getSerializableFilters(preset.filters);
+        const serialized = getPresetFilters(preset.filters);
         const newId = await database.filters.add({ name: newName, filters: serialized });
         setSavedFilters(prev => [...prev, { id: newId as number, name: newName, filters: preset.filters }]);
     }, [savedFilters]);
@@ -248,14 +309,18 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
             filters.scan !== 'default' ||
             filters.rating !== 'default' ||
             filters.plays !== 'default' ||
-            filters.tags !== ''
+            filters.searchText !== ''
         ),
         [filters],
     );
 
     const makeFilterFn = useCallback(
-        (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap) =>
-            (item: BggCollectionItem): boolean => {
+        (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap) => {
+            const { nameQuery, versionQuery, tagQueries } = parseUnifiedSearch(
+                filters.searchText,
+                filters.searchMode,
+            );
+            return (item: BggCollectionItem): boolean => {
                 const { statuses } = item;
 
                 // Ownership
@@ -333,18 +398,22 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                     if (max !== undefined && !isNaN(max) && (item.plays ?? 0) > max) { return false; }
                 }
 
-                // Tags (AND logic: item must appear in every requested tag's collid list)
-                if (filters.tags !== '') {
-                    const requestedTags = parseTagFilter(filters.tags);
-                    if (requestedTags.length > 0) {
-                        for (const tag of requestedTags) {
-                            if (!(tagMap[tag]?.includes(item.collectionId))) { return false; }
-                        }
-                    }
+                // Text search: name
+                if (nameQuery && !item.name.toLowerCase().includes(nameQuery)) { return false; }
+
+                // Text search: version name
+                if (versionQuery && !(item.version?.name?.toLowerCase().includes(versionQuery) ?? false)) {
+                    return false;
+                }
+
+                // Text search: tags (AND logic)
+                for (const tag of tagQueries) {
+                    if (!(tagMap[tag]?.includes(item.collectionId))) { return false; }
                 }
 
                 return true;
-            },
+            };
+        },
         [filters],
     );
 

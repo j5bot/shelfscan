@@ -155,8 +155,6 @@ type AllGamesContentProps = {
     sortField: AllGamesSortField;
     sortDirection: SortDirection;
     onSortClick: (field: AllGamesSortField) => void;
-    filterText: string;
-    onFilterChange: (text: string) => void;
     displayItems: BggCollectionItem[];
     filters: CollectionFilters;
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
@@ -184,8 +182,6 @@ export const AllGamesContent = memo(({
     sortField,
     sortDirection,
     onSortClick,
-    filterText,
-    onFilterChange,
     displayItems,
     filters,
     setFilter,
@@ -315,9 +311,6 @@ export const AllGamesContent = memo(({
                         sortField={sortField}
                         sortDirection={sortDirection}
                         onSortClick={onSortClick}
-                        filterId="all-games-filter-input"
-                        filterValue={filterText}
-                        onFilterChange={onFilterChange}
                         filters={filters}
                         setFilter={setFilter}
                         hasActiveFilters={hasActiveFilters}

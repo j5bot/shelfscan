@@ -4,7 +4,7 @@ import { useSync } from '@/app/lib/extension/useSync';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
-import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
+import { parseUnifiedSearch, useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
 import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
@@ -197,16 +197,9 @@ export default function CollectionPage() {
         },
     ], [lastScannedMap]);
 
-    const allGamesFilterFn = useCallback(
-        (item: BggCollectionItem, query: string) =>
-            item.name.toLowerCase().includes(query) ||
-            (item.version?.name?.toLowerCase().includes(query) ?? false),
-        [],
-    );
-
     const allGamesFilter = useFilterSort<BggCollectionItem, AllGamesSortField>({
         items: reduxItems,
-        filterFn: allGamesFilterFn,
+        filterFn: () => true,
         extraFilterFn,
         sortFields: allGamesSortFields,
         defaultSortField: 'name',
@@ -248,15 +241,20 @@ export default function CollectionPage() {
         [],
     );
 
-    const notInCollectionFilterFn = useCallback(
-        (item: NotInCollectionEntry, query: string) =>
-            (item.gameName ?? item.upc).toLowerCase().includes(query),
-        [],
+    const notInCollectionExtraFilterFn = useCallback(
+        (item: NotInCollectionEntry): boolean => {
+            if (!filters.searchText.trim() || filters.searchMode === 'tags') { return true; }
+            const { nameQuery } = parseUnifiedSearch(filters.searchText, filters.searchMode);
+            if (!nameQuery) { return true; }
+            return (item.gameName ?? item.upc).toLowerCase().includes(nameQuery);
+        },
+        [filters.searchText, filters.searchMode],
     );
 
     const notInCollectionFilter = useFilterSort<NotInCollectionEntry, NotInCollectionSortField>({
         items: notInCollectionItems,
-        filterFn: notInCollectionFilterFn,
+        filterFn: () => true,
+        extraFilterFn: notInCollectionExtraFilterFn,
         sortFields: notInCollectionSortFields,
         defaultSortField: 'name',
         storageKeyPrefix: 'collection-not-in',
@@ -510,8 +508,6 @@ export default function CollectionPage() {
                                 sortField={allGamesFilter.sortField}
                                 sortDirection={allGamesFilter.sortDirection}
                                 onSortClick={allGamesFilter.handleSortClick}
-                                filterText={allGamesFilter.filterText}
-                                onFilterChange={allGamesFilter.setFilterText}
                                 displayItems={allGamesFilter.displayItems}
                                 filters={filters}
                                 setFilter={setFilter}
@@ -540,8 +536,6 @@ export default function CollectionPage() {
                                 sortField={notInCollectionFilter.sortField}
                                 sortDirection={notInCollectionFilter.sortDirection}
                                 onSortClick={notInCollectionFilter.handleSortClick}
-                                filterText={notInCollectionFilter.filterText}
-                                onFilterChange={notInCollectionFilter.setFilterText}
                                 displayItems={notInCollectionFilter.displayItems}
                                 filters={filters}
                                 setFilter={setFilter}
