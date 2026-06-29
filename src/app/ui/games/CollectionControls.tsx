@@ -508,10 +508,10 @@ export const CollectionControls = <F extends string>({
                         onChange={e => setFilter('searchMode', e.target.value as SearchMode)}
                         aria-label="Search field"
                     >
-                        <option value="all" selected={filter.searchMode === 'all'}>All</option>
-                        <option value="name"  selected={filter.searchMode === 'name'}>Name</option>
-                        <option value="version" selected={filter.searchMode === 'version'}>Version</option>
-                        <option value="tags" selected={filter.searchMode === 'tags'}>Tags</option>
+                        <option value="all" selected={filters.searchMode === 'all'}>All</option>
+                        <option value="name"  selected={filters.searchMode === 'name'}>Name</option>
+                        <option value="version" selected={filters.searchMode === 'version'}>Version</option>
+                        <option value="tags" selected={filters.searchMode === 'tags'}>Tags</option>
                     </select>
                     <input
                         type="search"
