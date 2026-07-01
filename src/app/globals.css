@@ -192,3 +192,7 @@ svg[data-name=nextstep-arrow] > #triangle {
 .btn-condensed.btn-condensed {
   padding-inline: calc(var(--btn-p) * 0.6);
 }
+
+selectedcontent span {
+  display: none;
+}
