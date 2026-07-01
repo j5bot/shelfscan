@@ -23,9 +23,11 @@ import { VersionIcon } from '@/app/ui/icons/VersionIcon';
 import { CSSProperties, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { FaSave } from 'react-icons/fa';
 import {
+    FaA,
     FaArrowDown,
     FaArrowUp,
     FaArrowUpWideShort,
+    FaAsterisk,
     FaBarcode,
     FaCalendar,
     FaCheck,
@@ -36,12 +38,14 @@ import {
     FaSignal,
     FaSliders,
     FaStar,
+    FaTags,
     FaThumbsUp,
     FaUser,
     FaUserGroup,
     FaXmark,
 } from 'react-icons/fa6';
 import { SiTarget } from 'react-icons/si';
+import './CollectionControls.css';
 
 // ── Three-state toggle ────────────────────────────────────────────────────────
 type ThreeStateToggleProps<S extends string> = {
@@ -497,21 +501,33 @@ export const CollectionControls = <F extends string>({
         scanControl,
     ];
 
+    // @ts-ignore
+    const selectedContent = <button><selectedcontent className="flex items-center pl-2"></selectedcontent></button>;
+
     return (
         <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties}>
             {/* Row 1: unified search (dropdown + input) + filter toggle + sort */}
             <div className="flex gap-1 items-center">
                 <div className="flex flex-1 min-w-0">
                     <select
-                        className="select select-bordered select-sm rounded-r-none border-r-0 shrink-0 pl-2 w-18"
+                        className={`select select-bordered select-sm select-content rounded rounded-r-none border-r-0 shrink-0 flex items-center`}
                         value={filters.searchMode}
                         onChange={e => setFilter('searchMode', e.target.value as SearchMode)}
                         aria-label="Search field"
                     >
-                        <option value="all" selected={filters.searchMode === 'all'}>All</option>
-                        <option value="name"  selected={filters.searchMode === 'name'}>Name</option>
-                        <option value="version" selected={filters.searchMode === 'version'}>Version</option>
-                        <option value="tags" selected={filters.searchMode === 'tags'}>Tags</option>
+                        {selectedContent}
+                        <option value="all" selected={filters.searchMode === 'all'}>
+                            <FaAsterisk aria-hidden={true} /> <span>All</span>
+                        </option>
+                        <option value="name" selected={filters.searchMode === 'name'}>
+                            <FaA aria-hidden={true} /> <span>Name</span>
+                        </option>
+                        <option value="version" selected={filters.searchMode === 'version'}>
+                            <VersionIcon aria-hidden={true} width={12} height={12} /> <span>Version</span>
+                        </option>
+                        <option value="tags" selected={filters.searchMode === 'tags'}>
+                            <FaTags aria-hidden={true} /> <span>Tags</span>
+                        </option>
                     </select>
                     <input
                         type="search"

@@ -1,0 +1,9 @@
+.select-content {
+    padding-left: calc(var(--spacing) * 2);
+    width: calc(var(--spacing) * 18);
+    @supports (appearance: base-select) {
+        background-image: none;
+        padding-left: 0;
+        width: calc(var(--spacing) * 8);
+    }
+}
