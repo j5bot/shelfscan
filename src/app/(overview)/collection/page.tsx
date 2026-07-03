@@ -20,7 +20,7 @@ import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGames
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { type GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
+import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,

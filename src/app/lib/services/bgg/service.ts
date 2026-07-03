@@ -7,6 +7,7 @@ import {
     BggUser,
     PossibleStatuses
 } from '@/app/lib/types/bgg';
+import { GeekList } from '@/app/lib/types/geeklist';
 import { elementGetter, getPageDOM } from '@/app/lib/utils/xml';
 
 export const getBggUser = (response: string) => {
@@ -302,4 +303,53 @@ export const bggGetVersionsFromXML = (xml: string) => {
     );
 
     return versionElements.map(getVersionDetailsFromElement);
+};
+
+export const bggGetGeeklistFromXML = (xml: string): GeekList | undefined => {
+    if (!xml || xml.length === 0) {
+        return;
+    }
+    const document = getPageDOM(xml, true);
+    const error = document.querySelector('error');
+    if (error) {
+        return;
+    }
+
+    const rawItems = document.querySelectorAll('item');
+    if (rawItems.length === 0) {
+        return;
+    }
+    const id = elementGetter((document.getRootNode() as Element), true, undefined, 'id') as number;
+    const postTimestamp = parseInt(document.querySelector('postdate_timestamp')?.innerHTML ?? '0', 10);
+    const editTimestamp = parseInt(document.querySelector('edit_timestamp')?.innerHTML ?? '0', 10);
+    const title = document.querySelector('title')?.innerHTML ?? '';
+    const description = document.querySelector('description')?.innerHTML ?? '';
+
+    const items = Array.from(rawItems).map(item => {
+        const listItemId = elementGetter(item, true, undefined, 'id') as number;
+        const imageId = elementGetter(item, true, undefined, 'imageid') as number;
+        const itemId = elementGetter(item, true, undefined, 'objectid') as number;
+        const name = elementGetter(item, false, undefined, 'objectname') as string ?? '';
+        const username = elementGetter(item, false, undefined, 'username') as string ?? '';
+        const listDescription = (item.querySelector('body') || item)?.innerHTML?.replace(/\n/g, '&#10;');
+
+        return {
+            id: itemId,
+            name,
+            imageId,
+            listId: id,
+            listItemId,
+            username,
+            listDescription: `${username}: ${listDescription}`,
+        };
+    });
+
+    return {
+        id,
+        postTimestamp,
+        editTimestamp,
+        title,
+        description,
+        items,
+    };
 };

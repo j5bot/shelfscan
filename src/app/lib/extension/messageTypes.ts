@@ -28,6 +28,10 @@ export type Game = {
     info?: GameUPCBggInfo;
 };
 
+export type Games = {
+    games: Game[];
+};
+
 export type Trade = Game;
 
 export type Wishlist = Game;
@@ -44,11 +48,13 @@ export type DocumentMessageDetailType =
     | 'ack'
     | 'add'
     | 'clear'
+    | 'geeklistLoad'
     | 'getData'
     | 'getLocations'
     | 'getPlayers'
     | 'info'
     | 'infoLoad'
+    | 'mathTrade'
     | 'needsAuth'
     | 'previous'
     | 'ratings'
@@ -66,7 +72,7 @@ export type BaseDocumentMessageDetail = {
     timestamp: number;
 };
 
-export type ShelfScanEntry = BaseDocumentMessageDetail & (Game | Trade | Wishlist | Play);
+export type ShelfScanEntry = BaseDocumentMessageDetail & (Game | Trade | Wishlist | Play | Games);
 
 export type DocumentMessageDetailResponseType =
     `${DocumentMessageDetailType}-response`;
