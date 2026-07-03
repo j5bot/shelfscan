@@ -6,6 +6,7 @@ import sleep from 'sleep-promise';
 const bggCollectionBaseURL = `${bggHost}/xmlapi2/collection`;
 const bggUserBaseURL = `${bggHost}/xmlapi2/user`;
 const bggThingBaseURL = `${bggHost}/xmlapi2/thing`;
+const bggGeeklistBaseURL = `${bggHost}/xmlapi/geeklist`;
 
 const MAX_ATTEMPTS = 20;
 
@@ -62,3 +63,13 @@ export const bggGetThingsXml = async (bggIds: number[]): Promise<string> => {
     thingUrl.searchParams.append('versions', '1');
     return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
 };
+
+export const bggGetGeeklistInner =
+    async (id: number, attempts: number = 0) => {
+        if (attempts > MAX_ATTEMPTS) {
+            return '';
+        }
+
+        const geeklistUrl = new URL(`${bggGeeklistBaseURL}/${id.toString()}`);
+        return await fetchFromBggWithToken(geeklistUrl.toString(), {}).then(r => r.text());
+    };

@@ -16,17 +16,19 @@ import { RootState } from '@/app/lib/redux/store';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
+import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { type GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
+import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,
     FaBorderAll,
     FaCloudArrowUp,
     FaList,
+    FaRightLeft,
     FaStar,
     FaTableCells,
     FaXmark,
@@ -43,6 +45,22 @@ export default function CollectionPage() {
     const { syncOn } = useSync();
     const { canBatch, addGameToCollection } = useBatchSync();
     const [batchRate, setBatchRate] = useState<boolean>(false);
+    const [mathTradeMode, setMathTradeMode] = useState(false);
+    const [showMathTradeDialog, setShowMathTradeDialog] = useState(false);
+
+    const activeGeekListId = useSelector(
+        (state: RootState) => state.bgg.geeklist.activeGeekListId,
+    );
+    const activeGeekListStatus = useSelector((state: RootState) =>
+        activeGeekListId !== null
+            ? state.bgg.geeklist.geekLists[activeGeekListId]?.status
+            : undefined,
+    );
+    const activeGeekListTitle = useSelector((state: RootState) =>
+        activeGeekListId !== null
+            ? state.bgg.geeklist.geekLists[activeGeekListId]?.geekList?.title
+            : undefined,
+    );
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -71,9 +89,22 @@ export default function CollectionPage() {
 
     const store = useStore();
 
+    const handleMathTradeClick = useCallback(() => {
+        if (mathTradeMode) {
+            setMathTradeMode(false);
+            return;
+        }
+        if (activeGeekListId !== null && activeGeekListStatus === 'loaded') {
+            setMathTradeMode(true);
+        } else {
+            setShowMathTradeDialog(true);
+        }
+    }, [mathTradeMode, activeGeekListId, activeGeekListStatus]);
+
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
-    }), [syncOn, batchRate, view]);
+        mathTrade: mathTradeMode,
+    }), [syncOn, batchRate, view, mathTradeMode]);
 
     const {
         reduxItems,
@@ -342,9 +373,9 @@ export default function CollectionPage() {
             )}
             <div className="page-content w-full pt-15 flex justify-center">
                 <div className="w-12/12 md:w-11/12 p-3 xs:p-2 md:p-4 pb-10 rounded-xl bg-base-100 text-sm">
-                    <div className="flex justify-center items-center gap-3 relative">
+                    <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 relative pl-20">
                         <h1 className="text-3xl text-center">Collection</h1>
-                        <div className="flex justify-start gap-1">
+                        <div className="flex justify-start gap-1 pr-20">
                             {username && (
                                 <button
                                     className="btn btn-sm rounded-md"
@@ -374,6 +405,17 @@ export default function CollectionPage() {
                                     <FaStar
                                         aria-hidden="true"
                                     />
+                                </button>
+                            )}
+                            {activeTab === CollectionTabs.ALL_GAMES && (
+                                <button
+                                    className={`btn btn-sm rounded-md ${mathTradeMode ? 'btn-primary' : ''}`}
+                                    onClick={handleMathTradeClick}
+                                    aria-label={mathTradeMode ? 'Exit Math Trade mode' : 'Enter Math Trade mode'}
+                                    aria-pressed={mathTradeMode}
+                                    title={mathTradeMode && activeGeekListTitle ? activeGeekListTitle : 'Math Trade'}
+                                >
+                                    <FaRightLeft aria-hidden="true" />
                                 </button>
                             )}
                         </div>
@@ -557,6 +599,11 @@ export default function CollectionPage() {
                 </div>
             </div>
             <CollectionItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+            <MathTradeDialog
+                isOpen={showMathTradeDialog}
+                onClose={() => setShowMathTradeDialog(false)}
+                onLoaded={() => setMathTradeMode(true)}
+            />
             {addedNames.length > 0 && (
                 <div
                     className="toast toast-top toast-center z-50"

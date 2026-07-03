@@ -1,22 +1,5 @@
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
 
-type MergeTypes<TypesArray extends unknown[], Res = object> = TypesArray extends [
-                 infer Head,
-                 ...infer Rem,
-             ]
-  ? MergeTypes<Rem, Res & Head>
-  : Res;
-
-type OnlyFirst<F, S> = F & { [Key in keyof Omit<S, keyof F>]?: never };
-
-export type OneOf<
-    TypesArray extends unknown[],
-    Res = never,
-    AllProperties = MergeTypes<TypesArray>,
-> = TypesArray extends [infer Head, ...infer Rem]
-    ? OneOf<Rem, Res | OnlyFirst<Head, AllProperties>, AllProperties>
-    : Res;
-
 export type Game = {
     userId: string;
     name: string;
@@ -26,6 +9,10 @@ export type Game = {
     formValues?: Record<string, unknown>;
     timestamp: number;
     info?: GameUPCBggInfo;
+};
+
+export type Games = {
+    games: Game[];
 };
 
 export type Trade = Game;
@@ -44,11 +31,13 @@ export type DocumentMessageDetailType =
     | 'ack'
     | 'add'
     | 'clear'
+    | 'geeklistLoad'
     | 'getData'
     | 'getLocations'
     | 'getPlayers'
     | 'info'
     | 'infoLoad'
+    | 'mathTrade'
     | 'needsAuth'
     | 'previous'
     | 'ratings'
@@ -66,7 +55,7 @@ export type BaseDocumentMessageDetail = {
     timestamp: number;
 };
 
-export type ShelfScanEntry = BaseDocumentMessageDetail & (Game | Trade | Wishlist | Play);
+export type ShelfScanEntry = BaseDocumentMessageDetail & (Game | Trade | Wishlist | Play | Games);
 
 export type DocumentMessageDetailResponseType =
     `${DocumentMessageDetailType}-response`;
@@ -84,14 +73,11 @@ export type DocumentMessageSearchPlayerDetail = BaseDocumentMessageDetail &{
     query: string;
 };
 
-export type DocumentMessageSourceDetail = OneOf<
-    [
-        DocumentMessageNeedsAuthDetail,
-        DocumentMessageLookupDetail,
-        DocumentMessageSearchPlayerDetail,
-        ShelfScanEntry
-    ]
->;
+export type DocumentMessageSourceDetail =
+    | DocumentMessageNeedsAuthDetail
+    | DocumentMessageLookupDetail
+    | DocumentMessageSearchPlayerDetail
+    | ShelfScanEntry;
 
 export type DocumentMessageResponseDetail = {
     type: DocumentMessageDetailResponseType;

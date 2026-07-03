@@ -67,19 +67,53 @@ Full style guide is in `copilot-instructions.md`. Key points:
 - **4 spaces** indentation, always semicolons, single quotes (double only in JSX string attributes).
 - **`type` not `interface`**. `PascalCase` for types/components, `camelCase` for variables/hooks, `UPPER_SNAKE_CASE` for true constants, `PascalCase` for const objects used as enums/maps.
 - **`const` arrow functions** for everything except Next.js page/layout default exports (those use `function`).
-- **`@/*` path alias** for all internal imports (`@/app/lib/...`). Never use `../../` relative paths.
+- **`@/*` path alias** for all internal imports (`@/app/lib/...`). Never use `../../` relative paths. Group imports: `@/` first, then external packages.
 - **No barrel files** — each module exports its own symbols. Exception: `lib/hooks/index.ts` re-exports typed Redux hooks.
 - **`void` operator** to suppress unused-variable warnings and mark intentionally discarded `.then()` results.
 - **Always use block bodies** for `if` statements — never omit braces.
 - **`switch (true)`** for range-based conditional logic.
 - **`.then()` chaining** for fire-and-forget calls; `await` when the result is needed.
 - **`useEffect` cleanup**: use an `active` flag pattern for async effects.
+- **`useTransition`** for non-blocking async state updates triggered by user interaction.
 - Selectors use `memoize` from `proxy-memoize` and receive state as a tuple `[state, id]`.
+- Always create a named `type` for complex objects — never inline multi-property shapes in function signatures. Use `{} as ReturnType<typeof useHook>` for context defaults where a real default isn't feasible.
+- Components never return `null` — use `&&` short-circuit or implicit `undefined`. `null` appears only in `useState<T | null>(null)`.
+
+### Complex JSX conditionals
+
+Prepare nodes in variables before the return statement when there are multiple alternatives; use `switch` rather than chains of ternaries:
+
+```typescript
+let content: ReactNode = <DefaultView />;
+switch (status) {
+    case 'loading': content = <Spinner />; break;
+    case 'error':   content = <ErrorMsg />; break;
+}
+return <div>{content}</div>;
+```
+
+### Redux slice conventions
+
+```typescript
+const SLICE_TITLE = 'FEATURE_NAME';   // UPPER_SNAKE_CASE
+const initialState: FeatureSliceState = { ... };
+
+export const featureSlice = createSlice({
+    name: `${SLICE_TITLE}_SLICE`,
+    initialState,
+    reducers: { ... },
+});
+
+export const { actionOne, actionTwo } = featureSlice.actions;
+export default featureSlice.reducer;
+```
+
+Add the reducer to the `bgg` combiner in `src/app/lib/redux/bgg/` and register it in `store.ts`.
 
 ### Context provider pattern
 
 ```typescript
-const MyContext = createContext<MyType>(defaultValue);
+const MyContext = createContext<MyType>({} as MyType);
 export const useMyFeature = () => useContext(MyContext);
 export const MyProvider = ({ children }: { children: ReactNode }) => {
     const value = useMyLogic();

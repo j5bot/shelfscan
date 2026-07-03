@@ -1,3 +1,5 @@
+// noinspection JSXDomNesting
+
 import {
     CollectionFilters,
     ConditionFilter,
