@@ -373,9 +373,9 @@ export default function CollectionPage() {
             )}
             <div className="page-content w-full pt-15 flex justify-center">
                 <div className="w-12/12 md:w-11/12 p-3 xs:p-2 md:p-4 pb-10 rounded-xl bg-base-100 text-sm">
-                    <div className="flex justify-center items-center gap-3 relative">
+                    <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 relative pl-20">
                         <h1 className="text-3xl text-center">Collection</h1>
-                        <div className="flex justify-start gap-1">
+                        <div className="flex justify-start gap-1 pr-20">
                             {username && (
                                 <button
                                     className="btn btn-sm rounded-md"
