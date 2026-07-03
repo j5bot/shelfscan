@@ -319,7 +319,7 @@ export const bggGetGeeklistFromXML = (xml: string): GeekList | undefined => {
     if (rawItems.length === 0) {
         return;
     }
-    const id = elementGetter((document.getRootNode() as Element), true, undefined, 'id') as number;
+    const id = elementGetter(document.firstElementChild, true, undefined, 'id') as number;
     const postTimestamp = parseInt(document.querySelector('postdate_timestamp')?.innerHTML ?? '0', 10);
     const editTimestamp = parseInt(document.querySelector('edit_timestamp')?.innerHTML ?? '0', 10);
     const title = document.querySelector('title')?.innerHTML ?? '';

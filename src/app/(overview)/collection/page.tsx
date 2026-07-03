@@ -16,6 +16,7 @@ import { RootState } from '@/app/lib/redux/store';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
+import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
@@ -27,6 +28,7 @@ import {
     FaBorderAll,
     FaCloudArrowUp,
     FaList,
+    FaRightLeft,
     FaStar,
     FaTableCells,
     FaXmark,
@@ -43,6 +45,22 @@ export default function CollectionPage() {
     const { syncOn } = useSync();
     const { canBatch, addGameToCollection } = useBatchSync();
     const [batchRate, setBatchRate] = useState<boolean>(false);
+    const [mathTradeMode, setMathTradeMode] = useState(false);
+    const [showMathTradeDialog, setShowMathTradeDialog] = useState(false);
+
+    const activeGeekListId = useSelector(
+        (state: RootState) => state.bgg.geeklist.activeGeekListId,
+    );
+    const activeGeekListStatus = useSelector((state: RootState) =>
+        activeGeekListId !== null
+            ? state.bgg.geeklist.geekLists[activeGeekListId]?.status
+            : undefined,
+    );
+    const activeGeekListTitle = useSelector((state: RootState) =>
+        activeGeekListId !== null
+            ? state.bgg.geeklist.geekLists[activeGeekListId]?.geekList?.title
+            : undefined,
+    );
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -71,9 +89,22 @@ export default function CollectionPage() {
 
     const store = useStore();
 
+    const handleMathTradeClick = useCallback(() => {
+        if (mathTradeMode) {
+            setMathTradeMode(false);
+            return;
+        }
+        if (activeGeekListId !== null && activeGeekListStatus === 'loaded') {
+            setMathTradeMode(true);
+        } else {
+            setShowMathTradeDialog(true);
+        }
+    }, [mathTradeMode, activeGeekListId, activeGeekListStatus]);
+
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
-    }), [syncOn, batchRate, view]);
+        mathTrade: mathTradeMode,
+    }), [syncOn, batchRate, view, mathTradeMode]);
 
     const {
         reduxItems,
@@ -376,6 +407,17 @@ export default function CollectionPage() {
                                     />
                                 </button>
                             )}
+                            {activeTab === CollectionTabs.ALL_GAMES && (
+                                <button
+                                    className={`btn btn-sm rounded-md ${mathTradeMode ? 'btn-primary' : ''}`}
+                                    onClick={handleMathTradeClick}
+                                    aria-label={mathTradeMode ? 'Exit Math Trade mode' : 'Enter Math Trade mode'}
+                                    aria-pressed={mathTradeMode}
+                                    title={mathTradeMode && activeGeekListTitle ? activeGeekListTitle : 'Math Trade'}
+                                >
+                                    <FaRightLeft aria-hidden="true" />
+                                </button>
+                            )}
                         </div>
                         <div
                             className="absolute top-1 right-0 flex items-center gap-0.5"
@@ -557,6 +599,11 @@ export default function CollectionPage() {
                 </div>
             </div>
             <CollectionItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+            <MathTradeDialog
+                isOpen={showMathTradeDialog}
+                onClose={() => setShowMathTradeDialog(false)}
+                onLoaded={() => setMathTradeMode(true)}
+            />
             {addedNames.length > 0 && (
                 <div
                     className="toast toast-top toast-center z-50"

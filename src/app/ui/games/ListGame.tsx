@@ -1,5 +1,6 @@
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
+import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { SizeKey } from '@/app/ui/games/AllGamesContent';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
@@ -67,6 +68,10 @@ export const ListGame = memo((props: ListGameProps) => {
         collectionId={collectionId}
     /> : null;
 
+    const mathTradeSection = collectionId && modeMap.mathTrade ? <MathTradeSection
+        collectionId={collectionId}
+    /> : null;
+
     const thumbnail = <div className="relative">
         <ThumbnailBox
             alt={name}
@@ -120,6 +125,7 @@ export const ListGame = memo((props: ListGameProps) => {
             </div>
             {thumbnailContent}
             {ratingForm}
+            {mathTradeSection}
         </div>
     </li>;
 });

@@ -1,4 +1,5 @@
 import { useSelector } from '@/app/lib/hooks';
+import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { CollectionLoadStatuses, type CollectionLoadStatusData } from '@/app/lib/hooks/useCollectionData';
 import { type CollectionFilters, type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
 import { type SortFieldDef, type SortDirection } from '@/app/lib/hooks/useFilterSort';
@@ -78,6 +79,7 @@ const SkeletonItem = () => (
 
 type ModeMap = {
     batchRating: boolean;
+    mathTrade: boolean;
 };
 
 export type SizeKey = keyof typeof ThumbnailSizes;
@@ -273,6 +275,11 @@ export const AllGamesContent = memo(({
                                         isVerified={verifiedSet.has(displayItems[index].objectId)}
                                         onClick={() => onSelectItem(displayItems[index])}
                                     />
+                                    {modeMap.mathTrade && (
+                                        <MathTradeSection
+                                            collectionId={displayItems[index].collectionId}
+                                        />
+                                    )}
                                 </div>
                             )}
                         />;
