@@ -27,6 +27,10 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
     const savedData = useSelector(
         (state: RootState) => state.bgg.geeklist.data[collectionId],
     );
+    const isInGeeklist = useSelector((state: RootState) => {
+        if (activeGeekListId === null || !item) { return false; }
+        return (state.bgg.geeklist.geekLists[activeGeekListId]?.games[item.objectId]?.length ?? 0) > 0;
+    });
 
     const [expanded, setExpanded] = useState(false);
 
@@ -126,7 +130,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         <button
             type="button"
             className={`btn rounded-full w-full mt-2
-                bg-[#e07ca4] text-white
+                ${isInGeeklist ? 'btn-warning' : 'bg-[#e07ca4] text-white'}
                 uppercase text-xs font-sharetech
                 pt-1 pb-1`}
             onClick={handleAdd}
