@@ -88,12 +88,19 @@ export const getVersionDetailsFromElement = (version: Element) => {
     const productCode = elementGetter(version, false, 'productcode');
     const languages = Array.from(version.querySelectorAll('link[type=language]'))
         .map(link => elementGetter(link, false, undefined, 'value'));
+    const publisher = elementGetter(
+        version,
+        false,
+        'link[type=boardgamepublisher]',
+        'value'
+    );
 
     return {
         ...commonDetails,
         id,
         image,
         languages,
+        publisher,
         productCode,
     };
 };

@@ -90,12 +90,22 @@ type GridItemProps = {
     thumbnailSize: number;
     modeMap: ModeMap;
     onSelectItem: (item: BggCollectionItem) => void;
+    mathTradeSelected: boolean;
+    onMathTradeToggle?: (collectionId: number) => void;
 };
 
-const GridItem = ({ collectionId, sizeKey, thumbnailSize, modeMap, onSelectItem }: GridItemProps) => {
+const GridItem = ({
+    collectionId,
+    sizeKey,
+    thumbnailSize,
+    modeMap,
+    onSelectItem,
+    mathTradeSelected,
+    onMathTradeToggle,
+}: GridItemProps) => {
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';
-        return state.bgg.collection.users[username].items[collectionId]
+        return state.bgg.collection.users[username].items[collectionId];
     });
 
     if (!item) {
@@ -141,6 +151,10 @@ const GridItem = ({ collectionId, sizeKey, thumbnailSize, modeMap, onSelectItem 
             detailUrlTarget="_blank"
             detailUrlRel="noopener noreferrer"
             onClick={() => onSelectItem(item)}
+            mathTradeSelected={mathTradeSelected}
+            onMathTradeToggle={onMathTradeToggle
+                ? () => onMathTradeToggle(collectionId)
+                : undefined}
         />
     );
 };
@@ -170,6 +184,8 @@ type AllGamesContentProps = {
     onDuplicateFilter: (id: number) => void;
     refreshCollection: () => void;
     onSelectItem: (item: BggCollectionItem) => void;
+    mathTradeSelectedIds: Set<number>;
+    onMathTradeToggle: (collectionId: number) => void;
 };
 
 export const AllGamesContent = memo(({
@@ -197,6 +213,8 @@ export const AllGamesContent = memo(({
     onDuplicateFilter,
     refreshCollection,
     onSelectItem,
+    mathTradeSelectedIds,
+    onMathTradeToggle,
 }: AllGamesContentProps) => {
     const username = useSelector((state: RootState) => state.bgg.user.user);
 
@@ -264,24 +282,30 @@ export const AllGamesContent = memo(({
                         content = <Virtuoso
                             useWindowScroll
                             totalCount={displayItems.length}
-                            itemContent={index => (
-                                <div className="pt-1">
-                                    <ListGameRow
-                                        collectionId={displayItems[index].collectionId}
-                                        detailUrl={`https://boardgamegeek.com/boardgame/${displayItems[index].objectId}`}
-                                        detailUrlTarget="_blank"
-                                        detailUrlRel="noopener noreferrer"
-                                        isScanned={scannedSet.has(displayItems[index].objectId)}
-                                        isVerified={verifiedSet.has(displayItems[index].objectId)}
-                                        onClick={() => onSelectItem(displayItems[index])}
-                                    />
-                                    {modeMap.mathTrade && (
-                                        <MathTradeSection
-                                            collectionId={displayItems[index].collectionId}
+                            itemContent={index => {
+                                const collectionId = displayItems[index].collectionId;
+                                const isSelected = mathTradeSelectedIds.has(collectionId);
+                                return (
+                                    <div
+                                        className={`pt-1 ${isSelected ? 'ring-2 ring-[#e07ca4] rounded-md' : ''}`}
+                                    >
+                                        <ListGameRow
+                                            collectionId={collectionId}
+                                            detailUrl={`https://boardgamegeek.com/boardgame/${displayItems[index].objectId}`}
+                                            detailUrlTarget="_blank"
+                                            detailUrlRel="noopener noreferrer"
+                                            isScanned={scannedSet.has(displayItems[index].objectId)}
+                                            isVerified={verifiedSet.has(displayItems[index].objectId)}
+                                            onClick={modeMap.mathTrade
+                                                ? () => onMathTradeToggle(collectionId)
+                                                : () => onSelectItem(displayItems[index])}
                                         />
-                                    )}
-                                </div>
-                            )}
+                                        {modeMap.mathTrade && (
+                                            <MathTradeSection collectionId={collectionId} />
+                                        )}
+                                    </div>
+                                );
+                            }}
                         />;
                         break;
                     case CollectionViews.LARGE_GRID:
@@ -289,11 +313,18 @@ export const AllGamesContent = memo(({
                             useWindowScroll
                             totalCount={displayItems.length}
                             components={{ List: makeGridContainer('large') }}
-                            itemContent={index => <GridItem
-                                sizeKey="large"
-                                collectionId={displayItems[index].collectionId} thumbnailSize={ThumbnailSizes['large']}
-                                onSelectItem={onSelectItem} modeMap={modeMap}
-                            />}
+                            itemContent={index => {
+                                const collectionId = displayItems[index].collectionId;
+                                return <GridItem
+                                    sizeKey="large"
+                                    collectionId={collectionId}
+                                    thumbnailSize={ThumbnailSizes['large']}
+                                    onSelectItem={onSelectItem}
+                                    modeMap={modeMap}
+                                    mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
+                                    onMathTradeToggle={modeMap.mathTrade ? onMathTradeToggle : undefined}
+                                />;
+                            }}
                         />;
                         break;
                     case CollectionViews.SMALL_GRID:
@@ -301,11 +332,19 @@ export const AllGamesContent = memo(({
                             useWindowScroll
                             totalCount={displayItems.length}
                             components={{ List: makeGridContainer('small') }}
-                            itemContent={index => <GridItem
-                                sizeKey="small"
-                                collectionId={displayItems[index].collectionId} thumbnailSize={ThumbnailSizes['small']}
-                                onSelectItem={onSelectItem} modeMap={modeMap}
-                            />}                        />;
+                            itemContent={index => {
+                                const collectionId = displayItems[index].collectionId;
+                                return <GridItem
+                                    sizeKey="small"
+                                    collectionId={collectionId}
+                                    thumbnailSize={ThumbnailSizes['small']}
+                                    onSelectItem={onSelectItem}
+                                    modeMap={modeMap}
+                                    mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
+                                    onMathTradeToggle={modeMap.mathTrade ? onMathTradeToggle : undefined}
+                                />;
+                            }}
+                        />;
                         break;
                 }
             }

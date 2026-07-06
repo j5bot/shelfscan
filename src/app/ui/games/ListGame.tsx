@@ -6,6 +6,7 @@ import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import Link from 'next/link';
 import React, { CSSProperties, memo, ReactNode } from 'react';
+import { FaCheck } from 'react-icons/fa6';
 
 export type ListGameProps = {
     collectionId?: number;
@@ -28,6 +29,8 @@ export type ListGameProps = {
     /** When provided, clicking the thumbnail opens an action (e.g. a modal) instead of navigating. */
     onClick?: () => void;
     modeMap?: ComponentModeMap;
+    mathTradeSelected?: boolean;
+    onMathTradeToggle?: () => void;
 };
 
 const emptyModeMap = {} as ComponentModeMap;
@@ -53,6 +56,8 @@ export const ListGame = memo((props: ListGameProps) => {
         imageUrl,
         onClick,
         modeMap = emptyModeMap,
+        mathTradeSelected = false,
+        onMathTradeToggle,
     } = props;
 
     const resolvedRating = rating ?? averageRating ?? 0;
@@ -81,14 +86,28 @@ export const ListGame = memo((props: ListGameProps) => {
             styles={imageContainerStyles}
         />
         {ratingIcon && <div className="absolute flex justify-center bottom-[-3] w-full z-9">{ratingIcon}</div>}
+        {mathTradeSelected && (
+            <div className="absolute inset-0 flex items-center justify-center bg-[#e07ca4]/50 rounded-md z-10 pointer-events-none">
+                <FaCheck className="text-white w-6 h-6 drop-shadow" aria-hidden="true" />
+            </div>
+        )}
     </div>;
 
-    const thumbnailContent = onClick ? (
+    const thumbnailClickHandler = modeMap.mathTrade && onMathTradeToggle
+        ? onMathTradeToggle
+        : onClick;
+
+    const thumbnailAriaLabel = modeMap.mathTrade && onMathTradeToggle
+        ? `${mathTradeSelected ? 'Deselect' : 'Select'} ${name} for math trade`
+        : `View details for ${name}`;
+
+    const thumbnailContent = thumbnailClickHandler ? (
         <button
             type="button"
             className="w-full text-left cursor-pointer"
-            onClick={onClick}
-            aria-label={`View details for ${name}`}
+            onClick={thumbnailClickHandler}
+            aria-label={thumbnailAriaLabel}
+            aria-pressed={modeMap.mathTrade && onMathTradeToggle ? mathTradeSelected : undefined}
         >
             {thumbnail}
         </button>
@@ -98,7 +117,11 @@ export const ListGame = memo((props: ListGameProps) => {
         </Link>
     ) : thumbnail;
 
-    return <li className="list-none relative rounded-md bg-white dark:bg-gray-900" key={keyValue}>
+    return <li
+        className={`list-none relative rounded-md bg-white dark:bg-gray-900
+            ${mathTradeSelected ? 'ring-2 ring-[#e07ca4]' : ''}`}
+        key={keyValue}
+    >
         {bottomLeftIcon}
         {detailUrl ? (
             <Link

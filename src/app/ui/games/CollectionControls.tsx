@@ -518,16 +518,16 @@ export const CollectionControls = <F extends string>({
                         aria-label="Search field"
                     >
                         {selectedContent}
-                        <option value="all" selected={filters.searchMode === 'all'}>
+                        <option value="all">
                             <FaAsterisk aria-hidden={true} /> <span>All</span>
                         </option>
-                        <option value="name" selected={filters.searchMode === 'name'}>
+                        <option value="name">
                             <FaA aria-hidden={true} /> <span>Name</span>
                         </option>
-                        <option value="version" selected={filters.searchMode === 'version'}>
+                        <option value="version">
                             <VersionIcon aria-hidden={true} width={12} height={12} /> <span>Version</span>
                         </option>
-                        <option value="tags" selected={filters.searchMode === 'tags'}>
+                        <option value="tags">
                             <FaTags aria-hidden={true} /> <span>Tags</span>
                         </option>
                     </select>

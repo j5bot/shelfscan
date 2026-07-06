@@ -53,6 +53,7 @@ export type BggVersion = {
     name: string | undefined;
     productCode: string | undefined;
     yearPublished: number | undefined;
+    publisher: string | undefined;
 };
 
 export type BggCollectionItem = {

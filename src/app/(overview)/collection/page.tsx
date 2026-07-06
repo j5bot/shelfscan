@@ -3,6 +3,9 @@
 import { useSync } from '@/app/lib/extension/useSync';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
+import { useMathTrade } from '@/app/lib/hooks/useMathTrade';
+import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
+import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { parseUnifiedSearch, useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
@@ -44,9 +47,13 @@ export default function CollectionPage() {
     const { scanHistory, lastScannedMap } = useScanHistory();
     const { syncOn } = useSync();
     const { canBatch, addGameToCollection } = useBatchSync();
+    const { sendViaExtension } = useMathTrade();
     const [batchRate, setBatchRate] = useState<boolean>(false);
     const [mathTradeMode, setMathTradeMode] = useState(false);
     const [showMathTradeDialog, setShowMathTradeDialog] = useState(false);
+    const [selectedMathTradeIds, setSelectedMathTradeIds] = useState<Set<number>>(new Set());
+    const [isBulkMathTradeAdding, setIsBulkMathTradeAdding] = useState(false);
+    const [mathTradeError, setMathTradeError] = useState<string | null>(null);
 
     const activeGeekListId = useSelector(
         (state: RootState) => state.bgg.geeklist.activeGeekListId,
@@ -92,6 +99,7 @@ export default function CollectionPage() {
     const handleMathTradeClick = useCallback(() => {
         if (mathTradeMode) {
             setMathTradeMode(false);
+            setSelectedMathTradeIds(new Set());
             return;
         }
         if (activeGeekListId !== null && activeGeekListStatus === 'loaded') {
@@ -100,6 +108,57 @@ export default function CollectionPage() {
             setShowMathTradeDialog(true);
         }
     }, [mathTradeMode, activeGeekListId, activeGeekListStatus]);
+
+    const handleMathTradeToggle = useCallback((collectionId: number) => {
+        setSelectedMathTradeIds(prev => {
+            const next = new Set(prev);
+            if (next.has(collectionId)) {
+                next.delete(collectionId);
+            } else {
+                next.add(collectionId);
+            }
+            return next;
+        });
+    }, []);
+
+    const handleBulkMathTradeAdd = useCallback(async () => {
+        if (selectedMathTradeIds.size === 0) { return; }
+        setIsBulkMathTradeAdding(true);
+        setMathTradeError(null);
+
+        const reduxState = store.getState();
+        const username = reduxState.bgg.user?.user?.toLowerCase() ?? '';
+        const collectionUsers = reduxState.bgg.collection.users[username];
+        const geeklistData = reduxState.bgg.geeklist.data;
+
+        const items = Array.from(selectedMathTradeIds).flatMap(collectionId => {
+            const item = collectionUsers?.items[collectionId];
+            if (!item) { return []; }
+            const savedData = geeklistData[collectionId];
+            const bodyText = savedData?.bodyText ?? item.tradeCondition ?? '';
+            const copies = savedData?.copies ?? 1;
+            return [{
+                collectionId,
+                gameId: item.objectId,
+                versionId: item.versionId,
+                name: item.name,
+                body: buildMathTradeBody(bodyText, item, copies, collectionId),
+                imageId: getBggImageFromItem(item),
+            }];
+        });
+
+        const results = await sendViaExtension(items);
+        setIsBulkMathTradeAdding(false);
+
+        const failures = results.filter(r => !r.success);
+        if (failures.length > 0) {
+            setMathTradeError(
+                `${failures.length} item${failures.length !== 1 ? 's' : ''} failed to add`,
+            );
+        } else {
+            setSelectedMathTradeIds(new Set());
+        }
+    }, [selectedMathTradeIds, store, sendViaExtension]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
@@ -531,6 +590,47 @@ export default function CollectionPage() {
                             )}
                         </div>
                     )}
+                    {mathTradeMode && syncOn && (
+                        <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
+                            <span className="text-xs text-base-content/60">
+                                {selectedMathTradeIds.size > 0
+                                    ? `${selectedMathTradeIds.size} selected`
+                                    : 'Tap a thumbnail to select'
+                                }
+                            </span>
+                            {selectedMathTradeIds.size > 0 && (
+                                <button
+                                    type="button"
+                                    className={`btn rounded-full pointer-events-auto
+                                        bg-[#e07ca4] text-white
+                                        flex items-center justify-center gap-2
+                                        uppercase text-base font-sharetech
+                                        pl-6 pr-6 pt-2 pb-2
+                                        ${isBulkMathTradeAdding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
+                                    onClick={() => void handleBulkMathTradeAdd()}
+                                    disabled={isBulkMathTradeAdding}
+                                    aria-label={`Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`}
+                                >
+                                    {isBulkMathTradeAdding
+                                        ? <span className="loading loading-bars loading-sm" />
+                                        : <FaRightLeft className="w-4 h-4" />
+                                    }
+                                    Add {selectedMathTradeIds.size} to Geeklist
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    {mathTradeError && (
+                        <div className="toast toast-top toast-center z-50">
+                            <div
+                                role="alert"
+                                className="alert alert-error shadow-lg cursor-pointer"
+                                onClick={() => setMathTradeError(null)}
+                            >
+                                <span className="text-sm">{mathTradeError}</span>
+                            </div>
+                        </div>
+                    )}
                     <section
                         ref={sectionRef}
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
@@ -564,6 +664,8 @@ export default function CollectionPage() {
                                 onDuplicateFilter={duplicateFilterPreset}
                                 refreshCollection={refreshCollection}
                                 onSelectItem={setSelectedItem}
+                                mathTradeSelectedIds={selectedMathTradeIds}
+                                onMathTradeToggle={handleMathTradeToggle}
                             />
                         )}
                         {activeTab === CollectionTabs.NOT_IN_COLLECTION && (
