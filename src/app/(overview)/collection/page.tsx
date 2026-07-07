@@ -445,7 +445,9 @@ export default function CollectionPage() {
             <div className="page-content w-full pt-15 flex justify-center">
                 <div className="w-12/12 md:w-11/12 p-3 xs:p-2 md:p-4 pb-10 rounded-xl bg-base-100 text-sm">
                     <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 relative pl-18 pr-18">
-                        <h1 className="text-3xl text-center">Collection</h1>
+                        <h1 className="text-3xl text-center">{
+                            mathTradeMode ? 'Math Trade' : 'Collection'
+                        }</h1>
                         <div className="flex justify-start gap-1">
                             {username && (
                                 <button
@@ -490,24 +492,6 @@ export default function CollectionPage() {
                                 </button>
                             )}
                         </div>
-                        {mathTradeMode && (
-                            <div className="w-full flex items-center gap-1.5">
-                                <GeekListSwitcher
-                                    activeId={activeGeekListId}
-                                    lists={allGeekLists}
-                                    onSelect={id => dispatch(setActiveGeekList(id))}
-                                />
-                                <button
-                                    type="button"
-                                    className="btn btn-xs btn-ghost rounded-md shrink-0"
-                                    onClick={() => setShowMathTradeDialog(true)}
-                                    aria-label="Load another geeklist"
-                                    title="Load another geeklist"
-                                >
-                                    <FaPlus aria-hidden="true" />
-                                </button>
-                            </div>
-                        )}
                         <div
                             className="absolute top-1 right-0 flex items-center gap-0.5"
                             role="group"
@@ -545,6 +529,24 @@ export default function CollectionPage() {
                             </button>
                         </div>
                     </div>
+                    {mathTradeMode && (
+                        <div className="w-full flex items-center justify-center gap-1.5">
+                            <GeekListSwitcher
+                                activeId={activeGeekListId}
+                                lists={allGeekLists}
+                                onSelect={id => dispatch(setActiveGeekList(id))}
+                            />
+                            <button
+                                type="button"
+                                className="btn btn-xs btn-ghost rounded-md shrink-0"
+                                onClick={() => setShowMathTradeDialog(true)}
+                                aria-label="Load another geeklist"
+                                title="Load another geeklist"
+                            >
+                                <FaPlus aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
 
                     <div
                         role="tablist"
@@ -644,7 +646,7 @@ export default function CollectionPage() {
                                         ? <span className="loading loading-bars loading-sm" />
                                         : <FaRightLeft className="w-4 h-4" />
                                     }
-                                    Add {selectedMathTradeIds.size} to Geeklist
+                                    Add {selectedMathTradeIds.size} to Math Trade
                                 </button>
                             )}
                         </div>

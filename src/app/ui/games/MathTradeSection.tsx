@@ -102,8 +102,8 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                     className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
                     value={bodyText}
                     onChange={e => handleBodyChange(e.target.value)}
-                    placeholder="Trade condition / body text"
-                    aria-label="Body text for geeklist entry"
+                    placeholder="Trade condition / description"
+                    aria-label="Trade condition / description for math trade"
                 />
                 <div className="flex items-center gap-0.5">
                     <label
@@ -160,11 +160,11 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                 ${sending ? 'opacity-75 cursor-not-allowed' : ''}`}
             onClick={() => void handleAdd()}
             disabled={sending}
-            aria-label={`Add ${item.name} to math trade geeklist`}
+            aria-label={`Add ${item.name} to math trade`}
         >
             {sending
                 ? <span className="loading loading-bars loading-xs" />
-                : 'Add to Geeklist'
+                : 'Add to Trade'
             }
         </button>
     </div>;

@@ -29,7 +29,7 @@ export const GeekListSwitcher = ({ activeId, lists, onSelect }: GeekListSwitcher
     }, [open]);
 
     return (
-        <div ref={containerRef} className="relative flex-1 min-w-0">
+        <div ref={containerRef} className="relative w-fit">
             <button
                 type="button"
                 className="btn btn-xs btn-ghost rounded-md w-full flex items-center justify-between gap-1 px-2"
@@ -38,7 +38,7 @@ export const GeekListSwitcher = ({ activeId, lists, onSelect }: GeekListSwitcher
                 aria-haspopup="listbox"
                 title={activeTitle}
             >
-                <span className="truncate text-xs text-base-content/70 min-w-0">
+                <span className="truncate text-xs text-base-content/70 w-fit">
                     {activeTitle}
                 </span>
                 <FaChevronDown
