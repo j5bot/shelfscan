@@ -6,7 +6,7 @@ import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import Link from 'next/link';
 import React, { CSSProperties, memo, ReactNode } from 'react';
-import { FaCheck } from 'react-icons/fa6';
+import { FaCheck, FaArrowUpRightFromSquare } from 'react-icons/fa6';
 
 export type ListGameProps = {
     collectionId?: number;
@@ -90,6 +90,18 @@ export const ListGame = memo((props: ListGameProps) => {
             <div className="absolute inset-0 flex items-center justify-center bg-[#e07ca4]/50 rounded-md z-10 pointer-events-none">
                 <FaCheck className="text-white w-6 h-6 drop-shadow" aria-hidden="true" />
             </div>
+        )}
+        {mathTradeSelected && onClick && (
+            <button
+                type="button"
+                className="absolute top-1 right-1 z-20 pointer-events-auto
+                    bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow
+                    text-base-content/60 hover:text-base-content"
+                onClick={e => { e.stopPropagation(); onClick(); }}
+                aria-label={`Edit ${name}`}
+            >
+                <FaArrowUpRightFromSquare className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
         )}
     </div>;
 

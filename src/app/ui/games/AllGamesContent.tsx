@@ -55,7 +55,10 @@ const makeGridContainer = (size: GridClassSize) => {
             <div
                 ref={ref}
                 className={`${gridClass} ${className}`}
-                style={style}
+                style={{
+                    ...style,
+                    paddingTop: '2px',
+                }}
             >
                 {children}
             </div>
