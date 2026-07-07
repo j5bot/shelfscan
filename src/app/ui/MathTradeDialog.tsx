@@ -14,7 +14,7 @@ const GEEKLIST_URL_REGEX = /.*\/geeklist\/([0-9]+)/;
 type MathTradeDialogProps = {
     isOpen: boolean;
     onClose: () => void;
-    onLoaded: () => void;
+    onLoaded: (id: number) => void;
 };
 
 export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogProps) => {
@@ -56,7 +56,7 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
         setLoading(false);
         setUrl('');
         onClose();
-        onLoaded();
+        onLoaded(id);
     }, [url, dispatch, onClose, onLoaded]);
 
     if (!isOpen) { return null; }

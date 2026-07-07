@@ -1,11 +1,12 @@
 import { useDispatch, useSelector } from '@/app/lib/hooks';
+import { useMathTrade } from '@/app/lib/hooks/useMathTrade';
 import {
     recordAdd,
     setItemData,
     UNKNOWN_GEEKLIST_ITEM_ID,
 } from '@/app/lib/redux/bgg/geeklist/slice';
 import { RootState } from '@/app/lib/redux/store';
-import { getBggImageId } from '@/app/lib/utils/bggImageId';
+import { getBggImageFromItem, getBggImageId } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
 import { memo, useCallback, useState } from 'react';
 
@@ -15,6 +16,7 @@ type MathTradeSectionProps = {
 
 export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) => {
     const dispatch = useDispatch();
+    const { canUseExtension, sendViaExtension } = useMathTrade();
 
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';
@@ -33,6 +35,8 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
     });
 
     const [expanded, setExpanded] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [sending, setSending] = useState(false);
 
     const defaultBodyText = item?.tradeCondition ?? '';
     const bodyText = savedData?.bodyText ?? defaultBodyText;
@@ -46,19 +50,37 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         dispatch(setItemData({ collectionId, bodyText, copies: value }));
     }, [dispatch, collectionId, bodyText]);
 
-    const handleAdd = useCallback(() => {
+    const handleAdd = useCallback(async () => {
         if (!item || activeGeekListId === null) { return; }
+        setError(null);
+        setSending(true);
 
-        const formattedBody = buildMathTradeBody(bodyText, item.versionId, copies, collectionId);
-        const imageId = getBggImageId(item.thumbnail ?? item.image);
+        const body = buildMathTradeBody(bodyText, item, copies, collectionId);
+        const imageId = getBggImageFromItem(item);
 
+        if (canUseExtension) {
+            const [result] = await sendViaExtension([{
+                collectionId,
+                gameId: item.objectId,
+                versionId: item.versionId,
+                name: item.name,
+                body,
+                imageId,
+            }]);
+            setSending(false);
+            if (!result?.success) {
+                setError(result?.error ?? 'Failed to add to geeklist');
+            }
+            return;
+        }
+
+        // No extension — open new tab
         const url = new URL(`https://boardgamegeek.com/geeklist/${activeGeekListId}`);
         url.searchParams.set('addListitem', '1');
         url.searchParams.set('addListitemType', 'things');
         url.searchParams.set('addListitemId', item.objectId.toString());
         url.searchParams.set('addListitemImageid', imageId.toString());
-        url.searchParams.set('addListitemBody', formattedBody);
-
+        url.searchParams.set('addListitemBody', body);
         window.open(url.toString(), '_blank', 'noopener,noreferrer');
 
         dispatch(recordAdd({
@@ -68,23 +90,22 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
             gameId: item.objectId,
             versionId: item.versionId,
         }));
-    }, [item, activeGeekListId, bodyText, copies, collectionId, dispatch]);
+        setSending(false);
+    }, [item, activeGeekListId, bodyText, copies, collectionId, canUseExtension, sendViaExtension, dispatch]);
 
     if (!item) { return null; }
-
-    const formattedBlock = buildMathTradeBody(bodyText, item.versionId, copies, collectionId);
 
     return <div className="mt-2 border-t border-base-content/15 pt-2">
         {expanded ? (
             <div className="flex flex-col gap-2">
                 <textarea
-                    className="textarea textarea-bordered w-full text-xs resize-y min-h-16"
+                    className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
                     value={bodyText}
                     onChange={e => handleBodyChange(e.target.value)}
-                    placeholder="Trade condition / body text"
-                    aria-label="Body text for geeklist entry"
+                    placeholder="Trade condition / description"
+                    aria-label="Trade condition / description for math trade"
                 />
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
                     <label
                         className="text-xs text-base-content/70"
                         htmlFor={`copies-${collectionId}`}
@@ -94,7 +115,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                     <input
                         id={`copies-${collectionId}`}
                         type="number"
-                        className="input input-bordered input-xs w-16"
+                        className="input input-bordered input-xs ml-0.5 w-8"
                         min={1}
                         value={copies}
                         onChange={e => handleCopiesChange(
@@ -121,22 +142,30 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                 aria-expanded={false}
             >
                 <pre className={`text-xs whitespace-pre-wrap wrap-break-word
-                    font-mono text-base-content/70
-                    bg-base-200 rounded p-2 h-14 overflow-y-auto`}>
+                    font-encode-condensed text-base-content/90
+                    bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
                     {bodyText}
                 </pre>
             </button>
+        )}
+        {error && (
+            <p className="text-xs text-error mt-1" role="alert">{error}</p>
         )}
         <button
             type="button"
             className={`btn rounded-full w-full mt-2
                 ${isInGeeklist ? 'btn-warning' : 'bg-[#e07ca4] text-white'}
                 uppercase text-xs font-sharetech
-                pt-1 pb-1`}
-            onClick={handleAdd}
-            aria-label={`Add ${item.name} to math trade geeklist`}
+                pt-1 pb-1
+                ${sending ? 'opacity-75 cursor-not-allowed' : ''}`}
+            onClick={() => void handleAdd()}
+            disabled={sending}
+            aria-label={`Add ${item.name} to math trade`}
         >
-            Add to Geeklist
+            {sending
+                ? <span className="loading loading-bars loading-xs" />
+                : 'Add to Trade'
+            }
         </button>
     </div>;
 });

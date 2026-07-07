@@ -1,11 +1,17 @@
 import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Share_Tech } from 'next/font/google';
+import { Encode_Sans_Condensed, Geist, Geist_Mono, Share_Tech } from 'next/font/google';
 import './globals.css';
 import Image from 'next/image';
 import Link from 'next/link';
 import Script from 'next/script';
 import React from 'react';
+
+const encodeCondensed = Encode_Sans_Condensed({
+    variable: '--font-encode-condensed',
+    weight: '200',
+    subsets: ['latin'],
+});
 
 const shareTech = Share_Tech({
     variable: '--font-share-tech',
@@ -49,7 +55,9 @@ export default function RootLayout({
           <Script src="https://cdn.jsdelivr.net/npm/image-blob-reduce@4.1.0/dist/image-blob-reduce.min.js" strategy="beforeInteractive"></Script>
       </head>
       <body className={`
-          w-full min-h-screen ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} antialiased
+          w-full min-h-screen
+          ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} ${encodeCondensed.variable}
+          antialiased
           bg-[url(/images/flair-bg.png)]
           md:bg-[url(/images/flair-bg-md.png)]
           lg:bg-[url(/images/flair-bg-lg.png)]

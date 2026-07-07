@@ -58,6 +58,11 @@ body {
 .font-sharetech, h1, h2, h3, h4, h5, h6, h7 {
   font-family: var(--font-share-tech), monospace;
 }
+
+.font-encode-condensed {
+  font-family: var(--font-encode-condensed), var(--font-share-tech), sans-serif;
+}
+
 h2 {
   font-size: 1.5em;
 }

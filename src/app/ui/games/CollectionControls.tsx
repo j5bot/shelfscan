@@ -236,6 +236,7 @@ export const CollectionControls = <F extends string>({
 
     const savedFiltersControls = savedFilters.length > 0 && (
         <button
+            key={'saved-filters-control'}
             ref={presetsButtonRef}
             type="button"
             className={`btn btn-condensed btn-xs rounded-sm ${presetsPos ? 'btn-primary' : 'text-base-content/40 bg-[#efefef]'}`}
@@ -259,7 +260,7 @@ export const CollectionControls = <F extends string>({
     />
 
     const ownershipControls = filters.ownership !== 'default' ? (
-        <div className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+        <div key="ownership-controls" className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
             {ownershipToggle}
             <select
                 className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 shrink-0"
@@ -275,6 +276,7 @@ export const CollectionControls = <F extends string>({
     ) : ownershipToggle;
 
     const wantToggle = <button
+        key="want-toggle"
         type="button"
         className={`btn btn-condensed btn-xs ${
             filters.want !== 'default' ? 'btn-success text-success-content' : 'text-base-content/40 bg-[#efefef]'
@@ -287,7 +289,7 @@ export const CollectionControls = <F extends string>({
     </button>;
 
     const wantControls = filters.want !== 'default' ? (
-        <div className="flex bg-[#efefef] w-fit p-0.5 rounded-sm items-center gap-0.5">
+        <div key="want-controls" className="flex bg-[#efefef] w-fit p-0.5 rounded-sm items-center gap-0.5">
             {wantToggle}
             <select
                 className="pl-2 select rounded-sm select-bordered select-xs w-28 shrink-0"
@@ -303,6 +305,7 @@ export const CollectionControls = <F extends string>({
     ) : wantToggle;
 
     const ratingToggle = <ThreeStateToggle
+        key="rating-toggle"
         value={filters.rating}
         states={['default', 'rated', 'notrated'] as const}
         onLabel="Rated"
@@ -313,7 +316,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const ratingControls = filters.rating === 'rated' ? (
-        <div className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+        <div key="rating-controls" className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
             {ratingToggle}
             <button
                 type="button"
@@ -351,6 +354,7 @@ export const CollectionControls = <F extends string>({
     ) : ratingToggle;
 
     const playsToggle = <ThreeStateToggle
+        key="plays-toggle"
         value={filters.plays}
         states={['default', 'played', 'notplayed'] as const}
         onLabel="Played"
@@ -361,7 +365,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const playsControls = filters.plays === 'played' ? (
-            <div className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+            <div key="plays-controls" className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
                 {playsToggle}
                 <input
                     type="text"
@@ -388,6 +392,7 @@ export const CollectionControls = <F extends string>({
         ) : playsToggle;
 
     const tradeControl = <ThreeStateToggle
+        key="trade-control"
         value={filters.trade}
         states={['default', 'fortrade', 'nottrade'] as const}
         onLabel="For Trade"
@@ -398,6 +403,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const conditionControl = <ThreeStateToggle
+        key="condition-control"
         value={filters.condition}
         states={['default', 'has', 'not'] as const}
         onLabel="Has Condition"
@@ -410,7 +416,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const wishlistControls = filters.wishlist !== 'default' ? (
-        <div className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+        <div key="wishlist-controls" className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
             <ThreeStateToggle
                 value={filters.wishlist}
                 states={['default', 'wishlist', 'notwishlist'] as const}
@@ -437,6 +443,7 @@ export const CollectionControls = <F extends string>({
         </div>
     ) : (
          <ThreeStateToggle
+             key="wishlist-toggle"
              value={filters.wishlist}
              states={['default', 'wishlist', 'notwishlist'] as const}
              onLabel="On Wishlist"
@@ -448,6 +455,7 @@ export const CollectionControls = <F extends string>({
      );
 
     const preorderControl = <ThreeStateToggle
+        key="preorder-toggle"
         value={filters.preorder}
         states={['default', 'preordered', 'notpreordered'] as const}
         onLabel="Preordered"
@@ -458,6 +466,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const versionControl = <ThreeStateToggle
+        key="version-toggle"
         value={filters.version}
         states={['default', 'versioned', 'notversioned'] as const}
         onLabel="Versioned"
@@ -468,6 +477,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const verificationControl = <ThreeStateToggle
+        key="verification-toggle"
         value={filters.verification}
         states={['default', 'verified', 'notverified'] as const}
         onLabel="Verified"
@@ -478,6 +488,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const scanControl = <ThreeStateToggle
+        key="scan-toggle"
         value={filters.scan}
         states={['default', 'scanned', 'notscanned'] as const}
         onLabel="Scanned"
@@ -518,16 +529,16 @@ export const CollectionControls = <F extends string>({
                         aria-label="Search field"
                     >
                         {selectedContent}
-                        <option value="all" selected={filters.searchMode === 'all'}>
+                        <option value="all">
                             <FaAsterisk aria-hidden={true} /> <span>All</span>
                         </option>
-                        <option value="name" selected={filters.searchMode === 'name'}>
+                        <option value="name">
                             <FaA aria-hidden={true} /> <span>Name</span>
                         </option>
-                        <option value="version" selected={filters.searchMode === 'version'}>
+                        <option value="version">
                             <VersionIcon aria-hidden={true} width={12} height={12} /> <span>Version</span>
                         </option>
-                        <option value="tags" selected={filters.searchMode === 'tags'}>
+                        <option value="tags">
                             <FaTags aria-hidden={true} /> <span>Tags</span>
                         </option>
                     </select>

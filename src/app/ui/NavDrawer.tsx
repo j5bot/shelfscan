@@ -21,6 +21,7 @@ import {
     FaLayerGroup,
     FaList,
     FaNewspaper,
+    FaRightLeft,
     FaTableList
 } from 'react-icons/fa6';
 import { MdQuestionAnswer, MdTour } from 'react-icons/md';
@@ -169,6 +170,11 @@ export const NavDrawer = () => {
                         <li className="w-full">
                             <Link className="flex gap-2 grow" href="/collection" onNavigate={closeOnNavigate}>
                                 <FaList className="inline" /> Collection
+                            </Link>
+                        </li>
+                        <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/math-trade" onNavigate={closeOnNavigate}>
+                                <FaRightLeft className="inline" /> Math Trade
                             </Link>
                         </li>
                         {refreshCollectionItem}
