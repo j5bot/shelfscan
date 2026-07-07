@@ -76,6 +76,11 @@ export const CollectionPageContent = ({
     const [isBulkMathTradeAdding, setIsBulkMathTradeAdding] = useState(false);
     const [mathTradeError, setMathTradeError] = useState<string | null>(null);
 
+    const initialMathTradeGeeklistStatus = useSelector(
+        (state: RootState) => initialMathTradeGeeklistId ?
+                              state.bgg.geeklist.geekLists[initialMathTradeGeeklistId]?.status
+                              : undefined
+    );
     const activeGeekListId = useSelector(
         (state: RootState) => state.bgg.geeklist.activeGeekListId,
     );
@@ -102,9 +107,18 @@ export const CollectionPageContent = ({
     const router = useRouter();
     const isMathTradeRoute = pathname?.startsWith('/math-trade') ?? false;
 
-    // Auto-load the geeklist and enter math trade mode when an ID is provided via route params
+    const store = useStore();
+
+    // Auto-load the geeklist and enter math trade mode when an ID is provided via route params.
+    // Skips the network request if the geeklist is already loaded in Redux (e.g. after a dialog
+    // load followed by router navigation to the same ID).
     useEffect(() => {
         if (!initialMathTradeGeeklistId) { return; }
+        if (initialMathTradeGeeklistStatus === 'loaded') {
+            dispatch(setActiveGeekList(initialMathTradeGeeklistId));
+            setMathTradeMode(true);
+            return;
+        }
         let active = true;
         dispatch(loadGeeklistStart(initialMathTradeGeeklistId));
         void bggGetGeeklistInner(initialMathTradeGeeklistId).then(xml => {
@@ -122,7 +136,7 @@ export const CollectionPageContent = ({
             setMathTradeMode(true);
         });
         return () => { active = false; };
-    }, [initialMathTradeGeeklistId, dispatch]);
+    }, [initialMathTradeGeeklistId, dispatch, store]);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -148,8 +162,6 @@ export const CollectionPageContent = ({
     const [addedNames, setAddedNames] = useState<string[]>([]);
     const [isAdding, setIsAdding] = useState(false);
     const addToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const store = useStore();
 
     const handleMathTradeClick = useCallback(() => {
         if (mathTradeMode) {
@@ -778,7 +790,13 @@ export const CollectionPageContent = ({
             <MathTradeDialog
                 isOpen={showMathTradeDialog}
                 onClose={() => setShowMathTradeDialog(false)}
-                onLoaded={() => setMathTradeMode(true)}
+                onLoaded={(id: number) => {
+                    if (isMathTradeRoute) {
+                        router.replace(`/math-trade/${id}`);
+                        return;
+                    }
+                    setMathTradeMode(true)
+                }}
             />
             {addedNames.length > 0 && (
                 <div
