@@ -172,12 +172,12 @@ export const NavDrawer = () => {
                                 <FaList className="inline" /> Collection
                             </Link>
                         </li>
-                        {refreshCollectionItem}
                         <li className="w-full">
                             <Link className="flex gap-2 grow" href="/math-trade" onNavigate={closeOnNavigate}>
                                 <FaRightLeft className="inline" /> Math Trade
                             </Link>
                         </li>
+                        {refreshCollectionItem}
                     </ul>
                     {syncOn &&
                        <ul className="w-full list-none menu text-base-content p-0 py-2 border-t-gray-300 border-t">

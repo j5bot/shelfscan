@@ -34,6 +34,7 @@ import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { type GameUPCBggInfo } from 'gameupc-hooks/types';
+import { usePathname, useRouter } from 'next/navigation';
 import { KeyboardEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     FaArrowsRotate,
@@ -69,7 +70,7 @@ export const CollectionPageContent = ({
     const { canBatch, addGameToCollection } = useBatchSync();
     const { sendViaExtension } = useMathTrade();
     const [batchRate, setBatchRate] = useState<boolean>(false);
-    const [mathTradeMode, setMathTradeMode] = useState(false);
+    const [mathTradeMode, setMathTradeMode] = useState(!!initialMathTradeGeeklistId);
     const [showMathTradeDialog, setShowMathTradeDialog] = useState(false);
     const [selectedMathTradeIds, setSelectedMathTradeIds] = useState<Set<number>>(new Set());
     const [isBulkMathTradeAdding, setIsBulkMathTradeAdding] = useState(false);
@@ -96,6 +97,10 @@ export const CollectionPageContent = ({
                 title: entry.geekList?.title ?? `Geeklist ${id}`,
             })),
     );
+
+    const pathname = usePathname();
+    const router = useRouter();
+    const isMathTradeRoute = pathname?.startsWith('/math-trade') ?? false;
 
     // Auto-load the geeklist and enter math trade mode when an ID is provided via route params
     useEffect(() => {
@@ -498,7 +503,7 @@ export const CollectionPageContent = ({
                                     />
                                 </button>
                             )}
-                            {syncOn && (
+                            {syncOn && !isMathTradeRoute && (
                                 <button
                                     className={`btn btn-sm rounded-md ${
                                         batchRate ? 'btn-primary' : ''
@@ -513,7 +518,7 @@ export const CollectionPageContent = ({
                                     <FaStar aria-hidden="true" />
                                 </button>
                             )}
-                            {activeTab === CollectionTabs.ALL_GAMES && (
+                            {activeTab === CollectionTabs.ALL_GAMES && !isMathTradeRoute && (
                                 <button
                                     className={`btn btn-sm rounded-md ${mathTradeMode ? 'btn-primary' : ''}`}
                                     onClick={handleMathTradeClick}
@@ -567,7 +572,12 @@ export const CollectionPageContent = ({
                             <GeekListSwitcher
                                 activeId={activeGeekListId}
                                 lists={allGeekLists}
-                                onSelect={id => dispatch(setActiveGeekList(id))}
+                                onSelect={id => {
+                                    dispatch(setActiveGeekList(id));
+                                    if (isMathTradeRoute) {
+                                        router.replace(`/math-trade/${id}`);
+                                    }
+                                }}
                             />
                             <button
                                 type="button"
