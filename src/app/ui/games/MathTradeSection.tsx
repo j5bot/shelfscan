@@ -99,13 +99,13 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         {expanded ? (
             <div className="flex flex-col gap-2">
                 <textarea
-                    className="textarea textarea-bordered w-full text-xs resize-y min-h-16"
+                    className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
                     value={bodyText}
                     onChange={e => handleBodyChange(e.target.value)}
                     placeholder="Trade condition / body text"
                     aria-label="Body text for geeklist entry"
                 />
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
                     <label
                         className="text-xs text-base-content/70"
                         htmlFor={`copies-${collectionId}`}
@@ -115,7 +115,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                     <input
                         id={`copies-${collectionId}`}
                         type="number"
-                        className="input input-bordered input-xs w-16"
+                        className="input input-bordered input-xs ml-0.5 w-8"
                         min={1}
                         value={copies}
                         onChange={e => handleCopiesChange(
@@ -142,8 +142,8 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                 aria-expanded={false}
             >
                 <pre className={`text-xs whitespace-pre-wrap wrap-break-word
-                    font-mono text-base-content/70
-                    bg-base-200 rounded p-2 h-14 overflow-y-auto`}>
+                    font-encode-condensed text-base-content/90
+                    bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
                     {bodyText}
                 </pre>
             </button>
