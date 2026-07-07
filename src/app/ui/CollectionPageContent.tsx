@@ -580,7 +580,7 @@ export const CollectionPageContent = ({
                         </div>
                     </div>
                     {mathTradeMode && (
-                        <div className="w-full flex items-center gap-1.5">
+                        <div className="w-full flex items-center justify-center gap-1.5">
                             <GeekListSwitcher
                                 activeId={activeGeekListId}
                                 lists={allGeekLists}

@@ -92,8 +92,7 @@ export const ListGame = memo((props: ListGameProps) => {
             </div>
         )}
         {mathTradeSelected && onClick && (
-            <button
-                type="button"
+            <div
                 className="absolute top-1 right-1 z-20 pointer-events-auto
                     bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow
                     text-base-content/60 hover:text-base-content"
@@ -101,7 +100,7 @@ export const ListGame = memo((props: ListGameProps) => {
                 aria-label={`Edit ${name}`}
             >
                 <FaArrowUpRightFromSquare className="w-3.5 h-3.5" aria-hidden="true" />
-            </button>
+            </div>
         )}
     </div>;
 
@@ -131,7 +130,7 @@ export const ListGame = memo((props: ListGameProps) => {
 
     return <li
         className={`list-none relative rounded-md bg-white dark:bg-gray-900
-            ${mathTradeSelected ? 'ring-2 ring-[#e07ca4]' : ''}`}
+            ${mathTradeSelected ? 'mt-0.5 outline-2 outline-[#e07ca4]' : ''}`}
         key={keyValue}
     >
         {bottomLeftIcon}
