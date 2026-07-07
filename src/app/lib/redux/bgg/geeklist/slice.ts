@@ -105,6 +105,9 @@ export const geeklistSlice = createSlice({
                 copies,
             };
         },
+        setActiveGeekList: (state, action: PayloadAction<number>) => {
+            state.activeGeekListId = action.payload;
+        },
         recordAdd: (
             state,
             action: PayloadAction<{
@@ -156,6 +159,7 @@ export const {
     loadGeeklistStart,
     loadGeeklistSuccess,
     loadGeeklistError,
+    setActiveGeekList,
     setItemData,
     recordAdd,
 } = geeklistSlice.actions;

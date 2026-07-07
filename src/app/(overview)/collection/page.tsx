@@ -13,12 +13,14 @@ import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
 import { useTitle } from '@/app/lib/hooks/useTitle';
-import { useSelector, useStore } from '@/app/lib/hooks';
+import { useDispatch, useSelector, useStore } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
+import { setActiveGeekList } from '@/app/lib/redux/bgg/geeklist/slice';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
+import { GeekListSwitcher } from '@/app/ui/GeekListSwitcher';
 import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
@@ -31,6 +33,7 @@ import {
     FaBorderAll,
     FaCloudArrowUp,
     FaList,
+    FaPlus,
     FaRightLeft,
     FaStar,
     FaTableCells,
@@ -43,6 +46,7 @@ type NotInCollectionSortField = 'name' | 'lastScanned';
 export default function CollectionPage() {
     useTitle('ShelfScan | Collection');
 
+    const dispatch = useDispatch();
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const { scanHistory, lastScannedMap } = useScanHistory();
     const { syncOn } = useSync();
@@ -67,6 +71,14 @@ export default function CollectionPage() {
         activeGeekListId !== null
             ? state.bgg.geeklist.geekLists[activeGeekListId]?.geekList?.title
             : undefined,
+    );
+    const allGeekLists = useSelector((state: RootState) =>
+        Object.entries(state.bgg.geeklist.geekLists)
+            .filter(([, entry]) => entry.status === 'loaded')
+            .map(([id, entry]) => ({
+                id: parseInt(id, 10),
+                title: entry.geekList?.title ?? `Geeklist ${id}`,
+            })),
     );
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
@@ -478,6 +490,24 @@ export default function CollectionPage() {
                                 </button>
                             )}
                         </div>
+                        {mathTradeMode && (
+                            <div className="w-full flex items-center gap-1.5">
+                                <GeekListSwitcher
+                                    activeId={activeGeekListId}
+                                    lists={allGeekLists}
+                                    onSelect={id => dispatch(setActiveGeekList(id))}
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-xs btn-ghost rounded-md shrink-0"
+                                    onClick={() => setShowMathTradeDialog(true)}
+                                    aria-label="Load another geeklist"
+                                    title="Load another geeklist"
+                                >
+                                    <FaPlus aria-hidden="true" />
+                                </button>
+                            </div>
+                        )}
                         <div
                             className="absolute top-1 right-0 flex items-center gap-0.5"
                             role="group"
@@ -594,8 +624,7 @@ export default function CollectionPage() {
                         <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
                             <span className="text-xs text-base-content/60">
                                 {selectedMathTradeIds.size > 0
-                                    ? `${selectedMathTradeIds.size} selected`
-                                    : 'Tap a thumbnail to select'
+                                    && `${selectedMathTradeIds.size} selected`
                                 }
                             </span>
                             {selectedMathTradeIds.size > 0 && (
