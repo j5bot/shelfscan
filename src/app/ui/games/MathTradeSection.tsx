@@ -37,6 +37,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
     const [expanded, setExpanded] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sending, setSending] = useState(false);
+    const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false);
 
     const defaultBodyText = item?.tradeCondition ?? '';
     const bodyText = savedData?.bodyText ?? defaultBodyText;
@@ -158,7 +159,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                 uppercase text-xs font-sharetech
                 pt-1 pb-1
                 ${sending ? 'opacity-75 cursor-not-allowed' : ''}`}
-            onClick={() => void handleAdd()}
+            onClick={() => { if (isInGeeklist) { setShowDuplicateConfirm(true); } else { void handleAdd(); } }}
             disabled={sending}
             aria-label={`Add ${item.name} to math trade`}
         >
@@ -167,6 +168,41 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
                 : 'Add to Trade'
             }
         </button>
+        {showDuplicateConfirm && (
+            <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+                onClick={() => setShowDuplicateConfirm(false)}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Already in geeklist"
+            >
+                <div
+                    className="relative bg-base-100 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl"
+                    onClick={e => e.stopPropagation()}
+                >
+                    <h2 className="text-lg font-semibold mb-2">Already in Geeklist</h2>
+                    <p className="text-sm text-base-content/70 mb-4">
+                        This game is already in your math trade geeklist. Add it again?
+                    </p>
+                    <div className="flex justify-end gap-2">
+                        <button
+                            type="button"
+                            className="btn btn-sm btn-ghost"
+                            onClick={() => setShowDuplicateConfirm(false)}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-sm btn-warning"
+                            onClick={() => { setShowDuplicateConfirm(false); void handleAdd(); }}
+                        >
+                            Add Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>;
 });
 
