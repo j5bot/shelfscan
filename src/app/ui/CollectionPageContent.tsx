@@ -75,6 +75,8 @@ export const CollectionPageContent = ({
     const [selectedMathTradeIds, setSelectedMathTradeIds] = useState<Set<number>>(new Set());
     const [isBulkMathTradeAdding, setIsBulkMathTradeAdding] = useState(false);
     const [mathTradeError, setMathTradeError] = useState<string | null>(null);
+    const [isRefreshingGeeklist, setIsRefreshingGeeklist] = useState(false);
+    const [pendingMathTradeToggleId, setPendingMathTradeToggleId] = useState<number | null>(null);
 
     const initialMathTradeGeeklistStatus = useSelector(
         (state: RootState) => initialMathTradeGeeklistId ?
@@ -177,6 +179,19 @@ export const CollectionPageContent = ({
     }, [mathTradeMode, activeGeekListId, activeGeekListStatus]);
 
     const handleMathTradeToggle = useCallback((collectionId: number) => {
+        if (!selectedMathTradeIds.has(collectionId)) {
+            const reduxState = store.getState();
+            const user = reduxState.bgg.user?.user?.toLowerCase() ?? '';
+            const item = reduxState.bgg.collection.users[user]?.items[collectionId];
+            if (item && activeGeekListId !== null) {
+                const geeklist = reduxState.bgg.geeklist.geekLists[activeGeekListId];
+                const inGeeklist = (geeklist?.games[item.objectId]?.length ?? 0) > 0;
+                if (inGeeklist) {
+                    setPendingMathTradeToggleId(collectionId);
+                    return;
+                }
+            }
+        }
         setSelectedMathTradeIds(prev => {
             const next = new Set(prev);
             if (next.has(collectionId)) {
@@ -186,7 +201,7 @@ export const CollectionPageContent = ({
             }
             return next;
         });
-    }, []);
+    }, [store, activeGeekListId, selectedMathTradeIds]);
 
     const handleBulkMathTradeAdd = useCallback(async () => {
         if (selectedMathTradeIds.size === 0) { return; }
@@ -226,6 +241,26 @@ export const CollectionPageContent = ({
             setSelectedMathTradeIds(new Set());
         }
     }, [selectedMathTradeIds, store, sendViaExtension]);
+
+    const handleRefreshGeeklist = useCallback(async () => {
+        if (activeGeekListId === null) { return; }
+        setIsRefreshingGeeklist(true);
+        dispatch(loadGeeklistStart(activeGeekListId));
+        const xml = await bggGetGeeklistInner(activeGeekListId);
+        if (!xml) {
+            dispatch(loadGeeklistError(activeGeekListId));
+            setIsRefreshingGeeklist(false);
+            return;
+        }
+        const geekList = bggGetGeeklistFromXML(xml);
+        if (!geekList) {
+            dispatch(loadGeeklistError(activeGeekListId));
+            setIsRefreshingGeeklist(false);
+            return;
+        }
+        dispatch(loadGeeklistSuccess(geekList));
+        setIsRefreshingGeeklist(false);
+    }, [activeGeekListId, dispatch]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
@@ -581,6 +616,21 @@ export const CollectionPageContent = ({
                     </div>
                     {mathTradeMode && (
                         <div className="w-full flex items-center justify-center gap-1.5">
+                            {activeGeekListId !== null && (
+                                <button
+                                    type="button"
+                                    className="btn btn-xs btn-ghost rounded-md shrink-0"
+                                    onClick={() => void handleRefreshGeeklist()}
+                                    disabled={isRefreshingGeeklist}
+                                    aria-label={isRefreshingGeeklist ? 'Refreshing geeklist…' : 'Refresh geeklist'}
+                                    title={isRefreshingGeeklist ? 'Refreshing…' : 'Refresh geeklist'}
+                                >
+                                    <FaArrowsRotate
+                                        className={isRefreshingGeeklist ? 'animate-spin' : ''}
+                                        aria-hidden="true"
+                                    />
+                                </button>
+                            )}
                             <GeekListSwitcher
                                 activeId={activeGeekListId}
                                 lists={allGeekLists}
@@ -681,7 +731,8 @@ export const CollectionPageContent = ({
                         <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
                             <span className="text-xs text-base-content/60">
                                 {selectedMathTradeIds.size > 0
-                                    && `${selectedMathTradeIds.size} selected`
+                                    ? `${selectedMathTradeIds.size} selected`
+                                    : 'Click image to select for Math Trade'
                                 }
                             </span>
                             {selectedMathTradeIds.size > 0 && (
@@ -865,6 +916,49 @@ export const CollectionPageContent = ({
                                     : <FaCloudArrowUp />
                                 }
                                 Add to Collection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {pendingMathTradeToggleId !== null && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+                    onClick={() => setPendingMathTradeToggleId(null)}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label="Already in geeklist"
+                >
+                    <div
+                        className="relative bg-base-100 rounded-2xl p-6 w-full max-w-sm mx-4 shadow-xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <h2 className="text-lg font-semibold mb-2">Already in Geeklist</h2>
+                        <p className="text-sm text-base-content/70 mb-4">
+                            This game is already in your math trade geeklist. Select it to add again?
+                        </p>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-ghost"
+                                onClick={() => setPendingMathTradeToggleId(null)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-warning"
+                                onClick={() => {
+                                    const id = pendingMathTradeToggleId;
+                                    setPendingMathTradeToggleId(null);
+                                    setSelectedMathTradeIds(prev => {
+                                        const next = new Set(prev);
+                                        next.add(id);
+                                        return next;
+                                    });
+                                }}
+                            >
+                                Add Again
                             </button>
                         </div>
                     </div>
