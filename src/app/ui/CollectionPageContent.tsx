@@ -65,6 +65,8 @@ export const CollectionPageContent = ({
 
     const dispatch = useDispatch();
     const username = useSelector((state: RootState) => state.bgg.user?.user);
+    const collection = useSelector((state: RootState) => state.bgg.collection?.users[username?.toLowerCase() ?? ''] ?? undefined);
+    const geeklistData = useSelector((state: RootState) => state.bgg.geeklist.data);
     const { scanHistory, lastScannedMap } = useScanHistory();
     const { syncOn } = useSync();
     const { canBatch, addGameToCollection } = useBatchSync();
@@ -86,6 +88,7 @@ export const CollectionPageContent = ({
     const activeGeekListId = useSelector(
         (state: RootState) => state.bgg.geeklist.activeGeekListId,
     );
+    const geeklist = useSelector((state: RootState) => state.bgg.geeklist.geekLists[activeGeekListId ?? 0])
     const activeGeekListStatus = useSelector((state: RootState) =>
         activeGeekListId !== null
             ? state.bgg.geeklist.geekLists[activeGeekListId]?.status
@@ -180,11 +183,8 @@ export const CollectionPageContent = ({
 
     const handleMathTradeToggle = useCallback((collectionId: number) => {
         if (!selectedMathTradeIds.has(collectionId)) {
-            const reduxState = store.getState();
-            const user = reduxState.bgg.user?.user?.toLowerCase() ?? '';
-            const item = reduxState.bgg.collection.users[user]?.items[collectionId];
+            const item = collection?.items[collectionId];
             if (item && activeGeekListId !== null) {
-                const geeklist = reduxState.bgg.geeklist.geekLists[activeGeekListId];
                 const inGeeklist = (geeklist?.games[item.objectId]?.length ?? 0) > 0;
                 if (inGeeklist) {
                     setPendingMathTradeToggleId(collectionId);
@@ -208,13 +208,8 @@ export const CollectionPageContent = ({
         setIsBulkMathTradeAdding(true);
         setMathTradeError(null);
 
-        const reduxState = store.getState();
-        const user = reduxState.bgg.user?.user?.toLowerCase() ?? '';
-        const collectionUsers = reduxState.bgg.collection.users[user];
-        const geeklistData = reduxState.bgg.geeklist.data;
-
         const items = Array.from(selectedMathTradeIds).flatMap(collectionId => {
-            const item = collectionUsers?.items[collectionId];
+            const item = collection?.items[collectionId];
             if (!item) { return []; }
             const savedData = geeklistData[collectionId];
             const bodyText = savedData?.bodyText ?? item.tradeCondition ?? '';
@@ -240,7 +235,7 @@ export const CollectionPageContent = ({
         } else {
             setSelectedMathTradeIds(new Set());
         }
-    }, [selectedMathTradeIds, store, sendViaExtension]);
+    }, [selectedMathTradeIds, sendViaExtension]);
 
     const handleRefreshGeeklist = useCallback(async () => {
         if (activeGeekListId === null) { return; }
@@ -615,7 +610,7 @@ export const CollectionPageContent = ({
                         </div>
                     </div>
                     {mathTradeMode && (
-                        <div className="w-full flex items-center justify-center gap-1.5">
+                        <div className="w-full flex items-center justify-center gap-0.5">
                             {activeGeekListId !== null && (
                                 <button
                                     type="button"

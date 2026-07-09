@@ -29,7 +29,7 @@ export const GeekListSwitcher = ({ activeId, lists, onSelect }: GeekListSwitcher
     }, [open]);
 
     return (
-        <div ref={containerRef} className="relative w-fit">
+        <div ref={containerRef} className="relative w-fit max-w-[80%]">
             <button
                 type="button"
                 className="btn btn-xs btn-ghost rounded-md w-full flex items-center justify-between gap-1 px-2"
