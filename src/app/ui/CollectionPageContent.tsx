@@ -5,6 +5,7 @@ import { useSync } from '@/app/lib/extension/useSync';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { useMathTrade } from '@/app/lib/hooks/useMathTrade';
+import { bggHost } from '@/app/lib/services/bgg/constants';
 import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
@@ -34,15 +35,17 @@ import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { type GameUPCBggInfo } from 'gameupc-hooks/types';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { KeyboardEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
     FaArrowsRotate,
     FaBorderAll,
     FaCloudArrowUp,
     FaList,
     FaPlus,
-    FaRightLeft,
+    FaRightLeft, FaSquareArrowUpRight, FaSquareUpRight,
     FaStar,
     FaTableCells,
     FaXmark,
@@ -636,6 +639,14 @@ export const CollectionPageContent = ({
                                     }
                                 }}
                             />
+                            <Link
+                                className="btn btn-xs btn-ghost rounded-md shrink-0"
+                                href={`${bggHost}/geeklist/${activeGeekListId}`}
+                                rel="noreferrer noopener"
+                                aria-label="Open math trade list"
+                                title="Open math trade list"
+                                target="_blank"
+                                ><FaExternalLinkAlt aria-hidden="true" /></Link>
                             <button
                                 type="button"
                                 className="btn btn-xs btn-ghost rounded-md shrink-0"
