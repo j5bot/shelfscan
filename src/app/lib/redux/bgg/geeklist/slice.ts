@@ -146,11 +146,9 @@ export const geeklistSlice = createSlice({
             }
 
             const existing = state.data[collectionId];
-            state.data[collectionId] = {
-                geekListItemID: geeklistItemId,
-                bodyText: existing?.bodyText ?? '',
-                copies: existing?.copies ?? 1,
-            };
+            if (existing !== undefined) {
+                existing.geekListItemID = geeklistItemId;
+            }
         },
     },
 });
