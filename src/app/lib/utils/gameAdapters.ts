@@ -35,6 +35,7 @@ export const gameUPCInfoToCollectionItem =
 
 export const collectionItemToGame = (item: BggCollectionItem): Game => ({
     id: item.objectId,
+    collectionId: item.collectionId,
     name: item.name,
     pageUrl: `https://boardgamegeek.com/boardgame/${item.objectId}/${createSlug(item.name)}`,
     thumbnailUrl: item.thumbnail,
@@ -62,8 +63,11 @@ export const collectionVersionToGameUPCVersion = (version: BggVersion): GameUPCB
     language: version.languages?.join(', ') ?? '',
 });
 
-export const collectionItemToGameUPCInfo = (item: BggCollectionItem): GameUPCBggInfo => ({
+export const collectionItemToGameUPCInfo = (item: BggCollectionItem): GameUPCBggInfo & {
+    collectionId?: number;
+} => ({
     id: item.objectId,
+    collectionId: item.collectionId,
     name: item.name,
     confidence: -1,
     thumbnail_url: item.thumbnail ?? '',
