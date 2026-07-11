@@ -115,7 +115,7 @@ describe('bgg/collection/selectors', () => {
     describe('#getCollectionInfoByObjectId', () => {
         it('returns an empty object when id is undefined', () => {
             const state = makeState();
-            expect(getCollectionInfoByObjectId([state, undefined])).toEqual({});
+            expect(getCollectionInfoByObjectId([state, undefined, undefined])).toEqual({});
         });
 
         it('returns an empty object when there is no collection for the current user', () => {
@@ -126,12 +126,12 @@ describe('bgg/collection/selectors', () => {
                     collection: { users: {} },
                 },
             }) as unknown as RootState;
-            expect(getCollectionInfoByObjectId([emptyUsersState, 1])).toEqual({});
+            expect(getCollectionInfoByObjectId([emptyUsersState, 1, undefined])).toEqual({});
         });
 
         it('returns an empty object when the objectId is not in the collection', () => {
             const state = makeState({ objectsAll: {} });
-            expect(getCollectionInfoByObjectId([state, 99])).toEqual({});
+            expect(getCollectionInfoByObjectId([state, 99, undefined])).toEqual({});
         });
 
         it('returns collectionId and collection when a matching item exists', () => {
@@ -145,7 +145,7 @@ describe('bgg/collection/selectors', () => {
                 objectsAll: { [objectId]: [String(collectionId)] },
             });
 
-            const result = getCollectionInfoByObjectId([state, objectId]);
+            const result = getCollectionInfoByObjectId([state, objectId, undefined]);
             expect(result.collectionId).toBe(String(collectionId));
             expect(result.collection).toBeDefined();
         });
@@ -162,7 +162,7 @@ describe('bgg/collection/selectors', () => {
                 objectsAll: { [objectId]: ['20', '21'] },
             });
 
-            const result = getCollectionInfoByObjectId([state, objectId]);
+            const result = getCollectionInfoByObjectId([state, objectId, undefined]);
             expect(result.collectionId).toBe('21');
         });
     });

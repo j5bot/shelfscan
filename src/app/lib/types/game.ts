@@ -5,6 +5,7 @@
 
 export type Game = {
     id: number;
+    collectionId?: number;
     name: string;
     pageUrl: string;
     thumbnailUrl?: string;

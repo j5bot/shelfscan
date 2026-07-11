@@ -49,7 +49,7 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
                 return;
             }
             const { collectionId } =
-                getCollectionInfoByObjectId([state, info.id]);
+                getCollectionInfoByObjectId([state, info.id, undefined]);
 
             return addGameToCollection(info, versionId, collectionId)?.then(
                 success => success ? `${info.name} (${code})` : undefined

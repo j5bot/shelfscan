@@ -29,7 +29,7 @@ import {
 } from 'react-icons/fa6';
 
 type UseExtension = {
-    info?: GameUPCBggInfo;
+    info?: GameUPCBggInfo & { collectionId?: number };
     version?: GameUPCBggVersion;
     view?: 'version' | 'collection'
 }
@@ -60,7 +60,7 @@ export const useExtension = (params?: UseExtension) => {
 
     const { collectionId, collection } =
         useSelector((state) =>
-            getCollectionInfoByObjectId([state, info?.id]));
+            getCollectionInfoByObjectId([state, info?.id, info?.collectionId]));
 
     const collectionItem = collection?.items[collectionId];
 

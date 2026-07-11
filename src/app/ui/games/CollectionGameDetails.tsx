@@ -111,7 +111,7 @@ export const CollectionGameDetails = ({
     const versionId = liveItem?.versionId;
 
     const { upcMap } = useScanHistory();
-    const { gameDataMap, getGameData, isGetPending } = useGameUPCData();
+    const { gameDataMap, isGetPending } = useGameUPCData();
 
     const upc = liveItem?.objectId ? upcMap.has(liveItem.objectId) ? upcMap.get(liveItem.objectId) : undefined : undefined;
     const infos: GameUPCBggInfo[] | undefined = upc ? gameDataMap[upc]?.bgg_info : undefined;

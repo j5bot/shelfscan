@@ -460,7 +460,7 @@ export const CollectionPageContent = ({
         );
 
         const promises = selectedEntries.map(entry => {
-            const { collectionId } = getCollectionInfoByObjectId([reduxState, entry.bggId!]);
+            const { collectionId } = getCollectionInfoByObjectId([reduxState, entry.bggId!, undefined]);
             const info: GameUPCBggInfo = {
                 id: entry.bggId!,
                 name: entry.gameName ?? entry.upc,

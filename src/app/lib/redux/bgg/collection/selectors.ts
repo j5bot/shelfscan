@@ -15,8 +15,28 @@ export const selectTagMap = memoize(([state]: [RootState]): BggTagMap => {
     return state.bgg.collection.users[username]?.tags ?? EMPTY_TAG_MAP;
 }, { size: 10 });
 
-export const getCollectionInfoByObjectId =
+export const getCollectionItemsByObjectId =
     memoize(([state, id]: [RootState, number | undefined]) => {
+        if (id === undefined) {
+            return [];
+        }
+
+        const collection = state.bgg.collection
+            .users[state.bgg.user?.user?.toLowerCase() ?? ''];
+        if (!collection) {
+            return [];
+        }
+
+        const allCollectionItems = collection.objects.all[id];
+        if (!allCollectionItems?.length) {
+            return [];
+        }
+
+        return allCollectionItems.map(collectionId => collection.items[collectionId]);
+    }, { size: 2000 });
+
+export const getCollectionInfoByObjectId =
+    memoize(([state, id, incomingCollectionId]: [RootState, number | undefined, number | undefined]) => {
         if (id === undefined) {
             return {};
         }
@@ -32,6 +52,13 @@ export const getCollectionInfoByObjectId =
             return {};
         }
 
+        if (incomingCollectionId) {
+            return {
+                collectionId: incomingCollectionId,
+                collection,
+            };
+        }
+
         const collectionIdArray = Array.from(allCollectionItems?.filter(collectionId => {
             return (collection?.items[collectionId]?.rating ?? 0) > 0;
         }))?.sort();
@@ -42,6 +69,9 @@ export const getCollectionInfoByObjectId =
 
         return {
             collectionId,
+            collectionItems: allCollectionItems.map(
+                collectionId => collection.items[collectionId]
+            ),
             collection,
         };
     }, { size: 2000 });
