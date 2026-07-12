@@ -128,7 +128,7 @@ export const CollectionPageContent = ({
             return;
         }
         let active = true;
-        dispatch(loadGeeklistStart(initialMathTradeGeeklistId));
+        dispatch(loadGeeklistStart({ geekListId: initialMathTradeGeeklistId, username }));
         void bggGetGeeklistInner(initialMathTradeGeeklistId).then(xml => {
             if (!active) { return; }
             if (!xml) {
@@ -140,7 +140,7 @@ export const CollectionPageContent = ({
                 dispatch(loadGeeklistError(initialMathTradeGeeklistId));
                 return;
             }
-            dispatch(loadGeeklistSuccess(geekList));
+            dispatch(loadGeeklistSuccess({ geekList, username }));
             setMathTradeMode(true);
         });
         return () => { active = false; };
@@ -243,7 +243,7 @@ export const CollectionPageContent = ({
     const handleRefreshGeeklist = useCallback(async () => {
         if (activeGeekListId === null) { return; }
         setIsRefreshingGeeklist(true);
-        dispatch(loadGeeklistStart(activeGeekListId));
+        dispatch(loadGeeklistStart({ geekListId: activeGeekListId, username }));
         const xml = await bggGetGeeklistInner(activeGeekListId);
         if (!xml) {
             dispatch(loadGeeklistError(activeGeekListId));
@@ -256,7 +256,7 @@ export const CollectionPageContent = ({
             setIsRefreshingGeeklist(false);
             return;
         }
-        dispatch(loadGeeklistSuccess(geekList));
+        dispatch(loadGeeklistSuccess({ geekList, username }));
         setIsRefreshingGeeklist(false);
     }, [activeGeekListId, dispatch]);
 

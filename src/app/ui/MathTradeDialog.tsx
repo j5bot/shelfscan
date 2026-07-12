@@ -1,10 +1,11 @@
 import { bggGetGeeklistInner } from '@/app/lib/actions';
-import { useDispatch } from '@/app/lib/hooks';
+import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     loadGeeklistError,
     loadGeeklistStart,
     loadGeeklistSuccess,
 } from '@/app/lib/redux/bgg/geeklist/slice';
+import { RootState } from '@/app/lib/redux/store';
 import { bggGetGeeklistFromXML } from '@/app/lib/services/bgg/service';
 import { useCallback, useState } from 'react';
 import { FaXmark } from 'react-icons/fa6';
@@ -19,6 +20,8 @@ type MathTradeDialogProps = {
 
 export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogProps) => {
     const dispatch = useDispatch();
+    const username = useSelector((state: RootState) => state.bgg.user?.user);
+
     const [url, setUrl] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
@@ -34,7 +37,7 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
         setError(null);
         setLoading(true);
 
-        dispatch(loadGeeklistStart(id));
+        dispatch(loadGeeklistStart({ geekListId: id, username }));
         const xml = await bggGetGeeklistInner(id);
 
         if (!xml) {
@@ -52,7 +55,7 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
             return;
         }
 
-        dispatch(loadGeeklistSuccess(geekList));
+        dispatch(loadGeeklistSuccess({ geekList, username }));
         setLoading(false);
         setUrl('');
         onClose();
