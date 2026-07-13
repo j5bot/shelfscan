@@ -140,7 +140,7 @@ export const CollectionPageContent = ({
                 dispatch(loadGeeklistError(initialMathTradeGeeklistId));
                 return;
             }
-            dispatch(loadGeeklistSuccess({ geekList, username }));
+            dispatch(loadGeeklistSuccess({ collection, geekList, username }));
             setMathTradeMode(true);
         });
         return () => { active = false; };
@@ -256,7 +256,7 @@ export const CollectionPageContent = ({
             setIsRefreshingGeeklist(false);
             return;
         }
-        dispatch(loadGeeklistSuccess({ geekList, username }));
+        dispatch(loadGeeklistSuccess({ collection, geekList, username }));
         setIsRefreshingGeeklist(false);
     }, [activeGeekListId, dispatch]);
 

@@ -21,6 +21,7 @@ type MathTradeDialogProps = {
 export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogProps) => {
     const dispatch = useDispatch();
     const username = useSelector((state: RootState) => state.bgg.user?.user);
+    const collection = useSelector((state: RootState) => state.bgg.collection?.users[username?.toLowerCase() ?? ''] ?? undefined);
 
     const [url, setUrl] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -55,7 +56,7 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
             return;
         }
 
-        dispatch(loadGeeklistSuccess({ geekList, username }));
+        dispatch(loadGeeklistSuccess({ collection, geekList, username }));
         setLoading(false);
         setUrl('');
         onClose();

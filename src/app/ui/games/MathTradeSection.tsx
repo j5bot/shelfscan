@@ -6,7 +6,7 @@ import {
     UNKNOWN_GEEKLIST_ITEM_ID,
 } from '@/app/lib/redux/bgg/geeklist/slice';
 import { RootState } from '@/app/lib/redux/store';
-import { getBggImageFromItem, getBggImageId } from '@/app/lib/utils/bggImageId';
+import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
 import { memo, useCallback, useState } from 'react';
 
@@ -18,10 +18,10 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
     const dispatch = useDispatch();
     const { canUseExtension, sendViaExtension } = useMathTrade();
 
-    const item = useSelector((state: RootState) => {
-        const username = state.bgg.user.user?.toLowerCase() ?? '';
-        return state.bgg.collection.users[username]?.items[collectionId];
-    });
+    const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
+    const item = useSelector((state: RootState) =>
+        state.bgg.collection.users[username]?.items[collectionId]
+    );
 
     const activeGeekListId = useSelector(
         (state: RootState) => state.bgg.geeklist.activeGeekListId,
@@ -30,8 +30,11 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         (state: RootState) => state.bgg.geeklist.data[collectionId],
     );
     const isInGeeklist = useSelector((state: RootState) => {
-        if (activeGeekListId === null || !item) { return false; }
-        return (state.bgg.geeklist.geekLists[activeGeekListId]?.games[item.objectId]?.length ?? 0) > 0;
+        if (activeGeekListId === null || !item) {
+            return false;
+        }
+        const geeklist = state.bgg.geeklist.geekLists[activeGeekListId];
+        return geeklist.matched.includes(collectionId);
     });
 
     const [expanded, setExpanded] = useState(false);

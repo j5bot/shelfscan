@@ -1,3 +1,4 @@
+import { BggCollection, BggCollectionMap } from '@/app/lib/types/bgg';
 import { GeekList, GeekListItem } from '@/app/lib/types/geeklist';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -16,11 +17,15 @@ export type GeekListEntryState = {
     geekList: GeekList | null;
     status: GeekListStatus;
     // submitted mappings — updated after a successful add
-    geeklistItems: Record<GeekListItemID, GeekListItem & { options?: GeekListItemOptions }>;
+    geeklistItems: Record<GeekListItemID, GeekListItem & {
+        options?: GeekListItemOptions;
+        matched?: boolean;
+    }>;
     games: Record<GameID, GeekListItemID[]>;
     versions: Record<VersionID, GeekListItemID[]>;
     collectionItems: Record<CollectionID, GeekListItemID[]>;
     userItems: Record<string, GeekListItemID[]>;
+    matched: CollectionID[];
 };
 
 export type GeeklistItemData = {
@@ -52,10 +57,11 @@ const makeEmptyGeekListState = (): GeekListEntryState => ({
     versions: {},
     collectionItems: {},
     userItems: {},
+    matched: [],
 });
 
 const getOptionsProperties = (description: string) => {
-    const lines = description.split('\n');
+    const lines = description.split('&#10;');
     const optionsIndex = lines.findIndex(line => line.startsWith('%Options%'));
     const endIndex = lines.findIndex(line => line.startsWith('%End%'));
 
@@ -63,13 +69,18 @@ const getOptionsProperties = (description: string) => {
         return {};
     }
 
-    const optionsLines = lines.slice(optionsIndex + 1, endIndex - 1);
+    const optionsLines = lines.slice(optionsIndex + 1, endIndex);
 
     return optionsLines.reduce((acc, line) => {
-        const segments = line.trim().split(': ');
+        const segments = line.trim().split(/:\s*/ig);
+        if (segments.length !== 2) {
+            return acc;
+        }
         const property = segments[0];
-        const value = Number.isInteger(segments[1]) ? parseInt(segments[1], 10) : segments[1];
+        const value = !isNaN(parseInt(segments[1], 10)) ? parseInt(segments[1], 10) : segments[1];
+
         Object.assign(acc, {[property]: value });
+
         return acc;
     }, {} as GeekListItemOptions);
 };
@@ -82,6 +93,7 @@ export type LoadGeekListPayload = {
 export type LoadGeekListSuccessPayload = {
     geekList: GeekList;
     username?: string;
+    collection?: BggCollection;
 };
 
 export const geeklistSlice = createSlice({
@@ -96,7 +108,7 @@ export const geeklistSlice = createSlice({
             state.geekLists[id].status = 'loading';
         },
         loadGeeklistSuccess: (state, action: PayloadAction<LoadGeekListSuccessPayload>) => {
-            const { geekList, username } = action.payload;
+            const { geekList, collection, username } = action.payload;
             const id = geekList.id;
             if (!state.geekLists[id]) {
                 state.geekLists[id] = makeEmptyGeekListState();
@@ -107,10 +119,13 @@ export const geeklistSlice = createSlice({
             entry.geeklistItems = {};
             entry.games = {};
             entry.versions = {};
+            entry.matched = [];
             for (const item of geekList.items) {
                 if (item.listItemId === undefined) {
                     continue;
                 }
+
+                const itemUser = item.username.toLowerCase();
 
                 entry.geeklistItems[item.listItemId] = item;
                 if (!entry.games[item.id]) {
@@ -118,38 +133,81 @@ export const geeklistSlice = createSlice({
                 }
                 entry.games[item.id].push(item.listItemId);
 
-                if (item.username) {
-                    if (!entry.userItems[item.username]) {
-                        entry.userItems[item.username] = [];
-                    }
-                    entry.userItems[item.username].push(item.listItemId);
-                }
 
-                if (!(
+                if (
                     item.listDescription?.includes('%Options%') &&
                     item.listDescription?.includes('%End%')
-                )) {
-                    continue;
+                ) {
+
+                    const itemProperties = getOptionsProperties(item.listDescription);
+                    entry.geeklistItems[item.listItemId].options = itemProperties;
+
+                    if (itemProperties['CollectionID']) {
+                        const collectionId = itemProperties['CollectionID'] as number;
+                        if (!entry.collectionItems[collectionId]) {
+                            entry.collectionItems[collectionId] = [];
+                        }
+                        entry.collectionItems[collectionId].push(item.listItemId);
+                        entry.matched.push(collectionId);
+                        entry.geeklistItems[item.listItemId].matched = true;
+                    }
+                    if (itemProperties['VersionID']) {
+                        const versionId = itemProperties['VersionID'] as number;
+                        if (!entry.versions[versionId]) {
+                            entry.versions[versionId] = [];
+                        }
+                        entry.versions[versionId].push(item.listItemId);
+                    }
                 }
 
-                const itemProperties = getOptionsProperties(item.listDescription);
-                entry.geeklistItems[item.listItemId].options = itemProperties;
-                
-                if (itemProperties['CollectionID']) {
-                    const collectionId = itemProperties['CollectionID'] as number;
-                    if (!entry.collectionItems[collectionId]) {
-                        entry.collectionItems[collectionId] = [];
+                if (itemUser) {
+                    if (!entry.userItems[itemUser]) {
+                        entry.userItems[itemUser] = [];
                     }
-                    entry.collectionItems[collectionId].push(item.listItemId);
-                }
-                if (itemProperties['VersionID']) {
-                    const versionId = itemProperties['VersionID'] as number;
-                    if (!entry.versions[versionId]) {
-                        entry.versions[versionId] = [];
-                    }
-                    entry.versions[versionId].push(item.listItemId);
+                    entry.userItems[itemUser].push(item.listItemId);
                 }
             }
+
+            if (username) {
+                entry.userItems?.[username.toLowerCase()]?.forEach(listItemId => {
+                    const listItem = entry.geeklistItems[listItemId];
+                    if (listItem.matched) {
+                        return;
+                    }
+                    const { options = {}, id } = listItem;
+                    const { CollectionID: collectionId, VersionID: versionId } = options;
+
+                    if (collectionId) {
+                        if (entry.matched.includes(collectionId as number)) {
+                            return;
+                        }
+                        entry.matched.push(collectionId as number);
+                        listItem.matched = true;
+                        return;
+                    }
+
+                    const collectionVersionItems = collection?.versions.all[versionId as number];
+                    const matchedVersionCollectionId = collectionVersionItems?.find(
+                        collectionId => !entry.matched.includes(collectionId)
+                    );
+                    if (matchedVersionCollectionId) {
+                        entry.matched.push(matchedVersionCollectionId);
+                        listItem.matched = true;
+                        return;
+                    }
+
+                    const gameItems = collection?.objects.all[id];
+                    const matchedGameCollectionId = gameItems?.find(
+                        collectionId => !entry.matched.includes(collectionId)
+                    );
+                    if (matchedGameCollectionId) {
+                        entry.matched.push(matchedGameCollectionId);
+                        listItem.matched = true;
+                        return;
+                    }
+                });
+            }
+
             state.activeGeekListId = id;
         },
         loadGeeklistError: (state, action: PayloadAction<number>) => {
