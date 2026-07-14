@@ -121,6 +121,9 @@ export const CollectionPageContent = ({
     // Skips the network request if the geeklist is already loaded in Redux (e.g. after a dialog
     // load followed by router navigation to the same ID).
     useEffect(() => {
+        if (!username) {
+            return;
+        }
         if (!initialMathTradeGeeklistId) { return; }
         if (initialMathTradeGeeklistStatus === 'loaded') {
             dispatch(setActiveGeekList(initialMathTradeGeeklistId));
@@ -144,7 +147,7 @@ export const CollectionPageContent = ({
             setMathTradeMode(true);
         });
         return () => { active = false; };
-    }, [initialMathTradeGeeklistId, dispatch, store]);
+    }, [initialMathTradeGeeklistId, dispatch, store, username]);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -241,6 +244,9 @@ export const CollectionPageContent = ({
     }, [selectedMathTradeIds, sendViaExtension]);
 
     const handleRefreshGeeklist = useCallback(async () => {
+        if (!username) {
+            return;
+        }
         if (activeGeekListId === null) { return; }
         setIsRefreshingGeeklist(true);
         dispatch(loadGeeklistStart({ geekListId: activeGeekListId, username }));
@@ -258,7 +264,7 @@ export const CollectionPageContent = ({
         }
         dispatch(loadGeeklistSuccess({ collection, geekList, username }));
         setIsRefreshingGeeklist(false);
-    }, [activeGeekListId, dispatch]);
+    }, [activeGeekListId, dispatch, username]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,

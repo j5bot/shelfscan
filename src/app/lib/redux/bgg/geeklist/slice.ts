@@ -1,4 +1,4 @@
-import { BggCollection, BggCollectionMap } from '@/app/lib/types/bgg';
+import { BggCollection } from '@/app/lib/types/bgg';
 import { GeekList, GeekListItem } from '@/app/lib/types/geeklist';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -61,7 +61,8 @@ const makeEmptyGeekListState = (): GeekListEntryState => ({
 });
 
 const getOptionsProperties = (description: string) => {
-    const lines = description.split('&#10;');
+    const lines = description.split(/(\r|)&#10;/);
+    console.log('lines', lines);
     const optionsIndex = lines.findIndex(line => line.startsWith('%Options%'));
     const endIndex = lines.findIndex(line => line.startsWith('%End%'));
 
@@ -79,7 +80,7 @@ const getOptionsProperties = (description: string) => {
         const property = segments[0];
         const value = !isNaN(parseInt(segments[1], 10)) ? parseInt(segments[1], 10) : segments[1];
 
-        Object.assign(acc, {[property]: value });
+        Object.assign(acc, {[property.toLowerCase()]: value });
 
         return acc;
     }, {} as GeekListItemOptions);
@@ -142,8 +143,8 @@ export const geeklistSlice = createSlice({
                     const itemProperties = getOptionsProperties(item.listDescription);
                     entry.geeklistItems[item.listItemId].options = itemProperties;
 
-                    if (itemProperties['CollectionID']) {
-                        const collectionId = itemProperties['CollectionID'] as number;
+                    if (itemProperties['collectionid']) {
+                        const collectionId = itemProperties['collectionid'] as number;
                         if (!entry.collectionItems[collectionId]) {
                             entry.collectionItems[collectionId] = [];
                         }
@@ -151,8 +152,8 @@ export const geeklistSlice = createSlice({
                         entry.matched.push(collectionId);
                         entry.geeklistItems[item.listItemId].matched = true;
                     }
-                    if (itemProperties['VersionID']) {
-                        const versionId = itemProperties['VersionID'] as number;
+                    if (itemProperties['versionid']) {
+                        const versionId = itemProperties['versionid'] as number;
                         if (!entry.versions[versionId]) {
                             entry.versions[versionId] = [];
                         }
@@ -168,14 +169,23 @@ export const geeklistSlice = createSlice({
                 }
             }
 
+            console.log(username);
             if (username) {
+                console.log('userItems', JSON.stringify(entry.userItems?.[username.toLowerCase()]));
+                console.log('entry.versions', JSON.stringify(entry.versions, undefined, 2));
+                console.log('collection.versions.all', JSON.stringify(collection?.versions.all, undefined, 2));
                 entry.userItems?.[username.toLowerCase()]?.forEach(listItemId => {
                     const listItem = entry.geeklistItems[listItemId];
+
+                    if (listItem.name.includes('10')) {
+                        console.log(listItem);
+                    }
+
                     if (listItem.matched) {
                         return;
                     }
                     const { options = {}, id } = listItem;
-                    const { CollectionID: collectionId, VersionID: versionId } = options;
+                    const { collectionid: collectionId, versionid: versionId } = options;
 
                     if (collectionId) {
                         if (entry.matched.includes(collectionId as number)) {
