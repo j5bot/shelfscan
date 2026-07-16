@@ -33,8 +33,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         if (activeGeekListId === null || !item) {
             return false;
         }
-        const geeklist = state.bgg.geeklist.geekLists[activeGeekListId];
-        return geeklist.matched.includes(collectionId);
+        return state.bgg.geeklist.geekLists[activeGeekListId].matched.includes(collectionId);
     });
 
     const [expanded, setExpanded] = useState(false);

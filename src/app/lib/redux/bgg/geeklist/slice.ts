@@ -110,6 +110,7 @@ export const geeklistSlice = createSlice({
         },
         loadGeeklistSuccess: (state, action: PayloadAction<LoadGeekListSuccessPayload>) => {
             const { geekList, collection, username } = action.payload;
+            const lowerUser = username?.toLowerCase();
             const id = geekList.id;
             if (!state.geekLists[id]) {
                 state.geekLists[id] = makeEmptyGeekListState();
@@ -169,17 +170,9 @@ export const geeklistSlice = createSlice({
                 }
             }
 
-            console.log(username);
-            if (username) {
-                console.log('userItems', JSON.stringify(entry.userItems?.[username.toLowerCase()]));
-                console.log('entry.versions', JSON.stringify(entry.versions, undefined, 2));
-                console.log('collection.versions.all', JSON.stringify(collection?.versions.all, undefined, 2));
-                entry.userItems?.[username.toLowerCase()]?.forEach(listItemId => {
+            if (lowerUser) {
+                entry.userItems?.[lowerUser]?.forEach(listItemId => {
                     const listItem = entry.geeklistItems[listItemId];
-
-                    if (listItem.name.includes('10')) {
-                        console.log(listItem);
-                    }
 
                     if (listItem.matched) {
                         return;
@@ -196,7 +189,7 @@ export const geeklistSlice = createSlice({
                         return;
                     }
 
-                    const collectionVersionItems = collection?.versions.all[versionId as number];
+                    const collectionVersionItems = collection?.versions.all[parseInt(versionId?.toString() ?? 0, 10)];
                     const matchedVersionCollectionId = collectionVersionItems?.find(
                         collectionId => !entry.matched.includes(collectionId)
                     );
@@ -206,7 +199,7 @@ export const geeklistSlice = createSlice({
                         return;
                     }
 
-                    const gameItems = collection?.objects.all[id];
+                    const gameItems = collection?.objects.all[parseInt(id.toString(), 10)];
                     const matchedGameCollectionId = gameItems?.find(
                         collectionId => !entry.matched.includes(collectionId)
                     );

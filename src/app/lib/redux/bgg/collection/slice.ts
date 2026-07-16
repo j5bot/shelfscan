@@ -24,9 +24,10 @@ const innerUpdateCollectionItems = (
     },
 ) => {
     const { items, remove, extend } = payload;
-    const ids = (Object.keys(items) as unknown[]) as number[];
+    const ids = Object.keys(items);
 
-    for (const id of ids) {
+    for (const stringId of ids) {
+        const id = parseInt(stringId, 10);
         const item = items[id];
         const previousItem = state.items[id] ?? {};
 
