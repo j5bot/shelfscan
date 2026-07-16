@@ -5,6 +5,7 @@ export const makeStore = () => configureStore({
     reducer: {
         bgg
     },
+    devTools: true,
 });
 
 export type AppStore = ReturnType<typeof makeStore>;

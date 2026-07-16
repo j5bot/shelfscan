@@ -15,18 +15,6 @@ import {
 } from '@/app/lib/utils/array';
 import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 
-/*
- We'll be storing state for a user's collection as
- - the raw items, by collection id
- - a map of <image id, collection id[]>
- - a map of <version id, collection id[]>
- - a map of <object id, collection id[]>
-
- on update of a collection item, we'll update the related maps
- if the image id has changed, we'll remove the item from the previous image id map
- if the version id has changed, we'll remove the item from the previous version id map
- the object id won't ever change
- */
 const innerUpdateCollectionItems = (
     state: BggCollection,
     payload: {
@@ -36,9 +24,10 @@ const innerUpdateCollectionItems = (
     },
 ) => {
     const { items, remove, extend } = payload;
-    const ids = (Object.keys(items) as unknown[]) as number[];
+    const ids = Object.keys(items);
 
-    for (const id of ids) {
+    for (const stringId of ids) {
+        const id = parseInt(stringId, 10);
         const item = items[id];
         const previousItem = state.items[id] ?? {};
 

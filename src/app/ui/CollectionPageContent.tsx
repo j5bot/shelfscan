@@ -121,6 +121,9 @@ export const CollectionPageContent = ({
     // Skips the network request if the geeklist is already loaded in Redux (e.g. after a dialog
     // load followed by router navigation to the same ID).
     useEffect(() => {
+        if (!username) {
+            return;
+        }
         if (!initialMathTradeGeeklistId) { return; }
         if (initialMathTradeGeeklistStatus === 'loaded') {
             dispatch(setActiveGeekList(initialMathTradeGeeklistId));
@@ -128,7 +131,7 @@ export const CollectionPageContent = ({
             return;
         }
         let active = true;
-        dispatch(loadGeeklistStart(initialMathTradeGeeklistId));
+        dispatch(loadGeeklistStart({ geekListId: initialMathTradeGeeklistId, username }));
         void bggGetGeeklistInner(initialMathTradeGeeklistId).then(xml => {
             if (!active) { return; }
             if (!xml) {
@@ -140,11 +143,11 @@ export const CollectionPageContent = ({
                 dispatch(loadGeeklistError(initialMathTradeGeeklistId));
                 return;
             }
-            dispatch(loadGeeklistSuccess(geekList));
+            dispatch(loadGeeklistSuccess({ collection, geekList, username }));
             setMathTradeMode(true);
         });
         return () => { active = false; };
-    }, [initialMathTradeGeeklistId, dispatch, store]);
+    }, [initialMathTradeGeeklistId, dispatch, store, username]);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -241,9 +244,12 @@ export const CollectionPageContent = ({
     }, [selectedMathTradeIds, sendViaExtension]);
 
     const handleRefreshGeeklist = useCallback(async () => {
+        if (!username) {
+            return;
+        }
         if (activeGeekListId === null) { return; }
         setIsRefreshingGeeklist(true);
-        dispatch(loadGeeklistStart(activeGeekListId));
+        dispatch(loadGeeklistStart({ geekListId: activeGeekListId, username }));
         const xml = await bggGetGeeklistInner(activeGeekListId);
         if (!xml) {
             dispatch(loadGeeklistError(activeGeekListId));
@@ -256,9 +262,9 @@ export const CollectionPageContent = ({
             setIsRefreshingGeeklist(false);
             return;
         }
-        dispatch(loadGeeklistSuccess(geekList));
+        dispatch(loadGeeklistSuccess({ collection, geekList, username }));
         setIsRefreshingGeeklist(false);
-    }, [activeGeekListId, dispatch]);
+    }, [activeGeekListId, dispatch, username]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
