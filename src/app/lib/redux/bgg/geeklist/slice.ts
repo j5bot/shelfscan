@@ -62,7 +62,6 @@ const makeEmptyGeekListState = (): GeekListEntryState => ({
 
 const getOptionsProperties = (description: string) => {
     const lines = description.split(/(\r|)&#10;/);
-    console.log('lines', lines);
     const optionsIndex = lines.findIndex(line => line.startsWith('%Options%'));
     const endIndex = lines.findIndex(line => line.startsWith('%End%'));
 
