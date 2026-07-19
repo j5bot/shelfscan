@@ -36,7 +36,7 @@ export const PaymentMethodSelect = ({
                     const values = Array.from(event.currentTarget
                         .selectedOptions)?.map(option => option.value);
                     setPaymentMethodValues(values);
-                    setValue('paymentMethod', values.join(','));
+                    setValue('statuses', values.join(','));
                 }}
         >
             {paymentMethodOptions.map(paymentMethod =>

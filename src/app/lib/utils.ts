@@ -26,3 +26,6 @@ export const textFetchAndWait = async (
             }
         });
 };
+
+export const firstNonEmptyOrUndefined = (...candidates: Array<string | undefined>) =>
+    candidates?.find(candidate => candidate && candidate.length > 0 ? candidate : false);

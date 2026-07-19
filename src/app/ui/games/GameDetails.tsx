@@ -1,6 +1,7 @@
 import { useGameDetailsSearch } from '@/app/lib/hooks/useGameDetailsSearch';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { type Game, type Version } from '@/app/lib/types/game';
+import { firstNonEmptyOrUndefined } from '@/app/lib/utils';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
@@ -97,6 +98,9 @@ export const GameDetails = ({
         ? view === 'version' ? 'h-22' : 'h-12 md:h-12 mt-[-1rem]'
         : 'h-15';
 
+    const imageUrl = firstNonEmptyOrUndefined(version?.imageUrl, game?.imageUrl, defaultGame?.imageUrl, defaultImageUrl);
+    const thumbnailUrl = firstNonEmptyOrUndefined(version?.thumbnailUrl, game?.thumbnailUrl, defaultGame?.thumbnailUrl, defaultImageUrl) ?? '';
+
     return <div id="game-details">
         <div className={`${headerClasses} flex justify-center items-center md:gap-2`}>
             {header}
@@ -125,8 +129,8 @@ export const GameDetails = ({
                 <div className="flex flex-col items-center pb-2">
                     <ThumbnailBox
                         alt={version?.name ?? game?.name ?? defaultGame?.name ?? 'Game Image'}
-                        url={version?.thumbnailUrl ?? game?.thumbnailUrl ?? defaultGame?.thumbnailUrl ?? defaultImageUrl ?? ''}
-                        imageUrl={version?.imageUrl ?? game?.imageUrl ?? defaultGame?.imageUrl ?? defaultImageUrl}
+                        url={thumbnailUrl}
+                        imageUrl={imageUrl}
                         size={thumbnailSize}
                         styles={{
                             width: `min(${thumbnailSize}px, calc(100dvw - 4rem))`,
@@ -145,8 +149,8 @@ export const GameDetails = ({
                     <div className="flex items-start">
                         <ThumbnailBox
                             alt={version?.name ?? game?.name ?? defaultGame?.name ?? 'Game Image'}
-                            url={version?.thumbnailUrl ?? game?.thumbnailUrl ?? defaultGame?.thumbnailUrl ?? defaultImageUrl ?? ''}
-                            imageUrl={version?.imageUrl ?? game?.imageUrl ?? defaultGame?.imageUrl ?? defaultImageUrl}
+                            url={thumbnailUrl}
+                            imageUrl={imageUrl}
                             size={thumbnailSize}
                         />
                     </div>

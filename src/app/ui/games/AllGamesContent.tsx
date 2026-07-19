@@ -1,4 +1,5 @@
 import { useSelector } from '@/app/lib/hooks';
+import { firstNonEmptyOrUndefined } from '@/app/lib/utils';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { CollectionLoadStatuses, type CollectionLoadStatusData } from '@/app/lib/hooks/useCollectionData';
 import { type CollectionFilters, type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
@@ -112,7 +113,7 @@ const GridItem = ({
         return null;
     }
 
-    const thumbnailUrl = item.version?.image ?? item.image ?? item.thumbnail ?? '';
+    const thumbnailUrl = firstNonEmptyOrUndefined(item.version?.image, item.image, item.thumbnail) ?? '';
     let statusText: string;
     let cornerIcon: ReactNode;
     switch (true) {

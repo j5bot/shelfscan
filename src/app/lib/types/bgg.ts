@@ -34,7 +34,17 @@ export const PossibleStatuses = [
     'wanttoplay',
     'wanttobuy',
     'wishlist',
-    'preordered'
+    'preordered',
+] as const;
+export const PossibleStatusesLabels = [
+    'Owned',
+    'Prev. Owned',
+    'For Trade',
+    'Want',
+    'Want to Play',
+    'Want to Buy',
+    'Wishlist',
+    'Preordered',
 ] as const;
 export type PossibleStatuses = typeof PossibleStatuses;
 export type PossibleStatus = PossibleStatuses[number];

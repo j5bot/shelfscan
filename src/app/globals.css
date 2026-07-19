@@ -201,3 +201,11 @@ svg[data-name=nextstep-arrow] > #triangle {
 selectedcontent span {
   display: none;
 }
+
+.z10important {
+  z-index: 10 !important;
+}
+
+.multi-select {
+  width: max(3rem, min(295px, 100%));
+}
