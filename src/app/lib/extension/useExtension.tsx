@@ -216,6 +216,7 @@ export const useExtension = (params?: UseExtension) => {
 
         return {
             currentMode,
+            modeSetting,
             block: modeSetting && (
                 <Fragment key={`${modeKey}-block`}>
                     <div data-collapse={`${modeKey}-block`}
@@ -294,11 +295,12 @@ export const useExtension = (params?: UseExtension) => {
         };
     };
 
-    const { currentMode: currentATCMode, block: addToCollectionBlock } = syncOn && userId ? makeModeBlock({
-        modeKey: 'collection',
-        defaultMode: 'add',
-        addFn: addToCollection,
-    }) : {};
+    const { currentMode: currentATCMode, modeSetting: atcModeSetting, block: addToCollectionBlock } =
+        syncOn && userId ? makeModeBlock({
+            modeKey: 'collection',
+            defaultMode: 'add',
+            addFn: addToCollection,
+        }) : {};
 
     const { block: addPlayBlock } = syncOn && userId ? makeModeBlock({
         modeKey: 'play',
@@ -325,6 +327,21 @@ export const useExtension = (params?: UseExtension) => {
         }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [collectionItem?.tradeCondition]);
+
+    useEffect(() => {
+        const statuses = Object.entries(collectionItem?.statuses ?? {}).reduce((acc: string[], [key, value]: [string, boolean]) => {
+            if (value) {
+                acc.push(key);
+            }
+            return acc;
+        }, []).join(',');
+        if (formValues?.['statuses'] === statuses) {
+            return;
+        }
+        setFormValues(Object.assign(formValues, {
+            statuses,
+        }));
+    }, [collectionItem?.statuses]);
 
     useEffect(() => {
         (async () => {
@@ -356,7 +373,7 @@ export const useExtension = (params?: UseExtension) => {
                     return Object.assign(acc, {
                         [field]: colItem?.[field as keyof BggCollectionItem]?.toString() ?? undefined
                     });
-                }, formValues);
+                }, { ...formValues });
                 infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
                 setFormValues(infoFormValues);
             }
@@ -380,6 +397,13 @@ export const useExtension = (params?: UseExtension) => {
                 break;
         }
     }, [update, currentATCMode, setDisabledModes]);
+
+    useEffect(() => {
+        if (!(atcModeSetting?.message && userId && collectionItem)) {
+            return;
+        }
+        atcModeSetting.message(userId, dispatchExtensionMessage, collectionItem);
+    }, [!!atcModeSetting?.message, userId, collectionId]);
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
         const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);

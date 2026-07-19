@@ -14,7 +14,7 @@ export const PaymentMethodSelect = ({
     paymentMethod = ['other'],
     setValue
 } : {
-    statuses?: string[];
+    paymentMethod?: string[];
     setValue: SetFormValue;
 }) => {
     const [paymentMethodValues, setPaymentMethodValues] =
@@ -39,7 +39,7 @@ export const PaymentMethodSelect = ({
                     setValue('statuses', values.join(','));
                 }}
         >
-            {paymentMethodOptions.map(statuses =>
+            {paymentMethodOptions.map(paymentMethod =>
                 <option key={paymentMethod.value}
                         value={paymentMethod.value}>{paymentMethod.label}</option>
             )}
