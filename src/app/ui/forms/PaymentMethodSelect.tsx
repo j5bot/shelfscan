@@ -14,7 +14,7 @@ export const PaymentMethodSelect = ({
     paymentMethod = ['other'],
     setValue
 } : {
-    paymentMethod?: string[];
+    statuses?: string[];
     setValue: SetFormValue;
 }) => {
     const [paymentMethodValues, setPaymentMethodValues] =
@@ -36,10 +36,10 @@ export const PaymentMethodSelect = ({
                     const values = Array.from(event.currentTarget
                         .selectedOptions)?.map(option => option.value);
                     setPaymentMethodValues(values);
-                    setValue('paymentMethod', values.join(','));
+                    setValue('statuses', values.join(','));
                 }}
         >
-            {paymentMethodOptions.map(paymentMethod =>
+            {paymentMethodOptions.map(statuses =>
                 <option key={paymentMethod.value}
                         value={paymentMethod.value}>{paymentMethod.label}</option>
             )}

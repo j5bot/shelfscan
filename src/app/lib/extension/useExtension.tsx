@@ -298,11 +298,11 @@ export const useExtension = (params?: UseExtension) => {
     }, [collectionId]);
 
     useEffect(() => {
-        if (formValues?.['tradeCondition'] === collectionItem?.tradeCondition) {
+        if (formValues?.['tradecondition'] === collectionItem?.tradeCondition) {
             return;
         }
         setFormValues(Object.assign(formValues, {
-            tradeCondition: collectionItem?.tradeCondition
+            tradecondition: collectionItem?.tradeCondition
         }));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [collectionItem?.tradeCondition]);
@@ -324,6 +324,7 @@ export const useExtension = (params?: UseExtension) => {
             if (event.data?.type === 'infoLoad-response') {
                 const colItem = event.data.response.collectionItem;
                 const infoFormValues = [
+                    'tradecondition',
                     'pricepaid',
                     'pp_currency',
                     'currvalue',

@@ -77,12 +77,12 @@ export const makeAddToCollectionModeSettings = ({
             form: ({ formValues, setFormValues }) => {
                 return <form name="trade" className="pb-2 pt-1">
                     <input type="text"
-                           name="tradeCondition"
+                           name="tradecondition"
                            className="input text-sm p-2"
                            placeholder="Trade Condition"
-                           defaultValue={formValues?.['tradeCondition']}
+                           defaultValue={formValues?.['tradecondition']}
                            onChange={event => setFormValues(
-                               Object.assign(formValues, { tradeCondition: event.currentTarget.value })
+                               Object.assign(formValues, { tradecondition: event.currentTarget.value })
                            )}
                     />
                 </form>;
@@ -137,7 +137,7 @@ export const makeAddToCollectionModeSettings = ({
                 const required = [
                     'currency', 'price',
                     'condition', 'notes',
-                    'paymentMethod',
+                    'statuses',
                     'country', 'shipLocation',
                 ];
                 if (formValues['shipLocation'] === 'usandothers') {

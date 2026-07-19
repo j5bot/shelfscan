@@ -2,6 +2,7 @@ import { ModeSettingFormProps } from '@/app/lib/extension/types';
 import { CurrencySelect } from '@/app/ui/forms/CurrencySelect';
 import { DateSelect } from '@/app/ui/forms/DateSelect';
 import { PriceInput } from '@/app/ui/forms/PriceInput';
+import { StatusSelect } from '@/app/ui/forms/StatusSelect';
 import { TextInput } from '@/app/ui/forms/TextInput';
 import React from 'react';
 import { FaCheckDouble, FaCheckToSlot } from 'react-icons/fa6';
@@ -25,6 +26,13 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
 
     return <form name="info" className="pt-1">
         <PrivateComment formValues={formValues} setFormValues={setFormValues} />
+        <StatusSelect setValue={setValue} statuses={formValues?.['statuses']?.split(',') ?? []} />
+        <div className="flex gap-0.5 mt-0.5">
+            <TextInput text={formValues?.['tradecondition']}
+                       setValue={setValue}
+                       field="tradecondition"
+                       label="Trade Condition" />
+        </div>
         <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['pp_currency'] ?? 'USD'}
                             setValue={setValue}
@@ -53,8 +61,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
             />
             <TextInput text={formValues?.['acquiredfrom']} setValue={setValue}
                        field="acquiredfrom"
-                       label="Acq. Note"
-           />
+                       label="Acq. Note" />
         </div>
         <div className="flex gap-0.5 m-0.5 mt-0">
             <FaCheckDouble className="h-7 w-7 mr-0.5" />
