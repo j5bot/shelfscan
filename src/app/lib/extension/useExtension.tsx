@@ -68,6 +68,25 @@ export const useExtension = (params?: UseExtension) => {
 
     const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
 
+    const updateModes = async (
+        event: SyntheticEvent<HTMLElement> | undefined,
+        modes: Modes
+    ) => {
+        // close mode collapse
+        if (event) {
+            const collapse = document
+                .querySelector(`[data-collapse=${
+                    event.currentTarget
+                        .parentElement?.getAttribute('data-collapse-key')
+                }]`);
+            (
+                collapse?.querySelector('input[type=checkbox]') as HTMLInputElement | undefined
+            )?.click();
+        }
+
+        await setSetting('extensionModes', modes);
+        setModes(modes);
+    };
     const createUpdateModeFn =
         (type: keyof Modes, mode: Modes[keyof Modes], setting: ModeSetting)  =>
             (e: SyntheticEvent<HTMLElement>) => {
@@ -361,22 +380,6 @@ export const useExtension = (params?: UseExtension) => {
                 break;
         }
     }, [update, currentATCMode, setDisabledModes]);
-
-    const updateModes = async (
-        event: SyntheticEvent<HTMLElement>,
-        modes: Modes
-    ) => {
-        // close mode collapse
-        const collapse = document
-            .querySelector(`[data-collapse=${
-                event.currentTarget
-                    .parentElement?.getAttribute('data-collapse-key')
-            }]`);
-        (collapse?.querySelector('input[type=checkbox]') as HTMLInputElement | undefined)?.click();
-
-        await setSetting('extensionModes', modes);
-        setModes(modes);
-    };
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
         const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);
