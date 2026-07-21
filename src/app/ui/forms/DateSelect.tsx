@@ -9,15 +9,17 @@ export const DateSelect = ({
     { date: string; disabled?: boolean; setValue: SetFormValue; field?: string; label?: string }
 ) => {
     const [currentDate, setCurrentDate] = useState<string>(date);
+    const [isDefaultDate, setIsDefaultDate] = useState<boolean>(!date);
 
     useEffect(() => {
-        if (date === currentDate) {
+        if (!date || date === currentDate) {
             return;
         }
         setCurrentDate(date);
+        setIsDefaultDate(false);
     }, [date]);
 
-    return <DatePicker className="input text-xs h-7 w-21.5 pl-1.5 pt-1 pb-1"
+    return <DatePicker className={`input text-xs h-7 w-21.5 pl-1.5 pt-1 pb-1 ${isDefaultDate ? 'bg-gray-300' : ''}`.trim()}
                        disabled={disabled}
                        selected={currentDate ? new Date(currentDate) : new Date()}
                        onChange={(newDate: Date | null) => {
@@ -25,6 +27,7 @@ export const DateSelect = ({
                                return;
                            }
                            setCurrentDate(newDate.toISOString());
+                           setIsDefaultDate(false);
                            setValue(field, newDate.toISOString());
                        }}
                        popperClassName="z10important"
