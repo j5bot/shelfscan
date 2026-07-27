@@ -137,7 +137,6 @@ export const makeAddToCollectionModeSettings = ({
                 const required = [
                     'currency', 'price',
                     'condition', 'notes',
-                    'statuses',
                     'country', 'shipLocation',
                 ];
                 if (formValues['shipLocation'] === 'usandothers') {
