@@ -89,7 +89,7 @@ export const makeAddToCollectionModeSettings = ({
             },
             validator: (formData: FormData)=> {
                 const formValues = Object.fromEntries(formData ?? []);
-                return !!(formValues['tradeCondition'] as string | undefined)?.length;
+                return !!(formValues['tradecondition'] as string | undefined)?.length;
             }
         },
         wishlist: {
