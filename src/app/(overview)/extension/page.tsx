@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useCallback, useLayoutEffect, useState } from 'react';
 import {
     FaChrome,
+    FaCopy,
     FaDice,
     FaFirefox,
     FaHeart,
@@ -48,6 +49,10 @@ const ExtensionPage = () => {
         extPay?.openPaymentPage();
     }, [extPay]);
 
+    const copyPromoCode = useCallback(() => {
+        void navigator.clipboard.writeText('2BUCKS');
+    }, []);
+
 
     return <>
         <NavDrawer />
@@ -66,6 +71,13 @@ const ExtensionPage = () => {
                     lots of extra features that bring together BGG and the web app with a
                     low-cost subscription (<Link href="/why-subscribe/"
                                                  className="underline" target="_blank">why a subscription?</Link>) .
+                </p>
+
+                <p className="text-xl uppercase font-sharetech">
+                    1 Year Subscription for $2 with code <button className="btn btn-outline rounded-md inline-flex items-center gap-1"
+                                                                  onClick={copyPromoCode}
+                                                                  aria-label="Copy promo code 2BUCKS"
+                                                                  title="Copy to clipboard">2BUCKS <FaCopy size={12} /></button>
                 </p>
 
                 <div className="pt-3">
