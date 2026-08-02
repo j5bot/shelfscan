@@ -1,51 +1,21 @@
 'use client';
 
-import ExtPay from '@/app/lib/extension/ExtPay.browser';
-import { type ExtPayBrowser } from '@/app/lib/extension/ExtPay.browser.types';
+import { useExtPay } from '@/app/lib/hooks/useExtPay';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { useCallback, useLayoutEffect, useState } from 'react';
 import {
     FaCopy,
 } from 'react-icons/fa6';
 
-type WindowWithExtPay = typeof window & {
-    ExtPay: ExtPayBrowser;
-};
-
 const SubscribePage = () => {
     useTitle('ShelfScan | Subscribe');
-    const [extPay, setExtPay] = useState<ExtPayBrowser>();
 
-    const extPayWindow = window as WindowWithExtPay;
-
-    useLayoutEffect(() => {
-        if (extPayWindow.ExtPay) {
-            return;
-        }
-        extPayWindow.ExtPay = ExtPay('shelfscan');
-        setExtPay(extPayWindow.ExtPay);
-    }, [extPayWindow.ExtPay]);
-
-    const openTrialPage = useCallback(() => {
-        if (!extPay) {
-            return;
-        }
-        extPay?.openTrialPage();
-    }, [extPay]);
-
-    const openPaymentPage = useCallback(() => {
-        if (!extPay) {
-            return;
-        }
-        extPay?.openPaymentPage();
-    }, [extPay]);
-
-    const copyPromoCode = useCallback(() => {
-        void navigator.clipboard.writeText('2BUCKS');
-    }, []);
-
+    const {
+        copyPromoCode,
+        openPaymentPage,
+        openTrialPage,
+    } = useExtPay();
 
     return <>
         <NavDrawer />
