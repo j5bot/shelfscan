@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 export const SubscribeBanner = () => {
     return <Link
+        id="subscribe-banner"
         href="/subscribe/"
         className="fixed top-0 right-0 z-50 overflow-hidden w-80 h-32 pointer-events-none"
         aria-label="$2 per year special - subscribe now"
