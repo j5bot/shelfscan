@@ -13,6 +13,7 @@ import { TailwindProvider } from '@/app/lib/TailwindProvider';
 import { Provider } from '@/app/Provider';
 import { GetExtensionLink } from '@/app/ui/GetExtensionLink';
 import { PoweredByBGGLogo } from '@/app/ui/PoweredByBGGLogo';
+import { SubscribeBanner } from '@/app/ui/SubscribeBanner';
 import Link from 'next/link';
 import React, { type CSSProperties, ReactNode, Suspense } from 'react';
 
@@ -28,6 +29,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                     <NextStepProvider>
                                         <ExtensionMessagingProvider>
                                             <PlayDataProvider>
+                                            <SubscribeBanner />
                                             <div style={{
                                                 minHeight: 'calc(100dvh - 7.5em)'
                                             }}>

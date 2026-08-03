@@ -1,10 +1,12 @@
 'use client';
 
+import { useExtPay } from '@/app/lib/hooks/useExtPay';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
     FaChrome,
+    FaCopy,
     FaDice,
     FaFirefox,
     FaHeart,
@@ -15,6 +17,11 @@ import {
 
 const ExtensionPage = () => {
     useTitle('ShelfScan | Extension');
+    const {
+        copyPromoCode,
+        openPaymentPage,
+        openTrialPage,
+    } = useExtPay();
 
     return <>
         <NavDrawer />
@@ -27,12 +34,27 @@ const ExtensionPage = () => {
                 </h1>
 
                 <h3 className="font-semibold">Get the Browser Extension and Do More</h3>
+
                 <p>
                     ShelfScan works together with a browser extension to add
                     lots of extra features that bring together BGG and the web app with a
                     low-cost subscription (<Link href="/why-subscribe/"
                                                  className="underline" target="_blank">why a subscription?</Link>) .
                 </p>
+
+                <p className="text-xl uppercase font-sharetech">
+                    1 Year Subscription for $2 with code <button className="btn btn-outline rounded-md inline-flex items-center gap-1"
+                                                                  onClick={copyPromoCode}
+                                                                  aria-label="Copy promo code 2BUCKS"
+                                                                  title="Copy to clipboard">2BUCKS <FaCopy size={12} /></button>
+                </p>
+
+                <div className="pt-3">
+                    <button className="bg-[#e07ca4] rounded-xl text-white btn mr-3"
+                            onClick={openTrialPage}><span className="line-through">3</span> 30 Day Free Trial</button>
+                    <button className="bg-[#e07ca4] rounded-xl text-white btn"
+                            onClick={openPaymentPage}>Subscribe to ShelfScan</button>
+                </div>
 
                 <p><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
                          target="_blank"><FaFirefox className="w-6 h-6" /> <span className="underline">
