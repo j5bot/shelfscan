@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 @import '@react-barcode-scanner/components/dist/index.css';
-@source inline('mobile');
-@source '@bpmn-io/form-js/dist';
-@source '@bpmn-io/form-js-editor/dist';
+@source 'src/style-shims';
 
 @plugin 'daisyui';
 
