@@ -4,6 +4,8 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { DataBuilder } from '@/app/ui/DataBuilder';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 
+import './data-builder.css';
+
 export default function DataBuilderPage() {
     useTitle('ShelfScan | Data Builder');
 
