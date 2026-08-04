@@ -5,7 +5,7 @@ import { DataBuilder } from '@/app/ui/DataBuilder';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 
 export default function DataBuilderPage() {
-    useTitle('ShelfScan | Data Builder');
+    useTitle('ShelfScan | Data Form Builder');
 
     return <>
         <NavDrawer />
