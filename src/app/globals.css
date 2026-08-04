@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '@react-barcode-scanner/components/dist/index.css';
+@source inline('mobile');
 
 @plugin 'daisyui';
 
@@ -210,7 +211,7 @@ selectedcontent span {
   width: max(3rem, min(295px, 100%));
 }
 
-body[class*=mobile] .fjs-form-editor {
+body.mobile .fjs-form-editor {
   flex-direction: column;
 }
 
@@ -218,37 +219,37 @@ body[class*=mobile] .fjs-form-editor {
   min-width: 20dvw;
 }
 
-body[class*=mobile] .fjs-form-container {
+body.mobile .fjs-form-container {
   min-height: 20dvh;
 }
 
-body[class*=mobile] .fjs-palette-header,
-body[class*=mobile] .fjs-palette-search-container,
-body[class*=mobile] .fjs-palette-group-title {
+body.mobile .fjs-palette-header,
+body.mobile .fjs-palette-search-container,
+body.mobile .fjs-palette-group-title {
   display: none;
 }
 
-body[class*=mobile] .fjs-palette-entries {
+body.mobile .fjs-palette-entries {
   gap: 3px;
   margin-bottom: 0;
   padding-top: 3px;
   padding-bottom: 3px;
 }
 
-body[class*=mobile] .fjs-palette-fields {
+body.mobile .fjs-palette-fields {
   zoom: 0.75;
   gap: 3px;
 }
 
-body[class*=mobile] .fjs-palette-field {
+body.mobile .fjs-palette-field {
   height: 60px;
   width: 60px;
 }
 
-body[class*=mobile] .fjs-palette-field-text {
+body.mobile .fjs-palette-field-text {
   display: none;
 }
 
-body[class*=mobile] .fjs-empty-editor-card svg {
+body.mobile .fjs-empty-editor-card svg {
   display: none;
 }
