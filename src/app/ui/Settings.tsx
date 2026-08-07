@@ -1,4 +1,5 @@
 import { useSync } from '@/app/lib/extension/useSync';
+import { BackupManager } from '@/app/ui/settings/BackupManager';
 import { DataFormManager } from '@/app/ui/settings/DataFormManager';
 import { ImageCacheManager } from '@/app/ui/settings/ImageCacheManager';
 import { MarketPreferenceManager } from '@/app/ui/settings/MarketPreferenceManager';
@@ -13,6 +14,7 @@ export const Settings = () => {
         <PluginManager />
         {syncOn && <DataFormManager />}
         <ScanHistoryManager />
+        <BackupManager />
         <ImageCacheManager />
     </div>;
 };

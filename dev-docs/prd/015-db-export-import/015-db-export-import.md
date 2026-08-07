@@ -22,13 +22,19 @@ reimplemented. `png-compressor` is used only for the outer PNG envelope.
 - The full backup includes these tables: `settings`, `plugins`, `collections`, `dataforms`,
   `scanHistory`, `filters`.
 - `scanned` (in-progress scan session state) is excluded — it's transient, not durable user data.
-- Table selection is enforced via `dexie-export-import`'s `filter` option at export time (and
-  `skipTables` defensively at import time) — there is no per-table picker in this phase.
+- Table selection is enforced via `dexie-export-import`'s `skipTables` option, both at export time
+  and defensively at import time — there is no per-table picker in this phase. `skipTables` (not
+  `filter`) is the correct mechanism: `filter` only filters rows *within* tables that are already
+  included, whereas `skipTables` removes a table from the export's metadata and data entirely
+  (source-verified at `dexie-export-import.mjs`'s `exportDB`/`importInto` — `targetTables = db.tables
+  .filter(x => !skipTables.includes(x.name))`). Using `filter` to exclude a table would leave it
+  present in the manifest with `rowCount: 0`, which `clearTablesBeforeImport` would then still clear
+  on import — the opposite of "without overwriting other tables."
 
 ### Export
 
-1. Write a utility function that calls `database.export({ filter: (table) => INCLUDED_TABLES
-   .includes(table) })` to produce the backup blob. This is a Dexie-native JSON export
+1. Write a utility function that calls `database.export({ skipTables: <table names not in the
+   requested set> })` to produce the backup blob. This is a Dexie-native JSON export
    (`formatName: 'dexie'`) already containing per-table schema and row counts — no separate manifest
    needs to be authored.
 2. Write a utility function to create a PNG image envelope and embed the export blob into the image
@@ -50,14 +56,16 @@ reimplemented. `png-compressor` is used only for the outer PNG envelope.
 4. Write a utility function to import the tables present in the blob without touching any table not
    included in the backup, via `database.import(blob, options)`:
    - `clearTablesBeforeImport: true`, `overwriteValues: true` — replace semantics within each
-     included table (clear, then re-add), matching current scan-history behavior. **Confirm during
-     implementation that `clearTablesBeforeImport` scopes to only the tables present in the import
-     data** (per the library's filter/table-driven design) and not the whole database; if it doesn't,
-     tables must be cleared explicitly before calling `import()`.
+     included table (clear, then re-add), matching current scan-history behavior.
+   - **Verified during implementation (and caught by the scoping test):** `clearTablesBeforeImport`
+     clears every table in the local database except those named in `skipTables` — including tables
+     that are absent from the import blob entirely, such as `scanned`. `skipTables` must therefore be
+     computed from `database.tables` (the full local table list), **not** from the blob's own
+     `data.tables` manifest — computing it from the manifest leaves any table the blob doesn't
+     mention (e.g. `scanned`) unprotected and it gets wiped. This is the same computation used on the
+     export side.
    - `acceptMissingTables: true`, `acceptVersionDiff: true`, `acceptChangedPrimaryKey: true` — the
      backup won't always come from a schema version identical to the current app's.
-   - `skipTables` set to any table name outside `INCLUDED_TABLES` as a defensive guard, in case a
-     backup was produced by a different app version that included extra tables (e.g. `scanned`).
    - Import runs inside `dexie-export-import`'s own transaction (the default; `noTransaction` is
      left unset) — atomic across all included tables without needing a hand-rolled
      `database.transaction()` wrapper.

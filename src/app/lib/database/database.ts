@@ -2,6 +2,7 @@ import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { MarketPreferences } from '@/app/lib/types/market';
 import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
+import 'dexie-export-import';
 import { type ShelfScanPlugin } from '../types/plugins';
 
 export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;
@@ -177,15 +178,6 @@ export const getScanHistory = async () =>
 
 export const clearScanHistory = async () =>
     await database.scanHistory.clear();
-
-export const bulkImportScanHistory = async (
-    entries: Omit<ScanHistoryEntity, 'id'>[],
-): Promise<void> => {
-    await database.transaction('rw', database.scanHistory, async () => {
-        await database.scanHistory.clear();
-        await database.scanHistory.bulkAdd(entries as ScanHistoryEntity[]);
-    });
-};
 
 export const getScanHistoryCount = async () =>
     await database.scanHistory.count();
