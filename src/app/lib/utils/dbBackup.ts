@@ -4,7 +4,7 @@ import { peakImportFile, type DexieExportJsonMeta } from 'dexie-export-import';
 import {
     decodeImageDataBlocks,
     encodeImageDataBlocks,
-    getDataBlock,
+    getDataBlocks,
 } from 'png-compressor';
 
 export type BackupTableName =
@@ -35,6 +35,21 @@ export type BackupImportSummary = {
 const BLOCK_KEY = 'shelfscan-backup-data';
 const CANVAS_WIDTH = 640;
 const CANVAS_HEIGHT = 120;
+
+// png-compressor encodes each binary block via String.fromCharCode.apply(null, ...) — a single
+// block larger than the JS engine's argument-spread limit (~65k) throws "Maximum call stack size
+// exceeded". Splitting the backup into chunks under the same block key (png-compressor natively
+// supports multiple blocks per key) keeps every individual apply() call well within that limit.
+const CHUNK_SIZE_BYTES = 32 * 1024;
+
+const chunkArrayBuffer = (buffer: ArrayBuffer, chunkSize: number): ArrayBuffer[] => {
+    const bytes = new Uint8Array(buffer);
+    const chunks: ArrayBuffer[] = [];
+    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+        chunks.push(bytes.slice(offset, offset + chunkSize).buffer);
+    }
+    return chunks;
+};
 
 const shareOrDownload = async (blob: Blob, filename: string, shareTitle: string): Promise<void> => {
     if (navigator.canShare && typeof navigator.canShare === 'function') {
@@ -118,7 +133,8 @@ export const createBackupEnvelope = async (blob: Blob, title: string): Promise<B
     const tableSummary = meta.data.tables.map(t => `${t.name} (${t.rowCount})`).join(', ');
 
     const pngBytes = await createLabelPng(title, subtitle, tableSummary);
-    const encoded = await encodeImageDataBlocks(pngBytes, { [BLOCK_KEY]: await blob.arrayBuffer() });
+    const chunks = chunkArrayBuffer(await blob.arrayBuffer(), CHUNK_SIZE_BYTES);
+    const encoded = await encodeImageDataBlocks(pngBytes, { [BLOCK_KEY]: chunks });
     return new Blob([new Uint8Array(encoded).buffer], { type: 'image/png' });
 };
 
@@ -132,12 +148,12 @@ export const readBackupBlob = async (file: File): Promise<Blob> => {
         throw new Error('File is not a valid PNG or could not be read.');
     }
 
-    const bytes = getDataBlock(BLOCK_KEY, dataBlocks) as Uint8Array | undefined;
-    if (!bytes) {
+    const chunks = getDataBlocks(BLOCK_KEY, dataBlocks) as Uint8Array[];
+    if (chunks.length === 0) {
         throw new Error('This PNG does not contain a ShelfScan backup.');
     }
 
-    return new Blob([new Uint8Array(bytes).buffer], { type: 'application/json' });
+    return new Blob(chunks.map(chunk => new Uint8Array(chunk)), { type: 'application/json' });
 };
 
 export const previewBackupBlob = (blob: Blob): Promise<DexieExportJsonMeta> =>

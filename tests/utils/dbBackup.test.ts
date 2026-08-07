@@ -110,6 +110,32 @@ describe('dbBackup', () => {
             ]);
             expect(summary.tables.map(t => t.name).sort()).toEqual([...INCLUDED_TABLES].sort());
         });
+
+        it('handles a backup blob spanning many PNG data-block chunks without stack overflow', async () => {
+            // png-compressor's binary block encoding blows the call stack for a single block
+            // larger than the JS engine's argument-spread limit; this seeds enough rows that the
+            // exported blob is several times CHUNK_SIZE_BYTES, so the chunking path is exercised.
+            const entries = Array.from({ length: 20000 }, (_, i) => ({
+                upc: String(1000000000000 + i),
+                timestamp: 1700000000 + i,
+                updatedAt: 1700000000 + i,
+                status: ScanHistoryMatchStatus.matched,
+                verified: true,
+                schemaVersion: SCAN_HISTORY_SCHEMA_VERSION,
+                gameName: `Game ${i}`,
+            }));
+            await database.scanHistory.bulkAdd(entries);
+
+            const file = await exportAndCapture(['scanHistory']);
+            // Bigger than a single 32KB chunk, so this only passes if chunking is wired up
+            expect(capturedBlob!.size).toBeGreaterThan(32 * 1024);
+
+            await database.scanHistory.clear();
+            const summary = await importBackupFile(file, ['scanHistory']);
+
+            expect(await database.scanHistory.count()).toBe(entries.length);
+            expect(summary.tables).toEqual([{ name: 'scanHistory', rowCount: entries.length }]);
+        });
     });
 
     describe('scoping', () => {

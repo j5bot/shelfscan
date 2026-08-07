@@ -116,10 +116,19 @@ not in `dbBackup.ts`, so the augmentation is guaranteed to apply before any cons
 
 ### Non-functional note
 
-Because the export blob is embedded as a single PNG data block (via `png-compressor`), the blob is
-fully materialized in memory at both export and import time — `dexie-export-import`'s chunked/
-streaming design is not preserved end-to-end through the PNG round trip. This is an accepted
-tradeoff given current data volumes (`scanHistory` capped at 20k rows per `ScanHistoryProvider`).
+Because the export blob is embedded in the PNG (via `png-compressor`), the blob is fully
+materialized in memory at both export and import time — `dexie-export-import`'s chunked/streaming
+design is not preserved end-to-end through the PNG round trip. This is an accepted tradeoff given
+current data volumes (`scanHistory` capped at 20k rows per `ScanHistoryProvider`).
+
+The export blob is **not** embedded as a single `shelfscan-backup-data` block — `png-compressor`
+encodes each binary block via `String.fromCharCode.apply(null, ...)` (`data-blocks.js`), which
+throws "Maximum call stack size exceeded" once a block's byte length exceeds the JS engine's
+argument-spread limit (~65k). The blob is split into fixed-size chunks (`CHUNK_SIZE_BYTES`, 32KB)
+and encoded as multiple blocks sharing the `shelfscan-backup-data` key — `png-compressor` supports
+this natively (`encodeImageDataBlocks`/`getDataBlocks`, one key mapping to an array of blocks).
+`readBackupBlob` reassembles them in order via `new Blob(chunks, ...)`. Covered by a regression test
+with a large `scanHistory` payload in `tests/utils/dbBackup.test.ts`.
 
 ## Architecture
 
