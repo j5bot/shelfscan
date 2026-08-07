@@ -3,13 +3,12 @@
 import {
     addScanHistoryEntry,
     associateAnonymousScans,
-    bulkImportScanHistory,
     clearScanHistory,
     database,
     getScanHistory,
     updateScanHistoryEntry,
 } from '@/app/lib/database/database';
-import { exportScanHistory, importScanHistory } from '@/app/lib/utils/scanHistoryImage';
+import { exportBackup, importBackupFile } from '@/app/lib/utils/dbBackup';
 import {
     SCAN_HISTORY_SCHEMA_VERSION,
     ScanHistoryEntry,
@@ -243,12 +242,11 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const exportHistory = useCallback(async (): Promise<void> => {
-        await exportScanHistory(scanHistory);
-    }, [scanHistory]);
+        await exportBackup(['scanHistory']);
+    }, []);
 
     const importHistory = useCallback(async (file: File): Promise<{ count: number }> => {
-        const entries = await importScanHistory(file);
-        await bulkImportScanHistory(entries);
+        await importBackupFile(file, ['scanHistory']);
         const fresh = await getScanHistory();
         setScanHistory(fresh);
         scanHistoryCount.current = fresh.length;
