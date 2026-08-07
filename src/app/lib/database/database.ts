@@ -2,7 +2,6 @@ import { BggCollectionMap } from '@/app/lib/types/bgg';
 import { MarketPreferences } from '@/app/lib/types/market';
 import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
-import 'dexie-export-import';
 import { type ShelfScanPlugin } from '../types/plugins';
 
 export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;

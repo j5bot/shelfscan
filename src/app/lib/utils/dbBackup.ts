@@ -1,11 +1,20 @@
 import { database } from '@/app/lib/database/database';
+import { decodeBackupBuffer, encodeBackupPng } from '@/app/lib/utils/backupCodec';
 import { formatBytes } from '@/app/lib/utils/size';
-import { peakImportFile, type DexieExportJsonMeta } from 'dexie-export-import';
-import {
-    decodeImageDataBlocks,
-    encodeImageDataBlocks,
-    getDataBlocks,
-} from 'png-compressor';
+import type { DbBackupWorkerRequest, DbBackupWorkerResponse } from '@/app/lib/workers/dbBackupWorker';
+import type { DexieExportJsonMeta } from 'dexie-export-import';
+
+// dexie-export-import's bundle runs top-level browser/worker-environment detection (references
+// the bare `self` global outside any typeof guard) the moment it's evaluated, which throws
+// "self is not defined" under Next.js's Node-based SSR/static prerendering. A dynamic import,
+// memoized and only ever awaited from inside functions that run in response to user action,
+// keeps that module load entirely client-side. This also augments `Dexie.prototype` with
+// `.export()`/`.import()` as a side effect, so every call site below awaits this first.
+let dexieExportImportModule: Promise<typeof import('dexie-export-import')> | undefined;
+const loadDexieExportImport = (): Promise<typeof import('dexie-export-import')> => {
+    dexieExportImportModule ??= import('dexie-export-import');
+    return dexieExportImportModule;
+};
 
 export type BackupTableName =
     | 'settings'
@@ -36,19 +45,95 @@ const BLOCK_KEY = 'shelfscan-backup-data';
 const CANVAS_WIDTH = 640;
 const CANVAS_HEIGHT = 120;
 
-// png-compressor encodes each binary block via String.fromCharCode.apply(null, ...) — a single
-// block larger than the JS engine's argument-spread limit (~65k) throws "Maximum call stack size
-// exceeded". Splitting the backup into chunks under the same block key (png-compressor natively
-// supports multiple blocks per key) keeps every individual apply() call well within that limit.
-const CHUNK_SIZE_BYTES = 32 * 1024;
+// PNG encode/decode (png-compressor + deflate) is synchronous CPU work that can run long enough
+// on large backups to jank the UI thread, so it's offloaded to a worker. `new URL(..., import
+// .meta.url)` is a special bundler-recognized form (Next.js/webpack/Turbopack and Vite all
+// special-case it to locate and bundle the worker file) — it must stay a literal relative path,
+// not the usual `@/` alias, since it's resolved at build time against this file's own location,
+// not through normal module resolution.
+type PendingWorkerRequest = {
+    resolve: (response: DbBackupWorkerResponse) => void;
+    reject: (error: Error) => void;
+};
 
-const chunkArrayBuffer = (buffer: ArrayBuffer, chunkSize: number): ArrayBuffer[] => {
-    const bytes = new Uint8Array(buffer);
-    const chunks: ArrayBuffer[] = [];
-    for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-        chunks.push(bytes.slice(offset, offset + chunkSize).buffer);
+let backupWorker: Worker | undefined;
+let requestCounter = 0;
+const pendingWorkerRequests = new Map<string, PendingWorkerRequest>();
+
+const nextRequestId = (): string => `${Date.now()}-${++requestCounter}`;
+
+const getBackupWorker = (): Worker | undefined => {
+    if (typeof Worker === 'undefined') {
+        return undefined;
     }
-    return chunks;
+    if (!backupWorker) {
+        backupWorker = new Worker(new URL('../workers/dbBackupWorker.ts', import.meta.url), { type: 'module' });
+        backupWorker.onmessage = (event: MessageEvent<DbBackupWorkerResponse>) => {
+            const pending = pendingWorkerRequests.get(event.data.requestId);
+            if (!pending) {
+                return;
+            }
+            pendingWorkerRequests.delete(event.data.requestId);
+            pending.resolve(event.data);
+        };
+        backupWorker.onerror = (event: ErrorEvent) => {
+            for (const [requestId, pending] of pendingWorkerRequests) {
+                pending.reject(new Error(event.message || 'Backup worker crashed.'));
+                pendingWorkerRequests.delete(requestId);
+            }
+        };
+    }
+    return backupWorker;
+};
+
+const sendToBackupWorker = (
+    worker: Worker,
+    request: DbBackupWorkerRequest,
+    transfer: Transferable[],
+): Promise<DbBackupWorkerResponse> =>
+    new Promise((resolve, reject) => {
+        pendingWorkerRequests.set(request.requestId, { resolve, reject });
+        worker.postMessage(request, transfer);
+    });
+
+const encodeBackupPngOffThread = async (pngBytes: Uint8Array, dataBuffer: ArrayBuffer): Promise<Uint8Array> => {
+    const worker = getBackupWorker();
+    if (!worker) {
+        return encodeBackupPng(pngBytes, dataBuffer, BLOCK_KEY);
+    }
+
+    const response = await sendToBackupWorker(
+        worker,
+        { type: 'encode', requestId: nextRequestId(), blockKey: BLOCK_KEY, pngBytes, dataBuffer },
+        [pngBytes.buffer, dataBuffer],
+    );
+    if (!response.ok) {
+        throw new Error(response.error);
+    }
+    if (response.type !== 'encode') {
+        throw new Error('Unexpected backup worker response.');
+    }
+    return response.pngBytes;
+};
+
+const decodeBackupBufferOffThread = async (fileBuffer: ArrayBuffer): Promise<ArrayBuffer> => {
+    const worker = getBackupWorker();
+    if (!worker) {
+        return decodeBackupBuffer(fileBuffer, BLOCK_KEY);
+    }
+
+    const response = await sendToBackupWorker(
+        worker,
+        { type: 'decode', requestId: nextRequestId(), blockKey: BLOCK_KEY, fileBuffer },
+        [fileBuffer],
+    );
+    if (!response.ok) {
+        throw new Error(response.error);
+    }
+    if (response.type !== 'decode') {
+        throw new Error('Unexpected backup worker response.');
+    }
+    return response.dataBuffer;
 };
 
 const shareOrDownload = async (blob: Blob, filename: string, shareTitle: string): Promise<void> => {
@@ -119,50 +204,42 @@ const backupTitle = (tables: BackupTableName[]): string =>
         ? 'ShelfScan Backup'
         : `ShelfScan ${tables.map(t => TABLE_LABELS[t]).join(' & ')} Backup`;
 
-export const exportTablesToBlob = (tables: BackupTableName[] = INCLUDED_TABLES): Promise<Blob> =>
-    database.export({
+export const exportTablesToBlob = async (tables: BackupTableName[] = INCLUDED_TABLES): Promise<Blob> => {
+    await loadDexieExportImport();
+    return database.export({
         skipTables: database.tables
             .map(t => t.name)
             .filter(name => !tables.includes(name as BackupTableName)),
     });
+};
 
 export const createBackupEnvelope = async (blob: Blob, title: string): Promise<Blob> => {
+    const { peakImportFile } = await loadDexieExportImport();
     const meta = await peakImportFile(blob);
     const totalRows = meta.data.tables.reduce((sum, t) => sum + t.rowCount, 0);
     const subtitle = `${new Date().toLocaleDateString()} · ${formatBytes(blob.size)} · ${totalRows} row${totalRows !== 1 ? 's' : ''}`;
     const tableSummary = meta.data.tables.map(t => `${t.name} (${t.rowCount})`).join(', ');
 
     const pngBytes = await createLabelPng(title, subtitle, tableSummary);
-    const chunks = chunkArrayBuffer(await blob.arrayBuffer(), CHUNK_SIZE_BYTES);
-    const encoded = await encodeImageDataBlocks(pngBytes, { [BLOCK_KEY]: chunks });
-    return new Blob([new Uint8Array(encoded).buffer], { type: 'image/png' });
+    const encoded = await encodeBackupPngOffThread(pngBytes, await blob.arrayBuffer());
+    return new Blob([new Uint8Array(encoded)], { type: 'image/png' });
 };
 
 export const readBackupBlob = async (file: File): Promise<Blob> => {
-    const buffer = await file.arrayBuffer();
-    let dataBlocks: Awaited<ReturnType<typeof decodeImageDataBlocks>>['blocks'];
-    try {
-        const result = await decodeImageDataBlocks(new Uint8Array(buffer));
-        dataBlocks = result.blocks;
-    } catch {
-        throw new Error('File is not a valid PNG or could not be read.');
-    }
-
-    const chunks = getDataBlocks(BLOCK_KEY, dataBlocks) as Uint8Array[];
-    if (chunks.length === 0) {
-        throw new Error('This PNG does not contain a ShelfScan backup.');
-    }
-
-    return new Blob(chunks.map(chunk => new Uint8Array(chunk)), { type: 'application/json' });
+    const dataBuffer = await decodeBackupBufferOffThread(await file.arrayBuffer());
+    return new Blob([dataBuffer], { type: 'application/json' });
 };
 
-export const previewBackupBlob = (blob: Blob): Promise<DexieExportJsonMeta> =>
-    peakImportFile(blob);
+export const previewBackupBlob = async (blob: Blob): Promise<DexieExportJsonMeta> => {
+    const { peakImportFile } = await loadDexieExportImport();
+    return peakImportFile(blob);
+};
 
 export const importTablesFromBlob = async (
     blob: Blob,
     tables: BackupTableName[] = INCLUDED_TABLES,
 ): Promise<BackupImportSummary> => {
+    const { peakImportFile } = await loadDexieExportImport();
     const meta = await peakImportFile(blob);
 
     // clearTablesBeforeImport clears every local table not named in skipTables — including
