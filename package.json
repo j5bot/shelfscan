@@ -24,6 +24,7 @@
     "@vercel/analytics": "^2.0.1",
     "daisyui": "^5.7.15",
     "dexie": "^4.4.4",
+    "dexie-export-import": "^4.4.0",
     "gameupc-hooks": "^1.0.11",
     "motion": "^12.43.0",
     "next": "^16.3.0",
