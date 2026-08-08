@@ -6,6 +6,7 @@ import {
     UNKNOWN_GEEKLIST_ITEM_ID,
 } from '@/app/lib/redux/bgg/geeklist/slice';
 import { RootState } from '@/app/lib/redux/store';
+import { ComponentModeMap } from '@/app/lib/types/modes';
 import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
 import { memo, useCallback, useState } from 'react';

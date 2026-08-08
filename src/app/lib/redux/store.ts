@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import bgg from '@/app/lib/redux/bgg/bggSlice';
+import swap from '@/app/lib/redux/swap/slice';
 
 export const makeStore = () => configureStore({
     reducer: {
-        bgg
+        bgg,
+        swap,
     },
     devTools: true,
 });

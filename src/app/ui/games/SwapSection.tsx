@@ -1,0 +1,131 @@
+import { useDispatch, useSelector } from '@/app/lib/hooks';
+import {
+    setItemData,
+} from '@/app/lib/redux/swap/slice';
+import { RootState } from '@/app/lib/redux/store';
+// import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
+import { memo, useCallback, useState } from 'react';
+
+type SwapSectionProps = {
+    collectionId: number;
+};
+
+export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
+    const dispatch = useDispatch();
+
+    const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
+    const item = useSelector((state: RootState) =>
+        state.bgg.collection.users[username]?.items[collectionId]
+    );
+
+    // const activeSwapID = useSelector(
+    //     (state: RootState) => state.swap.activeSwapID,
+    // );
+    const savedData = useSelector(
+        (state: RootState) => state.swap.data[collectionId],
+    );
+    // const isInSwap = false;
+    // //     useSelector((state: RootState) => {
+    // //     if (activeGeekListId === null || !item) {
+    // //         return false;
+    // //     }
+    // //     return state.bgg.geeklist.geekLists[activeGeekListId].matched.includes(collectionId);
+    // // });
+
+    const [expanded, setExpanded] = useState(false);
+
+    const defaultBodyText = item?.tradeCondition ?? '';
+    const bodyText = savedData?.bodyText ?? defaultBodyText;
+    const compareValue = savedData?.compareValue ?? 1;
+    const sellFor = savedData?.sellFor ?? 1;
+
+    const handleBodyChange = useCallback((value: string) => {
+        dispatch(setItemData({ collectionId, bodyText: value }));
+    }, [dispatch, collectionId]);
+
+    const handleCompareValueChange = useCallback((value: number) => {
+        dispatch(setItemData({ collectionId, bodyText, compareValue: value }));
+    }, [dispatch, collectionId, bodyText, compareValue]);
+
+    const handleSellForChange = useCallback((value: number) => {
+        dispatch(setItemData({ collectionId, bodyText, sellFor: value }));
+    }, [dispatch, collectionId, bodyText, sellFor]);
+
+    if (!item) { return null; }
+
+    return <div className="mt-2 border-t border-base-content/15 pt-2">
+        {expanded ? (
+            <div className="flex flex-col gap-2">
+                <textarea
+                    className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
+                    value={bodyText}
+                    onChange={e => handleBodyChange(e.target.value)}
+                    placeholder="Trade condition / description"
+                    aria-label="Trade condition / description for math trade"
+                />
+                <div className="flex items-center gap-0.5">
+                    <label
+                        className="text-xs text-base-content/70"
+                        htmlFor={`compareValue-${collectionId}`}
+                    >
+                        Compare
+                    </label>
+                    <input
+                        id={`compareValue-${collectionId}`}
+                        type="number"
+                        className="input input-bordered input-xs ml-0.25 w-10"
+                        min={1}
+                        value={compareValue}
+                        onChange={e => handleCompareValueChange(
+                            Math.max(1, parseInt(e.target.value, 10) || 1),
+                        )}
+                        aria-label="Comparative value"
+                    />
+                    <label
+                        className="text-xs text-base-content/70 text-nowrap"
+                        htmlFor={`compareValue-${collectionId}`}
+                    >
+                        Sell For
+                    </label>
+                    <input
+                        id={`sellFor-${collectionId}`}
+                        type="number"
+                        className="input input-bordered input-xs ml-0.25 w-12"
+                        min={0}
+                        value={sellFor}
+                        onChange={e => handleSellForChange(
+                            Math.max(1, parseInt(e.target.value, 10) || 1),
+                        )}
+                        aria-label="Sell for value"
+                    />
+                </div>
+                <div className="flex items-center gap-0.5">
+                    <button
+                        type="button"
+                        className="btn btn-xs btn-ghost ml-auto"
+                        onClick={() => setExpanded(false)}
+                        aria-label="Collapse swap editor"
+                    >
+                        Done
+                    </button>
+                </div>
+            </div>
+        ) : (
+            <button
+                type="button"
+                className="w-full text-left cursor-pointer"
+                onClick={() => setExpanded(true)}
+                aria-label="Edit swap entry"
+                aria-expanded={false}
+            >
+                <pre className={`text-xs whitespace-pre-wrap wrap-break-word
+                    font-encode-condensed text-base-content/90
+                    bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
+                    {bodyText}
+                </pre>
+            </button>
+        )}
+    </div>;
+});
+
+SwapSection.displayName = 'SwapSection';

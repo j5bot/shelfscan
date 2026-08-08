@@ -2,6 +2,7 @@ import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { SizeKey } from '@/app/ui/games/AllGamesContent';
+import { SwapSection } from '@/app/ui/games/SwapSection';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import Link from 'next/link';
@@ -74,6 +75,10 @@ export const ListGame = memo((props: ListGameProps) => {
     /> : null;
 
     const mathTradeSection = collectionId && modeMap.mathTrade ? <MathTradeSection
+        collectionId={collectionId}
+    /> : null;
+
+    const swapSection = collectionId && modeMap.swap ? <SwapSection
         collectionId={collectionId}
     /> : null;
 
@@ -151,7 +156,7 @@ export const ListGame = memo((props: ListGameProps) => {
             <div className="flex justify-center items-center gap-1.5">
                 {cornerIcon}
                 <div
-                    className="w-fit h-5.5 overflow-ellipsis overflow-hidden text-nowrap"
+                    className="w-fit h-5.5 text-ellipsis overflow-hidden text-nowrap"
                     title={name}
                 >
                     {name}
@@ -160,6 +165,7 @@ export const ListGame = memo((props: ListGameProps) => {
             {thumbnailContent}
             {ratingForm}
             {mathTradeSection}
+            {swapSection}
         </div>
     </li>;
 });

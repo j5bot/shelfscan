@@ -81,6 +81,7 @@ const SkeletonItem = () => (
 type ModeMap = {
     batchRating: boolean;
     mathTrade: boolean;
+    swap: boolean;
 };
 
 export type SizeKey = keyof typeof ThumbnailSizes;
