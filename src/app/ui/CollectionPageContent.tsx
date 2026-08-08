@@ -53,18 +53,25 @@ import {
 
 type NotInCollectionSortField = 'name' | 'lastScanned';
 
+export type CollectionPageModeOptions = {
+    mathTradeGeeklistId?: number;
+    swapId?: number;
+};
+
 type CollectionPageContentProps = {
-    initialMathTradeGeeklistId?: number;
+    modeOptions?: CollectionPageModeOptions;
     title?: string;
     heading?: string;
 };
 
 export const CollectionPageContent = ({
-    initialMathTradeGeeklistId,
+    modeOptions = {},
     title,
     heading = 'Collection'
 }: CollectionPageContentProps) => {
     useTitle(title ?? 'ShelfScan | Collection');
+
+    const { mathTradeGeeklistId: initialMathTradeGeeklistId, swapId: initialSwapId } = modeOptions;
 
     const dispatch = useDispatch();
     const username = useSelector((state: RootState) => state.bgg.user?.user);
@@ -114,10 +121,11 @@ export const CollectionPageContent = ({
     const pathname = usePathname();
     const router = useRouter();
     const isMathTradeRoute = pathname?.startsWith('/math-trade') ?? false;
+    const isSwapRoute = pathname?.startsWith('/swap') ?? false;
 
     const store = useStore();
 
-    // Auto-load the geeklist and enter math trade mode when an ID is provided via route params.
+    // Autoload the geeklist and enter math trade mode when an ID is provided via route params.
     // Skips the network request if the geeklist is already loaded in Redux (e.g. after a dialog
     // load followed by router navigation to the same ID).
     useEffect(() => {
