@@ -39,17 +39,19 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
     const compareValue = savedData?.compareValue ?? 1;
     const sellFor = savedData?.sellFor ?? 1;
 
+    const name = item?.name ?? '';
+
     const handleBodyChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, bodyText: value }));
-    }, [dispatch, collectionId]);
+        dispatch(setItemData({ collectionId, name, bodyText: value }));
+    }, [dispatch, collectionId, name]);
 
     const handleCompareValueChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, bodyText, compareValue: value }));
-    }, [dispatch, collectionId, bodyText, compareValue]);
+        dispatch(setItemData({ collectionId, name, bodyText, compareValue: value }));
+    }, [dispatch, collectionId, name, bodyText, compareValue]);
 
     const handleSellForChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, bodyText, sellFor: value }));
-    }, [dispatch, collectionId, bodyText, sellFor]);
+        dispatch(setItemData({ collectionId, name, bodyText, sellFor: value }));
+    }, [dispatch, collectionId, name, bodyText, sellFor]);
 
     if (!item) { return null; }
 

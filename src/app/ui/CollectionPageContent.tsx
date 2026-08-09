@@ -7,6 +7,7 @@ import { useOLWLGMathTrade } from '@/app/lib/hooks/useOLWLGMathTrade';
 import { bggHost } from '@/app/lib/services/bgg/constants';
 import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
+import { downloadSwapExport, getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { parseUnifiedSearch, useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
@@ -17,6 +18,7 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { useSelector, useStore } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
+import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
@@ -35,6 +37,7 @@ import {
     FaArrowsRotate,
     FaBorderAll,
     FaCloudArrowUp,
+    FaFileExport,
     FaList,
     FaPlus,
     FaRightLeft, FaSquareArrowUpRight, FaSquareUpRight,
@@ -73,6 +76,8 @@ export const CollectionPageContent = ({
     const [batchRate, setBatchRate] = useState<boolean>(false);
     const [selectedMathTradeIds, setSelectedMathTradeIds] = useState<Set<number>>(new Set());
     const [pendingMathTradeToggleId, setPendingMathTradeToggleId] = useState<number | null>(null);
+    const [isExportingSwap, setIsExportingSwap] = useState(false);
+    const swapData = useSelector((state: RootState) => state.swap.data);
 
     const {
         mathTradeMode,
@@ -185,6 +190,33 @@ export const CollectionPageContent = ({
             setSelectedMathTradeIds(new Set());
         }
     }, [selectedMathTradeIds, collection, geeklistData, submitMathTrade]);
+
+    const handleSwapExport = useCallback(async () => {
+        if (selectedMathTradeIds.size === 0) { return; }
+
+        const items: SwapItemData[] = Array.from(selectedMathTradeIds).flatMap(collectionId => {
+            const item = collection?.items[collectionId];
+            if (!item) { return []; }
+            const savedData = swapData[collectionId];
+            return [{
+                collectionId,
+                swapItemId: savedData?.swapItemId,
+                name: savedData?.name ?? item.name,
+                bodyText: savedData?.bodyText ?? item.tradeCondition ?? '',
+                compareValue: savedData?.compareValue ?? 1,
+                sellFor: savedData?.sellFor ?? 1,
+                imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
+            }];
+        });
+
+        setIsExportingSwap(true);
+        try {
+            await downloadSwapExport(items);
+            setSelectedMathTradeIds(new Set());
+        } finally {
+            setIsExportingSwap(false);
+        }
+    }, [selectedMathTradeIds, collection, swapData]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
@@ -665,7 +697,9 @@ export const CollectionPageContent = ({
                             <span className="text-xs text-base-content/60">
                                 {selectedMathTradeIds.size > 0
                                     ? `${selectedMathTradeIds.size} selected`
-                                    : 'Click image to select for Math Trade'
+                                    : isSwapRoute
+                                        ? 'Click image to select for Swap export'
+                                        : 'Click image to select for Math Trade'
                                 }
                             </span>
                             {selectedMathTradeIds.size > 0 && (
@@ -676,16 +710,22 @@ export const CollectionPageContent = ({
                                         flex items-center justify-center gap-2
                                         uppercase text-base font-sharetech
                                         pl-6 pr-6 pt-2 pb-2
-                                        ${isBulkMathTradeAdding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
-                                    onClick={() => void handleBulkMathTradeAdd()}
-                                    disabled={isBulkMathTradeAdding}
-                                    aria-label={`Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`}
-                                >
-                                    {isBulkMathTradeAdding
-                                        ? <span className="loading loading-bars loading-sm" />
-                                        : <FaRightLeft className="w-4 h-4" />
+                                        ${(isSwapRoute ? isExportingSwap : isBulkMathTradeAdding) ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
+                                    onClick={() => void (isSwapRoute ? handleSwapExport() : handleBulkMathTradeAdd())}
+                                    disabled={isSwapRoute ? isExportingSwap : isBulkMathTradeAdding}
+                                    aria-label={isSwapRoute
+                                        ? `Export ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to ODS`
+                                        : `Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`
                                     }
-                                    Add {selectedMathTradeIds.size} to Math Trade
+                                >
+                                    {(isSwapRoute ? isExportingSwap : isBulkMathTradeAdding)
+                                        ? <span className="loading loading-bars loading-sm" />
+                                        : isSwapRoute ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
+                                    }
+                                    {isSwapRoute
+                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon`
+                                        : `Add ${selectedMathTradeIds.size} to Math Trade`
+                                    }
                                 </button>
                             )}
                         </div>
