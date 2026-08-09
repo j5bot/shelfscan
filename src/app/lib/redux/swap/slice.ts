@@ -3,21 +3,23 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 type CollectionID = number;
 
 export type SwapItemData = {
-    swapItemID?: number;
+    swapItemId?: number;
+    collectionId?: number;
     bodyText: string;
     compareValue?: number;
+    imageKey?: string;
     sellFor?: number;
 };
 
 export type SwapSliceState = {
-    activeSwapID: number | null;
+    activeSwapId: number | null;
     data: Record<CollectionID, SwapItemData>;
 };
 
 const SLICE_TITLE = 'SWAP';
 
 const initialState: SwapSliceState = {
-    activeSwapID: null,
+    activeSwapId: null,
     data: {},
 };
 
@@ -52,22 +54,19 @@ export const swapSlice = createSlice({
     reducers: {
         setItemData: (
             state,
-            action: PayloadAction<{
-                collectionId: CollectionID;
-                bodyText: string;
-                compareValue?: number;
-                sellFor?: number;
-            }>,
+            action: PayloadAction<SwapItemData>,
         ) => {
-            const { collectionId, bodyText, compareValue, sellFor } = action.payload;
-            state.data[collectionId] = {
+            const { collectionId, bodyText, compareValue, imageKey, sellFor, swapItemId } = action.payload;
+            state.data[collectionId?] = {
+                imageKey,
+                swapItemId,
                 bodyText,
                 compareValue,
                 sellFor,
             };
         },
         setActiveSwap: (state, action: PayloadAction<number>) => {
-            state.activeSwapID = action.payload;
+            state.activeSwapId = action.payload;
         },
     },
 });
