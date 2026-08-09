@@ -298,7 +298,7 @@ export const AllGamesContent = memo(({
                                             detailUrlRel="noopener noreferrer"
                                             isScanned={scannedSet.has(displayItems[index].objectId)}
                                             isVerified={verifiedSet.has(displayItems[index].objectId)}
-                                            onClick={modeMap.mathTrade
+                                            onClick={(modeMap.mathTrade || modeMap.swap)
                                                 ? () => onMathTradeToggle(collectionId)
                                                 : () => onSelectItem(displayItems[index])}
                                         />
@@ -324,7 +324,7 @@ export const AllGamesContent = memo(({
                                     onSelectItem={onSelectItem}
                                     modeMap={modeMap}
                                     mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                                    onMathTradeToggle={modeMap.mathTrade ? onMathTradeToggle : undefined}
+                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap) ? onMathTradeToggle : undefined}
                                 />;
                             }}
                         />;
@@ -343,7 +343,7 @@ export const AllGamesContent = memo(({
                                     onSelectItem={onSelectItem}
                                     modeMap={modeMap}
                                     mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                                    onMathTradeToggle={modeMap.mathTrade ? onMathTradeToggle : undefined}
+                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap) ? onMathTradeToggle : undefined}
                                 />;
                             }}
                         />;

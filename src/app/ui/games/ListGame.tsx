@@ -109,11 +109,11 @@ export const ListGame = memo((props: ListGameProps) => {
         )}
     </div>;
 
-    const thumbnailClickHandler = modeMap.mathTrade && onMathTradeToggle
+    const thumbnailClickHandler = (modeMap.mathTrade || modeMap.swap) && onMathTradeToggle
         ? onMathTradeToggle
         : onClick;
 
-    const thumbnailAriaLabel = modeMap.mathTrade && onMathTradeToggle
+    const thumbnailAriaLabel = (modeMap.mathTrade || modeMap.swap) && onMathTradeToggle
         ? `${mathTradeSelected ? 'Deselect' : 'Select'} ${name} for math trade`
         : `View details for ${name}`;
 
@@ -123,7 +123,8 @@ export const ListGame = memo((props: ListGameProps) => {
             className="w-full text-left cursor-pointer"
             onClick={thumbnailClickHandler}
             aria-label={thumbnailAriaLabel}
-            aria-pressed={modeMap.mathTrade && onMathTradeToggle ? mathTradeSelected : undefined}
+            aria-pressed={(modeMap.mathTrade || modeMap.swap) &&
+                          onMathTradeToggle ? mathTradeSelected : undefined}
         >
             {thumbnail}
         </button>

@@ -660,7 +660,7 @@ export const CollectionPageContent = ({
                             )}
                         </div>
                     )}
-                    {mathTradeMode && syncOn && (
+                    {((mathTradeMode && syncOn) || isSwapRoute) && (
                         <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
                             <span className="text-xs text-base-content/60">
                                 {selectedMathTradeIds.size > 0
