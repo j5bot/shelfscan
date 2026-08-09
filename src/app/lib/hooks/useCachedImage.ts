@@ -3,9 +3,9 @@ import { getImageDataFromCache as getFromCache, hasCachedImage } from '@/app/lib
 import { ImageProps } from 'next/image';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 
-const MAX_NORMAL_IMAGE_SIZE = 400;
+export const MAX_NORMAL_IMAGE_SIZE = 400;
 const NORMAL_IMAGE_QUALITY = 0.9;
-const NORMAL_IMAGE_CACHE_QUALITY = 90;
+export const NORMAL_IMAGE_CACHE_QUALITY = 90;
 
 export type ImagePropsWithCacheParams = ImageProps & {
     getImageId: (props: ImageProps) => string;
@@ -42,7 +42,7 @@ const getAcceptHeader = (src: string): string => {
     }
 };
 
-const rewriteImageSrc = (src: string): string => src
+export const rewriteImageSrc = (src: string): string => src
     .replace('https://cf.geekdo-images.com/', '/bgg-images/')
     .replace('https://cf.geekdo-static.com/', '/bgg-static/')
     .replace('https://gameupc.com/assets/img/', '/gameupc-images/');

@@ -1,13 +1,13 @@
 'use client';
 
-import { bggGetGeeklistInner } from '@/app/lib/actions';
 import { useSync } from '@/app/lib/extension/useSync';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
-import { useMathTrade } from '@/app/lib/hooks/useMathTrade';
+import { useOLWLGMathTrade } from '@/app/lib/hooks/useOLWLGMathTrade';
 import { bggHost } from '@/app/lib/services/bgg/constants';
 import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
+import { downloadSwapExport, getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { parseUnifiedSearch, useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
@@ -15,17 +15,11 @@ import { useFilterSort, SortFieldDef } from '@/app/lib/hooks/useFilterSort';
 import { useNotInCollection, NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { useStickyBar } from '@/app/lib/hooks/useStickyBar';
 import { useTitle } from '@/app/lib/hooks/useTitle';
-import { useDispatch, useSelector, useStore } from '@/app/lib/hooks';
+import { useSelector, useStore } from '@/app/lib/hooks';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { RootState } from '@/app/lib/redux/store';
+import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
-import {
-    loadGeeklistError,
-    loadGeeklistStart,
-    loadGeeklistSuccess,
-    setActiveGeekList,
-} from '@/app/lib/redux/bgg/geeklist/slice';
-import { bggGetGeeklistFromXML } from '@/app/lib/services/bgg/service';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { GeekListSwitcher } from '@/app/ui/GeekListSwitcher';
@@ -37,12 +31,13 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { KeyboardEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
     FaArrowsRotate,
     FaBorderAll,
     FaCloudArrowUp,
+    FaFileExport,
     FaList,
     FaPlus,
     FaRightLeft, FaSquareArrowUpRight, FaSquareUpRight,
@@ -53,101 +48,63 @@ import {
 
 type NotInCollectionSortField = 'name' | 'lastScanned';
 
+export type CollectionPageModeOptions = {
+    mathTradeGeeklistId?: number;
+    swapId?: number;
+};
+
 type CollectionPageContentProps = {
-    initialMathTradeGeeklistId?: number;
+    modeOptions?: CollectionPageModeOptions;
     title?: string;
     heading?: string;
 };
 
 export const CollectionPageContent = ({
-    initialMathTradeGeeklistId,
+    modeOptions = {},
     title,
     heading = 'Collection'
 }: CollectionPageContentProps) => {
     useTitle(title ?? 'ShelfScan | Collection');
 
-    const dispatch = useDispatch();
+    const { mathTradeGeeklistId: initialMathTradeGeeklistId, swapId: initialSwapId } = modeOptions;
+
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const collection = useSelector((state: RootState) => state.bgg.collection?.users[username?.toLowerCase() ?? ''] ?? undefined);
-    const geeklistData = useSelector((state: RootState) => state.bgg.geeklist.data);
     const { scanHistory, lastScannedMap } = useScanHistory();
     const { syncOn } = useSync();
     const { canBatch, addGameToCollection } = useBatchSync();
-    const { sendViaExtension } = useMathTrade();
     const [batchRate, setBatchRate] = useState<boolean>(false);
-    const [mathTradeMode, setMathTradeMode] = useState(!!initialMathTradeGeeklistId);
-    const [showMathTradeDialog, setShowMathTradeDialog] = useState(false);
     const [selectedMathTradeIds, setSelectedMathTradeIds] = useState<Set<number>>(new Set());
-    const [isBulkMathTradeAdding, setIsBulkMathTradeAdding] = useState(false);
-    const [mathTradeError, setMathTradeError] = useState<string | null>(null);
-    const [isRefreshingGeeklist, setIsRefreshingGeeklist] = useState(false);
     const [pendingMathTradeToggleId, setPendingMathTradeToggleId] = useState<number | null>(null);
+    const [isExportingSwap, setIsExportingSwap] = useState(false);
+    const swapData = useSelector((state: RootState) => state.swap.data);
 
-    const initialMathTradeGeeklistStatus = useSelector(
-        (state: RootState) => initialMathTradeGeeklistId ?
-                              state.bgg.geeklist.geekLists[initialMathTradeGeeklistId]?.status
-                              : undefined
-    );
-    const activeGeekListId = useSelector(
-        (state: RootState) => state.bgg.geeklist.activeGeekListId,
-    );
-    const geeklist = useSelector((state: RootState) => state.bgg.geeklist.geekLists[activeGeekListId ?? 0])
-    const activeGeekListStatus = useSelector((state: RootState) =>
-        activeGeekListId !== null
-            ? state.bgg.geeklist.geekLists[activeGeekListId]?.status
-            : undefined,
-    );
-    const activeGeekListTitle = useSelector((state: RootState) =>
-        activeGeekListId !== null
-            ? state.bgg.geeklist.geekLists[activeGeekListId]?.geekList?.title
-            : undefined,
-    );
-    const allGeekLists = useSelector((state: RootState) =>
-        Object.entries(state.bgg.geeklist.geekLists)
-            .filter(([, entry]) => entry.status === 'loaded')
-            .map(([id, entry]) => ({
-                id: parseInt(id, 10),
-                title: entry.geekList?.title ?? `Geeklist ${id}`,
-            })),
-    );
+    const {
+        mathTradeMode,
+        setMathTradeMode,
+        showMathTradeDialog,
+        setShowMathTradeDialog,
+        isBulkMathTradeAdding,
+        mathTradeError,
+        setMathTradeError,
+        isRefreshingGeeklist,
+        geeklistData,
+        activeGeekListId,
+        geeklist,
+        activeGeekListStatus,
+        activeGeekListTitle,
+        allGeekLists,
+        setActiveGeekListId,
+        handleRefreshGeeklist,
+        submitMathTrade,
+    } = useOLWLGMathTrade({ username, collection, initialMathTradeGeeklistId });
 
     const pathname = usePathname();
     const router = useRouter();
     const isMathTradeRoute = pathname?.startsWith('/math-trade') ?? false;
+    const isSwapRoute = pathname?.startsWith('/swap') ?? false;
 
     const store = useStore();
-
-    // Auto-load the geeklist and enter math trade mode when an ID is provided via route params.
-    // Skips the network request if the geeklist is already loaded in Redux (e.g. after a dialog
-    // load followed by router navigation to the same ID).
-    useEffect(() => {
-        if (!username) {
-            return;
-        }
-        if (!initialMathTradeGeeklistId) { return; }
-        if (initialMathTradeGeeklistStatus === 'loaded') {
-            dispatch(setActiveGeekList(initialMathTradeGeeklistId));
-            setMathTradeMode(true);
-            return;
-        }
-        let active = true;
-        dispatch(loadGeeklistStart({ geekListId: initialMathTradeGeeklistId, username }));
-        void bggGetGeeklistInner(initialMathTradeGeeklistId).then(xml => {
-            if (!active) { return; }
-            if (!xml) {
-                dispatch(loadGeeklistError(initialMathTradeGeeklistId));
-                return;
-            }
-            const geekList = bggGetGeeklistFromXML(xml);
-            if (!geekList) {
-                dispatch(loadGeeklistError(initialMathTradeGeeklistId));
-                return;
-            }
-            dispatch(loadGeeklistSuccess({ collection, geekList, username }));
-            setMathTradeMode(true);
-        });
-        return () => { active = false; };
-    }, [initialMathTradeGeeklistId, dispatch, store, username]);
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -211,8 +168,6 @@ export const CollectionPageContent = ({
 
     const handleBulkMathTradeAdd = useCallback(async () => {
         if (selectedMathTradeIds.size === 0) { return; }
-        setIsBulkMathTradeAdding(true);
-        setMathTradeError(null);
 
         const items = Array.from(selectedMathTradeIds).flatMap(collectionId => {
             const item = collection?.items[collectionId];
@@ -230,46 +185,44 @@ export const CollectionPageContent = ({
             }];
         });
 
-        const results = await sendViaExtension(items);
-        setIsBulkMathTradeAdding(false);
-
-        const failures = results.filter(r => !r.success);
-        if (failures.length > 0) {
-            setMathTradeError(
-                `${failures.length} item${failures.length !== 1 ? 's' : ''} failed to add`,
-            );
-        } else {
+        const success = await submitMathTrade(items);
+        if (success) {
             setSelectedMathTradeIds(new Set());
         }
-    }, [selectedMathTradeIds, sendViaExtension]);
+    }, [selectedMathTradeIds, collection, geeklistData, submitMathTrade]);
 
-    const handleRefreshGeeklist = useCallback(async () => {
-        if (!username) {
-            return;
+    const handleSwapExport = useCallback(async () => {
+        if (selectedMathTradeIds.size === 0) { return; }
+
+        const items: SwapItemData[] = Array.from(selectedMathTradeIds).flatMap(collectionId => {
+            const item = collection?.items[collectionId];
+            if (!item) { return []; }
+            const savedData = swapData[collectionId];
+            return [{
+                collectionId,
+                swapItemId: savedData?.swapItemId,
+                name: savedData?.name ?? item.name,
+                bodyText: savedData?.bodyText ?? item.tradeCondition ?? '',
+                compareValue: savedData?.compareValue ?? 1,
+                sellFor: savedData?.sellFor ?? 1,
+                imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
+            }];
+        });
+
+        setIsExportingSwap(true);
+        try {
+            await downloadSwapExport(items);
+            setSelectedMathTradeIds(new Set());
+        } finally {
+            setIsExportingSwap(false);
         }
-        if (activeGeekListId === null) { return; }
-        setIsRefreshingGeeklist(true);
-        dispatch(loadGeeklistStart({ geekListId: activeGeekListId, username }));
-        const xml = await bggGetGeeklistInner(activeGeekListId);
-        if (!xml) {
-            dispatch(loadGeeklistError(activeGeekListId));
-            setIsRefreshingGeeklist(false);
-            return;
-        }
-        const geekList = bggGetGeeklistFromXML(xml);
-        if (!geekList) {
-            dispatch(loadGeeklistError(activeGeekListId));
-            setIsRefreshingGeeklist(false);
-            return;
-        }
-        dispatch(loadGeeklistSuccess({ collection, geekList, username }));
-        setIsRefreshingGeeklist(false);
-    }, [activeGeekListId, dispatch, username]);
+    }, [selectedMathTradeIds, collection, swapData]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
         mathTrade: mathTradeMode,
-    }), [syncOn, batchRate, view, mathTradeMode]);
+        swap: isSwapRoute,
+    }), [syncOn, batchRate, view, mathTradeMode, isSwapRoute]);
 
     const {
         reduxItems,
@@ -639,7 +592,7 @@ export const CollectionPageContent = ({
                                 activeId={activeGeekListId}
                                 lists={allGeekLists}
                                 onSelect={id => {
-                                    dispatch(setActiveGeekList(id));
+                                    setActiveGeekListId(id);
                                     if (isMathTradeRoute) {
                                         router.replace(`/math-trade/${id}`);
                                     }
@@ -739,12 +692,14 @@ export const CollectionPageContent = ({
                             )}
                         </div>
                     )}
-                    {mathTradeMode && syncOn && (
+                    {((mathTradeMode && syncOn) || isSwapRoute) && (
                         <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
                             <span className="text-xs text-base-content/60">
                                 {selectedMathTradeIds.size > 0
                                     ? `${selectedMathTradeIds.size} selected`
-                                    : 'Click image to select for Math Trade'
+                                    : isSwapRoute
+                                        ? 'Click image to select for Swap export'
+                                        : 'Click image to select for Math Trade'
                                 }
                             </span>
                             {selectedMathTradeIds.size > 0 && (
@@ -755,16 +710,22 @@ export const CollectionPageContent = ({
                                         flex items-center justify-center gap-2
                                         uppercase text-base font-sharetech
                                         pl-6 pr-6 pt-2 pb-2
-                                        ${isBulkMathTradeAdding ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
-                                    onClick={() => void handleBulkMathTradeAdd()}
-                                    disabled={isBulkMathTradeAdding}
-                                    aria-label={`Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`}
-                                >
-                                    {isBulkMathTradeAdding
-                                        ? <span className="loading loading-bars loading-sm" />
-                                        : <FaRightLeft className="w-4 h-4" />
+                                        ${(isSwapRoute ? isExportingSwap : isBulkMathTradeAdding) ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
+                                    onClick={() => void (isSwapRoute ? handleSwapExport() : handleBulkMathTradeAdd())}
+                                    disabled={isSwapRoute ? isExportingSwap : isBulkMathTradeAdding}
+                                    aria-label={isSwapRoute
+                                        ? `Export ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to ODS`
+                                        : `Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`
                                     }
-                                    Add {selectedMathTradeIds.size} to Math Trade
+                                >
+                                    {(isSwapRoute ? isExportingSwap : isBulkMathTradeAdding)
+                                        ? <span className="loading loading-bars loading-sm" />
+                                        : isSwapRoute ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
+                                    }
+                                    {isSwapRoute
+                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon`
+                                        : `Add ${selectedMathTradeIds.size} to Math Trade`
+                                    }
                                 </button>
                             )}
                         </div>

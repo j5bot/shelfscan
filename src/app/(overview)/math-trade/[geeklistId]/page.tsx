@@ -9,9 +9,11 @@ export default async function MathTradePage({
     const id = parseInt(geeklistId, 10);
     return (
         <CollectionPageContent
-            initialMathTradeGeeklistId={isNaN(id) ? undefined : id}
-            title="ShelfScan | Math Trade"
-            heading="Math Trade"
+            modeOptions={{
+                mathTradeGeeklistId: isNaN(id) ? undefined : id,
+            }}
+            title="ShelfScan | OLWLG Math Trade"
+            heading="OLWLG Math Trade"
         />
     );
 }

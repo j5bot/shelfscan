@@ -2,6 +2,7 @@ import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { SizeKey } from '@/app/ui/games/AllGamesContent';
+import { SwapSection } from '@/app/ui/games/SwapSection';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import Link from 'next/link';
@@ -77,6 +78,10 @@ export const ListGame = memo((props: ListGameProps) => {
         collectionId={collectionId}
     /> : null;
 
+    const swapSection = collectionId && modeMap.swap ? <SwapSection
+        collectionId={collectionId}
+    /> : null;
+
     const thumbnail = <div className="relative">
         <ThumbnailBox
             alt={name}
@@ -104,11 +109,11 @@ export const ListGame = memo((props: ListGameProps) => {
         )}
     </div>;
 
-    const thumbnailClickHandler = modeMap.mathTrade && onMathTradeToggle
+    const thumbnailClickHandler = (modeMap.mathTrade || modeMap.swap) && onMathTradeToggle
         ? onMathTradeToggle
         : onClick;
 
-    const thumbnailAriaLabel = modeMap.mathTrade && onMathTradeToggle
+    const thumbnailAriaLabel = (modeMap.mathTrade || modeMap.swap) && onMathTradeToggle
         ? `${mathTradeSelected ? 'Deselect' : 'Select'} ${name} for math trade`
         : `View details for ${name}`;
 
@@ -118,7 +123,8 @@ export const ListGame = memo((props: ListGameProps) => {
             className="w-full text-left cursor-pointer"
             onClick={thumbnailClickHandler}
             aria-label={thumbnailAriaLabel}
-            aria-pressed={modeMap.mathTrade && onMathTradeToggle ? mathTradeSelected : undefined}
+            aria-pressed={(modeMap.mathTrade || modeMap.swap) &&
+                          onMathTradeToggle ? mathTradeSelected : undefined}
         >
             {thumbnail}
         </button>
@@ -151,7 +157,7 @@ export const ListGame = memo((props: ListGameProps) => {
             <div className="flex justify-center items-center gap-1.5">
                 {cornerIcon}
                 <div
-                    className="w-fit h-5.5 overflow-ellipsis overflow-hidden text-nowrap"
+                    className="w-fit h-5.5 text-ellipsis overflow-hidden text-nowrap"
                     title={name}
                 >
                     {name}
@@ -160,6 +166,7 @@ export const ListGame = memo((props: ListGameProps) => {
             {thumbnailContent}
             {ratingForm}
             {mathTradeSection}
+            {swapSection}
         </div>
     </li>;
 });
