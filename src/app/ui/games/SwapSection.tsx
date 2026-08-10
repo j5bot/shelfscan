@@ -1,22 +1,41 @@
 import { useDispatch, useSelector } from '@/app/lib/hooks';
-import {
-    setItemData,
-} from '@/app/lib/redux/swap/slice';
+import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
-// import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
+import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
+import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { memo, useCallback, useState } from 'react';
 
-type SwapSectionProps = {
-    collectionId: number;
+type CollectionItemSwapSectionProps = {
+    collectionId: number | string;
 };
 
-export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
-    const dispatch = useDispatch();
+type ScanSwapSectionProps = {
+    upc: string;
+    info: GameUPCBggInfo;
+};
 
+export const CollectionItemSwapSection = memo(({ collectionId }: CollectionItemSwapSectionProps) => {
     const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
     const item = useSelector((state: RootState) =>
-        state.bgg.collection.users[username]?.items[collectionId]
+        state.bgg.collection.users[username]?.items[collectionId as number]
     );
+
+    return <SwapSectionInner item={item} collectionId={collectionId} />
+});
+
+export const ScanSwapSection = memo(({ upc, info }: ScanSwapSectionProps) => {
+    const item = gameUPCInfoToCollectionItem(info!) as BggCollectionItem;
+    return <SwapSectionInner item={item} collectionId={upc} />
+});
+
+ScanSwapSection.displayName = 'ScanSwapSection';
+
+export const SwapSectionInner = ({
+    item,
+    collectionId,
+}: { item: BggCollectionItem, collectionId: number | string }) => {
+    const dispatch = useDispatch();
 
     // const activeSwapID = useSelector(
     //     (state: RootState) => state.swap.activeSwapID,
@@ -75,7 +94,7 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
                     <input
                         id={`compareValue-${collectionId}`}
                         type="number"
-                        className="input input-bordered input-xs ml-0.25 w-10"
+                        className="input input-bordered input-xs ml-px w-10"
                         min={1}
                         value={compareValue}
                         onChange={e => handleCompareValueChange(
@@ -92,7 +111,7 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
                     <input
                         id={`sellFor-${collectionId}`}
                         type="number"
-                        className="input input-bordered input-xs ml-0.25 w-12"
+                        className="input input-bordered input-xs ml-px w-12"
                         min={0}
                         value={sellFor}
                         onChange={e => handleSellForChange(
@@ -128,6 +147,6 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
             </button>
         )}
     </div>;
-});
+};
 
-SwapSection.displayName = 'SwapSection';
+CollectionItemSwapSection.displayName = 'CollectionItemSwapSection';

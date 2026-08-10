@@ -1,6 +1,7 @@
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
+import { useMode } from '@/app/lib/hooks/useMode';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
 import { ListGame } from '@/app/ui/games/ListGame';
@@ -37,6 +38,7 @@ type ScanlistProps = {
 export const ScanItem = (props: ScanItemProps) => {
     const { code, gameSelections, gameUPCResults, removeFromList, showGame } = props;
     const { currentInfoIndex, infoIndexesInCollection } = useSelectVersionContext();
+    const { swap } = useMode();
 
     const {
         bgg_info: bggInfo,
@@ -154,6 +156,7 @@ export const ScanItem = (props: ScanItemProps) => {
         </button>;
 
     const listGameProperties = {
+        code,
         bottomLeftIcon,
         cornerIcon,
         detailUrl,
@@ -165,12 +168,19 @@ export const ScanItem = (props: ScanItemProps) => {
         statusIcon,
         statusText,
         thumbnailUrl,
+        modeMap: {
+            swap,
+        },
     };
 
     return <ListGame {...listGameProperties } />;
 };
 
-export const Scanlist = ({ codes, removeCode, showGame }: ScanlistProps) => {
+export const Scanlist = ({
+    codes,
+    removeCode,
+    showGame,
+}: ScanlistProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
 

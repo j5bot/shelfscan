@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-type CollectionID = number;
+type CollectionID = number | string;
 
 export type SwapItemData = {
     swapItemId?: number;
-    collectionId?: number;
+    // either collection id or UPC
+    collectionId?: number | string;
     name: string;
     bodyText: string;
     compareValue?: number;
@@ -69,14 +70,14 @@ export const swapSlice = createSlice({
                 sellFor,
             };
         },
-        setActiveSwap: (state, action: PayloadAction<number>) => {
-            state.activeSwapId = action.payload;
-        },
+        // setActiveSwap: (state, action: PayloadAction<number>) => {
+        //     state.activeSwapId = action.payload;
+        // },
     },
 });
 
 export const {
-    setActiveSwap,
+    // setActiveSwap,
     setItemData,
 } = swapSlice.actions;
 
