@@ -33,6 +33,25 @@ export const gameUPCInfoToCollectionItem =
         image: info.image_url,
     });
 
+export const gameUPCVersionToBggVersion = (version: GameUPCBggVersion): BggVersion => ({
+    id: version.version_id,
+    name: version.name,
+    image: version.image_url,
+    languages: version.language ? [version.language] : undefined,
+    productCode: undefined,
+    yearPublished: version.published,
+    publisher: undefined,
+});
+
+export const gameUPCInfoAndVersionToCollectionItem = (
+    info: GameUPCBggInfo,
+    version: GameUPCBggVersion,
+): Partial<BggCollectionItem> => ({
+    ...gameUPCInfoToCollectionItem(info),
+    versionId: version.version_id,
+    version: gameUPCVersionToBggVersion(version),
+});
+
 export const collectionItemToGame = (item: BggCollectionItem): Game => ({
     id: item.objectId,
     collectionId: item.collectionId,

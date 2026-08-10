@@ -1,7 +1,10 @@
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
+import { useMode } from '@/app/lib/hooks/useMode';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { gameUPCInfoAndVersionToCollectionItem } from '@/app/lib/utils/gameAdapters';
+import { SizeKey } from '@/app/ui/games/AllGamesContent';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { type GameUPCData } from 'gameupc-hooks/types';
@@ -37,6 +40,7 @@ type ScanlistProps = {
 export const ScanItem = (props: ScanItemProps) => {
     const { code, gameSelections, gameUPCResults, removeFromList, showGame } = props;
     const { currentInfoIndex, infoIndexesInCollection } = useSelectVersionContext();
+    const { swap, swapScan } = useMode();
 
     const {
         bgg_info: bggInfo,
@@ -55,18 +59,22 @@ export const ScanItem = (props: ScanItemProps) => {
 
     const statusText = GameUPCVersionStatusText[bggInfoStatus];
 
+    const info = bggInfo?.[infoIndex] ?? {};
     const {
         name: infoName = 'Nothing Found',
         thumbnail_url: infoThumbnailUrl,
         image_url: infoImageUrl,
         confidence = 0,
-    } = bggInfo?.[infoIndex] ?? {};
+    } = info;
 
+    const version = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
     const {
         name: versionName,
         thumbnail_url: versionThumbnailUrl,
         image_url: versionImageUrl,
-    } = bggInfo?.[infoIndex]?.versions?.[versionIndex] ?? bggInfo?.[infoIndex] ?? {};
+    } = version;
+
+    const item = gameUPCInfoAndVersionToCollectionItem(info, version);
 
     const isInfoImageMismatch = !infoImageUrl?.includes('_original');
     const isVersionImageMismatch = !versionImageUrl?.includes('_original');
@@ -154,6 +162,8 @@ export const ScanItem = (props: ScanItemProps) => {
         </button>;
 
     const listGameProperties = {
+        code,
+        item,
         bottomLeftIcon,
         cornerIcon,
         detailUrl,
@@ -165,12 +175,21 @@ export const ScanItem = (props: ScanItemProps) => {
         statusIcon,
         statusText,
         thumbnailUrl,
+        modeMap: {
+            swap,
+            swapScan,
+        },
+        size: (swapScan ? 'large' : 'small') as SizeKey,
     };
 
     return <ListGame {...listGameProperties } />;
 };
 
-export const Scanlist = ({ codes, removeCode, showGame }: ScanlistProps) => {
+export const Scanlist = ({
+    codes,
+    removeCode,
+    showGame,
+}: ScanlistProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
 

@@ -1,45 +1,64 @@
 import { useDispatch, useSelector } from '@/app/lib/hooks';
-import {
-    setItemData,
-} from '@/app/lib/redux/swap/slice';
+import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
-// import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
-import { memo, useCallback, useState } from 'react';
+import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
+import { memo, useCallback, useEffect, useState } from 'react';
 
-type SwapSectionProps = {
-    collectionId: number;
+type CollectionItemSwapSectionProps = {
+    collectionId: number | string;
 };
 
-export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
-    const dispatch = useDispatch();
+type ScanSwapSectionProps = {
+    upc: string;
+    item: Partial<BggCollectionItem>;
+};
 
+export const CollectionItemSwapSection = memo(({ collectionId }: CollectionItemSwapSectionProps) => {
     const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
     const item = useSelector((state: RootState) =>
-        state.bgg.collection.users[username]?.items[collectionId]
+        state.bgg.collection.users[username]?.items[collectionId as number]
     );
 
-    // const activeSwapID = useSelector(
-    //     (state: RootState) => state.swap.activeSwapID,
-    // );
+    return <SwapSectionInner item={item} collectionId={collectionId} />
+});
+
+export const ScanSwapSection = memo(({ upc, item }: ScanSwapSectionProps) => {
+    return <SwapSectionInner item={item} collectionId={upc} />
+});
+
+ScanSwapSection.displayName = 'ScanSwapSection';
+
+export const SwapSectionInner = ({
+    item,
+    collectionId,
+}: { item: Partial<BggCollectionItem>, collectionId: number | string }) => {
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (!item) {
+            return;
+        }
+        dispatch(setItemData({
+            collectionId,
+            name: item.name ?? collectionId.toString() ?? '',
+            bodyText: item.tradeCondition ?? '',
+            imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
+        }));
+    }, [!item]);
+
     const savedData = useSelector(
         (state: RootState) => state.swap.data[collectionId],
     );
-    // const isInSwap = false;
-    // //     useSelector((state: RootState) => {
-    // //     if (activeGeekListId === null || !item) {
-    // //         return false;
-    // //     }
-    // //     return state.bgg.geeklist.geekLists[activeGeekListId].matched.includes(collectionId);
-    // // });
 
     const [expanded, setExpanded] = useState(false);
 
     const defaultBodyText = item?.tradeCondition ?? '';
     const bodyText = savedData?.bodyText ?? defaultBodyText;
     const compareValue = savedData?.compareValue ?? 1;
-    const sellFor = savedData?.sellFor ?? 1;
+    const sellFor = savedData?.sellFor ?? 0;
 
-    const name = item?.name ?? '';
+    const name = item?.name ?? collectionId.toString() ?? '';
 
     const handleBodyChange = useCallback((value: string) => {
         dispatch(setItemData({ collectionId, name, bodyText: value }));
@@ -65,7 +84,7 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
                     placeholder="Trade condition / description"
                     aria-label="Trade condition / description for math trade"
                 />
-                <div className="flex items-center gap-0.5">
+                <div className="flex flex-wrap items-center gap-0.5">
                     <label
                         className="text-xs text-base-content/70"
                         htmlFor={`compareValue-${collectionId}`}
@@ -75,7 +94,7 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
                     <input
                         id={`compareValue-${collectionId}`}
                         type="number"
-                        className="input input-bordered input-xs ml-0.25 w-10"
+                        className="input input-bordered input-xs ml-px w-10"
                         min={1}
                         value={compareValue}
                         onChange={e => handleCompareValueChange(
@@ -92,7 +111,7 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
                     <input
                         id={`sellFor-${collectionId}`}
                         type="number"
-                        className="input input-bordered input-xs ml-0.25 w-12"
+                        className="input input-bordered input-xs ml-px w-12"
                         min={0}
                         value={sellFor}
                         onChange={e => handleSellForChange(
@@ -128,6 +147,6 @@ export const SwapSection = memo(({ collectionId }: SwapSectionProps) => {
             </button>
         )}
     </div>;
-});
+};
 
-SwapSection.displayName = 'SwapSection';
+CollectionItemSwapSection.displayName = 'CollectionItemSwapSection';

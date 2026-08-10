@@ -1,8 +1,9 @@
+import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { SizeKey } from '@/app/ui/games/AllGamesContent';
-import { SwapSection } from '@/app/ui/games/SwapSection';
+import { CollectionItemSwapSection, ScanSwapSection } from './SwapSection';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
 import Link from 'next/link';
@@ -10,6 +11,9 @@ import React, { CSSProperties, memo, ReactNode } from 'react';
 import { FaCheck, FaArrowUpRightFromSquare } from 'react-icons/fa6';
 
 export type ListGameProps = {
+    code?: string;
+    // constructed bgg coll. item from GameUPC results
+    item?: Partial<BggCollectionItem>;
     collectionId?: number;
     rating?: number;
     averageRating?: number;
@@ -38,6 +42,8 @@ const emptyModeMap = {} as ComponentModeMap;
 
 export const ListGame = memo((props: ListGameProps) => {
     const {
+        code,
+        item,
         collectionId,
         rating,
         averageRating,
@@ -78,8 +84,12 @@ export const ListGame = memo((props: ListGameProps) => {
         collectionId={collectionId}
     /> : null;
 
-    const swapSection = collectionId && modeMap.swap ? <SwapSection
+    const swapSection = collectionId && modeMap.swap ? <CollectionItemSwapSection
         collectionId={collectionId}
+    /> : null;
+
+    const swapScanSection = code && item && modeMap.swapScan ? <ScanSwapSection
+        upc={code} item={item}
     /> : null;
 
     const thumbnail = <div className="relative">
@@ -167,6 +177,7 @@ export const ListGame = memo((props: ListGameProps) => {
             {ratingForm}
             {mathTradeSection}
             {swapSection}
+            {swapScanSection}
         </div>
     </li>;
 });
