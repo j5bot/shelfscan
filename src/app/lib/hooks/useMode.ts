@@ -4,6 +4,7 @@ export const useMode = () => {
     const pathname = usePathname();
 
     return {
-        swap: pathname.startsWith('/swap') || pathname.startsWith('/swapscan'),
+        swap: pathname.startsWith('/swap'),
+        swapScan: pathname.startsWith('/swapscan'),
     };
 };

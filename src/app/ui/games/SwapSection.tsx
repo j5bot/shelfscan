@@ -2,8 +2,6 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
-import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { memo, useCallback, useState } from 'react';
 
 type CollectionItemSwapSectionProps = {
@@ -12,7 +10,7 @@ type CollectionItemSwapSectionProps = {
 
 type ScanSwapSectionProps = {
     upc: string;
-    info: GameUPCBggInfo;
+    item: Partial<BggCollectionItem>;
 };
 
 export const CollectionItemSwapSection = memo(({ collectionId }: CollectionItemSwapSectionProps) => {
@@ -24,8 +22,7 @@ export const CollectionItemSwapSection = memo(({ collectionId }: CollectionItemS
     return <SwapSectionInner item={item} collectionId={collectionId} />
 });
 
-export const ScanSwapSection = memo(({ upc, info }: ScanSwapSectionProps) => {
-    const item = gameUPCInfoToCollectionItem(info!) as BggCollectionItem;
+export const ScanSwapSection = memo(({ upc, item }: ScanSwapSectionProps) => {
     return <SwapSectionInner item={item} collectionId={upc} />
 });
 
@@ -34,7 +31,7 @@ ScanSwapSection.displayName = 'ScanSwapSection';
 export const SwapSectionInner = ({
     item,
     collectionId,
-}: { item: BggCollectionItem, collectionId: number | string }) => {
+}: { item: Partial<BggCollectionItem>, collectionId: number | string }) => {
     const dispatch = useDispatch();
 
     // const activeSwapID = useSelector(
@@ -84,7 +81,7 @@ export const SwapSectionInner = ({
                     placeholder="Trade condition / description"
                     aria-label="Trade condition / description for math trade"
                 />
-                <div className="flex items-center gap-0.5">
+                <div className="flex flex-wrap items-center gap-0.5">
                     <label
                         className="text-xs text-base-content/70"
                         htmlFor={`compareValue-${collectionId}`}

@@ -5,6 +5,7 @@ import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { PossibleStatusWithAllAndNone } from '@/app/lib/types/bgg';
 import { BatchAddButton } from '@/app/ui/batch/BatchAddButton';
+import { SwapAddButton } from '@/app/ui/batch/SwapAddButton';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
@@ -130,6 +131,10 @@ export const BatchView = (props: BatchViewProps) => {
                                      addGameToCollection={addGameToCollection}
                                      onComplete={onComplete}
                                  />}
+                                 {mode === 'swap' && <SwapAddButton
+                                     codes={codes}
+                                     onComplete={onComplete}
+                                 />}
                              </div>
 
                              {segments.length > 0 && <div
@@ -174,13 +179,13 @@ export const BatchView = (props: BatchViewProps) => {
                              </section>
 
                              <div className="flex justify-center gap-3 pt-4 pb-2">
-                                 <button
+                                 {mode === 'collection' && <button
                                      className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
                                             text-sm uppercase cursor-pointer"
                                      onClick={() => onClear(shownStatus)}
                                  >
                                      Clear Segment
-                                 </button>
+                                 </button>}
                                  <button
                                      className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
                                                 text-sm uppercase cursor-pointer"
