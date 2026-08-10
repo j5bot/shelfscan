@@ -1,24 +1,20 @@
-import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useStore } from '@/app/lib/hooks';
-import {
-    getCollectionInfoByObjectId,
-} from '@/app/lib/redux/bgg/collection/selectors';
-import { GameUPCBggInfo } from 'gameupc-hooks/types';
+import { SwapItemData } from '@/app/lib/redux/swap/slice';
+import { downloadSwapExport } from '@/app/lib/utils/swapExport';
 import React, { useCallback, useState } from 'react';
 import { FaCloudArrowUp } from 'react-icons/fa6';
 
 type SwapAddButtonProps = {
     codes: string[];
-    onComplete?: (addedCodes: string[]) => void;
 };
 
 export const SwapAddButton = (props: SwapAddButtonProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
 
-    const { codes, onComplete } = props;
+    const { codes } = props;
     const [isAdding, setIsAdding] = useState(false);
 
     const store = useStore();
@@ -34,9 +30,32 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         }
         setIsAdding(true);
 
-        onComplete?.(results.filter(r => r !== undefined));
-        setIsAdding(false);
-    }, [isAdding, readyGames, gameDataMap, store, onComplete, gameSelections]);
+        const state = store.getState();
+
+        const items: SwapItemData[] = [];
+        const addedCodes: string[] = [];
+
+        readyGames.forEach(code => {
+            const savedData = state.swap.data[code];
+
+            items.push({
+                collectionId: code,
+                swapItemId: savedData?.swapItemId,
+                name: savedData?.name ?? '',
+                bodyText: savedData?.bodyText ?? '',
+                compareValue: savedData?.compareValue ?? 1,
+                sellFor: savedData?.sellFor ?? 0,
+                imageKey: savedData?.imageKey,
+            });
+            addedCodes.push(code);
+        });
+
+        try {
+            await downloadSwapExport(items);
+        } finally {
+            setIsAdding(false);
+        }
+    }, [isAdding, readyGames, gameDataMap, store, gameSelections]);
 
     const pendingCount = codes.length - readyGames.length;
 

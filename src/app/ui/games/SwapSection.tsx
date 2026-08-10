@@ -2,7 +2,8 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { memo, useCallback, useState } from 'react';
+import { getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
+import { memo, useCallback, useEffect, useState } from 'react';
 
 type CollectionItemSwapSectionProps = {
     collectionId: number | string;
@@ -34,28 +35,30 @@ export const SwapSectionInner = ({
 }: { item: Partial<BggCollectionItem>, collectionId: number | string }) => {
     const dispatch = useDispatch();
 
-    // const activeSwapID = useSelector(
-    //     (state: RootState) => state.swap.activeSwapID,
-    // );
+    useEffect(() => {
+        if (!item) {
+            return;
+        }
+        dispatch(setItemData({
+            collectionId,
+            name: item.name ?? collectionId.toString() ?? '',
+            bodyText: item.tradeCondition ?? '',
+            imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
+        }));
+    }, [!item]);
+
     const savedData = useSelector(
         (state: RootState) => state.swap.data[collectionId],
     );
-    // const isInSwap = false;
-    // //     useSelector((state: RootState) => {
-    // //     if (activeGeekListId === null || !item) {
-    // //         return false;
-    // //     }
-    // //     return state.bgg.geeklist.geekLists[activeGeekListId].matched.includes(collectionId);
-    // // });
 
     const [expanded, setExpanded] = useState(false);
 
     const defaultBodyText = item?.tradeCondition ?? '';
     const bodyText = savedData?.bodyText ?? defaultBodyText;
     const compareValue = savedData?.compareValue ?? 1;
-    const sellFor = savedData?.sellFor ?? 1;
+    const sellFor = savedData?.sellFor ?? 0;
 
-    const name = item?.name ?? '';
+    const name = item?.name ?? collectionId.toString() ?? '';
 
     const handleBodyChange = useCallback((value: string) => {
         dispatch(setItemData({ collectionId, name, bodyText: value }));

@@ -133,7 +133,6 @@ export const BatchView = (props: BatchViewProps) => {
                                  />}
                                  {mode === 'swap' && <SwapAddButton
                                      codes={codes}
-                                     onComplete={onComplete}
                                  />}
                              </div>
 
