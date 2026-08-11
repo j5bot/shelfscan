@@ -2,7 +2,7 @@ import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
-import { SizeKey } from '@/app/ui/games/AllGamesContent';
+import { SizeKey } from '@/app/ui/grids/gridSizes';
 import { CollectionItemSwapSection, ScanSwapSection } from './SwapSection';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';

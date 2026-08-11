@@ -4,9 +4,9 @@ import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
 import { useMode } from '@/app/lib/hooks/useMode';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { gameUPCInfoAndVersionToCollectionItem } from '@/app/lib/utils/gameAdapters';
-import { SizeKey } from '@/app/ui/games/AllGamesContent';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
 import { ListGame } from '@/app/ui/games/ListGame';
+import { GridClasses, SizeKey, ThumbnailSizes } from '@/app/ui/grids/gridSizes';
 import { type GameUPCData } from 'gameupc-hooks/types';
 import { GameUPCStatus, GameUPCVersionStatusText } from 'gameupc-hooks/useGameUPC';
 import { getImageSizeFromUrl } from '@/app/lib/utils/image';
@@ -98,7 +98,7 @@ export const ScanItem = (props: ScanItemProps) => {
                  : infoName + (versionName ? ` (${versionName})` : '');
 
     const imageSize = getImageSizeFromUrl(imageUrl ?? '');
-    const thumbnailSize = Math.min(imageSize.width, imageSize.height) * 2 / 3;
+    const thumbnailSize = swapScan ? ThumbnailSizes.large : Math.min(imageSize.width, imageSize.height) * 2 / 3;
     const imageContainerStyles = {
         width: `${thumbnailSize}px`,
         height: `${thumbnailSize}px`,
@@ -171,7 +171,7 @@ export const ScanItem = (props: ScanItemProps) => {
         imageUrl,
         keyValue,
         name,
-        thumbnailSize,
+        thumbnailSize: (swapScan ? ThumbnailSizes.large : thumbnailSize),
         statusIcon,
         statusText,
         thumbnailUrl,
@@ -192,8 +192,11 @@ export const Scanlist = ({
 }: ScanlistProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
+    const { swapScan } = useMode();
 
-    return <GameListContainer>
+    return <GameListContainer
+        className={swapScan ? GridClasses.large : undefined}
+    >
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>
                 <Suspense fallback={<ListGame keyValue={code} name={''} thumbnailSize={100} statusIcon={undefined} statusText={''} thumbnailUrl={''} />}>

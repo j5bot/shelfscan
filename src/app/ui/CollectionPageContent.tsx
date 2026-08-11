@@ -1,5 +1,6 @@
 'use client';
 
+import { thingPrefix, versionPrefix } from '@/app/lib/constants';
 import { useSync } from '@/app/lib/extension/useSync';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
@@ -57,6 +58,16 @@ type CollectionPageContentProps = {
     modeOptions?: CollectionPageModeOptions;
     title?: string;
     heading?: string;
+};
+
+const makeDescription = (
+    bodyText: string,
+    item: Partial<BggCollectionItem>,
+) => {
+    return `${bodyText}
+
+${thingPrefix}${item.objectId}${item.versionId !== undefined ? `
+${versionPrefix}${item.versionId}` : ''}`;
 };
 
 export const CollectionPageContent = ({
@@ -201,8 +212,12 @@ export const CollectionPageContent = ({
             return [{
                 collectionId,
                 swapItemId: savedData?.swapItemId,
-                name: savedData?.name ?? item.name,
-                bodyText: savedData?.bodyText ?? item.tradeCondition ?? '',
+                name: item.version?.name ? `${item.name} (${item.version.name})`
+                       : (savedData?.name ?? item.name),
+                bodyText: makeDescription(
+                    savedData?.bodyText ?? item.tradeCondition ?? '',
+                    item,
+                ),
                 compareValue: savedData?.compareValue ?? 1,
                 sellFor: savedData?.sellFor ?? 1,
                 imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
