@@ -10,6 +10,15 @@ type SwapAddButtonProps = {
     codes: string[];
 };
 
+const thingPrefix = 'https://boardgamegeek.com/thing/';
+const versionPrefix = 'https://boardgamegeek.com/version/';
+
+const makeDescription = (bodyText: string, gameIds: Array<number | undefined>) => {
+    return `${bodyText}${gameIds[0] !== undefined ? `
+${thingPrefix}${gameIds[0]}` : ''}${gameIds[1] !== undefined ? `
+${versionPrefix}${gameIds[1]}` : ''}`;
+};
+
 export const SwapAddButton = (props: SwapAddButtonProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
@@ -24,6 +33,15 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         return data?.bgg_info?.[0]?.id;
     });
 
+    const readyGamesIds = readyGames.map(code => {
+        const data = gameDataMap[code];
+        const selections = gameSelections[code];
+        return [
+            data?.bgg_info?.[selections?.[0] ?? 0]?.id,
+            data?.bgg_info?.[selections?.[0] ?? 0]?.versions?.[selections?.[1] ?? 0]?.version_id
+        ];
+    });
+
     const handleAddAll = useCallback(async () => {
         if (isAdding || readyGames.length === 0) {
             return;
@@ -35,14 +53,14 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         const items: SwapItemData[] = [];
         const addedCodes: string[] = [];
 
-        readyGames.forEach(code => {
+        readyGames.forEach((code, index) => {
             const savedData = state.swap.data[code];
 
             items.push({
                 collectionId: code,
                 swapItemId: savedData?.swapItemId,
                 name: savedData?.name ?? '',
-                bodyText: savedData?.bodyText ?? '',
+                bodyText: makeDescription(savedData?.bodyText ?? '', readyGamesIds[index]),
                 compareValue: savedData?.compareValue ?? 1,
                 sellFor: savedData?.sellFor ?? 0,
                 imageKey: savedData?.imageKey,
