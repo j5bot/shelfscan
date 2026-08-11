@@ -1,3 +1,4 @@
+import { thingPrefix, versionPrefix } from '@/app/lib/constants';
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useStore } from '@/app/lib/hooks';
@@ -10,13 +11,13 @@ type SwapAddButtonProps = {
     codes: string[];
 };
 
-const thingPrefix = 'https://boardgamegeek.com/thing/';
-const versionPrefix = 'https://boardgamegeek.com/version/';
-
-const makeDescription = (bodyText: string, gameIds: Array<number | undefined>) => {
-    return `${bodyText}${gameIds[0] !== undefined ? `
-${thingPrefix}${gameIds[0]}` : ''}${gameIds[1] !== undefined ? `
-${versionPrefix}${gameIds[1]}` : ''}`;
+const makeDescription = (
+    bodyText: string,
+    gameData: Array<{ id: number; name: string } | undefined>
+) => {
+    return `${bodyText}${gameData[0] !== undefined ? `
+${thingPrefix}${gameData[0].id}` : ''}${gameData[1] !== undefined ? `
+${versionPrefix}${gameData[1].id}` : ''}`;
 };
 
 export const SwapAddButton = (props: SwapAddButtonProps) => {
@@ -33,15 +34,6 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         return data?.bgg_info?.[0]?.id;
     });
 
-    const readyGamesIds = readyGames.map(code => {
-        const data = gameDataMap[code];
-        const selections = gameSelections[code];
-        return [
-            data?.bgg_info?.[selections?.[0] ?? 0]?.id,
-            data?.bgg_info?.[selections?.[0] ?? 0]?.versions?.[selections?.[1] ?? 0]?.version_id
-        ];
-    });
-
     const handleAddAll = useCallback(async () => {
         if (isAdding || readyGames.length === 0) {
             return;
@@ -53,14 +45,35 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         const items: SwapItemData[] = [];
         const addedCodes: string[] = [];
 
+        const readyGamesData = readyGames.map(code => {
+            const data = gameDataMap[code];
+            const selections = gameSelections[code];
+            let infoIndex = selections?.[0] ?
+                            data?.bgg_info?.findIndex(info => info.id === selections?.[0])
+                            : 0;
+            const versionIndex = selections?.[1] ? data?.bgg_info?.[infoIndex ?? 0]?.versions?.findIndex(version =>
+                version.version_id === selections?.[1]) : undefined;
+            infoIndex = infoIndex >= 0 ? infoIndex : 0;
+
+            const info = data?.bgg_info?.[infoIndex];
+            const version = versionIndex !== undefined ?
+                            data?.bgg_info?.[infoIndex]?.versions?.[versionIndex]
+                                                       : undefined;
+
+            return [
+                { id: info?.id, name: info?.name },
+                version ? { id: version?.version_id, name: version?.name } : undefined,
+            ];
+        });
+
         readyGames.forEach((code, index) => {
             const savedData = state.swap.data[code];
 
             items.push({
                 collectionId: code,
                 swapItemId: savedData?.swapItemId,
-                name: savedData?.name ?? '',
-                bodyText: makeDescription(savedData?.bodyText ?? '', readyGamesIds[index]),
+                name: readyGamesData[index]?.[1]?.name ?? savedData?.name ?? '',
+                bodyText: makeDescription(savedData?.bodyText ?? '', readyGamesData[index]),
                 compareValue: savedData?.compareValue ?? 1,
                 sellFor: savedData?.sellFor ?? 0,
                 imageKey: savedData?.imageKey,
