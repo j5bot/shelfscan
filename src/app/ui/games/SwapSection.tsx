@@ -18,7 +18,7 @@ export const CollectionItemSwapSection = memo(({ collectionId }: CollectionItemS
     const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
     const item = useSelector((state: RootState) =>
         state.bgg.collection.users[username]?.items[collectionId as number]
-    );
+    ) as Partial<BggCollectionItem>;
 
     return <SwapSectionInner item={item} collectionId={collectionId} />
 });

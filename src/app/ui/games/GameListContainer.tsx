@@ -1,7 +1,10 @@
 import { PropsWithChildren } from 'react';
 
-export const GameListContainer = ({ children }: PropsWithChildren<object>) => {
-    return <ul className="grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+export const GameListContainer = ({
+    children,
+    className = 'grid gap-2 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6'
+}: PropsWithChildren<object> & { className?: string }) => {
+    return <ul className={className}>
         {children}
     </ul>
 };

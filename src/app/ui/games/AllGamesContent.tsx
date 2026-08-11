@@ -10,6 +10,7 @@ import { type BggCollectionItem } from '@/app/lib/types/bgg';
 import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
+import { GridClasses, GridClassSize, SizeKey, ThumbnailSizes } from '@/app/ui/grids/gridSizes';
 import Link from 'next/link';
 import React, {
     forwardRef,
@@ -30,17 +31,6 @@ import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
 export type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished' | 'rating' | 'averageRating' | 'plays';
 
 const THUMBNAIL_SIZE = 100;
-
-const GridClasses = {
-    small: `grid gap-2 grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 2xl:grid-cols-10`,
-    large: `grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6`,
-} as const;
-type GridClassSize = keyof typeof GridClasses;
-
-const ThumbnailSizes = {
-    small: 100,
-    large: 200,
-} as const;
 
 type GridContainerProps = {
     children?: ReactNode;
@@ -83,8 +73,6 @@ type ModeMap = {
     mathTrade: boolean;
     swap: boolean;
 };
-
-export type SizeKey = keyof typeof ThumbnailSizes;
 
 type GridItemProps = {
     collectionId: number;
