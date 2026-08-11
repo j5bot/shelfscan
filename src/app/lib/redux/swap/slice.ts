@@ -1,3 +1,4 @@
+import { extend } from '@/app/lib/utils/object';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type CollectionID = number | string;
@@ -58,9 +59,13 @@ export const swapSlice = createSlice({
             state,
             action: PayloadAction<SwapItemData>,
         ) => {
-            const { collectionId, name, bodyText, compareValue, imageKey, sellFor, swapItemId } = action.payload;
+            const { collectionId } = action.payload;
+
             if (collectionId === undefined) { return; }
-            state.data[collectionId] = {
+            const existing = state.data[collectionId] ?? {};
+            const { name, bodyText, compareValue, imageKey, sellFor, swapItemId } = action.payload;
+
+            state.data[collectionId] = extend(existing, {
                 collectionId,
                 name,
                 imageKey,
@@ -68,7 +73,7 @@ export const swapSlice = createSlice({
                 bodyText,
                 compareValue,
                 sellFor,
-            };
+            });
         },
         // setActiveSwap: (state, action: PayloadAction<number>) => {
         //     state.activeSwapId = action.payload;
