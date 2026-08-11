@@ -134,7 +134,7 @@ export const SwapSectionInner = ({
         ) : (
             <button
                 type="button"
-                className="w-full text-left cursor-pointer"
+                className="w-full text-left cursor-pointer relative"
                 onClick={() => setExpanded(true)}
                 aria-label="Edit swap entry"
                 aria-expanded={false}
@@ -144,6 +144,9 @@ export const SwapSectionInner = ({
                     bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
                     {bodyText}
                 </pre>
+                {bodyText.length === 0 && <div className="absolute top-0.5 left-1 text-xl">
+                    ⚠️
+                </div>}
             </button>
         )}
     </div>;

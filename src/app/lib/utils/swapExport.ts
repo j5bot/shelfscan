@@ -124,7 +124,7 @@ const buildContentXml = (rows: ResolvedRow[]): string => {
 
     const dataRows = rows.map(({ item, image }) => '<table:table-row table:style-name="roData">'
         + numberCell(item.swapItemId)
-        + stringCell(item.name)
+        + stringCell(item.name, 'coWrap')
         + stringCell(item.bodyText, 'coWrap')
         + numberCell(clampCompareValue(item.compareValue))
         + numberCell(clampSellFor(item.sellFor))
