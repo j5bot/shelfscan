@@ -75,14 +75,16 @@ export default function MathTradeLandingPage() {
                         game condition data, images, etc. for bulk importing into a swap event.
                     </p>
                     <p>
-                        A userscript (and possibly soon the ShelfScan extension) will allow you to
+                        A <Link href="https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js"
+                                target="_blank" className="underline">userscript</Link>{' '}
+                        (and possibly soon the ShelfScan extension) will allow you to
                         import the file from the Swaptagon site.
                     </p>
                 </div>
             </div>
             <MathTradeDialog
                 isOpen={mtdIsOpen}
-                onClose={() => router.push('/collection')}
+                onClose={() => setMTDIsOpen(false)}
                 onLoaded={(id) => router.push(`/math-trade/${id}`)}
             />
         </>
