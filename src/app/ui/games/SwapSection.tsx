@@ -115,7 +115,7 @@ export const SwapSectionInner = ({
                         min={0}
                         value={sellFor}
                         onChange={e => handleSellForChange(
-                            Math.max(1, parseInt(e.target.value, 10) || 1),
+                            Math.max(0, parseInt(e.target.value, 10) || 0),
                         )}
                         aria-label="Sell for value"
                     />
