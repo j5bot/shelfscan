@@ -29,6 +29,14 @@ export const BatchView = (props: BatchViewProps) => {
     const { mode, fns: { addGameToCollection } = {} } = props;
     const breakpoint = useTailwindBreakpoint();
 
+    const batchScanHeading = mode === 'collection' ?
+                             'Batch Scan Mode'
+                             : 'Swap Scan';
+
+    const batchScanBody = mode === 'collection' ?
+                          'Scan multiple games, then add them to your BGG collection all at once.'
+                          : 'Scan multiple games, then export them for a Swap';
+
     const { codes, removeCode, setCodes, ...statuses } = useInfoCollectionStatus();
 
     const {
@@ -195,9 +203,9 @@ export const BatchView = (props: BatchViewProps) => {
                              </div>
                          </>
                          : <div className="w-full flex flex-col items-center justify-items-center text-center">
-                             <h2 className="text-xl tracking-widest">Batch Scan Mode</h2>
+                             <h2 className="text-xl tracking-widest">{batchScanHeading}</h2>
                              <div className="mt-2 mb-2 text-sm">
-                                 <p>Scan multiple games, then add them all to your BGG collection at once.</p>
+                                 <p>{batchScanBody}</p>
                              </div>
                              <h4 className="text-lg flex items-center gap-2">
                                  <FaBarcode className="w-5 h-5" /> Start scanning!

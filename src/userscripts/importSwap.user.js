@@ -28,6 +28,19 @@
         gif: 'image/gif',
     };
 
+    const swapItemProps = [
+        'name',
+        'bodyText',
+        'compareValue',
+        'sellFor',
+        'image'
+    ];
+
+    const requiredTextProps = [
+        'name',
+        'bodyText',
+    ];
+
     let xsrfToken;
     try {
         xsrfToken = JSON.parse(document.body.getAttribute('hx-headers'))?.['X-CSRFToken'];
@@ -196,10 +209,18 @@
                 .then(parseSwapItems)
                 .then((items) => {
                     console.log('[importSwap] Parsed swap items:', items);
-                    return Promise.all(items.map(async (item) => {
-                        const imageBlob = await fetch(item.image).then(resp => resp.blob());
-                        return Object.assign(item, { image: imageBlob });
-                    }));
+                    return Promise.all(items
+                        .filter(item =>
+                            swapItemProps.every(prop =>
+                                item[prop] !== undefined
+                            ) && requiredTextProps.every(prop =>
+                                item[prop].length > 0
+                            )
+                        )
+                        .map(async (item) => {
+                            const imageBlob = await fetch(item.image).then(resp => resp.blob());
+                            return Object.assign(item, { image: imageBlob });
+                        }));
                 })
                 .then(items => {
                     return Promise.all(items.map(addItem));
