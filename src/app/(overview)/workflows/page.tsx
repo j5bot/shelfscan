@@ -1,6 +1,7 @@
 'use client';
 
 import { useTitle } from '@/app/lib/hooks/useTitle';
+import { GearIcon } from '@/app/ui/icons/GearIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import React from 'react';
@@ -26,6 +27,7 @@ const WorkflowsPage = () => {
                     <Link className="flex items-center justify-center gap-2 uppercase text-lg font-sharetech"
                           href="/extension">
                         <FaFirefox className="w-6 h-6" />
+                        <GearIcon className="w-6 h-6" />
                         <FaChrome className="w-6 h-6" />
                         Get the Extension!
                     </Link></p>

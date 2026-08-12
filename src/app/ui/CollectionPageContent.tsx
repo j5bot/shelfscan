@@ -77,7 +77,7 @@ export const CollectionPageContent = ({
 }: CollectionPageContentProps) => {
     useTitle(title ?? 'ShelfScan | Collection');
 
-    const { mathTradeGeeklistId: initialMathTradeGeeklistId, swapId: initialSwapId } = modeOptions;
+    const { mathTradeGeeklistId: initialMathTradeGeeklistId } = modeOptions;
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const collection = useSelector((state: RootState) => state.bgg.collection?.users[username?.toLowerCase() ?? ''] ?? undefined);
