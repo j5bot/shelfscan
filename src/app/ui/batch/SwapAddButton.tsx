@@ -30,7 +30,7 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const [isAdding, setIsAdding] = useState(false);
 
     const saved = useSelector((state: RootState) => state.swap.data);
-    
+
     const swappableGames = codes.filter(code => {
         if (saved[code]?.bodyText.length === 0) {
             return false;
