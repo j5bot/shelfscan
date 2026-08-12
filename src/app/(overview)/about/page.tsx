@@ -1,10 +1,12 @@
 'use client';
 
 import { useTitle } from '@/app/lib/hooks/useTitle';
+import { GearIcon } from '@/app/ui/icons/GearIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
-    FaCheck, FaClock,
+    FaCheck,
+    FaClock,
     FaDice,
     FaFirefox,
     FaHeart,
@@ -32,6 +34,7 @@ const AboutPage = () => {
                 <p><Link className="flex items-center justify-center gap-2 uppercase text-lg font-sharetech"
                          href="/extension">
                     <FaFirefox className="w-6 h-6" />
+                    <GearIcon className="w-6 h-6" />
                     <FaSafari className="w-6 h-6" />
                     Get the Extension!
                 </Link></p>

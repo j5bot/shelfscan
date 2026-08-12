@@ -1,13 +1,15 @@
 // ==UserScript==
-// @name         ShelfScan Swap Import
+// @name         ShelfScan -> Swaptagon Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.0.0
+// @version      1.1.0
 // @description  Import items from a ShelfScan swap file (ODS) to Swaptagon
 // @author       ShelfScan
 // @match        https://swaptagon.com/*/additem
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js
 // @run-at       document-idle
+// @downloadURL  https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js
+// @updateURL    https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js
 // ==/UserScript==
 
 (() => {

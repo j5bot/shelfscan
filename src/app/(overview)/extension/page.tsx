@@ -2,6 +2,7 @@
 
 import { useExtPay } from '@/app/lib/hooks/useExtPay';
 import { useTitle } from '@/app/lib/hooks/useTitle';
+import { GearIcon } from '@/app/ui/icons/GearIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
@@ -61,17 +62,20 @@ const ExtensionPage = () => {
                         Download for Firefox on Android / Desktop
                     </span>
                 </Link></p>
-                <p className="flex items-center gap-2">
-                    <Link href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
-                          target="_blank"><FaChrome className="w-6 h-6" />
-                    </Link>
-                    <Link className="underline" href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
-                          target="_blank">Download</Link> for
-                    <Link href="https://apps.apple.com/app/apple-store/id1458962238" target="_blank" className="underline">Gear on iOS</Link> / <Link
-                    href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
-                    target="_blank"
-                    className="underline">Chrome on Desktop</Link>
+                <p className="flex items-center gap-1"><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
+                         target="_blank"><GearIcon className="w-6 h-6" /> <span className="underline">
+                        Download</span>
+                    </Link> for <Link href="https://apps.apple.com/app/apple-store/id1458962238"
+                                      target="_blank"
+                                      className="underline"
+                                >Gear on iOS</Link>
                 </p>
+                <p><Link className="flex items-center gap-2"
+                         href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
+                         target="_blank"><FaChrome className="w-6 h-6" /> <span className="underline">
+                        Download for Chrome on Desktop
+                    </span>
+                </Link></p>
 
                 <h4 className="uppercase font-semibold pt-5 pb-3">Free 30 Day Trial!</h4>
                 <ul className="font-sharetech text-lg pb-2">
