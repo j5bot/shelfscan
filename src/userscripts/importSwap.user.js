@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ShelfScan -> Swaptagon Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.1.0
+// @version      1.1.1
 // @description  Import items from a ShelfScan swap file (ODS) to Swaptagon
 // @author       ShelfScan
 // @match        https://swaptagon.com/*/additem
@@ -35,7 +35,6 @@
         'bodyText',
         'compareValue',
         'sellFor',
-        'image'
     ];
 
     const requiredTextProps = [
