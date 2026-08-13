@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         ShelfScan -> Swaptagon Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.1.1
+// @version      1.1.2
 // @description  Import items from a ShelfScan swap file (ODS) to Swaptagon
 // @author       ShelfScan
-// @match        https://swaptagon.com/*/additem
+// @match        https://swaptagon.com/*
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js
 // @run-at       document-idle
@@ -239,9 +239,36 @@
         document.body.append(panel);
     };
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', createImportPanel);
-    } else {
-        createImportPanel();
+    const addBGGHyperlinks = () => {
+        const gameName = document.querySelector('h3');
+        const pars = Array.from(document.querySelectorAll('p'));
+        pars.filter(par => par.innerHTML.startsWith('https://boardgamegeek.com/'))
+            .forEach(par => {
+                const link = par.innerHTML;
+                const a = document.createElement('a');
+                a.href = link;
+                a.target = '_blank';
+                a.innerText = gameName.innerText;
+                par.innerHTML = '';
+                par.appendChild(a);
+            });
+    };
+
+    switch (true) {
+        case window.location.pathname.endsWith('/additem'):
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', createImportPanel);
+            } else {
+                createImportPanel();
+            }
+            break;
+        case !isNaN(parseInt(window.location.pathname.slice(1), 10)):
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', addBGGHyperlinks);
+            } else {
+                addBGGHyperlinks();
+            }
+            break;
     }
+
 })();

@@ -57,7 +57,7 @@ export const swapSlice = createSlice({
     reducers: {
         setItemData: (
             state,
-            action: PayloadAction<SwapItemData>,
+            action: PayloadAction<Partial<SwapItemData>>,
         ) => {
             const { collectionId } = action.payload;
 

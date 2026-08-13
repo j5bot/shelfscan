@@ -34,6 +34,9 @@ export const SwapSectionInner = ({
     collectionId,
 }: { item: Partial<BggCollectionItem>, collectionId: number | string }) => {
     const dispatch = useDispatch();
+    const savedData = useSelector(
+        (state: RootState) => state.swap.data[collectionId],
+    );
 
     useEffect(() => {
         if (!item) {
@@ -42,14 +45,10 @@ export const SwapSectionInner = ({
         dispatch(setItemData({
             collectionId,
             name: item.name ?? collectionId.toString() ?? '',
-            bodyText: item.tradeCondition ?? '',
+            bodyText: savedData?.bodyText ?? item.tradeCondition ?? '',
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
     }, [!item]);
-
-    const savedData = useSelector(
-        (state: RootState) => state.swap.data[collectionId],
-    );
 
     const [expanded, setExpanded] = useState(false);
 
@@ -65,12 +64,12 @@ export const SwapSectionInner = ({
     }, [dispatch, collectionId, name]);
 
     const handleCompareValueChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, name, bodyText, compareValue: value }));
-    }, [dispatch, collectionId, name, bodyText, compareValue]);
+        dispatch(setItemData({ collectionId, compareValue: value }));
+    }, [dispatch, collectionId, compareValue]);
 
     const handleSellForChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, name, bodyText, sellFor: value }));
-    }, [dispatch, collectionId, name, bodyText, sellFor]);
+        dispatch(setItemData({ collectionId, sellFor: value }));
+    }, [dispatch, collectionId, sellFor]);
 
     if (!item) { return null; }
 
@@ -84,41 +83,45 @@ export const SwapSectionInner = ({
                     placeholder="Trade condition / description"
                     aria-label="Trade condition / description for math trade"
                 />
-                <div className="flex flex-wrap items-center gap-0.5">
-                    <label
-                        className="text-xs text-base-content/70"
-                        htmlFor={`compareValue-${collectionId}`}
-                    >
-                        Compare
-                    </label>
-                    <input
-                        id={`compareValue-${collectionId}`}
-                        type="number"
-                        className="input input-bordered input-xs ml-px w-10"
-                        min={1}
-                        value={compareValue}
-                        onChange={e => handleCompareValueChange(
-                            Math.max(1, parseInt(e.target.value, 10) || 1),
-                        )}
-                        aria-label="Comparative value"
-                    />
-                    <label
-                        className="text-xs text-base-content/70 text-nowrap"
-                        htmlFor={`compareValue-${collectionId}`}
-                    >
-                        Sell For
-                    </label>
-                    <input
-                        id={`sellFor-${collectionId}`}
-                        type="number"
-                        className="input input-bordered input-xs ml-px w-12"
-                        min={0}
-                        value={sellFor}
-                        onChange={e => handleSellForChange(
-                            Math.max(0, parseInt(e.target.value, 10) || 0),
-                        )}
-                        aria-label="Sell for value"
-                    />
+                <div className="flex flex-wrap items-center gap-1">
+                    <div className="flex items-center gap-0.5">
+                        <label
+                            className="text-xs text-base-content/70"
+                            htmlFor={`compareValue-${collectionId}`}
+                        >
+                            Compare
+                        </label>
+                        <input
+                            id={`compareValue-${collectionId}`}
+                            type="number"
+                            className="input input-bordered input-xs ml-px w-10"
+                            min={1}
+                            value={compareValue}
+                            onChange={e => handleCompareValueChange(
+                                Math.max(1, parseInt(e.target.value, 10) || 1),
+                            )}
+                            aria-label="Comparative value"
+                        />
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                        <label
+                            className="text-xs text-base-content/70 text-nowrap"
+                            htmlFor={`compareValue-${collectionId}`}
+                        >
+                            Sell For
+                        </label>
+                        <input
+                            id={`sellFor-${collectionId}`}
+                            type="number"
+                            className="input input-bordered input-xs ml-px w-12"
+                            min={0}
+                            value={sellFor}
+                            onChange={e => handleSellForChange(
+                                Math.max(0, parseInt(e.target.value, 10) || 0),
+                            )}
+                            aria-label="Sell for value"
+                        />
+                    </div>
                 </div>
                 <div className="flex items-center gap-0.5">
                     <button
