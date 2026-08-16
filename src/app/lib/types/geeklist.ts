@@ -10,6 +10,7 @@ export type GeekList = {
 export type GeekListItem = {
     id: number;
     name: string;
+    body?: string;
     found?: boolean;
     disabled?: boolean;
     published?: string;
@@ -22,3 +23,18 @@ export type GeekListItem = {
     collectionImage?: string;
     collectionThumb?: string;
 };
+
+export type RawGeekListItem = {
+    body?: string;
+    id: string;
+    imageid?: number;
+    imageOverridden: boolean;
+    item: {
+        id?: string;
+        name: string;
+    };
+};
+
+export type RawGeekListItems = {
+    listitem: RawGeekListItem
+}[];

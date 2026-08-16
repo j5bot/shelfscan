@@ -237,6 +237,8 @@ export const geeklistSlice = createSlice({
         recordAdd: (
             state,
             action: PayloadAction<{
+                description?: string;
+                copies?: number;
                 collectionId: CollectionID;
                 geeklistItemId: GeekListItemID;
                 geekListId: number;
@@ -244,7 +246,7 @@ export const geeklistSlice = createSlice({
                 versionId?: number;
             }>,
         ) => {
-            const { collectionId, geeklistItemId, geekListId, gameId, versionId } = action.payload;
+            const { description, copies, collectionId, geeklistItemId, geekListId, gameId, versionId } = action.payload;
             const entry = state.geekLists[geekListId];
             if (!entry) { return; }
 
@@ -274,7 +276,14 @@ export const geeklistSlice = createSlice({
             const existing = state.data[collectionId];
             if (existing !== undefined) {
                 existing.geekListItemID = geeklistItemId;
+            } else {
+                state.data[collectionId] = {
+                    geekListItemID: geeklistItemId,
+                    bodyText: description ?? '',
+                    copies: copies ?? 1,
+                }
             }
+            state.geekLists[geekListId].matched.push(collectionId);
         },
     },
 });

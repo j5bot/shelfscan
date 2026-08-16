@@ -64,6 +64,8 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
 
         if (canUseExtension) {
             const [result] = await sendViaExtension([{
+                description: bodyText,
+                copies,
                 collectionId,
                 gameId: item.objectId,
                 versionId: item.versionId,
