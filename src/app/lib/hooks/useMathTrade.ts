@@ -46,9 +46,6 @@ export const useMathTrade = () => {
             }));
         }
 
-        // items somehow gets shadowed, so retain a reference
-        const itemsSave = [...items];
-
         const games: Game[] = items.map(item => {
             const { name, collectionId, gameId, versionId = 0, body, imageId } = item;
 
@@ -85,7 +82,7 @@ export const useMathTrade = () => {
                 return undefined;
             }
 
-            const item = itemsSave.find(item =>
+            const item = items.find(item =>
                 (!item.imageId || listItem.imageid === item.imageId)
                     && parseInt(listItem.item.id ?? '', 10) === item.gameId
             );
