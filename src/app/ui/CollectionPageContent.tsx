@@ -192,6 +192,8 @@ export const CollectionPageContent = ({
                 versionId: item.versionId,
                 name: item.name,
                 body: buildMathTradeBody(bodyText, item, copies, collectionId),
+                description: bodyText,
+                copies,
                 imageId: getBggImageFromItem(item),
             }];
         });

@@ -2,8 +2,9 @@ import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingPro
 import { useSync } from '@/app/lib/extension/useSync';
 import { DocumentMessageDetail, Game } from '@/app/lib/extension/messageTypes';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
-import { recordAdd, UNKNOWN_GEEKLIST_ITEM_ID } from '@/app/lib/redux/bgg/geeklist/slice';
+import { recordAdd } from '@/app/lib/redux/bgg/geeklist/slice';
 import { RootState } from '@/app/lib/redux/store';
+import { RawGeekListItems } from '@/app/lib/types/geeklist';
 import { useCallback } from 'react';
 
 export type MathTradeItem = {
@@ -12,6 +13,8 @@ export type MathTradeItem = {
     versionId?: number;
     name: string;
     body: string;
+    description?: string;
+    copies?: number;
     imageId: number;
 };
 
@@ -43,6 +46,9 @@ export const useMathTrade = () => {
             }));
         }
 
+        // items somehow gets shadowed, so retain a reference
+        const itemsSave = [...items];
+
         const games: Game[] = items.map(item => {
             const { name, collectionId, gameId, versionId = 0, body, imageId } = item;
 
@@ -57,11 +63,11 @@ export const useMathTrade = () => {
             };
         });
 
-        const response = await dispatchExtensionMessage({
+        const response = await (dispatchExtensionMessage({
             type: 'mathTrade',
             games,
             timestamp: Date.now(),
-        } as unknown as Partial<DocumentMessageDetail>);
+        } as unknown as Partial<DocumentMessageDetail>));
 
         if (!response) {
             return items.map(item => ({
@@ -71,31 +77,34 @@ export const useMathTrade = () => {
             }));
         }
 
-        const responseData = response.response as Record<string, unknown> | null | undefined;
-        const errorMsg = responseData?.error ? String(responseData.error) : undefined;
+        const responseData = response.response as RawGeekListItems | null | undefined;
 
-        if (errorMsg) {
-            return items.map(item => ({
-                collectionId: item.collectionId,
-                success: false,
-                error: errorMsg,
-            }));
-        }
+        return responseData?.map(gli => {
+            const { listitem: listItem } = gli;
+            if (!listItem) {
+                return undefined;
+            }
 
-        // Dispatch recordAdd for each successfully added item
-        const listItemId = (responseData?.listItemId ?? responseData?.listitemid) as number | undefined;
+            const item = itemsSave.find(item =>
+                (!item.imageId || listItem.imageid === item.imageId)
+                    && parseInt(listItem.item.id ?? '', 10) === item.gameId
+            );
 
-        return items.map(item => {
+            if (!item) {
+                return undefined;
+            }
             dispatch(recordAdd({
-                collectionId: item.collectionId,
-                geeklistItemId: listItemId ?? UNKNOWN_GEEKLIST_ITEM_ID,
+                description: item.description,
+                copies: item.copies,
+                collectionId: item?.collectionId,
+                geeklistItemId: parseInt(listItem.id, 10),
                 geekListId: activeGeekListId,
                 gameId: item.gameId,
                 versionId: item.versionId,
             }));
             return { collectionId: item.collectionId, success: true };
-        });
-    }, [userId, activeGeekListId, dispatchExtensionMessage, dispatch]);
+        }).filter(x => !!x) ?? [];
+    }, [userId, activeGeekListId, syncOn, dispatchExtensionMessage, dispatch]);
 
     return { syncOn, canUseExtension, sendViaExtension };
 };
