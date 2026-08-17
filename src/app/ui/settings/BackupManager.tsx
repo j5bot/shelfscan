@@ -6,6 +6,7 @@ import {
     importBackupFile,
     previewBackupFile,
 } from '@/app/lib/utils/dbBackup';
+import posthog from 'posthog-js';
 import { ChangeEvent, useRef, useState } from 'react';
 import { FaDownload, FaUpload, FaXmark } from 'react-icons/fa6';
 
@@ -26,6 +27,7 @@ export const BackupManager = () => {
         setExportStatus('pending');
         try {
             await exportBackup();
+            posthog.capture('backup_exported');
             setExportStatus('idle');
         } catch (e) {
             setExportStatus('error');
@@ -58,6 +60,9 @@ export const BackupManager = () => {
             }
 
             const { tables } = await importBackupFile(file);
+            posthog.capture('backup_imported', {
+                table_count: tables.length,
+            });
             setImportMessage(`Imported: ${describeTables(tables)}.`);
             setImportStatus('success');
         } catch (err) {

@@ -6,6 +6,7 @@ import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
+import posthog from 'posthog-js';
 import React, { useCallback, useState } from 'react';
 import { FaCloudArrowUp } from 'react-icons/fa6';
 
@@ -57,7 +58,13 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
         }).filter(Boolean);
 
         Promise.all(promises).then(results => {
-            onComplete?.(results.filter(r => r !== undefined));
+            const addedGames = results.filter(r => r !== undefined);
+            if (addedGames.length > 0) {
+                posthog.capture('batch_games_added_to_collection', {
+                    game_count: addedGames.length,
+                });
+            }
+            onComplete?.(addedGames);
             setIsAdding(false);
         });
     }, [isAdding, readyGames, gameDataMap, store, addGameToCollection, onComplete, gameSelections]);

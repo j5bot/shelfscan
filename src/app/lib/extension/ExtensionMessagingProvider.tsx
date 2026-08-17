@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
+import posthog from 'posthog-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef } from 'react';
 
 type DispatchExtensionMessage = (
@@ -35,6 +36,11 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
             console.error('message missing type', detail);
             return;
         }
+
+        posthog.capture('extension_message', {
+            type: detail.type,
+        });
+
         const isResponse = detail.type.endsWith('-response');
         const timestamp = isResponse
             ? (detail as DocumentMessageResponseDetail).sourceMessage.timestamp
@@ -53,7 +59,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
         if (matchingMessages) {
             const sourceMessage = matchingMessages[0];
 
-            if (detail.type.endsWith('response')) {
+            if (isResponse) {
                 messagesRef.current[messageKey] = [sourceMessage, detail as DocumentMessageResponseDetail];
                 return promisesRef.current[messageKey].resolve(detail as DocumentMessageResponseDetail);
             }
