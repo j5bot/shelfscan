@@ -9,6 +9,7 @@ import { RootState } from '@/app/lib/redux/store';
 import { useSettings } from '@/app/lib/SettingsProvider';
 import { Settings } from '@/app/ui/Settings';
 import Link from 'next/link';
+import posthog from 'posthog-js';
 import { useRouter } from 'next/navigation';
 import { ReactNode, Suspense, use, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
@@ -99,6 +100,7 @@ export const NavDrawer = () => {
     const name = nameSegments.join(' ');
 
     const signOutHandler = () => {
+        posthog.reset();
         dispatch(setBggUser());
         removeSetting('username').then();
         loadSettings().then();

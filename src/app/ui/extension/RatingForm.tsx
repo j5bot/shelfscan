@@ -1,6 +1,7 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { useRating } from '../../lib/extension/useRating';
+import posthog from 'posthog-js';
 import { memo, useCallback, useState } from 'react';
 
 type RatingFormProps = {
@@ -53,6 +54,7 @@ export const RatingForm = memo(({
     const handleNewRating = useCallback((rating: number) => {
         setNewRating(rating);
         addRating?.();
+        posthog.capture('game_rating_updated', { rating });
     }, [addRating, setNewRating]);
 
     if (!item) {

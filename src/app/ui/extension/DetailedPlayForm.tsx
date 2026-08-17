@@ -3,6 +3,7 @@ import { makeNonUserPlayer } from '@/app/lib/extension/utils';
 import { usePlayData } from '@/app/lib/extension/PlayDataProvider';
 import { PlayerRow } from '@/app/ui/extension/PlayerRow';
 import { type BggPlayer } from '@/app/lib/types/bgg';
+import posthog from 'posthog-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaChevronDown, FaCircleCheck, FaSpinner, FaUsers, FaXmark } from 'react-icons/fa6';
@@ -128,6 +129,12 @@ export const DetailedPlayForm = ({
         // Mutate formValues in place so addFn closure sees the updated players
         setFormValues(Object.assign(formValues, { players: JSON.stringify(formPlayers) }));
         addFn?.({} as ModeSetting, e);
+        posthog.capture('detailed_play_logged', {
+            player_count: formPlayers.length,
+            quantity: Number(formValues['quantity'] ?? 1),
+            has_duration: durationMinutes.length > 0,
+            is_incomplete: formValues['incomplete'] === '1',
+        });
         clearPlayData();
         setConfirmed(true);
         closeTimeoutRef.current = setTimeout(() => {

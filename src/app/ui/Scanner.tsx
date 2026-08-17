@@ -1,6 +1,7 @@
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
+import posthog from 'posthog-js';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FaCamera } from 'react-icons/fa6';
 
@@ -80,6 +81,7 @@ export function Scanner(props: ScannerProps) {
             return;
         }
         scanAudio.play().then();
+        posthog.capture('barcode_scanned');
         onScan(code);
     };
     const doScanRef = useRef(doScanImpl);

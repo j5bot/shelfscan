@@ -5,6 +5,7 @@ import { useSelector, useStore } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { downloadSwapExport } from '@/app/lib/utils/swapExport';
+import posthog from 'posthog-js';
 import React, { useCallback, useState } from 'react';
 import { FaFileExport } from 'react-icons/fa6';
 
@@ -91,6 +92,9 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
 
         try {
             await downloadSwapExport(items);
+            posthog.capture('swap_export_downloaded', {
+                game_count: items.length,
+            });
         } finally {
             setIsAdding(false);
         }

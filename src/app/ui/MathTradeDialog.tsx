@@ -7,6 +7,7 @@ import {
 } from '@/app/lib/redux/bgg/geeklist/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { bggGetGeeklistFromXML } from '@/app/lib/services/bgg/service';
+import posthog from 'posthog-js';
 import { useCallback, useState } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 
@@ -57,11 +58,12 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
         }
 
         dispatch(loadGeeklistSuccess({ collection, geekList, username }));
+        posthog.capture('math_trade_geeklist_loaded');
         setLoading(false);
         setUrl('');
         onClose();
         onLoaded(id);
-    }, [url, dispatch, onClose, onLoaded]);
+    }, [url, dispatch, onClose, onLoaded, collection, username]);
 
     if (!isOpen) { return null; }
 
