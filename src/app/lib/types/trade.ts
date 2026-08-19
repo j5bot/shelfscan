@@ -11,7 +11,7 @@ export type TradeItemInteropFormat = {
     name: string;
     bggId?: number;
     year?: number;
-    condition?: string;
+    condition?: 'New' | 'Like New' | 'Very Good' | 'Good' | 'Acceptable' | 'Other';
     description?: string;
     options?: {
         sweeteners?: string;

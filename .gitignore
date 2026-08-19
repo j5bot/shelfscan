@@ -42,3 +42,5 @@ next-env.d.ts
 .next*
 tests/utils/shelfscan-scan-history.png
 .claude
+sampleData/geeklist*
+dev-docs/prd/017-atlas-trades-support/017b-condition-parser.md

@@ -41,7 +41,7 @@ import {
     FaFileExport,
     FaList,
     FaPlus,
-    FaRightLeft, FaSquareArrowUpRight, FaSquareUpRight,
+    FaRightLeft,
     FaStar,
     FaTableCells,
     FaXmark,
