@@ -222,7 +222,7 @@ export const CollectionPageContent = ({
                     item,
                 ),
                 compareValue: savedData?.compareValue ?? 1,
-                cashValue: savedData?.cashValue ?? 1,
+                cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
             }];
         });
