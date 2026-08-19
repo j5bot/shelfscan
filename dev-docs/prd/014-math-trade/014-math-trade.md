@@ -110,7 +110,7 @@ For each `Game` entry, the full formatted body text (including the `%Options%` b
 
 The geeklist slice is located at `src/app/lib/redux/bgg/geeklist/slice.ts`.
 
-`data` holds per-item **editing state** (bodyText and copies as entered in the UI, not yet
+`data` holds per-item **editing state** (description and copies as entered in the UI, not yet
 submitted). `collectionItems` inside each `GeekListState` holds the **submitted mapping**, updated
 after a successful add.
 
@@ -135,10 +135,10 @@ type GeekListState = {
 type SliceState = {
     activeGeekListId: number | null;
     geekLists: Record<number, GeekListState>;
-    // per-item editing state — bodyText/copies as entered in the UI, not yet submitted
+    // per-item editing state — description/copies as entered in the UI, not yet submitted
     data: Record<CollectionID, {
         geekListItemID: GeekListItemID;
-        bodyText: string;
+        description: string;
         copies: number;
     }>;
 };

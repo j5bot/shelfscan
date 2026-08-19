@@ -33,7 +33,7 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const saved = useSelector((state: RootState) => state.swap.data);
 
     const swappableGames = codes.filter(code => {
-        if (saved[code]?.bodyText.length === 0) {
+        if (saved[code]?.description.length === 0) {
             return false;
         }
         const data = gameDataMap[code];
@@ -82,9 +82,9 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                 collectionId: code,
                 swapItemId: savedData?.swapItemId,
                 name: readyGamesData[index]?.[1]?.name ?? savedData?.name ?? '',
-                bodyText: makeDescription(savedData?.bodyText ?? '', readyGamesData[index]),
+                description: makeDescription(savedData?.description ?? '', readyGamesData[index]),
                 compareValue: savedData?.compareValue ?? 1,
-                sellFor: savedData?.sellFor ?? 0,
+                cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey,
             });
             addedCodes.push(code);

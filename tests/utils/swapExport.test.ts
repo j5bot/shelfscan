@@ -91,14 +91,14 @@ describe('swapExport', () => {
                     collectionId: 1,
                     swapItemId: 42,
                     name: 'Catan',
-                    bodyText: 'Great condition\nBox has wear',
+                    description: 'Great condition\nBox has wear',
                     compareValue: 5,
-                    sellFor: 10,
+                    cashValue: 10,
                 },
                 {
                     collectionId: 2,
                     name: 'Wingspan',
-                    bodyText: 'Sleeved',
+                    description: 'Sleeved',
                 },
             ];
 
@@ -122,9 +122,9 @@ describe('swapExport', () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,
                 name: 'Catan',
-                bodyText: '',
+                description: '',
                 compareValue: 20,
-                sellFor: -3,
+                cashValue: -3,
             }];
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
@@ -137,7 +137,7 @@ describe('swapExport', () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,
                 name: 'A & B <Game> "Special"',
-                bodyText: `It's a trade & it's <great>`,
+                description: `It's a trade & it's <great>`,
             }];
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
@@ -164,7 +164,7 @@ describe('swapExport', () => {
                 const items: SwapItemData[] = [{
                     collectionId: 1,
                     name: 'Catan',
-                    bodyText: '',
+                    description: '',
                     imageKey: 'game-pic.jpg|400|400|90',
                 }];
 
@@ -196,7 +196,7 @@ describe('swapExport', () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,
                 name: 'Catan',
-                bodyText: '',
+                description: '',
                 imageKey: 'not-cached.jpg|400|400|90',
             }];
 
@@ -212,7 +212,7 @@ describe('swapExport', () => {
             const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
             const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
-            await downloadSwapExport([{ collectionId: 1, name: 'Catan', bodyText: '' }], 'my-export.ods');
+            await downloadSwapExport([{ collectionId: 1, name: 'Catan', description: '' }], 'my-export.ods');
 
             expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
             const [blobArg] = createObjectURLSpy.mock.calls[0];

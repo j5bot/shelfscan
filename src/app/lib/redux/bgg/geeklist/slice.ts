@@ -37,7 +37,7 @@ export type GeeklistItemData = {
 export type GeeklistSliceState = {
     activeGeekListId: number | null;
     geekLists: Record<number, GeekListEntryState>;
-    // per-item editing state — bodyText/copies as entered in the UI, not yet submitted
+    // per-item editing state — description/copies as entered in the UI, not yet submitted
     data: Record<CollectionID, GeeklistItemData>;
 };
 

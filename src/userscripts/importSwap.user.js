@@ -32,14 +32,14 @@
 
     const swapItemProps = [
         'name',
-        'bodyText',
+        'description',
         'compareValue',
-        'sellFor',
+        'cashValue',
     ];
 
     const requiredTextProps = [
         'name',
-        'bodyText',
+        'description',
     ];
 
     let xsrfToken;

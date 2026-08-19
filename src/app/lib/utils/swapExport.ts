@@ -31,6 +31,15 @@ type ResolvedRow = {
     image?: ResolvedImage;
 };
 
+type CellDefinitionFn = (value: string | number | ResolvedImage | undefined, className?: string) => string;
+
+type CellDefinition = {
+    key?: keyof SwapItemData;
+    prop?: keyof ResolvedRow;
+    className?: string;
+    fn: CellDefinitionFn;
+};
+
 export const getSwapItemImageCacheKey = (item: BggCollectionItem): string | undefined => {
     const rawSrc = item.version?.image ?? item.image ?? item.thumbnail;
     if (!rawSrc) { return undefined; }
@@ -54,7 +63,7 @@ const textParagraphs = (value: string): string => {
     return lines.map(line => `<text:p>${escapeXml(line)}</text:p>`).join('');
 };
 
-const numberCell = (value: number | undefined): string => value === undefined
+const numberCell = (value: number | undefined, _className?: string): string => value === undefined
     ? '<table:table-cell/>'
     : `<table:table-cell office:value-type="float" office:value="${value}"><text:p>${value}</text:p></table:table-cell>`;
 
@@ -63,7 +72,7 @@ const stringCell = (value: string, styleName?: string): string => {
     return `<table:table-cell${styleAttr} office:value-type="string">${textParagraphs(value)}</table:table-cell>`;
 };
 
-const imageCell = (image: ResolvedImage | undefined): string => {
+const imageCell = (image: ResolvedImage | undefined, _className?: string): string => {
     if (!image) { return '<table:table-cell/>'; }
     return `<table:table-cell>`
         + `<draw:frame svg:width="${image.widthIn.toFixed(3)}in" svg:height="${image.heightIn.toFixed(3)}in" `
@@ -112,24 +121,62 @@ const resolveRowImage = async (item: SwapItemData, index: number): Promise<Resol
     }
 };
 
-const buildContentXml = (rows: ResolvedRow[]): string => {
-    const headerRow = '<table:table-row>'
-        + stringCell('Item Id', 'coHeader')
-        + stringCell('Name', 'coHeader')
-        + stringCell('Description', 'coHeader')
-        + stringCell('Comparative Value', 'coHeader')
-        + stringCell('Sell For', 'coHeader')
-        + stringCell('Image', 'coHeader')
-        + '</table:table-row>';
+const headerRow = '<table:table-row>'
+    + stringCell('Item Id', 'coHeader')
+    + stringCell('Name', 'coHeader')
+    + stringCell('Description', 'coHeader')
+    + stringCell('Comparative Value', 'coHeader')
+    + stringCell('Cash Value', 'coHeader')
+    + stringCell('Image', 'coHeader')
+    + '</table:table-row>';
 
-    const dataRows = rows.map(({ item, image }) => '<table:table-row table:style-name="roData">'
-        + numberCell(item.swapItemId)
-        + stringCell(item.name, 'coWrap')
-        + stringCell(item.bodyText, 'coWrap')
-        + numberCell(clampCompareValue(item.compareValue))
-        + numberCell(clampSellFor(item.sellFor))
-        + imageCell(image)
-        + '</table:table-row>').join('');
+const rowCells: CellDefinition[] = [
+    {
+        key: 'swapItemId',
+        fn: numberCell as CellDefinitionFn,
+    },
+    {
+        key: 'name',
+        className: 'coWrap',
+        fn: stringCell as CellDefinitionFn,
+    },
+    {
+        key: 'description',
+        className: 'coWrap',
+        fn: stringCell as CellDefinitionFn,
+    },
+    {
+        key: 'compareValue',
+        fn: ((value: number | undefined) =>
+            numberCell(clampCompareValue(value))) as CellDefinitionFn,
+    },
+    {
+        key: 'cashValue',
+        fn: ((value: number | undefined) =>
+            numberCell(clampSellFor(value))) as CellDefinitionFn,
+    },
+    {
+        prop: 'image',
+        fn: imageCell as CellDefinitionFn,
+    },
+];
+
+const buildRow = (params: ResolvedRow) => {
+    return [
+        '<table:table-row table:style-name="roData">',
+        rowCells.map(cellDef => {
+            const value = cellDef.prop ?
+                          params.image : cellDef.key ?
+                                         params.item[cellDef.key as keyof SwapItemData] : undefined;
+            return cellDef.fn(value, cellDef.className);
+        }),
+        '</table:table-row>'
+    ].flat().join('');
+}
+
+const buildContentXml = (rows: ResolvedRow[]): string => {
+
+    const dataRows = rows.map(buildRow);
 
     return '<?xml version="1.0" encoding="UTF-8"?>'
         + '<office:document-content '

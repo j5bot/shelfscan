@@ -14,7 +14,7 @@ The ODS sheet should contain a header be comprised of rows for columns based on 
 typescript type:
 
 Item Id: blank if undefined, otherwise `swapItemId`
-Description: a multiline text string, stored as `bodyText`
+Description: a multiline text string, stored as `description`
 Comparative Value: a number from 0-10
 Sell For: a number 0 or greater
 Image: an embedded image

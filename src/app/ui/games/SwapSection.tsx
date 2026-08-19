@@ -45,31 +45,31 @@ export const SwapSectionInner = ({
         dispatch(setItemData({
             collectionId,
             name: item.name ?? collectionId.toString() ?? '',
-            bodyText: savedData?.bodyText ?? item.tradeCondition ?? '',
+            description: savedData?.description ?? item.tradeCondition ?? '',
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
     }, [!item]);
 
     const [expanded, setExpanded] = useState(false);
 
-    const defaultBodyText = item?.tradeCondition ?? '';
-    const bodyText = savedData?.bodyText ?? defaultBodyText;
+    const defaultDescription = item?.tradeCondition ?? '';
+    const description = savedData?.description ?? defaultDescription;
     const compareValue = savedData?.compareValue ?? 1;
-    const sellFor = savedData?.sellFor ?? 0;
+    const cashValue = savedData?.cashValue ?? 0;
 
     const name = item?.name ?? collectionId.toString() ?? '';
 
-    const handleBodyChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, name, bodyText: value }));
+    const handleDescriptionChange = useCallback((value: string) => {
+        dispatch(setItemData({ collectionId, name, description: value }));
     }, [dispatch, collectionId, name]);
 
     const handleCompareValueChange = useCallback((value: number) => {
         dispatch(setItemData({ collectionId, compareValue: value }));
     }, [dispatch, collectionId, compareValue]);
 
-    const handleSellForChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, sellFor: value }));
-    }, [dispatch, collectionId, sellFor]);
+    const handleCashValueChange = useCallback((value: number) => {
+        dispatch(setItemData({ collectionId, cashValue: value }));
+    }, [dispatch, collectionId, cashValue]);
 
     if (!item) { return null; }
 
@@ -78,8 +78,8 @@ export const SwapSectionInner = ({
             <div className="flex flex-col gap-2">
                 <textarea
                     className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
-                    value={bodyText}
-                    onChange={e => handleBodyChange(e.target.value)}
+                    value={description}
+                    onChange={e => handleDescriptionChange(e.target.value)}
                     placeholder="Trade condition / description"
                     aria-label="Trade condition / description for math trade"
                 />
@@ -106,17 +106,17 @@ export const SwapSectionInner = ({
                     <div className="flex items-center gap-0.5">
                         <label
                             className="text-xs text-base-content/70 text-nowrap"
-                            htmlFor={`compareValue-${collectionId}`}
+                            htmlFor={`cashValue-${collectionId}`}
                         >
                             Sell For
                         </label>
                         <input
-                            id={`sellFor-${collectionId}`}
+                            id={`cashValue-${collectionId}`}
                             type="number"
                             className="input input-bordered input-xs ml-px w-12"
                             min={0}
-                            value={sellFor}
-                            onChange={e => handleSellForChange(
+                            value={cashValue}
+                            onChange={e => handleCashValueChange(
                                 Math.max(0, parseInt(e.target.value, 10) || 0),
                             )}
                             aria-label="Sell for value"
@@ -145,9 +145,9 @@ export const SwapSectionInner = ({
                 <pre className={`text-xs whitespace-pre-wrap wrap-break-word
                     font-encode-condensed text-base-content/90
                     bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
-                    {bodyText}
+                    {description}
                 </pre>
-                {bodyText.length === 0 && <div className="absolute top-0.5 left-1 text-xl">
+                {description.length === 0 && <div className="absolute top-0.5 left-1 text-xl">
                     ⚠️
                 </div>}
             </button>

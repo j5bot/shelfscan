@@ -216,12 +216,12 @@ export const CollectionPageContent = ({
                 swapItemId: savedData?.swapItemId,
                 name: item.version?.name ? `${item.name} (${item.version.name})`
                        : (savedData?.name ?? item.name),
-                bodyText: makeDescription(
-                    savedData?.bodyText ?? item.tradeCondition ?? '',
+                description: makeDescription(
+                    savedData?.description ?? item.tradeCondition ?? '',
                     item,
                 ),
                 compareValue: savedData?.compareValue ?? 1,
-                sellFor: savedData?.sellFor ?? 1,
+                cashValue: savedData?.cashValue ?? 1,
                 imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
             }];
         });
