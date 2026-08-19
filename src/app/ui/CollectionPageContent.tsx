@@ -212,6 +212,7 @@ export const CollectionPageContent = ({
             if (!item) { return []; }
             const savedData = swapData[collectionId];
             return [{
+                collectionItem: item,
                 collectionId,
                 swapItemId: savedData?.swapItemId,
                 name: item.version?.name ? `${item.name} (${item.version.name})`

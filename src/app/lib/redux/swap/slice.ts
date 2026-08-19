@@ -1,9 +1,11 @@
+import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { extend } from '@/app/lib/utils/object';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type CollectionID = number | string;
 
 export type SwapItemData = {
+    collectionItem?: Partial<BggCollectionItem>;
     swapItemId?: number;
     // either collection id or UPC
     collectionId?: number | string;
@@ -70,9 +72,9 @@ export const swapSlice = createSlice({
                 name,
                 imageKey,
                 swapItemId,
-                bodyText: description,
+                description,
                 compareValue,
-                sellFor: cashValue,
+                cashValue,
             });
         },
         // setActiveSwap: (state, action: PayloadAction<number>) => {

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         ShelfScan -> Swaptagon Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.1.2
-// @description  Import items from a ShelfScan swap file (ODS) to Swaptagon
+// @version      1.2.0
+// @description  Import items from a ShelfScan trade interop file (ODS) to Swaptagon
 // @author       ShelfScan
 // @match        https://swaptagon.com/*
 // @grant        none
@@ -30,16 +30,26 @@
         gif: 'image/gif',
     };
 
-    const swapItemProps = [
-        'name',
-        'description',
-        'compareValue',
-        'cashValue',
-    ];
+    // Matches TradeItemInteropFormatColumnHeaders / the "Compare Value" split
+    // of `options` in src/app/lib/types/trade.ts and src/app/lib/utils/swapExport.ts.
+    // Columns not needed for a Swaptagon import (BGG ID, version info, etc.)
+    // are intentionally omitted here.
+    const COLUMN_HEADERS = {
+        name: 'Name',
+        description: 'Description',
+        compareValue: 'Compare Value',
+        cashValue: 'Cash Value',
+        image: 'Image',
+    };
 
     const requiredTextProps = [
         'name',
         'description',
+    ];
+
+    const requiredNumberProps = [
+        'compareValue',
+        'cashValue',
     ];
 
     let xsrfToken;
@@ -71,9 +81,9 @@
         const data = {
             csrfmiddlewaretoken: xsrfToken,
             name: item.name,
-            description: item.bodyText,
+            description: item.description,
             value: item.compareValue,
-            sale_price: item.sellFor,
+            sale_price: item.cashValue,
             returned_filename: fileName.startsWith('#') ? fileName : `#${fileName}`,
         };
         Object.entries(data).forEach(([key, value]) => {
@@ -134,6 +144,19 @@
         return `data:${mediaType};base64,${base64}`;
     };
 
+    // Column order/presence is not fixed: swapExport.ts omits any column
+    // with no data across the exported rows, so cells must be looked up by
+    // header name rather than position.
+    const getHeaderIndexByName = (headerRow) => {
+        const cells = Array.from(headerRow.getElementsByTagNameNS(TABLE_NS, 'table-cell'));
+        const indexByName = {};
+        cells.forEach((cell, index) => {
+            const name = getCellString(cell).trim();
+            if (name) { indexByName[name] = index; }
+        });
+        return indexByName;
+    };
+
     const parseSwapItems = async (arrayBuffer) => {
         const zip = await JSZip.loadAsync(arrayBuffer);
         const contentFile = zip.file('content.xml');
@@ -142,20 +165,26 @@
         const contentXml = await contentFile.async('text');
         const doc = new DOMParser().parseFromString(contentXml, 'application/xml');
         const rows = Array.from(doc.getElementsByTagNameNS(TABLE_NS, 'table-row'));
-        const dataRows = rows.slice(1); // skip header row
+        if (rows.length === 0) { return []; }
+
+        const [headerRow, ...dataRows] = rows;
+        const indexByName = getHeaderIndexByName(headerRow);
         const mediaTypes = await readManifestMediaTypes(zip);
+
+        const cellFor = (cells, header) => {
+            const index = indexByName[header];
+            return index === undefined ? undefined : cells[index];
+        };
 
         return Promise.all(dataRows.map(async (row) => {
             const cells = Array.from(row.getElementsByTagNameNS(TABLE_NS, 'table-cell'));
-            const [idCell, nameCell, descriptionCell, compareCell, sellCell, imageCell] = cells;
-            const imagePath = getCellImagePath(imageCell);
+            const imagePath = getCellImagePath(cellFor(cells, COLUMN_HEADERS.image));
 
             return {
-                swapItemId: getCellNumber(idCell),
-                name: getCellString(nameCell),
-                bodyText: getCellString(descriptionCell),
-                compareValue: getCellNumber(compareCell),
-                sellFor: getCellNumber(sellCell),
+                name: getCellString(cellFor(cells, COLUMN_HEADERS.name)),
+                description: getCellString(cellFor(cells, COLUMN_HEADERS.description)),
+                compareValue: getCellNumber(cellFor(cells, COLUMN_HEADERS.compareValue)),
+                cashValue: getCellNumber(cellFor(cells, COLUMN_HEADERS.cashValue)),
                 image: imagePath ? await readImageDataUrl(zip, imagePath, mediaTypes) : undefined,
             };
         }));
@@ -209,14 +238,12 @@
             file.arrayBuffer()
                 .then(parseSwapItems)
                 .then((items) => {
-                    console.log('[importSwap] Parsed swap items:', items);
+                    console.log('[importSwap] Parsed trade items:', items);
                     return Promise.all(items
                         .filter(item =>
-                            swapItemProps.every(prop =>
-                                item[prop] !== undefined
-                            ) && requiredTextProps.every(prop =>
-                                item[prop].length > 0
-                            )
+                            requiredTextProps.every(prop => (item[prop] ?? '').length > 0) &&
+                            requiredNumberProps.every(prop => item[prop] !== undefined) &&
+                            item.image !== undefined
                         )
                         .map(async (item) => {
                             const imageBlob = await fetch(item.image).then(resp => resp.blob());

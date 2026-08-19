@@ -2,6 +2,7 @@ import { getImageDataFromCache, makeImageCacheId } from '@/app/lib/database/cach
 import { MAX_NORMAL_IMAGE_SIZE, NORMAL_IMAGE_CACHE_QUALITY, rewriteImageSrc } from '@/app/lib/hooks/useCachedImage';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { ResolvedImage, TradeItemInteropFormatColumnHeaders } from '@/app/lib/types/trade';
 import JSZip from 'jszip';
 import { ImageProps } from 'next/image';
 
@@ -18,26 +19,23 @@ const EXTENSION_BY_MEDIA_TYPE: Record<string, string> = {
     'image/gif': 'gif',
 };
 
-type ResolvedImage = {
-    path: string;
-    mediaType: string;
-    data: ArrayBuffer;
-    widthIn: number;
-    heightIn: number;
-};
-
 type ResolvedRow = {
     item: SwapItemData;
     image?: ResolvedImage;
 };
 
-type CellDefinitionFn = (value: string | number | ResolvedImage | undefined, className?: string) => string;
+type ColumnValue = string | number | ResolvedImage | undefined;
 
-type CellDefinition = {
-    key?: keyof SwapItemData;
-    prop?: keyof ResolvedRow;
-    className?: string;
-    fn: CellDefinitionFn;
+type CellDefinitionFn = (value: ColumnValue, className?: string) => string;
+
+type ColumnWidth = 'text' | 'number' | 'image';
+
+type ColumnDef = {
+    header: string;
+    width: ColumnWidth;
+    wrap?: boolean;
+    getValue: (row: ResolvedRow) => ColumnValue;
+    cellFn: CellDefinitionFn;
 };
 
 export const getSwapItemImageCacheKey = (item: BggCollectionItem): string | undefined => {
@@ -63,16 +61,18 @@ const textParagraphs = (value: string): string => {
     return lines.map(line => `<text:p>${escapeXml(line)}</text:p>`).join('');
 };
 
-const numberCell = (value: number | undefined, _className?: string): string => value === undefined
+const numberCell: CellDefinitionFn = value => value === undefined
     ? '<table:table-cell/>'
     : `<table:table-cell office:value-type="float" office:value="${value}"><text:p>${value}</text:p></table:table-cell>`;
 
-const stringCell = (value: string, styleName?: string): string => {
+const stringCell: CellDefinitionFn = (value, styleName) => {
+    if (value === undefined) { return '<table:table-cell/>'; }
     const styleAttr = styleName ? ` table:style-name="${styleName}"` : '';
-    return `<table:table-cell${styleAttr} office:value-type="string">${textParagraphs(value)}</table:table-cell>`;
+    return `<table:table-cell${styleAttr} office:value-type="string">${textParagraphs(value as string)}</table:table-cell>`;
 };
 
-const imageCell = (image: ResolvedImage | undefined, _className?: string): string => {
+const imageCell: CellDefinitionFn = value => {
+    const image = value as ResolvedImage | undefined;
     if (!image) { return '<table:table-cell/>'; }
     return `<table:table-cell>`
         + `<draw:frame svg:width="${image.widthIn.toFixed(3)}in" svg:height="${image.heightIn.toFixed(3)}in" `
@@ -121,62 +121,148 @@ const resolveRowImage = async (item: SwapItemData, index: number): Promise<Resol
     }
 };
 
-const headerRow = '<table:table-row>'
-    + stringCell('Item Id', 'coHeader')
-    + stringCell('Name', 'coHeader')
-    + stringCell('Description', 'coHeader')
-    + stringCell('Comparative Value', 'coHeader')
-    + stringCell('Cash Value', 'coHeader')
-    + stringCell('Image', 'coHeader')
-    + '</table:table-row>';
+const getCollectionItem = (item: SwapItemData): Partial<BggCollectionItem> | undefined => item.collectionItem;
 
-const rowCells: CellDefinition[] = [
+const resolveImageUrl = (item: SwapItemData): string | undefined => {
+    const collectionItem = getCollectionItem(item);
+    return collectionItem?.version?.image ?? collectionItem?.image ?? collectionItem?.thumbnail;
+};
+
+// Columns follow TradeItemInteropFormatProperties order, with `options`
+// expanded into its own independent columns.
+const allColumns: ColumnDef[] = [
     {
-        key: 'swapItemId',
-        fn: numberCell as CellDefinitionFn,
+        header: TradeItemInteropFormatColumnHeaders.type,
+        width: 'text',
+        getValue: ({ item }) => getCollectionItem(item)?.subType,
+        cellFn: stringCell,
     },
     {
-        key: 'name',
-        className: 'coWrap',
-        fn: stringCell as CellDefinitionFn,
+        header: TradeItemInteropFormatColumnHeaders.name,
+        width: 'text',
+        wrap: true,
+        getValue: ({ item }) => item.name,
+        cellFn: stringCell,
     },
     {
-        key: 'description',
-        className: 'coWrap',
-        fn: stringCell as CellDefinitionFn,
+        header: TradeItemInteropFormatColumnHeaders.bggId,
+        width: 'number',
+        getValue: ({ item }) => getCollectionItem(item)?.objectId,
+        cellFn: numberCell,
     },
     {
-        key: 'compareValue',
-        fn: ((value: number | undefined) =>
-            numberCell(clampCompareValue(value))) as CellDefinitionFn,
+        header: TradeItemInteropFormatColumnHeaders.year,
+        width: 'number',
+        getValue: ({ item }) => getCollectionItem(item)?.yearPublished,
+        cellFn: numberCell,
     },
     {
-        key: 'cashValue',
-        fn: ((value: number | undefined) =>
-            numberCell(clampSellFor(value))) as CellDefinitionFn,
+        header: TradeItemInteropFormatColumnHeaders.condition,
+        width: 'text',
+        // Not sourced in Phase 1 — see PRD 017 non-goals.
+        getValue: () => undefined,
+        cellFn: stringCell,
     },
     {
-        prop: 'image',
-        fn: imageCell as CellDefinitionFn,
+        header: TradeItemInteropFormatColumnHeaders.description,
+        width: 'text',
+        wrap: true,
+        getValue: ({ item }) => item.description,
+        cellFn: stringCell,
+    },
+    {
+        header: 'Sweeteners',
+        width: 'text',
+        // No current source on SwapItemData or BggCollectionItem.
+        getValue: () => undefined,
+        cellFn: stringCell,
+    },
+    {
+        header: 'Copies',
+        width: 'number',
+        getValue: () => undefined,
+        cellFn: numberCell,
+    },
+    {
+        header: 'Compare Value',
+        width: 'number',
+        getValue: ({ item }) => clampCompareValue(item.compareValue),
+        cellFn: numberCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.cashValue,
+        width: 'number',
+        getValue: ({ item }) => clampSellFor(item.cashValue),
+        cellFn: numberCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.versionName,
+        width: 'text',
+        wrap: true,
+        getValue: ({ item }) => getCollectionItem(item)?.version?.name,
+        cellFn: stringCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.versionYear,
+        width: 'number',
+        getValue: ({ item }) => getCollectionItem(item)?.version?.yearPublished,
+        cellFn: numberCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.versionId,
+        width: 'number',
+        getValue: ({ item }) => getCollectionItem(item)?.versionId,
+        cellFn: numberCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.versionLanguage,
+        width: 'text',
+        getValue: ({ item }) => getCollectionItem(item)?.version?.languages?.join(', '),
+        cellFn: stringCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.versionPublisher,
+        width: 'text',
+        getValue: ({ item }) => getCollectionItem(item)?.version?.publisher,
+        cellFn: stringCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.imageUrl,
+        width: 'text',
+        getValue: ({ item }) => resolveImageUrl(item),
+        cellFn: stringCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.image,
+        width: 'image',
+        getValue: ({ image }) => image,
+        cellFn: imageCell,
     },
 ];
 
-const buildRow = (params: ResolvedRow) => {
-    return [
-        '<table:table-row table:style-name="roData">',
-        rowCells.map(cellDef => {
-            const value = cellDef.prop ?
-                          params.image : cellDef.key ?
-                                         params.item[cellDef.key as keyof SwapItemData] : undefined;
-            return cellDef.fn(value, cellDef.className);
-        }),
-        '</table:table-row>'
-    ].flat().join('');
-}
+const hasValue = (value: ColumnValue): boolean => value !== undefined && value !== '';
 
-const buildContentXml = (rows: ResolvedRow[]): string => {
+const selectPresentColumns = (rows: ResolvedRow[]): ColumnDef[] =>
+    allColumns.filter(column => rows.some(row => hasValue(column.getValue(row))));
 
-    const dataRows = rows.map(buildRow);
+const WIDTH_STYLE_NAME: Record<ColumnWidth, string> = {
+    text: 'colText',
+    number: 'colNumber',
+    image: 'colImage',
+};
+
+const buildHeaderRow = (columns: ColumnDef[]): string => '<table:table-row>'
+    + columns.map(column => stringCell(column.header, 'coHeader')).join('')
+    + '</table:table-row>';
+
+const buildRow = (row: ResolvedRow, columns: ColumnDef[]): string => [
+    '<table:table-row table:style-name="roData">',
+    columns.map(column => column.cellFn(column.getValue(row), column.wrap ? 'coWrap' : undefined)),
+    '</table:table-row>',
+].flat().join('');
+
+const buildContentXml = (rows: ResolvedRow[], columns: ColumnDef[]): string => {
+    const dataRows = rows.map(row => buildRow(row, columns));
 
     return '<?xml version="1.0" encoding="UTF-8"?>'
         + '<office:document-content '
@@ -200,16 +286,10 @@ const buildContentXml = (rows: ResolvedRow[]): string => {
         + '<style:style style:name="roData" style:family="table-row">'
         + `<style:table-row-properties style:row-height="${IMAGE_CELL_HEIGHT_IN}in" style:use-optimal-row-height="false"/>`
         + '</style:style>'
-        + '<style:style style:name="colId" style:family="table-column">'
-        + '<style:table-column-properties style:column-width="0.7in"/>'
+        + '<style:style style:name="colText" style:family="table-column">'
+        + '<style:table-column-properties style:column-width="2in"/>'
         + '</style:style>'
-        + '<style:style style:name="colName" style:family="table-column">'
-        + '<style:table-column-properties style:column-width="1.6in"/>'
-        + '</style:style>'
-        + '<style:style style:name="colDescription" style:family="table-column">'
-        + '<style:table-column-properties style:column-width="3in"/>'
-        + '</style:style>'
-        + '<style:style style:name="colValue" style:family="table-column">'
+        + '<style:style style:name="colNumber" style:family="table-column">'
         + '<style:table-column-properties style:column-width="1in"/>'
         + '</style:style>'
         + '<style:style style:name="colImage" style:family="table-column">'
@@ -218,14 +298,9 @@ const buildContentXml = (rows: ResolvedRow[]): string => {
         + '</office:automatic-styles>'
         + '<office:body>'
         + '<office:spreadsheet>'
-        + '<table:table table:name="Swaptagon Export">'
-        + '<table:table-column table:style-name="colId"/>'
-        + '<table:table-column table:style-name="colName"/>'
-        + '<table:table-column table:style-name="colDescription"/>'
-        + '<table:table-column table:style-name="colValue"/>'
-        + '<table:table-column table:style-name="colValue"/>'
-        + '<table:table-column table:style-name="colImage"/>'
-        + headerRow
+        + '<table:table table:name="Trade Export">'
+        + columns.map(column => `<table:table-column table:style-name="${WIDTH_STYLE_NAME[column.width]}"/>`).join('')
+        + buildHeaderRow(columns)
         + dataRows
         + '</table:table>'
         + '</office:spreadsheet>'
@@ -247,11 +322,12 @@ export const buildSwapExportOds = async (items: SwapItemData[]): Promise<Blob> =
         items.map(async (item, index) => ({ item, image: await resolveRowImage(item, index) }))
     );
     const images = rows.flatMap(row => row.image ? [row.image] : []);
+    const columns = selectPresentColumns(rows);
 
     const zip = new JSZip();
     zip.file('mimetype', ODS_MIME_TYPE, { compression: 'STORE' });
     zip.folder('META-INF')?.file('manifest.xml', buildManifestXml(images));
-    zip.file('content.xml', buildContentXml(rows));
+    zip.file('content.xml', buildContentXml(rows, columns));
 
     if (images.length > 0) {
         const pictures = zip.folder('Pictures');
@@ -263,7 +339,7 @@ export const buildSwapExportOds = async (items: SwapItemData[]): Promise<Blob> =
     return zip.generateAsync({ type: 'blob', mimeType: ODS_MIME_TYPE });
 };
 
-export const downloadSwapExport = async (items: SwapItemData[], filename = 'swaptagon-export.ods'): Promise<void> => {
+export const downloadSwapExport = async (items: SwapItemData[], filename = 'trade-export.ods'): Promise<void> => {
     const blob = await buildSwapExportOds(items);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

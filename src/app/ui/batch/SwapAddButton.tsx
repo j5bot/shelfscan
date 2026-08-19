@@ -4,6 +4,7 @@ import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector, useStore } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
+import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { downloadSwapExport } from '@/app/lib/utils/swapExport';
 import posthog from 'posthog-js';
 import React, { useCallback, useState } from 'react';
@@ -69,20 +70,29 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                             data?.bgg_info?.[infoIndex]?.versions?.[versionIndex]
                                                        : undefined;
 
-            return [
-                { id: info?.id, name: info?.name },
-                version ? { id: version?.version_id, name: version?.name } : undefined,
-            ];
+            return {
+                info,
+                version,
+                gameData: [
+                    { id: info?.id, name: info?.name },
+                    version ? { id: version?.version_id, name: version?.name } : undefined,
+                ],
+            };
         });
 
         swappableGames.forEach((code, index) => {
             const savedData = saved[code];
+            const { info, version, gameData } = readyGamesData[index];
+            const collectionItem = info
+                ? (version ? gameUPCInfoAndVersionToCollectionItem(info, version) : gameUPCInfoToCollectionItem(info))
+                : undefined;
 
             items.push({
                 collectionId: code,
                 swapItemId: savedData?.swapItemId,
-                name: readyGamesData[index]?.[1]?.name ?? savedData?.name ?? '',
-                description: makeDescription(savedData?.description ?? '', readyGamesData[index]),
+                collectionItem,
+                name: gameData[1]?.name ?? savedData?.name ?? '',
+                description: makeDescription(savedData?.description ?? '', gameData),
                 compareValue: savedData?.compareValue ?? 1,
                 cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey,
