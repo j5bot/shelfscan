@@ -6,12 +6,15 @@ export type ResolvedImage = {
     heightIn: number;
 };
 
+export type TradeItemType ='boardgame' | 'boardgameexpansion' | 'boardgameaccessory';
+export type TradeItemCondition = 'New' | 'Like New' | 'Very Good' | 'Good' | 'Acceptable' | 'Other';
+
 export type TradeItemInteropFormat = {
-    type?: 'boardgame' | 'boardgameexpansion' | 'boardgameaccessory';
+    type?: TradeItemType;
     name: string;
     bggId?: number;
     year?: number;
-    condition?: 'New' | 'Like New' | 'Very Good' | 'Good' | 'Acceptable' | 'Other';
+    condition?: TradeItemCondition;
     description?: string;
     options?: {
         sweeteners?: string;
@@ -51,15 +54,16 @@ export type TradeItemInteropFormatProperties = keyof TradeItemInteropFormat;
 
 export type AtlasTradeItemPayload = {
     type: 'game';
-    subtype: 'boardgame' | 'boardgameexpansion' | 'boardgameaccessory';
+    subtype: TradeItemType;
     game_title: string;
     bgg_id: number;
     year?: number;
     condition: string;
-    condition_details: string;
+    condition_details?: string;
     sweeteners?: string;
     accepts_cash?: boolean;
     cash_threshold?: number;
+    owner_value?: number;
     edition_data?: {
         name: string;
         year?: number;

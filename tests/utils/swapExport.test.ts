@@ -105,21 +105,22 @@ describe('swapExport', () => {
             const rows = getRows(contentXml);
             expect(rows).toHaveLength(3);
 
-            // compareValue/cashValue are only set on the first row, but the column
+            // Condition is only parseable from the first row's description, and
+            // compareValue/cashValue are only set on the first row, but each column
             // still appears (and is left blank on the second row) once any row has it.
-            expect(cellTexts(rows[0])).toEqual(['Name', 'Description', 'Compare Value', 'Cash Value']);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description', 'Compare Value', 'Cash Value']);
 
             const headerCells = Array.from(rows[0].getElementsByTagName('table:table-cell'));
             headerCells.forEach(cell => {
                 expect(cell.getAttribute('table:style-name')).toBe('coHeader');
             });
 
-            expect(cellTexts(rows[1])).toEqual(['Catan', 'Great conditionBox has wear', '5', '10']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Great conditionBox has wear', '5', '10']);
             const descriptionParagraphs = Array.from(
-                rows[1].getElementsByTagName('table:table-cell')[1].getElementsByTagName('text:p')
+                rows[1].getElementsByTagName('table:table-cell')[2].getElementsByTagName('text:p')
             ).map(p => p.textContent);
             expect(descriptionParagraphs).toEqual(['Great condition', 'Box has wear']);
-            expect(cellTexts(rows[2])).toEqual(['Wingspan', 'Sleeved', '', '']);
+            expect(cellTexts(rows[2])).toEqual(['Wingspan', '', 'Sleeved', '', '']);
         });
 
         it('treats an empty string as "no data" for column presence', async () => {
@@ -174,6 +175,33 @@ describe('swapExport', () => {
             const rows = getRows(contentXml);
             expect(cellTexts(rows[0])).toEqual(['Name', 'Compare Value', 'Cash Value']);
             expect(cellTexts(rows[1])).toEqual(['Catan', '10', '0']);
+        });
+
+        it('exports an explicit condition as-is', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: 'Some wear on the box',
+                condition: 'Like New',
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Like New', 'Some wear on the box']);
+        });
+
+        it('falls back to parsing condition from the description when none is set explicitly', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: 'Condition: Very Good, minor shelf wear',
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Condition: Very Good, minor shelf wear']);
         });
 
         it('escapes XML-significant characters in text fields', async () => {

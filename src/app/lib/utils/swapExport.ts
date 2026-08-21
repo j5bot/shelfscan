@@ -3,6 +3,8 @@ import { MAX_NORMAL_IMAGE_SIZE, NORMAL_IMAGE_CACHE_QUALITY, rewriteImageSrc } fr
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ResolvedImage, TradeItemInteropFormatColumnHeaders } from '@/app/lib/types/trade';
+import { conditionParser } from '@/app/lib/utils/condition';
+import { clampCompareValue, clampCashValue } from '@/app/lib/utils/trade';
 import JSZip from 'jszip';
 import { ImageProps } from 'next/image';
 
@@ -82,12 +84,6 @@ const imageCell: CellDefinitionFn = value => {
         + `</table:table-cell>`;
 };
 
-const clampCompareValue = (value: number | undefined): number | undefined =>
-    value === undefined ? undefined : Math.min(10, Math.max(0, value));
-
-const clampSellFor = (value: number | undefined): number | undefined =>
-    value === undefined ? undefined : Math.max(0, value);
-
 const fitWithinInches = (width: number, height: number): { widthIn: number; heightIn: number } => {
     const widthIn = width / PX_PER_IN;
     const heightIn = height / PX_PER_IN;
@@ -159,8 +155,7 @@ const allColumns: ColumnDef[] = [
     {
         header: TradeItemInteropFormatColumnHeaders.condition,
         width: 'text',
-        // Not sourced in Phase 1 — see PRD 017 non-goals.
-        getValue: () => undefined,
+        getValue: ({ item }) => item.condition ?? conditionParser(item.description),
         cellFn: stringCell,
     },
     {
@@ -192,7 +187,7 @@ const allColumns: ColumnDef[] = [
     {
         header: TradeItemInteropFormatColumnHeaders.cashValue,
         width: 'number',
-        getValue: ({ item }) => clampSellFor(item.cashValue),
+        getValue: ({ item }) => clampCashValue(item.cashValue),
         cellFn: numberCell,
     },
     {

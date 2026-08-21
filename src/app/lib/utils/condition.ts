@@ -1,6 +1,6 @@
-import { TradeItemInteropFormat } from '@/app/lib/types/trade';
+import { TradeItemCondition, TradeItemInteropFormat } from '@/app/lib/types/trade';
 
-type ConditionTier = Exclude<TradeItemInteropFormat['condition'], undefined | 'Other'>;
+type ConditionTier = Exclude<TradeItemCondition, undefined | 'Other'>;
 
 const TIER_RANK: Record<ConditionTier, number> = {
     New: 0,
@@ -8,6 +8,15 @@ const TIER_RANK: Record<ConditionTier, number> = {
     'Very Good': 2,
     Good: 3,
     Acceptable: 4,
+};
+
+export const TIER_ABBREVIATION: Record<TradeItemCondition, string> = {
+    New: 'N',
+    'Like New': 'LN',
+    'Very Good': 'VG',
+    Good: 'G',
+    Acceptable: 'A',
+    Other: 'O',
 };
 
 // BBCode tags used by this app's own geeklist bodies (see buildMathTradeBody)
@@ -176,7 +185,7 @@ const matchTier = (text: string): TradeItemInteropFormat['condition'] => {
     }
 };
 
-export const conditionParser = (description: string): TradeItemInteropFormat['condition'] => {
+export const conditionParser = (description: string): TradeItemCondition | undefined => {
     const stripped = stripBBCode(description).trim();
     if (stripped.length === 0) {
         return undefined;

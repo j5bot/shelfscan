@@ -2,29 +2,48 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { ComponentModeMap } from '@/app/lib/types/modes';
+import { TradeItemInteropFormat } from '@/app/lib/types/trade';
+import { conditionParser, TIER_ABBREVIATION } from '@/app/lib/utils/condition';
 import { getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
+import { clampCashValue, clampCompareValue } from '@/app/lib/utils/trade';
 import { memo, useCallback, useEffect, useState } from 'react';
+
+type SwapCondition = TradeItemInteropFormat['condition'];
+
+const CONDITION_OPTIONS: { value: SwapCondition; label: string }[] = [
+    { value: undefined, label: 'Condition' },
+    { value: 'New', label: 'New' },
+    { value: 'Like New', label: 'Like New' },
+    { value: 'Very Good', label: 'Very Good' },
+    { value: 'Good', label: 'Good' },
+    { value: 'Acceptable', label: 'Acceptable' },
+    { value: 'Other', label: 'Other' },
+];
 
 type CollectionItemSwapSectionProps = {
     collectionId: number | string;
+    modeMap?: ComponentModeMap;
 };
 
 type ScanSwapSectionProps = {
     upc: string;
     item: Partial<BggCollectionItem>;
+    modeMap?: ComponentModeMap
 };
 
-export const CollectionItemSwapSection = memo(({ collectionId }: CollectionItemSwapSectionProps) => {
+export const CollectionItemSwapSection = memo((props: CollectionItemSwapSectionProps) => {
+    const { collectionId, modeMap } = props;
     const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
     const item = useSelector((state: RootState) =>
         state.bgg.collection.users[username]?.items[collectionId as number]
     ) as Partial<BggCollectionItem>;
 
-    return <SwapSectionInner item={item} collectionId={collectionId} />
+    return <SwapSectionInner item={item} collectionId={collectionId} modeMap={modeMap} />;
 });
 
-export const ScanSwapSection = memo(({ upc, item }: ScanSwapSectionProps) => {
-    return <SwapSectionInner item={item} collectionId={upc} />
+export const ScanSwapSection = memo(({ upc, item, modeMap }: ScanSwapSectionProps) => {
+    return <SwapSectionInner item={item} collectionId={upc} modeMap={modeMap} />
 });
 
 ScanSwapSection.displayName = 'ScanSwapSection';
@@ -32,10 +51,11 @@ ScanSwapSection.displayName = 'ScanSwapSection';
 export const SwapSectionInner = ({
     item,
     collectionId,
-}: { item: Partial<BggCollectionItem>, collectionId: number | string }) => {
+    modeMap,
+}: Partial<CollectionItemSwapSectionProps & ScanSwapSectionProps>) => {
     const dispatch = useDispatch();
     const savedData = useSelector(
-        (state: RootState) => state.swap.data[collectionId],
+        (state: RootState) => state.swap.data[collectionId!],
     );
 
     useEffect(() => {
@@ -44,7 +64,7 @@ export const SwapSectionInner = ({
         }
         dispatch(setItemData({
             collectionId,
-            name: item.name ?? collectionId.toString() ?? '',
+            name: item.name ?? collectionId!.toString() ?? '',
             description: savedData?.description ?? item.tradeCondition ?? '',
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
@@ -54,21 +74,39 @@ export const SwapSectionInner = ({
 
     const defaultDescription = item?.tradeCondition ?? '';
     const description = savedData?.description ?? defaultDescription;
+    const condition = savedData?.condition ?? conditionParser(description);
     const compareValue = savedData?.compareValue ?? 1;
     const cashValue = savedData?.cashValue ?? 0;
 
-    const name = item?.name ?? collectionId.toString() ?? '';
+    const name = item?.name ?? collectionId!.toString() ?? ''
+
+    const isTrade = modeMap?.trade || modeMap?.tradeScan
+
+    const compareValueMin = isTrade ? 0 : 1;
+    const compareValueMax = isTrade ? Number.MAX_SAFE_INTEGER : 10;
+
+    const cashValueMin = -1;
 
     const handleDescriptionChange = useCallback((value: string) => {
         dispatch(setItemData({ collectionId, name, description: value }));
     }, [dispatch, collectionId, name]);
 
+    const handleConditionChange = useCallback((value: SwapCondition) => {
+        dispatch(setItemData({ collectionId, name, condition: value }));
+    }, [dispatch, collectionId, name]);
+
     const handleCompareValueChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, compareValue: value }));
+        dispatch(setItemData({
+            collectionId,
+            compareValue: clampCompareValue(value, compareValueMin, compareValueMax)
+        }));
     }, [dispatch, collectionId, compareValue]);
 
-    const handleCashValueChange = useCallback((value: number) => {
-        dispatch(setItemData({ collectionId, cashValue: value }));
+    const handleCashValueChange = useCallback((value: number | undefined) => {
+        dispatch(setItemData({
+            collectionId,
+            cashValue: clampCashValue(value, cashValueMin)
+        }));
     }, [dispatch, collectionId, cashValue]);
 
     if (!item) { return null; }
@@ -84,6 +122,31 @@ export const SwapSectionInner = ({
                     aria-label="Trade condition / description for math trade"
                 />
                 <div className="flex flex-wrap items-center gap-1">
+                    {isTrade && (
+                        <div className="flex items-center gap-0.5">
+                            <label
+                                className="text-xs text-base-content/70"
+                                htmlFor={`condition-${collectionId}`}
+                            >
+                                Condition
+                            </label>
+                            <select
+                                id={`condition-${collectionId}`}
+                                className="select select-bordered select-xs ml-px"
+                                value={condition ?? ''}
+                                onChange={e => handleConditionChange(
+                                    e.target.value === '' ? undefined : e.target.value as SwapCondition,
+                                )}
+                                aria-label="Trade condition"
+                            >
+                                {CONDITION_OPTIONS.map(option => (
+                                    <option key={option.label} value={option.value ?? ''}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     <div className="flex items-center gap-0.5">
                         <label
                             className="text-xs text-base-content/70"
@@ -95,10 +158,10 @@ export const SwapSectionInner = ({
                             id={`compareValue-${collectionId}`}
                             type="number"
                             className="input input-bordered input-xs ml-px w-10"
-                            min={1}
+                            min={compareValueMin}
                             value={compareValue}
                             onChange={e => handleCompareValueChange(
-                                Math.max(1, parseInt(e.target.value, 10) || 1),
+                                parseInt(e.target.value, 10) || 1,
                             )}
                             aria-label="Comparative value"
                         />
@@ -114,12 +177,14 @@ export const SwapSectionInner = ({
                             id={`cashValue-${collectionId}`}
                             type="number"
                             className="input input-bordered input-xs ml-px w-12"
-                            min={0}
-                            value={cashValue}
-                            onChange={e => handleCashValueChange(
-                                Math.max(0, parseInt(e.target.value, 10) || 0),
-                            )}
-                            aria-label="Sell for value"
+                            value={cashValue >= 0 ? cashValue : undefined}
+                            onChange={e => {
+                                const numberValue = parseInt(e.target.value, 10);
+                                handleCashValueChange(
+                                     isNaN(numberValue) ? undefined : numberValue,
+                                )
+                            }}
+                            aria-label="Cash value"
                         />
                     </div>
                 </div>
@@ -150,6 +215,15 @@ export const SwapSectionInner = ({
                 {description.length === 0 && <div className="absolute top-0.5 left-1 text-xl">
                     ⚠️
                 </div>}
+                {condition && condition.length && <div
+                    className={`font-encode-condensed
+                    font-semibold
+                    px-1.5
+                    text-xs text-white
+                    badge badge-pill
+                    absolute top-0.5 right-0.5
+                    bg-gray-400`}
+                    >{TIER_ABBREVIATION[condition]}</div>}
             </button>
         )}
     </div>;

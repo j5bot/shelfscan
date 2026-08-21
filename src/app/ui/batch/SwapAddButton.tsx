@@ -4,6 +4,7 @@ import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector, useStore } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
+import { ComponentModeMap } from '@/app/lib/types/modes';
 import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { downloadSwapExport } from '@/app/lib/utils/swapExport';
 import posthog from 'posthog-js';
@@ -11,6 +12,7 @@ import React, { useCallback, useState } from 'react';
 import { FaFileExport } from 'react-icons/fa6';
 
 type SwapAddButtonProps = {
+    mode: 'collection' | 'swap' | 'trade';
     codes: string[];
 };
 
@@ -28,7 +30,8 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
 
-    const { codes } = props;
+    const { codes, mode } = props;
+
     const [isAdding, setIsAdding] = useState(false);
 
     const saved = useSelector((state: RootState) => state.swap.data);
@@ -92,7 +95,10 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                 swapItemId: savedData?.swapItemId,
                 collectionItem,
                 name: gameData[1]?.name ?? savedData?.name ?? '',
-                description: makeDescription(savedData?.description ?? '', gameData),
+                description: mode === 'swap'
+                             ? makeDescription(savedData?.description ?? '', gameData)
+                            : savedData?.description ?? '',
+                condition: savedData?.condition,
                 compareValue: savedData?.compareValue ?? 1,
                 cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey,

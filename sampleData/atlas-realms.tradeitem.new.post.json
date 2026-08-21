@@ -9,6 +9,7 @@
     "sweeteners": "Sweetener",
     "accepts_cash": true,
     "cash_threshold": 30,
+    "owner_value": 10,
     "edition_data": {
         "version_id": 686378,
         "name": "English Kickstarter edition",

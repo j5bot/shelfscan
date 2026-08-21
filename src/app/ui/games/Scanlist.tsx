@@ -40,7 +40,8 @@ type ScanlistProps = {
 export const ScanItem = (props: ScanItemProps) => {
     const { code, gameSelections, gameUPCResults, removeFromList, showGame } = props;
     const { currentInfoIndex, infoIndexesInCollection } = useSelectVersionContext();
-    const { swap, swapScan } = useMode();
+    const { swap, swapScan, trade, tradeScan } = useMode();
+    const isLargeScan = swapScan || tradeScan;
 
     const {
         bgg_info: bggInfo,
@@ -98,7 +99,7 @@ export const ScanItem = (props: ScanItemProps) => {
                  : infoName + (versionName ? ` (${versionName})` : '');
 
     const imageSize = getImageSizeFromUrl(imageUrl ?? '');
-    const thumbnailSize = swapScan ? ThumbnailSizes.large : Math.min(imageSize.width, imageSize.height) * 2 / 3;
+    const thumbnailSize = isLargeScan ? ThumbnailSizes.large : Math.min(imageSize.width, imageSize.height) * 2 / 3;
     const imageContainerStyles = {
         width: `${thumbnailSize}px`,
         height: `${thumbnailSize}px`,
@@ -171,15 +172,17 @@ export const ScanItem = (props: ScanItemProps) => {
         imageUrl,
         keyValue,
         name,
-        thumbnailSize: (swapScan ? ThumbnailSizes.large : thumbnailSize),
+        thumbnailSize: (isLargeScan ? ThumbnailSizes.large : thumbnailSize),
         statusIcon,
         statusText,
         thumbnailUrl,
         modeMap: {
             swap,
             swapScan,
+            trade,
+            tradeScan,
         },
-        size: (swapScan ? 'large' : 'small') as SizeKey,
+        size: (isLargeScan ? 'large' : 'small') as SizeKey,
     };
 
     return <ListGame {...listGameProperties } />;
@@ -192,10 +195,10 @@ export const Scanlist = ({
 }: ScanlistProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
-    const { swapScan } = useMode();
+    const { swapScan, tradeScan } = useMode();
 
     return <GameListContainer
-        className={swapScan ? GridClasses.large : undefined}
+        className={(swapScan || tradeScan) ? GridClasses.large : undefined}
     >
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>

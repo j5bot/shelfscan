@@ -15,7 +15,7 @@
         "cash_threshold": 30,
         "face_value": null,
         "copies": 1,
-        "owner_value": null,
+        "owner_value": 10,
         "status": "active",
         "created_at": "2026-08-19T11:09:37.071836+00:00",
         "updated_at": "2026-08-19T11:09:37.071836+00:00",

@@ -17,7 +17,7 @@ export const useGameUPCData = () =>
 // plus collection/version-detail views that look up previously-scanned data).
 // Mounting the warm provider only on these routes keeps the GameUPC API
 // warmup call from firing on every page (about, privacy, extension, etc.).
-const GAMEUPC_EXACT_ROUTES = new Set(['/', '/batch', '/swapscan', '/collection', '/swap']);
+const GAMEUPC_EXACT_ROUTES = new Set(['/', '/batch', '/swapscan', '/collection', '/swap', '/tradescan', '/trade']);
 const GAMEUPC_ROUTE_PREFIXES = ['/math-trade/', '/upc/'];
 
 const routeNeedsGameUPC = (pathname: string) =>

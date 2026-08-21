@@ -15,7 +15,7 @@ import React, { CSSProperties, Suspense, useCallback, useRef, useState } from 'r
 import { FaBarcode } from 'react-icons/fa6';
 
 export type BatchViewProps = {
-    mode: 'collection' | 'swap';
+    mode: 'collection' | 'swap' | 'trade';
     fns?: {
         addGameToCollection?: (
             info: GameUPCBggInfo,
@@ -28,14 +28,20 @@ export type BatchViewProps = {
 export const BatchView = (props: BatchViewProps) => {
     const { mode, fns: { addGameToCollection } = {} } = props;
     const breakpoint = useTailwindBreakpoint();
+    const isSwapLikeMode = mode === 'swap' || mode === 'trade';
 
-    const batchScanHeading = mode === 'collection' ?
-                             'Batch Scan Mode'
-                             : 'Swap Scan';
-
-    const batchScanBody = mode === 'collection' ?
-                          'Scan multiple games, then add them to your BGG collection all at once.'
-                          : 'Scan multiple games, then export them for a Swap';
+    let batchScanHeading = 'Batch Scan Mode';
+    let batchScanBody = 'Scan multiple games, then add them to your BGG collection all at once.';
+    switch (mode) {
+        case 'swap':
+            batchScanHeading = 'Swap Scan';
+            batchScanBody = 'Scan multiple games, then export them for a Swap';
+            break;
+        case 'trade':
+            batchScanHeading = 'Trade Scan';
+            batchScanBody = 'Scan multiple games, then export them for a Trade';
+            break;
+    }
 
     const { codes, removeCode, setCodes, ...statuses } = useInfoCollectionStatus();
 
@@ -48,7 +54,7 @@ export const BatchView = (props: BatchViewProps) => {
     } = useScanRecorder();
 
     const [addedNames, setAddedNames] = useState<string[]>([]);
-    const [shownStatus, setShownStatus] = useState<PossibleStatusWithAllAndNone>(mode === 'collection' ? 'none' : 'all');
+    const [shownStatus, setShownStatus] = useState<PossibleStatusWithAllAndNone>(isSwapLikeMode ? 'all' : 'none');
     const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const onComplete = useCallback((names: string[]) => {
@@ -139,7 +145,8 @@ export const BatchView = (props: BatchViewProps) => {
                                      addGameToCollection={addGameToCollection}
                                      onComplete={onComplete}
                                  />}
-                                 {mode === 'swap' && <SwapAddButton
+                                 {isSwapLikeMode && <SwapAddButton
+                                     mode={mode}
                                      codes={codes}
                                  />}
                              </div>

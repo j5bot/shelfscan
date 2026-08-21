@@ -72,6 +72,7 @@ type ModeMap = {
     batchRating: boolean;
     mathTrade: boolean;
     swap: boolean;
+    trade: boolean;
 };
 
 type GridItemProps = {
@@ -286,7 +287,7 @@ export const AllGamesContent = memo(({
                                             detailUrlRel="noopener noreferrer"
                                             isScanned={scannedSet.has(displayItems[index].objectId)}
                                             isVerified={verifiedSet.has(displayItems[index].objectId)}
-                                            onClick={(modeMap.mathTrade || modeMap.swap)
+                                            onClick={(modeMap.mathTrade || modeMap.swap || modeMap.trade)
                                                 ? () => onMathTradeToggle(collectionId)
                                                 : () => onSelectItem(displayItems[index])}
                                         />
@@ -312,7 +313,7 @@ export const AllGamesContent = memo(({
                                     onSelectItem={onSelectItem}
                                     modeMap={modeMap}
                                     mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap) ? onMathTradeToggle : undefined}
+                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap || modeMap.trade) ? onMathTradeToggle : undefined}
                                 />;
                             }}
                         />;
@@ -331,7 +332,7 @@ export const AllGamesContent = memo(({
                                     onSelectItem={onSelectItem}
                                     modeMap={modeMap}
                                     mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap) ? onMathTradeToggle : undefined}
+                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap || modeMap.trade) ? onMathTradeToggle : undefined}
                                 />;
                             }}
                         />;

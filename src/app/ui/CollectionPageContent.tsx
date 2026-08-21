@@ -113,7 +113,11 @@ export const CollectionPageContent = ({
     const pathname = usePathname();
     const router = useRouter();
     const isMathTradeRoute = pathname?.startsWith('/math-trade') ?? false;
-    const isSwapRoute = pathname?.startsWith('/swap') ?? false;
+    const isSwapPathRoute = pathname?.startsWith('/swap') ?? false;
+    const isTradePathRoute = pathname?.startsWith('/trade') ?? false;
+    // Swap and Trade are two front-ends for the same export flow below;
+    // isSwapRoute intentionally covers both routes.
+    const isSwapRoute = isSwapPathRoute || isTradePathRoute;
 
     const store = useStore();
 
@@ -221,6 +225,7 @@ export const CollectionPageContent = ({
                     savedData?.description ?? item.tradeCondition ?? '',
                     item,
                 ),
+                condition: savedData?.condition,
                 compareValue: savedData?.compareValue ?? 1,
                 cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
@@ -239,8 +244,9 @@ export const CollectionPageContent = ({
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
         mathTrade: mathTradeMode,
-        swap: isSwapRoute,
-    }), [syncOn, batchRate, view, mathTradeMode, isSwapRoute]);
+        swap: isSwapPathRoute,
+        trade: isTradePathRoute,
+    }), [syncOn, batchRate, view, mathTradeMode, isSwapPathRoute, isTradePathRoute]);
 
     const {
         reduxItems,
@@ -740,8 +746,9 @@ export const CollectionPageContent = ({
                                         ? <span className="loading loading-bars loading-sm" />
                                         : isSwapRoute ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
                                     }
-                                    {isSwapRoute
-                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon`
+                                    {isSwapPathRoute
+                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon` :
+                                        isTradePathRoute ? `Export ${selectedMathTradeIds.size} for Atlas`
                                         : `Add ${selectedMathTradeIds.size} to Math Trade`
                                     }
                                 </button>
