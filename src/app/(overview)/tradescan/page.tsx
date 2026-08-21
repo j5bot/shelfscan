@@ -7,5 +7,5 @@ import React from 'react';
 export default function Page() {
     useTitle('ShelfScan | Trade Scan');
 
-    return <BatchView mode={'trade'} />;
+    return <BatchView />;
 }

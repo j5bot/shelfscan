@@ -2,6 +2,7 @@ import { thingPrefix, versionPrefix } from '@/app/lib/constants';
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
@@ -11,7 +12,6 @@ import React, { useCallback, useState } from 'react';
 import { FaFileExport } from 'react-icons/fa6';
 
 type SwapAddButtonProps = {
-    mode: 'collection' | 'swap' | 'trade';
     codes: string[];
 };
 
@@ -29,17 +29,22 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
 
-    const { codes, mode } = props;
+    const {
+        isSwap,
+        isTrade,
+    } = useTradeMode();
+
+    const { codes } = props;
 
     const [isAdding, setIsAdding] = useState(false);
 
     const saved = useSelector((state: RootState) => state.swap.data);
 
     const swappableGames = codes.filter(code => {
-        if (mode === 'swap' && (saved[code]?.description ?? '').length === 0) {
+        if (isSwap && (saved[code]?.description ?? '').length === 0) {
             return false;
         }
-        if (mode === 'trade' && ([undefined, 'Other'].includes(saved[code]?.condition))) {
+        if (isTrade && ([undefined, 'Other'].includes(saved[code]?.condition))) {
             return false;
         }
         const data = gameDataMap[code];
@@ -96,7 +101,7 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                 swapItemId: savedData?.swapItemId,
                 collectionItem,
                 name: gameData[1]?.name ?? savedData?.name ?? '',
-                description: mode === 'swap'
+                description: isSwap
                              ? makeDescription(savedData?.description ?? '', gameData)
                             : savedData?.description ?? '',
                 condition: savedData?.condition,

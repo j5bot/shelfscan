@@ -7,5 +7,5 @@ import React from 'react';
 export default function Page() {
     useTitle('ShelfScan | Swap Scan');
 
-    return <BatchView mode={'swap'} />;
+    return <BatchView />;
 }
