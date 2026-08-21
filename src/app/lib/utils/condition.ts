@@ -109,7 +109,7 @@ const ACCEPTABLE_GUARDED = guardedTokenPattern('acc?');
 // "excellent" or "mint" still go through normal tier scanning.
 const HEADLINE_PATTERN = /^\s*(like new|very good|new|good|acceptable)\b/i;
 
-const stripBBCode = (text: string): string => text.replace(BBCODE_TAG_PATTERN, ' ');
+const stripBBCode = (text: string): string | undefined => text?.replace(BBCODE_TAG_PATTERN, ' ');
 
 /**
  * Traders often label box condition separately from component/contents
@@ -186,8 +186,8 @@ const matchTier = (text: string): TradeItemInteropFormat['condition'] => {
 };
 
 export const conditionParser = (description: string): TradeItemCondition | undefined => {
-    const stripped = stripBBCode(description).trim();
-    if (stripped.length === 0) {
+    const stripped = stripBBCode(description)?.trim();
+    if (!stripped || stripped.length === 0) {
         return undefined;
     }
 

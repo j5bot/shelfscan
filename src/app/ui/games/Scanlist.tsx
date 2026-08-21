@@ -176,12 +176,6 @@ export const ScanItem = (props: ScanItemProps) => {
         statusIcon,
         statusText,
         thumbnailUrl,
-        modeMap: {
-            swap,
-            swapScan,
-            trade,
-            tradeScan,
-        },
         size: (isLargeScan ? 'large' : 'small') as SizeKey,
     };
 

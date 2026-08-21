@@ -162,6 +162,42 @@ describe('swapExport', () => {
             ]);
         });
 
+        it('derives the thumbnail URL column from collectionItem.thumbnail, independent of imageUrl', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: '',
+                collectionItem: makeCollectionItem({
+                    thumbnail: 'https://cf.geekdo-images.com/thumb-pic.jpg',
+                    versionId: 686378,
+                    version: makeVersion(),
+                }),
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual([
+                'Type', 'Name', 'BGG ID', 'Game Year', 'Version Name', 'Version Year',
+                'Version ID', 'Version Language', 'Version Publisher', 'Image URL', 'Thumbnail URL',
+            ]);
+            const cells = cellTexts(rows[1]);
+            expect(cells[cells.length - 2]).toBe('https://cf.geekdo-images.com/version-pic.jpg');
+            expect(cells[cells.length - 1]).toBe('https://cf.geekdo-images.com/thumb-pic.jpg');
+        });
+
+        it('omits the Thumbnail URL column when no item has a collectionItem.thumbnail', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: '',
+                collectionItem: makeCollectionItem({ version: makeVersion() }),
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).not.toContain('Thumbnail URL');
+        });
+
         it('clamps comparative value to 0-10 and cash value to a minimum of 0', async () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,

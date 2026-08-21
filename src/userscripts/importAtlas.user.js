@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ShelfScan -> Atlas Realms Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.0.0
+// @version      1.0.2
 // @description  Import items from a ShelfScan trade interop file (ODS) to Atlas Realms
 // @author       ShelfScan
 // @match        https://www.atlasrealms.com/trades/*/offerings*
@@ -21,9 +21,9 @@
 
     // Matches TradeItemInteropFormatColumnHeaders / the "Compare Value" and
     // "Sweeteners" split of `options` in src/app/lib/types/trade.ts and
-    // src/app/lib/utils/swapExport.ts. Image/Image URL are intentionally
-    // omitted here — Atlas Realms resolves edition art server-side from
-    // `edition_data.version_id`, so no upload/URL is sent.
+    // src/app/lib/utils/swapExport.ts. The embedded "Image" column (a picture
+    // in the ODS) is intentionally omitted — only the URL columns are used
+    // to populate edition_data.image/thumbnail below.
     const COLUMN_HEADERS = {
         type: 'Type',
         name: 'Name',
@@ -39,6 +39,8 @@
         versionId: 'Version ID',
         versionLanguage: 'Version Language',
         versionPublisher: 'Version Publisher',
+        imageUrl: 'Image URL',
+        thumbnailUrl: 'Thumbnail URL',
     };
 
     const requiredTextProps = [
@@ -94,8 +96,8 @@
                 name: item.versionName,
                 year: item.versionYear,
                 language: item.versionLanguage,
-                thumbnail: null,
-                image: null,
+                thumbnail: item.thumbnailUrl ?? null,
+                image: item.imageUrl ?? null,
                 publisher: item.versionPublisher,
             },
         };
@@ -173,6 +175,8 @@
                 versionId: getCellNumber(cellFor(cells, COLUMN_HEADERS.versionId)),
                 versionLanguage: getCellString(cellFor(cells, COLUMN_HEADERS.versionLanguage)) || undefined,
                 versionPublisher: getCellString(cellFor(cells, COLUMN_HEADERS.versionPublisher)) || undefined,
+                imageUrl: getCellString(cellFor(cells, COLUMN_HEADERS.imageUrl)) || undefined,
+                thumbnailUrl: getCellString(cellFor(cells, COLUMN_HEADERS.thumbnailUrl)) || undefined,
             };
         });
     };

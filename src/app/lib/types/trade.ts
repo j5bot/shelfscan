@@ -28,6 +28,7 @@ export type TradeItemInteropFormat = {
     versionLanguage?: string;
     versionPublisher?: string;
     imageUrl?: string;
+    thumbnailUrl?: string;
     image?: ResolvedImage;
 };
 
@@ -46,6 +47,7 @@ export const TradeItemInteropFormatColumnHeaders = {
     versionLanguage: 'Version Language',
     versionPublisher: 'Version Publisher',
     imageUrl: 'Image URL',
+    thumbnailUrl: 'Thumbnail URL',
     image: 'Image',
 } as const;
 export const TradeItemInteropFormatProperties = Object.keys(TradeItemInteropFormatColumnHeaders) as

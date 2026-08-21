@@ -13,6 +13,7 @@ export type SwapItemData = {
     name: string;
     description: string;
     condition?: TradeItemCondition;
+    sweetener?: string;
     compareValue?: number;
     imageKey?: string;
     cashValue?: number;
@@ -67,7 +68,16 @@ export const swapSlice = createSlice({
 
             if (collectionId === undefined) { return; }
             const existing = state.data[collectionId] ?? {};
-            const { name, description, condition, compareValue, imageKey, cashValue, swapItemId } = action.payload;
+            const {
+                name,
+                description,
+                sweetener,
+                condition,
+                compareValue,
+                imageKey,
+                cashValue,
+                swapItemId,
+            } = action.payload;
 
             state.data[collectionId] = extend(existing, {
                 collectionId,
@@ -75,6 +85,7 @@ export const swapSlice = createSlice({
                 imageKey,
                 swapItemId,
                 description,
+                sweetener,
                 condition,
                 compareValue,
                 cashValue,

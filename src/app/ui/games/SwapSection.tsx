@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from '@/app/lib/hooks';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
@@ -23,27 +24,25 @@ const CONDITION_OPTIONS: { value: SwapCondition; label: string }[] = [
 
 type CollectionItemSwapSectionProps = {
     collectionId: number | string;
-    modeMap?: ComponentModeMap;
 };
 
 type ScanSwapSectionProps = {
     upc: string;
     item: Partial<BggCollectionItem>;
-    modeMap?: ComponentModeMap
 };
 
 export const CollectionItemSwapSection = memo((props: CollectionItemSwapSectionProps) => {
-    const { collectionId, modeMap } = props;
+    const { collectionId } = props;
     const username = useSelector((state: RootState) => state.bgg.user.user?.toLowerCase() ?? '');
     const item = useSelector((state: RootState) =>
         state.bgg.collection.users[username]?.items[collectionId as number]
     ) as Partial<BggCollectionItem>;
 
-    return <SwapSectionInner item={item} collectionId={collectionId} modeMap={modeMap} />;
+    return <SwapSectionInner item={item} collectionId={collectionId} />;
 });
 
-export const ScanSwapSection = memo(({ upc, item, modeMap }: ScanSwapSectionProps) => {
-    return <SwapSectionInner item={item} collectionId={upc} modeMap={modeMap} />
+export const ScanSwapSection = memo(({ upc, item }: ScanSwapSectionProps) => {
+    return <SwapSectionInner item={item} collectionId={upc} />
 });
 
 ScanSwapSection.displayName = 'ScanSwapSection';
@@ -51,12 +50,13 @@ ScanSwapSection.displayName = 'ScanSwapSection';
 export const SwapSectionInner = ({
     item,
     collectionId,
-    modeMap,
 }: Partial<CollectionItemSwapSectionProps & ScanSwapSectionProps>) => {
     const dispatch = useDispatch();
     const savedData = useSelector(
         (state: RootState) => state.swap.data[collectionId!],
     );
+
+    const { isTrade } = useTradeMode();
 
     useEffect(() => {
         if (!item) {
@@ -72,15 +72,14 @@ export const SwapSectionInner = ({
 
     const [expanded, setExpanded] = useState(false);
 
-    const defaultDescription = item?.tradeCondition ?? '';
+    const defaultDescription = item?.tradeCondition;
     const description = savedData?.description ?? defaultDescription;
+    const sweetener = savedData?.sweetener;
     const condition = savedData?.condition ?? conditionParser(description);
     const compareValue = savedData?.compareValue ?? 1;
     const cashValue = savedData?.cashValue ?? 0;
 
     const name = item?.name ?? collectionId!.toString() ?? ''
-
-    const isTrade = modeMap?.trade || modeMap?.tradeScan
 
     const compareValueMin = isTrade ? 0 : 1;
     const compareValueMax = isTrade ? Number.MAX_SAFE_INTEGER : 10;
@@ -88,7 +87,11 @@ export const SwapSectionInner = ({
     const cashValueMin = -1;
 
     const handleDescriptionChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, name, description: value }));
+        dispatch(setItemData({ collectionId, name, description: value.length > 0 ? value : undefined }));
+    }, [dispatch, collectionId, name]);
+
+    const handleSweetenerChange = useCallback((value: string) => {
+        dispatch(setItemData({ collectionId, name, sweetener: value.length > 0 ? value : undefined }));
     }, [dispatch, collectionId, name]);
 
     const handleConditionChange = useCallback((value: SwapCondition) => {
@@ -121,6 +124,13 @@ export const SwapSectionInner = ({
                     placeholder="Trade condition / description"
                     aria-label="Trade condition / description for math trade"
                 />
+                {isTrade && <textarea
+                    className="textarea textarea-bordered w-full text-xs resize-y min-h-4 p-1.5"
+                    value={sweetener}
+                    onChange={e => handleSweetenerChange(e.target.value)}
+                    placeholder="Sweeteners"
+                    aria-label="Sweeteners for math trade"
+                />}
                 <div className="flex flex-wrap items-center gap-1">
                     {isTrade && (
                         <div className="flex items-center gap-0.5">
@@ -157,7 +167,7 @@ export const SwapSectionInner = ({
                         <input
                             id={`compareValue-${collectionId}`}
                             type="number"
-                            className="input input-bordered input-xs ml-px w-10"
+                            className={`input input-bordered input-xs ml-px ${isTrade ? 'w-12' : 'w-10'}`}
                             min={compareValueMin}
                             value={compareValue}
                             onChange={e => handleCompareValueChange(
@@ -212,10 +222,10 @@ export const SwapSectionInner = ({
                     bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
                     {description}
                 </pre>
-                {description.length === 0 && <div className="absolute top-0.5 left-1 text-xl">
+                {!isTrade && (!description || description.length === 0) && <div className="absolute top-0.5 left-1 text-xl">
                     ⚠️
                 </div>}
-                {condition && condition.length && <div
+                {isTrade && condition && condition.length && <div
                     className={`font-encode-condensed
                     font-semibold
                     px-1.5

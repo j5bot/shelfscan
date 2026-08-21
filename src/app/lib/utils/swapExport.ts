@@ -4,7 +4,6 @@ import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ResolvedImage, TradeItemInteropFormatColumnHeaders } from '@/app/lib/types/trade';
 import { conditionParser } from '@/app/lib/utils/condition';
-import { clampCompareValue, clampCashValue } from '@/app/lib/utils/trade';
 import JSZip from 'jszip';
 import { ImageProps } from 'next/image';
 
@@ -124,6 +123,8 @@ const resolveImageUrl = (item: SwapItemData): string | undefined => {
     return collectionItem?.version?.image ?? collectionItem?.image ?? collectionItem?.thumbnail;
 };
 
+const resolveThumbnailUrl = (item: SwapItemData): string | undefined => getCollectionItem(item)?.thumbnail;
+
 // Columns follow TradeItemInteropFormatProperties order, with `options`
 // expanded into its own independent columns.
 const allColumns: ColumnDef[] = [
@@ -181,13 +182,13 @@ const allColumns: ColumnDef[] = [
     {
         header: 'Compare Value',
         width: 'number',
-        getValue: ({ item }) => clampCompareValue(item.compareValue),
+        getValue: ({ item }) => item.compareValue,
         cellFn: numberCell,
     },
     {
         header: TradeItemInteropFormatColumnHeaders.cashValue,
         width: 'number',
-        getValue: ({ item }) => clampCashValue(item.cashValue),
+        getValue: ({ item }) => item.cashValue,
         cellFn: numberCell,
     },
     {
@@ -225,6 +226,12 @@ const allColumns: ColumnDef[] = [
         header: TradeItemInteropFormatColumnHeaders.imageUrl,
         width: 'text',
         getValue: ({ item }) => resolveImageUrl(item),
+        cellFn: stringCell,
+    },
+    {
+        header: TradeItemInteropFormatColumnHeaders.thumbnailUrl,
+        width: 'text',
+        getValue: ({ item }) => resolveThumbnailUrl(item),
         cellFn: stringCell,
     },
     {

@@ -1,3 +1,4 @@
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
@@ -67,6 +68,14 @@ export const ListGame = memo((props: ListGameProps) => {
         onMathTradeToggle,
     } = props;
 
+    const {
+        hasExport,
+        hasTrade,
+        isBatchScan,
+        isCollection,
+        isMathTrade,
+    } = useTradeMode();
+
     const resolvedRating = rating ?? averageRating ?? 0;
     const isAverage = !rating;
 
@@ -80,16 +89,16 @@ export const ListGame = memo((props: ListGameProps) => {
         collectionId={collectionId}
     /> : null;
 
-    const mathTradeSection = collectionId && modeMap.mathTrade ? <MathTradeSection
+    const mathTradeSection = collectionId && isMathTrade ? <MathTradeSection
         collectionId={collectionId}
     /> : null;
 
-    const swapSection = collectionId && (modeMap.swap || modeMap.trade) ? <CollectionItemSwapSection
-        collectionId={collectionId} modeMap={modeMap}
+    const swapSection = collectionId && isCollection && hasExport ? <CollectionItemSwapSection
+        collectionId={collectionId}
     /> : null;
 
-    const swapScanSection = code && item && (modeMap.swapScan || modeMap.tradeScan) ? <ScanSwapSection
-        upc={code} item={item} modeMap={modeMap}
+    const swapScanSection = code && item && isBatchScan && hasExport ? <ScanSwapSection
+        upc={code} item={item}
     /> : null;
 
     const thumbnail = <div className="relative">
@@ -119,11 +128,11 @@ export const ListGame = memo((props: ListGameProps) => {
         )}
     </div>;
 
-    const thumbnailClickHandler = (modeMap.mathTrade || modeMap.swap || modeMap.trade) && onMathTradeToggle
+    const thumbnailClickHandler = hasTrade && onMathTradeToggle
         ? onMathTradeToggle
         : onClick;
 
-    const thumbnailAriaLabel = (modeMap.mathTrade || modeMap.swap || modeMap.trade) && onMathTradeToggle
+    const thumbnailAriaLabel = hasTrade && onMathTradeToggle
         ? `${mathTradeSelected ? 'Deselect' : 'Select'} ${name} for math trade`
         : `View details for ${name}`;
 
@@ -133,7 +142,7 @@ export const ListGame = memo((props: ListGameProps) => {
             className="w-full text-left cursor-pointer"
             onClick={thumbnailClickHandler}
             aria-label={thumbnailAriaLabel}
-            aria-pressed={(modeMap.mathTrade || modeMap.swap || modeMap.trade) &&
+            aria-pressed={hasTrade &&
                           onMathTradeToggle ? mathTradeSelected : undefined}
         >
             {thumbnail}

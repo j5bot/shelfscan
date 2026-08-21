@@ -1,10 +1,9 @@
 import { thingPrefix, versionPrefix } from '@/app/lib/constants';
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { useSelector, useStore } from '@/app/lib/hooks';
+import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
-import { ComponentModeMap } from '@/app/lib/types/modes';
 import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { downloadSwapExport } from '@/app/lib/utils/swapExport';
 import posthog from 'posthog-js';
@@ -37,7 +36,10 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const saved = useSelector((state: RootState) => state.swap.data);
 
     const swappableGames = codes.filter(code => {
-        if ((saved[code]?.description ?? '').length === 0) {
+        if (mode === 'swap' && (saved[code]?.description ?? '').length === 0) {
+            return false;
+        }
+        if (mode === 'trade' && ([undefined, 'Other'].includes(saved[code]?.condition))) {
             return false;
         }
         const data = gameDataMap[code];
@@ -56,7 +58,6 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         setIsAdding(true);
 
         const items: SwapItemData[] = [];
-        const addedCodes: string[] = [];
 
         const readyGamesData = swappableGames.map(code => {
             const data = gameDataMap[code];
@@ -103,7 +104,6 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                 cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey,
             });
-            addedCodes.push(code);
         });
 
         try {
