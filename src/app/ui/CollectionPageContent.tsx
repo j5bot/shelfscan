@@ -5,6 +5,7 @@ import { useSync } from '@/app/lib/extension/useSync';
 import { useBatchSync } from '@/app/lib/extension/useBatchSync';
 import { CollectionTabs, useActiveCollectionTab } from '@/app/lib/hooks/useActiveCollectionTab';
 import { useOLWLGMathTrade } from '@/app/lib/hooks/useOLWLGMathTrade';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { bggHost } from '@/app/lib/services/bgg/constants';
 import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
@@ -41,7 +42,7 @@ import {
     FaFileExport,
     FaList,
     FaPlus,
-    FaRightLeft, FaSquareArrowUpRight, FaSquareUpRight,
+    FaRightLeft,
     FaStar,
     FaTableCells,
     FaXmark,
@@ -110,10 +111,14 @@ export const CollectionPageContent = ({
         submitMathTrade,
     } = useOLWLGMathTrade({ username, collection, initialMathTradeGeeklistId });
 
-    const pathname = usePathname();
+    const {
+        hasTrade,
+        isMathTrade,
+        isSwap,
+        isTrade,
+    } = useTradeMode();
+
     const router = useRouter();
-    const isMathTradeRoute = pathname?.startsWith('/math-trade') ?? false;
-    const isSwapRoute = pathname?.startsWith('/swap') ?? false;
 
     const store = useStore();
 
@@ -212,16 +217,18 @@ export const CollectionPageContent = ({
             if (!item) { return []; }
             const savedData = swapData[collectionId];
             return [{
+                collectionItem: item,
                 collectionId,
                 swapItemId: savedData?.swapItemId,
                 name: item.version?.name ? `${item.name} (${item.version.name})`
                        : (savedData?.name ?? item.name),
-                bodyText: makeDescription(
-                    savedData?.bodyText ?? item.tradeCondition ?? '',
+                description: makeDescription(
+                    savedData?.description ?? item.tradeCondition ?? '',
                     item,
                 ),
+                condition: savedData?.condition,
                 compareValue: savedData?.compareValue ?? 1,
-                sellFor: savedData?.sellFor ?? 1,
+                cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
             }];
         });
@@ -237,9 +244,7 @@ export const CollectionPageContent = ({
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
-        mathTrade: mathTradeMode,
-        swap: isSwapRoute,
-    }), [syncOn, batchRate, view, mathTradeMode, isSwapRoute]);
+    }), [syncOn, batchRate, view]);
 
     const {
         reduxItems,
@@ -524,7 +529,7 @@ export const CollectionPageContent = ({
                                     />
                                 </button>
                             )}
-                            {syncOn && !isMathTradeRoute && (
+                            {syncOn && !isMathTrade && (
                                 <button
                                     className={`btn btn-sm rounded-md ${
                                         batchRate ? 'btn-primary' : ''
@@ -539,7 +544,7 @@ export const CollectionPageContent = ({
                                     <FaStar aria-hidden="true" />
                                 </button>
                             )}
-                            {activeTab === CollectionTabs.ALL_GAMES && !isMathTradeRoute && (
+                            {activeTab === CollectionTabs.ALL_GAMES && !isMathTrade && (
                                 <button
                                     className={`btn btn-sm rounded-md ${mathTradeMode ? 'btn-primary' : ''}`}
                                     onClick={handleMathTradeClick}
@@ -610,7 +615,7 @@ export const CollectionPageContent = ({
                                 lists={allGeekLists}
                                 onSelect={id => {
                                     setActiveGeekListId(id);
-                                    if (isMathTradeRoute) {
+                                    if (isMathTrade) {
                                         router.replace(`/math-trade/${id}`);
                                     }
                                 }}
@@ -709,12 +714,12 @@ export const CollectionPageContent = ({
                             )}
                         </div>
                     )}
-                    {((mathTradeMode && syncOn) || isSwapRoute) && (
+                    {((mathTradeMode && syncOn) || hasTrade) && (
                         <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">
                             <span className="text-xs text-base-content/60">
                                 {selectedMathTradeIds.size > 0
                                     ? `${selectedMathTradeIds.size} selected`
-                                    : isSwapRoute
+                                    : hasTrade
                                         ? 'Click image to select for Swap export'
                                         : 'Click image to select for Math Trade'
                                 }
@@ -727,20 +732,21 @@ export const CollectionPageContent = ({
                                         flex items-center justify-center gap-2
                                         uppercase text-base font-sharetech
                                         pl-6 pr-6 pt-2 pb-2
-                                        ${(isSwapRoute ? isExportingSwap : isBulkMathTradeAdding) ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
-                                    onClick={() => void (isSwapRoute ? handleSwapExport() : handleBulkMathTradeAdd())}
-                                    disabled={isSwapRoute ? isExportingSwap : isBulkMathTradeAdding}
-                                    aria-label={isSwapRoute
+                                        ${(hasTrade ? isExportingSwap : isBulkMathTradeAdding) ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
+                                    onClick={() => void (hasTrade ? handleSwapExport() : handleBulkMathTradeAdd())}
+                                    disabled={hasTrade ? isExportingSwap : isBulkMathTradeAdding}
+                                    aria-label={hasTrade
                                         ? `Export ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to ODS`
                                         : `Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`
                                     }
                                 >
-                                    {(isSwapRoute ? isExportingSwap : isBulkMathTradeAdding)
+                                    {(hasTrade ? isExportingSwap : isBulkMathTradeAdding)
                                         ? <span className="loading loading-bars loading-sm" />
-                                        : isSwapRoute ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
+                                        : hasTrade ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
                                     }
-                                    {isSwapRoute
-                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon`
+                                    {isSwap
+                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon` :
+                                        isTrade ? `Export ${selectedMathTradeIds.size} for Atlas`
                                         : `Add ${selectedMathTradeIds.size} to Math Trade`
                                     }
                                 </button>
@@ -832,7 +838,7 @@ export const CollectionPageContent = ({
                 isOpen={showMathTradeDialog}
                 onClose={() => setShowMathTradeDialog(false)}
                 onLoaded={(id: number) => {
-                    if (isMathTradeRoute) {
+                    if (isMathTrade) {
                         router.replace(`/math-trade/${id}`);
                         return;
                     }

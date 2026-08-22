@@ -1,17 +1,22 @@
+import { BggCollectionItem } from '@/app/lib/types/bgg';
+import { TradeItemCondition, TradeItemInteropFormat } from '@/app/lib/types/trade';
 import { extend } from '@/app/lib/utils/object';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type CollectionID = number | string;
 
 export type SwapItemData = {
+    collectionItem?: Partial<BggCollectionItem>;
     swapItemId?: number;
     // either collection id or UPC
     collectionId?: number | string;
     name: string;
-    bodyText: string;
+    description: string;
+    condition?: TradeItemCondition;
+    sweetener?: string;
     compareValue?: number;
     imageKey?: string;
-    sellFor?: number;
+    cashValue?: number;
 };
 
 export type SwapSliceState = {
@@ -63,16 +68,27 @@ export const swapSlice = createSlice({
 
             if (collectionId === undefined) { return; }
             const existing = state.data[collectionId] ?? {};
-            const { name, bodyText, compareValue, imageKey, sellFor, swapItemId } = action.payload;
+            const {
+                name,
+                description,
+                sweetener,
+                condition,
+                compareValue,
+                imageKey,
+                cashValue,
+                swapItemId,
+            } = action.payload;
 
             state.data[collectionId] = extend(existing, {
                 collectionId,
                 name,
                 imageKey,
                 swapItemId,
-                bodyText,
+                description,
+                sweetener,
+                condition,
                 compareValue,
-                sellFor,
+                cashValue,
             });
         },
         // setActiveSwap: (state, action: PayloadAction<number>) => {

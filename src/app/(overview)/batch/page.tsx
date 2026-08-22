@@ -43,7 +43,7 @@ export default function Page() {
         </>;
     }
 
-    return <BatchView mode={'collection'} fns={{
+    return <BatchView fns={{
         addGameToCollection,
     }}/>;
 }

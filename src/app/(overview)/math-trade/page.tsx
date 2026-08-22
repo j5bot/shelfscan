@@ -4,12 +4,15 @@ import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import posthog from 'posthog-js';
 import { useState } from 'react';
 
 export default function MathTradeLandingPage() {
     const router = useRouter();
 
     const [mtdIsOpen, setMTDIsOpen] = useState<boolean>(false);
+
+    const atlasRealmsEnabled = posthog.isFeatureEnabled('atlas-realms-trades');
 
     return (
         <>
@@ -77,9 +80,36 @@ export default function MathTradeLandingPage() {
                     <p>
                         A <Link href="https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js"
                                 target="_blank" className="underline">userscript</Link>{' '}
-                        (and possibly soon the ShelfScan extension) will allow you to
-                        import the file from the Swaptagon site.
+                        will allow you to import the file from the Swaptagon site.
                     </p>
+
+                    {atlasRealmsEnabled && <>
+                        <h3 className="font-semibold">
+                            Atlas Realms Based Trades
+                        </h3>
+
+                        <p><Link className="btn btn-md bg-purple-800 text-white rounded-md font-semibold"
+                                 href="/trade"
+                        >Use Atlas Realms with Collection</Link></p>
+                        <p><Link className="btn btn-md bg-purple-800 text-white rounded-md font-semibold"
+                                 href="/tradescan"
+                        >Use Atlas Realms with Batch Scan</Link></p>
+
+                        <p>
+                            <Link href="https://www.atlasrealms.com"
+                                  className="underline" target="_blank">Atlas Realms</Link>{' '}
+                            is another platform used for Math Trades, primarily board games.
+                        </p>
+                        <p>
+                            ShelfScan integrates with Atlas Realms by allowing you to export a file with
+                            game condition data, etc. for bulk importing into a trade.
+                        </p>
+                        <p>
+                            A <Link href="https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importAtlas.user.js"
+                                    target="_blank" className="underline">userscript</Link>{' '}
+                            will allow you to import the file from the Atlas Realms site.
+                        </p>
+                    </>}
                 </div>
             </div>
             <MathTradeDialog

@@ -5,7 +5,7 @@ import { BatchView } from '@/app/ui/batch/BatchView';
 import React from 'react';
 
 export default function Page() {
-    useTitle('ShelfScan | Swap Scan');
+    useTitle('ShelfScan | Trade Scan');
 
     return <BatchView />;
 }

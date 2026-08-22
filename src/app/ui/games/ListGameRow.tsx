@@ -1,5 +1,6 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
+import { ComponentModeMap } from '@/app/lib/types/modes';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
 import { ReactNode } from 'react';
@@ -26,6 +27,7 @@ type ListGameRowBaseProps = {
     extraBadges?: ReactNode;
     /** When provided, clicking the row opens an action (e.g. a modal) instead of navigating. */
     onClick?: () => void;
+    modeMap?: ComponentModeMap;
 };
 
 type ListGameRowCollectionProps = ListGameRowBaseProps & {
@@ -64,6 +66,7 @@ export const ListGameRow = ({
     isVerified = false,
     extraBadges,
     onClick,
+    modeMap,
 }: ListGameRowProps) => {
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';

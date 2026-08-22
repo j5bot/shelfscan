@@ -2,6 +2,7 @@ import { loader } from '@/app/(overview)/loading';
 import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
 import { useInfoCollectionStatus } from '@/app/lib/hooks/useInfoCollectionStatus';
 import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { PossibleStatusWithAllAndNone } from '@/app/lib/types/bgg';
 import { BatchAddButton } from '@/app/ui/batch/BatchAddButton';
@@ -15,7 +16,6 @@ import React, { CSSProperties, Suspense, useCallback, useRef, useState } from 'r
 import { FaBarcode } from 'react-icons/fa6';
 
 export type BatchViewProps = {
-    mode: 'collection' | 'swap';
     fns?: {
         addGameToCollection?: (
             info: GameUPCBggInfo,
@@ -26,16 +26,23 @@ export type BatchViewProps = {
 };
 
 export const BatchView = (props: BatchViewProps) => {
-    const { mode, fns: { addGameToCollection } = {} } = props;
+    const { fns: { addGameToCollection } = {} } = props;
     const breakpoint = useTailwindBreakpoint();
 
-    const batchScanHeading = mode === 'collection' ?
-                             'Batch Scan Mode'
-                             : 'Swap Scan';
+    const { hasExport, isCollection, isSwap, isTrade } = useTradeMode();
 
-    const batchScanBody = mode === 'collection' ?
-                          'Scan multiple games, then add them to your BGG collection all at once.'
-                          : 'Scan multiple games, then export them for a Swap';
+    let batchScanHeading = 'Batch Scan Mode';
+    let batchScanBody = 'Scan multiple games, then add them to your BGG collection all at once.';
+    switch (true) {
+        case isSwap:
+            batchScanHeading = 'Swap Scan';
+            batchScanBody = 'Scan multiple games, then export them for a Swap';
+            break;
+        case isTrade:
+            batchScanHeading = 'Trade Scan';
+            batchScanBody = 'Scan multiple games, then export them for a Trade';
+            break;
+    }
 
     const { codes, removeCode, setCodes, ...statuses } = useInfoCollectionStatus();
 
@@ -48,7 +55,7 @@ export const BatchView = (props: BatchViewProps) => {
     } = useScanRecorder();
 
     const [addedNames, setAddedNames] = useState<string[]>([]);
-    const [shownStatus, setShownStatus] = useState<PossibleStatusWithAllAndNone>(mode === 'collection' ? 'none' : 'all');
+    const [shownStatus, setShownStatus] = useState<PossibleStatusWithAllAndNone>(hasExport ? 'all' : 'none');
     const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const onComplete = useCallback((names: string[]) => {
@@ -78,7 +85,7 @@ export const BatchView = (props: BatchViewProps) => {
         </>;
     }
 
-    const segments = mode === 'collection' ? [
+    const segments = isCollection ? [
         {
             key: 'none',
             name: 'New',
@@ -134,12 +141,12 @@ export const BatchView = (props: BatchViewProps) => {
                         {codes.length > 0
                          ? <>
                              <div className="pb-2 pt-1">
-                                 {mode === 'collection' && addGameToCollection && <BatchAddButton
+                                 {isCollection && addGameToCollection && <BatchAddButton
                                      codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
                                      addGameToCollection={addGameToCollection}
                                      onComplete={onComplete}
                                  />}
-                                 {mode === 'swap' && <SwapAddButton
+                                 {hasExport && <SwapAddButton
                                      codes={codes}
                                  />}
                              </div>
@@ -186,7 +193,7 @@ export const BatchView = (props: BatchViewProps) => {
                              </section>
 
                              <div className="flex justify-center gap-3 pt-4 pb-2">
-                                 {mode === 'collection' && <button
+                                 {isCollection && <button
                                      className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
                                             text-sm uppercase cursor-pointer"
                                      onClick={() => onClear(shownStatus)}

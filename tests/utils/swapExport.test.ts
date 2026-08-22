@@ -9,7 +9,7 @@ import {
 } from '@/app/lib/utils/swapExport';
 import { getPageDOM } from '@/app/lib/utils/xml';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
-import type { BggCollectionItem, BggCollectionStatuses } from '@/app/lib/types/bgg';
+import type { BggCollectionItem, BggCollectionStatuses, BggVersion } from '@/app/lib/types/bgg';
 
 const { getImageDataFromCacheMock } = vi.hoisted(() => ({
     getImageDataFromCacheMock: vi.fn(),
@@ -47,6 +47,17 @@ const makeCollectionItem = (overrides: Partial<BggCollectionItem> = {}): BggColl
     ...overrides,
 });
 
+const makeVersion = (overrides: Partial<BggVersion> = {}): BggVersion => ({
+    id: 686378,
+    name: 'English edition',
+    image: 'https://cf.geekdo-images.com/version-pic.jpg',
+    languages: ['English'],
+    productCode: undefined,
+    yearPublished: 2023,
+    publisher: 'Good Games Publishing',
+    ...overrides,
+});
+
 const getContentXml = async (blob: Blob): Promise<string> => {
     const zip = await JSZip.loadAsync(blob);
     const file = zip.file('content.xml');
@@ -64,41 +75,29 @@ const cellTexts = (row: Element) =>
 
 describe('swapExport', () => {
     describe('#buildSwapExportOds', () => {
-        it('produces an ODS blob with a styled header row and the expected columns', async () => {
+        it('omits every column when there are no items to export', async () => {
             const blob = await buildSwapExportOds([]);
             expect(blob.type).toBe(ODS_MIME_TYPE);
-
-            const zip = await JSZip.loadAsync(blob);
-            expect(await zip.file('mimetype')?.async('string')).toBe(ODS_MIME_TYPE);
-            expect(zip.file('META-INF/manifest.xml')).not.toBeNull();
 
             const contentXml = await getContentXml(blob);
             const rows = getRows(contentXml);
             expect(rows).toHaveLength(1);
-            expect(cellTexts(rows[0])).toEqual([
-                'Item Id', 'Name', 'Description', 'Comparative Value', 'Sell For', 'Image',
-            ]);
-
-            const headerCells = Array.from(rows[0].getElementsByTagName('table:table-cell'));
-            headerCells.forEach(cell => {
-                expect(cell.getAttribute('table:style-name')).toBe('coHeader');
-            });
+            expect(cellTexts(rows[0])).toEqual([]);
         });
 
-        it('writes item fields into their columns, leaving unset values blank', async () => {
+        it('only includes columns that have data in at least one row', async () => {
             const items: SwapItemData[] = [
                 {
                     collectionId: 1,
-                    swapItemId: 42,
                     name: 'Catan',
-                    bodyText: 'Great condition\nBox has wear',
+                    description: 'Great condition\nBox has wear',
                     compareValue: 5,
-                    sellFor: 10,
+                    cashValue: 10,
                 },
                 {
                     collectionId: 2,
                     name: 'Wingspan',
-                    bodyText: 'Sleeved',
+                    description: 'Sleeved',
                 },
             ];
 
@@ -106,45 +105,153 @@ describe('swapExport', () => {
             const rows = getRows(contentXml);
             expect(rows).toHaveLength(3);
 
-            expect(cellTexts(rows[1])).toEqual([
-                '42', 'Catan', 'Great conditionBox has wear', '5', '10', '',
-            ]);
+            // Condition is only parseable from the first row's description, and
+            // compareValue/cashValue are only set on the first row, but each column
+            // still appears (and is left blank on the second row) once any row has it.
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description', 'Compare Value', 'Cash Value']);
+
+            const headerCells = Array.from(rows[0].getElementsByTagName('table:table-cell'));
+            headerCells.forEach(cell => {
+                expect(cell.getAttribute('table:style-name')).toBe('coHeader');
+            });
+
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Great conditionBox has wear', '5', '10']);
             const descriptionParagraphs = Array.from(
                 rows[1].getElementsByTagName('table:table-cell')[2].getElementsByTagName('text:p')
             ).map(p => p.textContent);
             expect(descriptionParagraphs).toEqual(['Great condition', 'Box has wear']);
-            expect(cellTexts(rows[2])).toEqual([
-                '', 'Wingspan', 'Sleeved', '', '', '',
-            ]);
+            expect(cellTexts(rows[2])).toEqual(['Wingspan', '', 'Sleeved', '', '']);
         });
 
-        it('clamps comparative value to 0-10 and sell for to a minimum of 0', async () => {
+        it('treats an empty string as "no data" for column presence', async () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,
                 name: 'Catan',
-                bodyText: '',
-                compareValue: 20,
-                sellFor: -3,
+                description: '',
             }];
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
-            expect(cellTexts(rows[1])[3]).toBe('10');
-            expect(cellTexts(rows[1])[4]).toBe('0');
+            expect(cellTexts(rows[0])).toEqual(['Name']);
+        });
+
+        it('derives type/BGG/version columns from SwapItemData.collectionItem', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Unfair: Comicbook Hacker Kaiju Ocean Expansion',
+                description: '',
+                collectionItem: makeCollectionItem({
+                    subType: 'boardgameexpansion',
+                    objectId: 341772,
+                    yearPublished: 2023,
+                    versionId: 686378,
+                    version: makeVersion(),
+                }),
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual([
+                'Type', 'Name', 'BGG ID', 'Game Year', 'Version Name', 'Version Year',
+                'Version ID', 'Version Language', 'Version Publisher', 'Image URL',
+            ]);
+            expect(cellTexts(rows[1])).toEqual([
+                'boardgameexpansion', 'Unfair: Comicbook Hacker Kaiju Ocean Expansion', '341772', '2023',
+                'English edition', '2023', '686378', 'English', 'Good Games Publishing',
+                'https://cf.geekdo-images.com/version-pic.jpg',
+            ]);
+        });
+
+        it('derives the thumbnail URL column from collectionItem.thumbnail, independent of imageUrl', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: '',
+                collectionItem: makeCollectionItem({
+                    thumbnail: 'https://cf.geekdo-images.com/thumb-pic.jpg',
+                    versionId: 686378,
+                    version: makeVersion(),
+                }),
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual([
+                'Type', 'Name', 'BGG ID', 'Game Year', 'Version Name', 'Version Year',
+                'Version ID', 'Version Language', 'Version Publisher', 'Image URL', 'Thumbnail URL',
+            ]);
+            const cells = cellTexts(rows[1]);
+            expect(cells[cells.length - 2]).toBe('https://cf.geekdo-images.com/version-pic.jpg');
+            expect(cells[cells.length - 1]).toBe('https://cf.geekdo-images.com/thumb-pic.jpg');
+        });
+
+        it('omits the Thumbnail URL column when no item has a collectionItem.thumbnail', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: '',
+                collectionItem: makeCollectionItem({ version: makeVersion() }),
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).not.toContain('Thumbnail URL');
+        });
+
+        it('clamps comparative value to 0-10 and cash value to a minimum of 0', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: '',
+                compareValue: 20,
+                cashValue: -3,
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Compare Value', 'Cash Value']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', '10', '0']);
+        });
+
+        it('exports an explicit condition as-is', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: 'Some wear on the box',
+                condition: 'Like New',
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Like New', 'Some wear on the box']);
+        });
+
+        it('falls back to parsing condition from the description when none is set explicitly', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: 'Condition: Very Good, minor shelf wear',
+            }];
+
+            const contentXml = await getContentXml(await buildSwapExportOds(items));
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Condition: Very Good, minor shelf wear']);
         });
 
         it('escapes XML-significant characters in text fields', async () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,
                 name: 'A & B <Game> "Special"',
-                bodyText: `It's a trade & it's <great>`,
+                description: `It's a trade & it's <great>`,
             }];
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
             const cells = cellTexts(rows[1]);
-            expect(cells[1]).toBe('A & B <Game> "Special"');
-            expect(cells[2]).toBe(`It's a trade & it's <great>`);
+            expect(cells[0]).toBe('A & B <Game> "Special"');
+            expect(cells[1]).toBe(`It's a trade & it's <great>`);
         });
 
         it('embeds a cached image and references it from the Pictures folder', async () => {
@@ -164,7 +271,7 @@ describe('swapExport', () => {
                 const items: SwapItemData[] = [{
                     collectionId: 1,
                     name: 'Catan',
-                    bodyText: '',
+                    description: '',
                     imageKey: 'game-pic.jpg|400|400|90',
                 }];
 
@@ -178,6 +285,8 @@ describe('swapExport', () => {
                 expect(manifestXml).toContain('manifest:media-type="image/jpeg"');
 
                 const contentXml = await getContentXml(blob);
+                const rows = getRows(contentXml);
+                expect(cellTexts(rows[0])).toEqual(['Name', 'Image']);
                 expect(contentXml).toContain('xlink:href="Pictures/image0.jpg"');
                 // Aspect ratio (2:1) preserved and bounded within the 1.5in image cell.
                 const frameMatch = /svg:width="([\d.]+)in" svg:height="([\d.]+)in"/.exec(contentXml);
@@ -192,17 +301,21 @@ describe('swapExport', () => {
             }
         });
 
-        it('leaves the image cell blank when the imageKey is not present in the cache', async () => {
+        it('omits the Image column entirely when the imageKey is not present in the cache', async () => {
             const items: SwapItemData[] = [{
                 collectionId: 1,
                 name: 'Catan',
-                bodyText: '',
+                description: '',
                 imageKey: 'not-cached.jpg|400|400|90',
             }];
 
             const blob = await buildSwapExportOds(items);
             const zip = await JSZip.loadAsync(blob);
             expect(Object.keys(zip.files).some(name => name.startsWith('Pictures/'))).toBe(false);
+
+            const contentXml = await getContentXml(blob);
+            const rows = getRows(contentXml);
+            expect(cellTexts(rows[0])).toEqual(['Name']);
         });
     });
 
@@ -212,7 +325,7 @@ describe('swapExport', () => {
             const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
             const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
 
-            await downloadSwapExport([{ collectionId: 1, name: 'Catan', bodyText: '' }], 'my-export.ods');
+            await downloadSwapExport([{ collectionId: 1, name: 'Catan', description: '' }], 'my-export.ods');
 
             expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
             const [blobArg] = createObjectURLSpy.mock.calls[0];

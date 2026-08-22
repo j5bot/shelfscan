@@ -1,7 +1,7 @@
 import { GameSelections, useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useImageMismatch } from '@/app/lib/hooks/useImageMismatch';
-import { useMode } from '@/app/lib/hooks/useMode';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { SelectVersionProvider, useSelectVersionContext } from '@/app/lib/SelectVersionProvider';
 import { gameUPCInfoAndVersionToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { GameListContainer } from '@/app/ui/games/GameListContainer';
@@ -40,7 +40,8 @@ type ScanlistProps = {
 export const ScanItem = (props: ScanItemProps) => {
     const { code, gameSelections, gameUPCResults, removeFromList, showGame } = props;
     const { currentInfoIndex, infoIndexesInCollection } = useSelectVersionContext();
-    const { swap, swapScan } = useMode();
+
+    const { isBatchScan } = useTradeMode();
 
     const {
         bgg_info: bggInfo,
@@ -98,7 +99,7 @@ export const ScanItem = (props: ScanItemProps) => {
                  : infoName + (versionName ? ` (${versionName})` : '');
 
     const imageSize = getImageSizeFromUrl(imageUrl ?? '');
-    const thumbnailSize = swapScan ? ThumbnailSizes.large : Math.min(imageSize.width, imageSize.height) * 2 / 3;
+    const thumbnailSize = isBatchScan ? ThumbnailSizes.large : Math.min(imageSize.width, imageSize.height) * 2 / 3;
     const imageContainerStyles = {
         width: `${thumbnailSize}px`,
         height: `${thumbnailSize}px`,
@@ -171,15 +172,11 @@ export const ScanItem = (props: ScanItemProps) => {
         imageUrl,
         keyValue,
         name,
-        thumbnailSize: (swapScan ? ThumbnailSizes.large : thumbnailSize),
+        thumbnailSize: (isBatchScan ? ThumbnailSizes.large : thumbnailSize),
         statusIcon,
         statusText,
         thumbnailUrl,
-        modeMap: {
-            swap,
-            swapScan,
-        },
-        size: (swapScan ? 'large' : 'small') as SizeKey,
+        size: (isBatchScan ? 'large' : 'small') as SizeKey,
     };
 
     return <ListGame {...listGameProperties } />;
@@ -192,10 +189,10 @@ export const Scanlist = ({
 }: ScanlistProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
-    const { swapScan } = useMode();
+    const { isBatchScan } = useTradeMode();
 
     return <GameListContainer
-        className={swapScan ? GridClasses.large : undefined}
+        className={isBatchScan ? GridClasses.large : undefined}
     >
         {codes.map(code => (
             <SelectVersionProvider key={code} id={code}>

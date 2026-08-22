@@ -1,4 +1,6 @@
 import { useSelector } from '@/app/lib/hooks';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
+import { ComponentModeMap } from '@/app/lib/types/modes';
 import { firstNonEmptyOrUndefined } from '@/app/lib/utils';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { CollectionLoadStatuses, type CollectionLoadStatusData } from '@/app/lib/hooks/useCollectionData';
@@ -68,30 +70,26 @@ const SkeletonItem = () => (
     </div>
 );
 
-type ModeMap = {
-    batchRating: boolean;
-    mathTrade: boolean;
-    swap: boolean;
-};
-
 type GridItemProps = {
     collectionId: number;
     sizeKey: SizeKey;
     thumbnailSize: number;
-    modeMap: ModeMap;
     onSelectItem: (item: BggCollectionItem) => void;
     mathTradeSelected: boolean;
     onMathTradeToggle?: (collectionId: number) => void;
+    modeMap?: ComponentModeMap;
 };
+
+const emptyModeMap = {} as ComponentModeMap;
 
 const GridItem = ({
     collectionId,
     sizeKey,
     thumbnailSize,
-    modeMap,
     onSelectItem,
     mathTradeSelected,
     onMathTradeToggle,
+    modeMap,
 }: GridItemProps) => {
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';
@@ -129,7 +127,6 @@ const GridItem = ({
             collectionId={item.collectionId!}
             rating={item.rating}
             averageRating={item.averageRating}
-            modeMap={modeMap}
             keyValue={item.collectionId.toString()}
             name={item.name}
             thumbnailUrl={thumbnailUrl}
@@ -145,6 +142,7 @@ const GridItem = ({
             onMathTradeToggle={onMathTradeToggle
                 ? () => onMathTradeToggle(collectionId)
                 : undefined}
+            modeMap={modeMap}
         />
     );
 };
@@ -154,7 +152,6 @@ type AllGamesContentProps = {
     sentinelRef: RefObject<HTMLDivElement | null>;
     stickyTop: number;
     view: CollectionView;
-    modeMap: ModeMap;
     scannedSet: Set<number>;
     verifiedSet: Set<number>;
     sortFields: SortFieldDef<BggCollectionItem, AllGamesSortField>[];
@@ -176,6 +173,7 @@ type AllGamesContentProps = {
     onSelectItem: (item: BggCollectionItem) => void;
     mathTradeSelectedIds: Set<number>;
     onMathTradeToggle: (collectionId: number) => void;
+    modeMap?: ComponentModeMap;
 };
 
 export const AllGamesContent = memo(({
@@ -183,7 +181,6 @@ export const AllGamesContent = memo(({
     sentinelRef,
     stickyTop,
     view,
-    modeMap,
     scannedSet,
     verifiedSet,
     sortFields,
@@ -205,8 +202,10 @@ export const AllGamesContent = memo(({
     onSelectItem,
     mathTradeSelectedIds,
     onMathTradeToggle,
+    modeMap = emptyModeMap,
 }: AllGamesContentProps) => {
     const username = useSelector((state: RootState) => state.bgg.user.user);
+    const { hasTrade, isMathTrade } = useTradeMode();
 
     switch (state.status) {
         case CollectionLoadStatuses.LOADING:
@@ -286,11 +285,12 @@ export const AllGamesContent = memo(({
                                             detailUrlRel="noopener noreferrer"
                                             isScanned={scannedSet.has(displayItems[index].objectId)}
                                             isVerified={verifiedSet.has(displayItems[index].objectId)}
-                                            onClick={(modeMap.mathTrade || modeMap.swap)
+                                            onClick={hasTrade
                                                 ? () => onMathTradeToggle(collectionId)
                                                 : () => onSelectItem(displayItems[index])}
+                                            modeMap={modeMap}
                                         />
-                                        {modeMap.mathTrade && (
+                                        {isMathTrade && (
                                             <MathTradeSection collectionId={collectionId} />
                                         )}
                                     </div>
@@ -312,7 +312,7 @@ export const AllGamesContent = memo(({
                                     onSelectItem={onSelectItem}
                                     modeMap={modeMap}
                                     mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap) ? onMathTradeToggle : undefined}
+                                    onMathTradeToggle={hasTrade ? onMathTradeToggle : undefined}
                                 />;
                             }}
                         />;
@@ -331,7 +331,7 @@ export const AllGamesContent = memo(({
                                     onSelectItem={onSelectItem}
                                     modeMap={modeMap}
                                     mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                                    onMathTradeToggle={(modeMap.mathTrade || modeMap.swap) ? onMathTradeToggle : undefined}
+                                    onMathTradeToggle={hasTrade ? onMathTradeToggle : undefined}
                                 />;
                             }}
                         />;

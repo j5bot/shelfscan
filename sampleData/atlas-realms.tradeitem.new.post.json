@@ -1,0 +1,22 @@
+{
+    "type": "game",
+    "subtype": "boardgame",
+    "game_title": "Unfair: Comicbook Hacker Kaiju Ocean Expansion",
+    "bgg_id": 341772,
+    "year": 2023,
+    "condition": "Very Good",
+    "condition_details": "Test details",
+    "sweeteners": "Sweetener",
+    "accepts_cash": true,
+    "cash_threshold": 30,
+    "owner_value": 10,
+    "edition_data": {
+        "version_id": 686378,
+        "name": "English Kickstarter edition",
+        "year": 2023,
+        "language": "English",
+        "thumbnail": null,
+        "image": null,
+        "publisher": "Good Games Publishing"
+    }
+}

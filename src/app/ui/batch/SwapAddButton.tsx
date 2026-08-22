@@ -1,9 +1,11 @@
 import { thingPrefix, versionPrefix } from '@/app/lib/constants';
 import { useGameSelections } from '@/app/lib/GameSelectionsProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { useSelector, useStore } from '@/app/lib/hooks';
+import { useSelector } from '@/app/lib/hooks';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
+import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { downloadSwapExport } from '@/app/lib/utils/swapExport';
 import posthog from 'posthog-js';
 import React, { useCallback, useState } from 'react';
@@ -27,13 +29,22 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const { gameDataMap } = useGameUPCData();
     const { gameSelections } = useGameSelections();
 
+    const {
+        isSwap,
+        isTrade,
+    } = useTradeMode();
+
     const { codes } = props;
+
     const [isAdding, setIsAdding] = useState(false);
 
     const saved = useSelector((state: RootState) => state.swap.data);
 
     const swappableGames = codes.filter(code => {
-        if (saved[code]?.bodyText.length === 0) {
+        if (isSwap && (saved[code]?.description ?? '').length === 0) {
+            return false;
+        }
+        if (isTrade && ([undefined, 'Other'].includes(saved[code]?.condition))) {
             return false;
         }
         const data = gameDataMap[code];
@@ -52,7 +63,6 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         setIsAdding(true);
 
         const items: SwapItemData[] = [];
-        const addedCodes: string[] = [];
 
         const readyGamesData = swappableGames.map(code => {
             const data = gameDataMap[code];
@@ -69,25 +79,36 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                             data?.bgg_info?.[infoIndex]?.versions?.[versionIndex]
                                                        : undefined;
 
-            return [
-                { id: info?.id, name: info?.name },
-                version ? { id: version?.version_id, name: version?.name } : undefined,
-            ];
+            return {
+                info,
+                version,
+                gameData: [
+                    { id: info?.id, name: info?.name },
+                    version ? { id: version?.version_id, name: version?.name } : undefined,
+                ],
+            };
         });
 
         swappableGames.forEach((code, index) => {
             const savedData = saved[code];
+            const { info, version, gameData } = readyGamesData[index];
+            const collectionItem = info
+                ? (version ? gameUPCInfoAndVersionToCollectionItem(info, version) : gameUPCInfoToCollectionItem(info))
+                : undefined;
 
             items.push({
                 collectionId: code,
                 swapItemId: savedData?.swapItemId,
-                name: readyGamesData[index]?.[1]?.name ?? savedData?.name ?? '',
-                bodyText: makeDescription(savedData?.bodyText ?? '', readyGamesData[index]),
+                collectionItem,
+                name: gameData[1]?.name ?? savedData?.name ?? '',
+                description: isSwap
+                             ? makeDescription(savedData?.description ?? '', gameData)
+                            : savedData?.description ?? '',
+                condition: savedData?.condition,
                 compareValue: savedData?.compareValue ?? 1,
-                sellFor: savedData?.sellFor ?? 0,
+                cashValue: savedData?.cashValue ?? 0,
                 imageKey: savedData?.imageKey,
             });
-            addedCodes.push(code);
         });
 
         try {
