@@ -117,6 +117,7 @@ export const CollectionPageContent = ({
     } = useOLWLGMathTrade({ username, collection, initialMathTradeGeeklistId });
 
     const {
+        hasExport,
         hasTrade,
         isMathTrade,
         isSwap,
@@ -152,7 +153,7 @@ export const CollectionPageContent = ({
     const [isAdding, setIsAdding] = useState(false);
     const addToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const actionableTradeItemIds = (isTrade || (isMathTrade && activeGeekListId)) ?
+    const actionableTradeItemIds = (hasExport || (isMathTrade && activeGeekListId)) ?
         Array.from(selectedMathTradeIds).reduce((actionable, collectionId) => {
             const item = collection?.items[collectionId];
             if (!item) {

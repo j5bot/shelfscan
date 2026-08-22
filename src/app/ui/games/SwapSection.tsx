@@ -65,6 +65,7 @@ export const SwapSectionInner = ({
         dispatch(setItemData({
             collectionId,
             name: item.name ?? collectionId!.toString() ?? '',
+            condition: savedData?.condition ?? conditionParser(savedData?.description ?? item.tradeCondition ?? ''),
             description: savedData?.description ?? item.tradeCondition ?? '',
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
