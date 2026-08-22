@@ -23,6 +23,11 @@ import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { getCollectionInfoByObjectId, selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
+import {
+    getIsValidMathTradeItem,
+    getIsValidSwapItem,
+    getIsValidTradeItem
+} from '@/app/lib/utils/trade';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { GeekListSwitcher } from '@/app/ui/GeekListSwitcher';
 import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
@@ -147,6 +152,26 @@ export const CollectionPageContent = ({
     const [isAdding, setIsAdding] = useState(false);
     const addToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    const actionableTradeItemIds = (isTrade || isMathTrade && activeGeekListId) ?
+        Array.from(selectedMathTradeIds).reduce((actionable, collectionId) => {
+            const item = collection?.items[collectionId];
+            if (!item) {
+                return actionable;
+            }
+            switch (true) {
+                case isMathTrade && !getIsValidMathTradeItem(item, geeklistData[collectionId]):
+                    return actionable;
+                case isSwap && !getIsValidSwapItem(item, swapData[collectionId]):
+                    return actionable;
+                case isTrade && !getIsValidTradeItem(swapData[collectionId]):
+                    return actionable;
+            }
+            actionable.add(collectionId);
+            return actionable;
+        }, new Set<number>()) : new Set<number>();
+
+    const actionableTradeItemsCount = actionableTradeItemIds.size;
+
     const handleMathTradeClick = useCallback(() => {
         if (mathTradeMode) {
             setMathTradeMode(false);
@@ -183,9 +208,9 @@ export const CollectionPageContent = ({
     }, [store, activeGeekListId, selectedMathTradeIds]);
 
     const handleBulkMathTradeAdd = useCallback(async () => {
-        if (selectedMathTradeIds.size === 0) { return; }
+        if (actionableTradeItemsCount === 0) { return; }
 
-        const items = Array.from(selectedMathTradeIds).flatMap(collectionId => {
+        const items = Array.from(actionableTradeItemIds).flatMap(collectionId => {
             const item = collection?.items[collectionId];
             if (!item) { return []; }
             const savedData = geeklistData[collectionId];
@@ -207,12 +232,12 @@ export const CollectionPageContent = ({
         if (success) {
             setSelectedMathTradeIds(new Set());
         }
-    }, [selectedMathTradeIds, collection, geeklistData, submitMathTrade]);
+    }, [actionableTradeItemIds, collection, geeklistData, submitMathTrade]);
 
     const handleSwapExport = useCallback(async () => {
-        if (selectedMathTradeIds.size === 0) { return; }
+        if (actionableTradeItemsCount === 0) { return; }
 
-        const items: SwapItemData[] = Array.from(selectedMathTradeIds).flatMap(collectionId => {
+        const items: SwapItemData[] = Array.from(actionableTradeItemIds).flatMap(collectionId => {
             const item = collection?.items[collectionId];
             if (!item) { return []; }
             const savedData = swapData[collectionId];
@@ -240,7 +265,7 @@ export const CollectionPageContent = ({
         } finally {
             setIsExportingSwap(false);
         }
-    }, [selectedMathTradeIds, collection, swapData]);
+    }, [actionableTradeItemIds, collection, swapData]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
@@ -724,7 +749,7 @@ export const CollectionPageContent = ({
                                         : 'Click image to select for Math Trade'
                                 }
                             </span>
-                            {selectedMathTradeIds.size > 0 && (
+                            {actionableTradeItemsCount > 0 && (
                                 <button
                                     type="button"
                                     className={`btn rounded-full pointer-events-auto
@@ -736,8 +761,8 @@ export const CollectionPageContent = ({
                                     onClick={() => void (hasTrade ? handleSwapExport() : handleBulkMathTradeAdd())}
                                     disabled={hasTrade ? isExportingSwap : isBulkMathTradeAdding}
                                     aria-label={hasTrade
-                                        ? `Export ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to ODS`
-                                        : `Add ${selectedMathTradeIds.size} game${selectedMathTradeIds.size !== 1 ? 's' : ''} to math trade geeklist`
+                                        ? `Export ${actionableTradeItemsCount} game${actionableTradeItemsCount !== 1 ? 's' : ''} to ODS`
+                                        : `Add ${actionableTradeItemsCount} game${actionableTradeItemsCount !== 1 ? 's' : ''} to math trade geeklist`
                                     }
                                 >
                                     {(hasTrade ? isExportingSwap : isBulkMathTradeAdding)
@@ -745,9 +770,9 @@ export const CollectionPageContent = ({
                                         : hasTrade ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
                                     }
                                     {isSwap
-                                        ? `Export ${selectedMathTradeIds.size} for Swaptagon` :
-                                        isTrade ? `Export ${selectedMathTradeIds.size} for Atlas`
-                                        : `Add ${selectedMathTradeIds.size} to Math Trade`
+                                        ? `Export ${actionableTradeItemsCount} for Swaptagon` :
+                                        isTrade ? `Export ${actionableTradeItemsCount} for Atlas`
+                                        : `Add ${actionableTradeItemsCount} to Math Trade`
                                     }
                                 </button>
                             )}

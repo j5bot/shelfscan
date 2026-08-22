@@ -7,6 +7,7 @@ import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import { downloadSwapExport } from '@/app/lib/utils/swapExport';
+import { getIsValidSwapItem, getIsValidTradeItem } from '@/app/lib/utils/trade';
 import posthog from 'posthog-js';
 import React, { useCallback, useState } from 'react';
 import { FaFileExport } from 'react-icons/fa6';
@@ -41,10 +42,10 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
     const saved = useSelector((state: RootState) => state.swap.data);
 
     const swappableGames = codes.filter(code => {
-        if (isSwap && (saved[code]?.description ?? '').length === 0) {
+        if (isSwap && !getIsValidSwapItem(undefined, saved[code])) {
             return false;
         }
-        if (isTrade && ([undefined, 'Other'].includes(saved[code]?.condition))) {
+        if (isTrade && !getIsValidTradeItem(saved[code])) {
             return false;
         }
         const data = gameDataMap[code];
