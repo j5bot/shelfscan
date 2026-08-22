@@ -152,7 +152,7 @@ export const CollectionPageContent = ({
     const [isAdding, setIsAdding] = useState(false);
     const addToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const actionableTradeItemIds = (isTrade || isMathTrade && activeGeekListId) ?
+    const actionableTradeItemIds = (isTrade || (isMathTrade && activeGeekListId)) ?
         Array.from(selectedMathTradeIds).reduce((actionable, collectionId) => {
             const item = collection?.items[collectionId];
             if (!item) {
