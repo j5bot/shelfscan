@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ShelfScan -> Atlas Realms Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.0.2
+// @version      1.0.3
 // @description  Import items from a ShelfScan trade interop file (ODS) to Atlas Realms
 // @author       ShelfScan
 // @match        https://www.atlasrealms.com/trades/*/offerings*
@@ -47,7 +47,6 @@
         'type',
         'name',
         'condition',
-        'description',
     ];
 
     const requiredNumberProps = [
