@@ -42,7 +42,7 @@ export const bggGetUserInner = async (username: string) => {
 };
 
 export const bggGetCollectionInner =
-    async (username: string, attempts: number = 0): Promise<string> => {
+    async (username: string, expansions: boolean, attempts: number = 0): Promise<string> => {
         if (attempts > MAX_ATTEMPTS) {
             return '';
         }
@@ -53,6 +53,13 @@ export const bggGetCollectionInner =
         cuParams.append('username', username);
         cuParams.append('version', '1');
         cuParams.append('stats', '1');
+
+        if (expansions) {
+            cuParams.append('subtype', 'boardgameexpansion');
+        } else {
+            cuParams.append('subtype', 'boardgame');
+            cuParams.append('excludesubtype', 'boardgameexpansion');
+        }
 
         return await fetchFromBggWithToken(collectionUrl.toString(), {}).then(r => r.text());
     };

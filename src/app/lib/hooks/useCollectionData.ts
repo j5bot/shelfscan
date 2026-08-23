@@ -84,8 +84,11 @@ export const useCollectionData = ({ username }: UseCollectionDataOptions): UseCo
         mountedRef.current = true;
         startRefresh(async () => {
             try {
-                const xml = await bggGetCollectionInner(username, 0);
-                const items = getCollectionFromXml(xml);
+                const [xml, expansionsXml] = await Promise.all([
+                    bggGetCollectionInner(username, false, 0),
+                    bggGetCollectionInner(username, true, 0),
+                ]);
+                const items = getCollectionFromXml(xml, expansionsXml);
                 if (!items || Object.keys(items).length === 0) {
                     if (mountedRef.current) {
                         setRefreshError('No collection data returned from BGG.');

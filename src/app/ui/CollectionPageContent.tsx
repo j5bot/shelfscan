@@ -30,6 +30,11 @@ import {
 } from '@/app/lib/utils/trade';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { GeekListSwitcher } from '@/app/ui/GeekListSwitcher';
+import {
+    ExpansionsIcon,
+    GamesAndExpansionsIcon,
+    GamesIcon
+} from '@/app/ui/icons/GamesAndExpansionsIcons';
 import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
@@ -37,7 +42,7 @@ import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { KeyboardEvent, Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
 import {
@@ -64,6 +69,38 @@ type CollectionPageContentProps = {
     modeOptions?: CollectionPageModeOptions;
     title?: string;
     heading?: string;
+};
+
+const GamesAndExpansionsModes = {
+    ALL: 'ALL',
+    GAMES: 'GAMES',
+    EXPANSIONS: 'EXPANSIONS',
+} as const;
+const GamesAndExpansionsModeLabels = {
+    ALL: 'Games and Expansions',
+    GAMES: 'Games',
+    EXPANSIONS: 'Expansions',
+} as const;
+const GamesAndExpansionsModeIcons = {
+    ALL: GamesAndExpansionsIcon,
+    GAMES: GamesIcon,
+    EXPANSIONS: ExpansionsIcon,
+};
+const GamesAndExpansionsModeSubTypes = {
+    GAMES: 'boardgame',
+    EXPANSIONS: 'boardgameexpansion',
+} as const;
+
+type GamesAndExpansionsMode = keyof typeof GamesAndExpansionsModes;
+
+const advanceStepper = <T,>(steps: T[], current: T) => {
+    const index = steps.findIndex(step => step === current);
+    return steps[(index + 1) % steps.length];
+};
+
+const nextGamesAndExpansionsMode = (current: GamesAndExpansionsMode) => {
+    const modes = Object.keys(GamesAndExpansionsModes) as GamesAndExpansionsMode[];
+    return advanceStepper<GamesAndExpansionsMode>(modes, current);
 };
 
 const makeDescription = (
@@ -94,7 +131,10 @@ export const CollectionPageContent = ({
     const [selectedMathTradeIds, setSelectedMathTradeIds] = useState<Set<number>>(new Set());
     const [pendingMathTradeToggleId, setPendingMathTradeToggleId] = useState<number | null>(null);
     const [isExportingSwap, setIsExportingSwap] = useState(false);
-    const swapData = useSelector((state: RootState) => state.swap.data);
+    const [gamesAndExpansionsMode, setGamesAndExpansionsMode] =
+        useState<GamesAndExpansionsMode>(GamesAndExpansionsModes.ALL);
+    const swapData =
+        useSelector((state: RootState) => state.swap.data);
 
     const {
         mathTradeMode,
@@ -108,8 +148,6 @@ export const CollectionPageContent = ({
         geeklistData,
         activeGeekListId,
         geeklist,
-        activeGeekListStatus,
-        activeGeekListTitle,
         allGeekLists,
         setActiveGeekListId,
         handleRefreshGeeklist,
@@ -173,18 +211,9 @@ export const CollectionPageContent = ({
 
     const actionableTradeItemsCount = actionableTradeItemIds.size;
 
-    const handleMathTradeClick = useCallback(() => {
-        if (mathTradeMode) {
-            setMathTradeMode(false);
-            setSelectedMathTradeIds(new Set());
-            return;
-        }
-        if (activeGeekListId !== null && activeGeekListStatus === 'loaded') {
-            setMathTradeMode(true);
-        } else {
-            setShowMathTradeDialog(true);
-        }
-    }, [mathTradeMode, activeGeekListId, activeGeekListStatus]);
+    const handleGamesAndExpansionsClick = () => {
+        setGamesAndExpansionsMode(prev => nextGamesAndExpansionsMode(prev));
+    };
 
     const handleMathTradeToggle = useCallback((collectionId: number) => {
         if (!selectedMathTradeIds.has(collectionId)) {
@@ -332,6 +361,12 @@ export const CollectionPageContent = ({
         [makeFilterFn, scannedSet, verifiedSet, tagMap],
     );
 
+    const allGamesExtraFilterFn = useCallback((item: BggCollectionItem): boolean => {
+        if (!extraFilterFn(item)) { return false; }
+        if (gamesAndExpansionsMode === GamesAndExpansionsModes.ALL) { return true; }
+        return item.subType === GamesAndExpansionsModeSubTypes[gamesAndExpansionsMode];
+    }, [extraFilterFn, gamesAndExpansionsMode]);
+
     const allGamesSortFields = useMemo<
         SortFieldDef<BggCollectionItem, AllGamesSortField>[]
     >(() => [
@@ -396,7 +431,7 @@ export const CollectionPageContent = ({
     const allGamesFilter = useFilterSort<BggCollectionItem, AllGamesSortField>({
         items: reduxItems,
         filterFn: () => true,
-        extraFilterFn,
+        extraFilterFn: allGamesExtraFilterFn,
         sortFields: allGamesSortFields,
         defaultSortField: 'name',
         storageKeyPrefix: 'collection-all',
@@ -516,6 +551,8 @@ export const CollectionPageContent = ({
     const notInCollectionTabId = `tab-${CollectionTabs.NOT_IN_COLLECTION}`;
     const notInCollectionPanelId = `panel-${CollectionTabs.NOT_IN_COLLECTION}`;
 
+    const GamesAndExpansionsModeIcon = GamesAndExpansionsModeIcons[gamesAndExpansionsMode];
+
     return (
         <>
             <NavDrawer />
@@ -541,23 +578,32 @@ export const CollectionPageContent = ({
                     <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 relative pl-18 pr-18">
                         <h1 className="text-3xl text-center">{heading}</h1>
                         <div className="flex justify-start gap-1">
+                            {activeTab !== CollectionTabs.NOT_IN_COLLECTION && <button
+                                className="btn btn-sm rounded-md px-1"
+                                onClick={handleGamesAndExpansionsClick}
+                                aria-label={GamesAndExpansionsModeLabels[gamesAndExpansionsMode]}
+                                aria-pressed={gamesAndExpansionsMode !== GamesAndExpansionsModes.ALL}
+                                title={GamesAndExpansionsModeLabels[gamesAndExpansionsMode]}
+                            >
+                                <GamesAndExpansionsModeIcon className="w-6 h-6" aria-hidden="true" />
+                            </button>}
                             {username && (
                                 <button
-                                    className="btn btn-sm rounded-md"
+                                    className="btn btn-sm rounded-md px-2"
                                     onClick={() => refreshCollection()}
                                     disabled={isRefreshing}
                                     aria-label={isRefreshing ? 'Refreshing collection…' : 'Refresh collection from BGG'}
                                     title={isRefreshing ? 'Refreshing…' : 'Refresh from BGG'}
                                 >
                                     <FaArrowsRotate
-                                        className={isRefreshing ? 'animate-spin' : ''}
+                                        className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
                                         aria-hidden="true"
                                     />
                                 </button>
                             )}
                             {syncOn && !isMathTrade && (
                                 <button
-                                    className={`btn btn-sm rounded-md ${
+                                    className={`btn btn-sm rounded-md px-2 ${
                                         batchRate ? 'btn-primary' : ''
                                     }`}
                                     onClick={() => {
@@ -567,18 +613,7 @@ export const CollectionPageContent = ({
                                     aria-label="Toggle Bulk Rating"
                                     aria-pressed={batchRate}
                                 >
-                                    <FaStar aria-hidden="true" />
-                                </button>
-                            )}
-                            {activeTab === CollectionTabs.ALL_GAMES && !isMathTrade && (
-                                <button
-                                    className={`btn btn-sm rounded-md ${mathTradeMode ? 'btn-primary' : ''}`}
-                                    onClick={handleMathTradeClick}
-                                    aria-label={mathTradeMode ? 'Exit Math Trade mode' : 'Enter Math Trade mode'}
-                                    aria-pressed={mathTradeMode}
-                                    title={mathTradeMode && activeGeekListTitle ? activeGeekListTitle : 'Math Trade'}
-                                >
-                                    <FaRightLeft aria-hidden="true" />
+                                    <FaStar className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             )}
                         </div>

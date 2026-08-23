@@ -61,6 +61,7 @@ export const useLoadUser = () => {
         setUsername(username);
         startTransition(async () => {
             const id = `collection|${username.toLowerCase()}`;
+            const expansionsId = `collection-expansions|${username.toLowerCase()}`;
             const userCacheId = `user|${username.toLowerCase()}`;
 
             if (rememberMe) {
@@ -70,16 +71,25 @@ export const useLoadUser = () => {
             }
 
             let xml: string | undefined;
+            let expansionsXml: string | undefined;
             let userXml: string | undefined;
 
             if (useCache) {
                 xml = await getCollectionFromCache(id);
+                expansionsXml = await getCollectionFromCache(expansionsId);
                 userXml = await getResponseFromCache(userCacheId);
             }
-            if (!xml) {
-                xml = await bggGetCollectionInner(username, 0);
-                if (!xml.startsWith('<error>')) {
+            if (!xml || !expansionsXml) {
+                const [gamesXml, expansionsResult] = await Promise.all([
+                    xml ?? bggGetCollectionInner(username, false, 0),
+                    expansionsXml ?? bggGetCollectionInner(username, true, 0),
+                ]);
+                xml = gamesXml;
+                expansionsXml = expansionsResult;
+
+                if (!xml.startsWith('<error>') && !expansionsXml.startsWith('<error>')) {
                     addResponseToCache({ id, method: 'GET', response: xml }).then();
+                    addResponseToCache({ id: expansionsId, method: 'GET', response: expansionsXml }).then();
                 } else {
                     await sleep(10000);
                     loadUser(username, rememberMe, useCache);
@@ -97,7 +107,7 @@ export const useLoadUser = () => {
                 items = await getCollection(username.toLowerCase());
             }
             if (!items) {
-                items = getCollectionFromXml(xml);
+                items = getCollectionFromXml(xml, expansionsXml);
             }
             if (items) {
                 setItems(items);

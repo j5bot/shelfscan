@@ -28,6 +28,7 @@ const makeItem = (overrides: Partial<{
     image: string;
     thumbnail: string;
     lastModified: string;
+    subType: string;
 }> = {}): BggCollectionMap => {
     const {
         objectId = 1,
@@ -39,6 +40,7 @@ const makeItem = (overrides: Partial<{
         image = undefined,
         thumbnail = undefined,
         lastModified = new Date().toISOString(),
+        subType = 'boardgame',
     } = overrides;
 
     return {
@@ -50,7 +52,7 @@ const makeItem = (overrides: Partial<{
             thumbnail,
             lastModified,
             yearPublished: 2020,
-            subType: 'boardgame',
+            subType,
             ...(Number.isInteger(versionId) ? { versionId } : {}),
             statuses: {
                 own,
@@ -134,7 +136,7 @@ describe('bgg/collection/slice', () => {
                 }),
             );
 
-            expect(nextState.users['carol'].objects.all[5]).toContain('50');
+            expect(nextState.users['carol'].objects.all[5]).toContain(50);
         });
 
         it('adds the collectionId to the objects[status] map when status is active', () => {
@@ -147,7 +149,7 @@ describe('bgg/collection/slice', () => {
                 }),
             );
 
-            expect(nextState.users['dave'].objects.own[6]).toContain('60');
+            expect(nextState.users['dave'].objects.own[6]).toContain(60);
         });
 
         it('does not add to status map when status is false', () => {
@@ -175,7 +177,7 @@ describe('bgg/collection/slice', () => {
                 }),
             );
 
-            expect(nextState.users['frank'].versions.all[800]).toContain('80');
+            expect(nextState.users['frank'].versions.all[800]).toContain(80);
         });
 
         it('does not add to versions.all when there is no versionId', () => {
@@ -262,6 +264,74 @@ describe('bgg/collection/slice', () => {
 
             expect(after2.users['judy'].items[120]).toBeDefined();
             expect(after2.users['judy'].items[130]).toBeDefined();
+        });
+    });
+
+    describe('#updateCollectionItems expansion subType protection', () => {
+        it('does not let an extended merge downgrade a boardgameexpansion item to boardgame', () => {
+            const after1 = collectionReducer(
+                emptyState(),
+                updateCollectionItems({
+                    username: 'kim',
+                    items: makeItem({ objectId: 14, collectionId: 140, subType: 'boardgameexpansion' }),
+                }),
+            );
+
+            const after2 = collectionReducer(
+                after1,
+                updateCollectionItems({
+                    username: 'kim',
+                    items: makeItem({ objectId: 14, collectionId: 140, subType: 'boardgame' }),
+                    update: true,
+                    extend: true,
+                }),
+            );
+
+            expect(after2.users['kim'].items[140].subType).toEqual('boardgameexpansion');
+        });
+
+        it('does not let a full item replacement downgrade a boardgameexpansion item to boardgame', () => {
+            const after1 = collectionReducer(
+                emptyState(),
+                updateCollectionItems({
+                    username: 'liam',
+                    items: makeItem({ objectId: 15, collectionId: 150, subType: 'boardgameexpansion' }),
+                }),
+            );
+
+            const after2 = collectionReducer(
+                after1,
+                updateCollectionItems({
+                    username: 'liam',
+                    items: makeItem({ objectId: 15, collectionId: 150, subType: 'boardgame' }),
+                    update: true,
+                }),
+            );
+
+            expect(after2.users['liam'].items[150].subType).toEqual('boardgameexpansion');
+        });
+
+        it('still allows other fields to update when subType is protected', () => {
+            const after1 = collectionReducer(
+                emptyState(),
+                updateCollectionItems({
+                    username: 'mona',
+                    items: makeItem({ objectId: 16, collectionId: 160, subType: 'boardgameexpansion', own: true }),
+                }),
+            );
+
+            const after2 = collectionReducer(
+                after1,
+                updateCollectionItems({
+                    username: 'mona',
+                    items: makeItem({ objectId: 16, collectionId: 160, subType: 'boardgame', own: false, fortrade: true }),
+                    update: true,
+                    extend: true,
+                }),
+            );
+
+            expect(after2.users['mona'].items[160].subType).toEqual('boardgameexpansion');
+            expect(after2.users['mona'].items[160].statuses.fortrade).toBe(true);
         });
     });
 });
