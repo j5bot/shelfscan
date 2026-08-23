@@ -361,6 +361,12 @@ export const CollectionPageContent = ({
         [makeFilterFn, scannedSet, verifiedSet, tagMap],
     );
 
+    const allGamesExtraFilterFn = useCallback((item: BggCollectionItem): boolean => {
+        if (!extraFilterFn(item)) { return false; }
+        if (gamesAndExpansionsMode === GamesAndExpansionsModes.ALL) { return true; }
+        return item.subType === GamesAndExpansionsModeSubTypes[gamesAndExpansionsMode];
+    }, [extraFilterFn, gamesAndExpansionsMode]);
+
     const allGamesSortFields = useMemo<
         SortFieldDef<BggCollectionItem, AllGamesSortField>[]
     >(() => [
@@ -425,7 +431,7 @@ export const CollectionPageContent = ({
     const allGamesFilter = useFilterSort<BggCollectionItem, AllGamesSortField>({
         items: reduxItems,
         filterFn: () => true,
-        extraFilterFn,
+        extraFilterFn: allGamesExtraFilterFn,
         sortFields: allGamesSortFields,
         defaultSortField: 'name',
         storageKeyPrefix: 'collection-all',
@@ -572,6 +578,15 @@ export const CollectionPageContent = ({
                     <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-2 relative pl-18 pr-18">
                         <h1 className="text-3xl text-center">{heading}</h1>
                         <div className="flex justify-start gap-1">
+                            {activeTab !== CollectionTabs.NOT_IN_COLLECTION && <button
+                                className="btn btn-sm rounded-md px-1"
+                                onClick={handleGamesAndExpansionsClick}
+                                aria-label={GamesAndExpansionsModeLabels[gamesAndExpansionsMode]}
+                                aria-pressed={gamesAndExpansionsMode !== GamesAndExpansionsModes.ALL}
+                                title={GamesAndExpansionsModeLabels[gamesAndExpansionsMode]}
+                            >
+                                <GamesAndExpansionsModeIcon className="w-6 h-6" aria-hidden="true" />
+                            </button>}
                             {username && (
                                 <button
                                     className="btn btn-sm rounded-md px-2"
@@ -601,15 +616,6 @@ export const CollectionPageContent = ({
                                     <FaStar className="w-4 h-4" aria-hidden="true" />
                                 </button>
                             )}
-                            <button
-                                className="btn btn-sm rounded-md px-1"
-                                onClick={handleGamesAndExpansionsClick}
-                                aria-label={GamesAndExpansionsModeLabels[gamesAndExpansionsMode]}
-                                aria-pressed={gamesAndExpansionsMode !== GamesAndExpansionsModes.ALL}
-                                title={GamesAndExpansionsModeLabels[gamesAndExpansionsMode]}
-                            >
-                                <GamesAndExpansionsModeIcon className="w-6 h-6" aria-hidden="true" />
-                            </button>
                         </div>
                         <div
                             className="absolute top-1 right-0 flex items-center gap-0.5"

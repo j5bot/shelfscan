@@ -4,6 +4,7 @@ import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ResolvedImage, TradeItemInteropFormatColumnHeaders } from '@/app/lib/types/trade';
 import { conditionParser } from '@/app/lib/utils/condition';
+import { clampCashValue, clampCompareValue } from '@/app/lib/utils/trade';
 import JSZip from 'jszip';
 import { ImageProps } from 'next/image';
 
@@ -182,13 +183,13 @@ const allColumns: ColumnDef[] = [
     {
         header: 'Compare Value',
         width: 'number',
-        getValue: ({ item }) => item.compareValue,
+        getValue: ({ item }) => clampCompareValue(item.compareValue),
         cellFn: numberCell,
     },
     {
         header: TradeItemInteropFormatColumnHeaders.cashValue,
         width: 'number',
-        getValue: ({ item }) => item.cashValue,
+        getValue: ({ item }) => clampCashValue(item.cashValue),
         cellFn: numberCell,
     },
     {

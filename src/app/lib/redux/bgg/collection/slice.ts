@@ -95,7 +95,11 @@ const innerUpdateCollectionItems = (
             if (versionId) {
                 allVersions[versionId] = conditionalAddToArray(id, allVersions[versionId]);
             }
-            state.items[id] = extend ? { ...state.items[id], ...item } : item;
+            const nextItem = extend ? { ...state.items[id], ...item } : { ...item };
+            if (previousItem.subType === 'boardgameexpansion' && nextItem.subType === 'boardgame') {
+                nextItem.subType = previousItem.subType;
+            }
+            state.items[id] = nextItem;
         }
         state.objects.all = allObjects;
         state.versions.all = allVersions;

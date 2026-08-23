@@ -169,6 +169,7 @@ describe('plugins', () => {
             mockSettings({
                 disabledPlugins: [
                     'plugin.internal.BGGLink',
+                    'plugin.internal.BGGCollectionLink',
                     'plugin.internal.BGGMarket',
                     'plugin.internal.BoardGameStats',
                 ],
