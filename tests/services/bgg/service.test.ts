@@ -265,6 +265,29 @@ describe('bgg/service', () => {
             expect(result).toBeDefined();
             expect(Object.keys(result ?? {}).length).toEqual(0);
         });
+
+        it('returns only the games when the expansions response has no items (user owns no expansions)', () => {
+            const xml = buildCollectionXml({ objectId: '100', collId: '200' });
+            const emptyExpansionsXml = `<?xml version="1.0"?><items totalitems="0"></items>`;
+            const result = getCollectionFromXml(xml, emptyExpansionsXml);
+            expect(result).toBeDefined();
+            expect(Object.keys(result ?? {}).length).toEqual(1);
+            expect(result?.[200]).toBeDefined();
+        });
+
+        it('merges games and expansions responses when both are present', () => {
+            const gamesXml = buildCollectionXml({ objectId: '100', collId: '200' });
+            const expansionsXml = buildCollectionXml({ objectId: '101', collId: '201', subType: 'boardgameexpansion' });
+            const result = getCollectionFromXml(gamesXml, expansionsXml);
+            expect(result).toBeDefined();
+            expect(Object.keys(result ?? {}).length).toEqual(2);
+            expect(result?.[200]).toBeDefined();
+            expect(result?.[201]).toBeDefined();
+        });
+
+        it('returns undefined when neither the games nor expansions xml is usable', () => {
+            expect(getCollectionFromXml(undefined, undefined)).toBeUndefined();
+        });
     });
 
     describe('#getCollectionItemFromObject', () => {

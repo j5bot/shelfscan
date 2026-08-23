@@ -157,21 +157,21 @@ export const getPrivateInfoFromObject = (object: BggRawObject): Partial<BggColle
     };
 };
 
-export const getCollectionFromXml = (xml?: string) => {
+const parseCollectionXml = (xml?: string): BggCollectionItem[] | undefined => {
     if (!xml || xml.length === 0) {
-        return;
+        return undefined;
     }
     const pageDOM = getPageDOM(xml, true);
     const error = pageDOM.querySelector('error');
     if (error) {
-        return;
+        return undefined;
     }
 
     const rawItems = pageDOM.querySelector('items');
     if (!rawItems) {
-        return;
+        return undefined;
     }
-    const items: BggCollectionItem[] = Array.from(rawItems.children)
+    return Array.from(rawItems.children)
         .map(item => {
             const commonDetails = getCommonDetails(item);
             const objectId = elementGetter(item, true, undefined, 'objectid');
@@ -222,6 +222,17 @@ export const getCollectionFromXml = (xml?: string) => {
             } as BggCollectionItem;
         })
         .filter(x => x !== undefined);
+};
+
+export const getCollectionFromXml = (xml?: string, expansionsXml?: string) => {
+    const gameItems = parseCollectionXml(xml);
+    const expansionItems = parseCollectionXml(expansionsXml);
+
+    if (gameItems === undefined && expansionItems === undefined) {
+        return undefined;
+    }
+
+    const items = [...(gameItems ?? []), ...(expansionItems ?? [])];
 
     return items.reduce((acc: BggCollectionMap, item: BggCollectionItem) => {
         return Object.assign(acc, {[item.collectionId]: item});
