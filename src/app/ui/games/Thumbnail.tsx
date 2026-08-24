@@ -69,6 +69,7 @@ type ThumbnailBoxInnerProps = {
     placeholderPromise: Promise<ResolvedImageProps | undefined>;
     cachePromise: Promise<ResolvedImageProps | undefined>;
     size: number;
+    className?: string;
     styles?: CSSProperties;
 };
 
@@ -87,7 +88,14 @@ const ThumbnailBoxImage = ({ promise, className }: { promise: ResolvedImageProps
     />;
 };
 
-const ThumbnailBoxInner = ({ src, placeholderPromise, cachePromise, size, styles }: ThumbnailBoxInnerProps) => {
+const ThumbnailBoxInner = ({
+    src,
+    placeholderPromise,
+    cachePromise,
+    size,
+    className = '',
+    styles,
+}: ThumbnailBoxInnerProps) => {
     if (!src || src.length === 0) {
         return null;
     }
@@ -105,6 +113,7 @@ const ThumbnailBoxInner = ({ src, placeholderPromise, cachePromise, size, styles
                     focus:overflow-visible ${scalePercent}
                     hover:overflow-visible
                     z-[9] hover:z-10 focus:z-10
+                    ${className}
                 `}
                 style={{
                     width: `${size}px`,
@@ -122,7 +131,7 @@ const ThumbnailBoxInner = ({ src, placeholderPromise, cachePromise, size, styles
 };
 
 export const ThumbnailBox = memo((props: ThumbnailBoxProps) => {
-    const { alt = props.url, url, imageUrl, styles, size } = props;
+    const { alt = props.url, url, imageUrl, className, styles, size } = props;
 
     const cachedImageProps = useCachedImage({
         alt,
@@ -146,7 +155,7 @@ export const ThumbnailBox = memo((props: ThumbnailBoxProps) => {
 
     return (
         <Suspense fallback={fallback}>
-            <ThumbnailBoxInner src={imageUrl ?? url} {...cachedImageProps} size={size} styles={styles} />
+            <ThumbnailBoxInner src={imageUrl ?? url} className={className} {...cachedImageProps} size={size} styles={styles} />
         </Suspense>
     );
 });

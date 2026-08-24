@@ -107,19 +107,21 @@ export const ListGame = memo((props: ListGameProps) => {
             url={thumbnailUrl}
             imageUrl={imageUrl}
             size={thumbnailSize}
+            className={mathTradeSelected ? `p-2 border-4 border-[#e07ca4]` : ''}
             styles={imageContainerStyles}
         />
         {ratingIcon && <div className="absolute flex justify-center bottom-[-3] w-full z-9">{ratingIcon}</div>}
         {mathTradeSelected && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#e07ca4]/50 rounded-md z-10 pointer-events-none">
-                <FaCheck className="text-white w-6 h-6 drop-shadow" aria-hidden="true" />
+            <div className={`w-14 h-14 absolute top-3 left-4 flex items-center justify-center
+                bg-[#e07ca4]/90 rounded-full z-10 pointer-events-none`}>
+                <FaCheck className="text-white w-10 h-10 drop-shadow" aria-hidden="true" />
             </div>
         )}
         {mathTradeSelected && onClick && (
             <div
-                className="absolute top-1 right-1 z-20 pointer-events-auto
-                    bg-white/80 dark:bg-gray-800/80 rounded-full p-1 shadow
-                    text-base-content/60 hover:text-base-content"
+                className="absolute top-2.5 right-4 z-20 pointer-events-auto
+                    bg-gray-500 dark:bg-gray-800/80 rounded-full p-2 shadow
+                    text-white"
                 onClick={e => { e.stopPropagation(); onClick(); }}
                 aria-label={`Edit ${name}`}
             >
