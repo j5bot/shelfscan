@@ -97,14 +97,16 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
                 ? (version ? gameUPCInfoAndVersionToCollectionItem(info, version) : gameUPCInfoToCollectionItem(info))
                 : undefined;
 
+            const description = savedData?.description ?? '';
+
             items.push({
                 collectionId: code,
                 swapItemId: savedData?.swapItemId,
                 collectionItem,
                 name: gameData[1]?.name ?? savedData?.name ?? '',
-                description: isSwap
-                             ? makeDescription(savedData?.description ?? '', gameData)
-                            : savedData?.description ?? '',
+                description: isSwap && !isTrade
+                             ? makeDescription(description, gameData)
+                            : description,
                 condition: savedData?.condition,
                 compareValue: savedData?.compareValue ?? 1,
                 cashValue: savedData?.cashValue ?? 0,
