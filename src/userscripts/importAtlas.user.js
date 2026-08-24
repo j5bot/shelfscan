@@ -35,7 +35,6 @@
         compareValue: 'Compare Value',
         cashValue: 'Cash Value',
         versionName: 'Version Name',
-        versionYear: 'Version Year',
         versionId: 'Version ID',
         versionLanguage: 'Version Language',
         versionPublisher: 'Version Publisher',

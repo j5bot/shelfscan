@@ -271,16 +271,17 @@ export const CollectionPageContent = ({
             const item = collection?.items[collectionId];
             if (!item) { return []; }
             const savedData = swapData[collectionId];
+            const description = savedData?.description ?? item.tradeCondition ?? '';
             return [{
                 collectionItem: item,
                 collectionId,
                 swapItemId: savedData?.swapItemId,
                 name: item.version?.name ? `${item.name} (${item.version.name})`
                        : (savedData?.name ?? item.name),
-                description: makeDescription(
-                    savedData?.description ?? item.tradeCondition ?? '',
+                description: isSwap ? makeDescription(
+                    description,
                     item,
-                ),
+                ) : description,
                 condition: savedData?.condition,
                 compareValue: savedData?.compareValue ?? 1,
                 cashValue: savedData?.cashValue ?? 0,
