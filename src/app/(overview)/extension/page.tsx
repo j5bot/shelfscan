@@ -3,6 +3,7 @@
 import { useExtPay } from '@/app/lib/hooks/useExtPay';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { GearIcon } from '@/app/ui/icons/GearIcon';
+import { OrionIcon } from '@/app/ui/icons/OrionIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
@@ -63,12 +64,20 @@ const ExtensionPage = () => {
                     </span>
                 </Link></p>
                 <p className="flex items-center gap-1"><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
-                         target="_blank"><GearIcon className="w-6 h-6" /> <span className="underline">
+                                                             target="_blank"><GearIcon className="w-6 h-6" /> <span className="underline">
                         Download</span>
-                    </Link> for <Link href="https://apps.apple.com/app/apple-store/id1458962238"
-                                      target="_blank"
-                                      className="underline"
-                                >Gear on iOS</Link>
+                </Link> for <Link href="https://apps.apple.com/app/apple-store/id1458962238"
+                                  target="_blank"
+                                  className="underline"
+                >Gear</Link> on iOS
+                </p>
+                <p className="flex items-center gap-1"><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
+                                                             target="_blank"><OrionIcon className="w-6 h-6" /> <span className="underline">
+                        Download</span>
+                </Link> for <Link
+                    href="https://orionbrowser.com/download/appstore"
+                    target="_blank"
+                    className="underline">Orion</Link> on iOS
                 </p>
                 <p><Link className="flex items-center gap-2"
                          href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
