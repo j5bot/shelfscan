@@ -186,6 +186,7 @@ const parseCollectionXml = (xml?: string): BggCollectionItem[] | undefined => {
             const tradeCondition = elementGetter(item, false, 'conditiontext');
             const plays = elementGetter(item, true, 'numplays');
             const comment = elementGetter(item, false, 'comment');
+            const wishlistcomment = elementGetter(item, false, 'wishlistcomment');
             const hasPartsList = elementGetter(item, false, 'haspartslist');
             const wantPartsList = elementGetter(item, false, 'wantpartslist');
 
@@ -217,6 +218,7 @@ const parseCollectionXml = (xml?: string): BggCollectionItem[] | undefined => {
                 plays,
                 tradeCondition,
                 comment,
+                wishlistcomment,
                 haspartslist: hasPartsList,
                 wantpartslist: wantPartsList,
             } as BggCollectionItem;
@@ -264,6 +266,7 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         wishlistPriority: object.wishlistpriority,
         tradeCondition: object.textfield?.conditiontext?.value,
         comment: object.comment,
+        wishlistcomment: object.wishlistcomment,
         haspartslist: object.textfield?.haspartslist?.value,
         wantpartslist: object.textfield?.wantpartslist?.value,
         ...(Object.keys(privateInfo).length ? privateInfo : {}),

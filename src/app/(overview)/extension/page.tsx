@@ -13,7 +13,8 @@ import {
     FaFirefox,
     FaHeart,
     FaPlus,
-    FaRecycle, FaSafari,
+    FaRecycle,
+    FaSafari,
     FaTag,
 } from 'react-icons/fa6';
 

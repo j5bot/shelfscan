@@ -1,4 +1,5 @@
 import { useSelector } from '@/app/lib/hooks';
+import { EMPTY_TAGS, selectTagsByCollectionId } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
@@ -75,6 +76,10 @@ export const ListGameRow = ({
                : undefined;
     });
 
+    const tags = useSelector((state: RootState) =>
+        (collectionId ? selectTagsByCollectionId([state])[collectionId] : undefined) ?? EMPTY_TAGS,
+    );
+
     const resolvedName = item ? item.name : name;
     const resolvedThumbnailUrl = item
         ? (item.version?.image ?? item.image ?? item.thumbnail ?? '')
@@ -106,24 +111,38 @@ export const ListGameRow = ({
                     {thumbnailElement}
                 </Link>
             )}
-            {onClick ? (
-                <div
-                    className="flex-1 min-w-0 text-sm font-medium truncate"
-                    title={resolvedName}
-                >
-                    {resolvedName}
-                </div>
-            ) : (
-                <Link
-                    href={detailUrl}
-                    target={detailUrlTarget}
-                    rel={detailUrlRel}
-                    className="flex-1 min-w-0 text-sm font-medium truncate"
-                    title={resolvedName}
-                >
-                    {resolvedName}
-                </Link>
-            )}
+            <div className="flex-1 min-w-0">
+                {onClick ? (
+                    <div
+                        className="text-sm font-medium truncate"
+                        title={resolvedName}
+                    >
+                        {resolvedName}
+                    </div>
+                ) : (
+                    <Link
+                        href={detailUrl}
+                        target={detailUrlTarget}
+                        rel={detailUrlRel}
+                        className="block text-sm font-medium truncate"
+                        title={resolvedName}
+                    >
+                        {resolvedName}
+                    </Link>
+                )}
+                {tags.length > 0 && (
+                    <div className="flex gap-1 overflow-hidden mt-0.5">
+                        {tags.map(tag => (
+                            <span
+                                key={tag}
+                                className="text-[10px] leading-tight px-1 rounded bg-base-200 text-base-content/60 whitespace-nowrap"
+                            >
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </div>
             <div className="flex items-center gap-1.5 shrink-0 text-base-content/60">
                 {statuses && <>
                     <StatusBadge icon={<FaCheck size={11} />} label="Owned" active={statuses.own} />

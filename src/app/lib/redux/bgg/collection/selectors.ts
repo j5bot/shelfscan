@@ -1,5 +1,6 @@
 import { RootState } from '@/app/lib/redux/store';
 import {
+    BggItemTagMap,
     BggTagMap,
     PossibleStatusWithAll
 } from '@/app/lib/types/bgg';
@@ -13,6 +14,16 @@ export const selectTagMap = memoize(([state]: [RootState]): BggTagMap => {
     const username = state.bgg.user?.user?.toLowerCase();
     if (!username) { return EMPTY_TAG_MAP; }
     return state.bgg.collection.users[username]?.tags ?? EMPTY_TAG_MAP;
+}, { size: 10 });
+
+export const EMPTY_TAGS: string[] = [];
+
+const EMPTY_ITEM_TAG_MAP: BggItemTagMap = {};
+
+export const selectTagsByCollectionId = memoize(([state]: [RootState]): BggItemTagMap => {
+    const username = state.bgg.user?.user?.toLowerCase();
+    if (!username) { return EMPTY_ITEM_TAG_MAP; }
+    return state.bgg.collection.users[username]?.tagsByItem ?? EMPTY_ITEM_TAG_MAP;
 }, { size: 10 });
 
 export const getCollectionItemsByObjectId =
