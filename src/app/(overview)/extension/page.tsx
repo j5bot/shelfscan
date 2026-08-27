@@ -13,7 +13,7 @@ import {
     FaFirefox,
     FaHeart,
     FaPlus,
-    FaRecycle,
+    FaRecycle, FaSafari,
     FaTag,
 } from 'react-icons/fa6';
 
@@ -53,7 +53,7 @@ const ExtensionPage = () => {
 
                 <div className="pt-3">
                     <button className="bg-[#e07ca4] rounded-xl text-white btn mr-3"
-                            onClick={openTrialPage}><span className="line-through">3</span> 30 Day Free Trial</button>
+                            onClick={openTrialPage}>30 Day Free Trial</button>
                     <button className="bg-[#e07ca4] rounded-xl text-white btn"
                             onClick={openPaymentPage}>Subscribe to ShelfScan</button>
                 </div>
@@ -107,7 +107,12 @@ const ExtensionPage = () => {
                 <p><Link href="/why-support/"
                          className="underline" target="_blank">Why support BoardGameGeek?</Link></p>
 
-                <p>Note: As of June 28, 2026, the ShelfScan Browser Extension for Safari is no longer supported.</p>
+                <p><Link className="flex items-center gap-2" href="https://github.com/j5bot/shelfscan-safari/releases"
+                         target="_blank"><FaSafari className="w-6 h-6" /> <span className="underline">
+                        Safari Extension for Sideloading (Unsigned)
+                    </span>
+                </Link></p>
+                <p>Note: As of June 28, 2026, the signed ShelfScan Browser Extension for Safari is no longer supported.</p>
             </div>
         </div>
     </>;
