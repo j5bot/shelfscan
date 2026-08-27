@@ -4,6 +4,7 @@ import { setCollection, updateCollectionItemNumPlays } from '@/app/lib/database/
 import {
     BggCollection,
     BggCollectionMap,
+    BggItemTagMap,
     BggObjectsByStatus,
     BggTagMap,
     BggVersionsByStatus,
@@ -36,6 +37,7 @@ const innerUpdateCollectionItems = (
             versionId,
             statuses,
             comment,
+            wishlistcomment,
             collectionId,
             haspartslist,
             wantpartslist,
@@ -45,6 +47,7 @@ const innerUpdateCollectionItems = (
             versionId: previousVersionId,
             statuses: previousStatuses,
             comment: previousComment,
+            wishlistcomment: previousWishlistComment,
             haspartslist: previousHaspartslist,
             wantpartslist: previousWantpartslist,
         } = previousItem;
@@ -104,11 +107,22 @@ const innerUpdateCollectionItems = (
         state.objects.all = allObjects;
         state.versions.all = allVersions;
 
-        // Tags: extract hashtags from comment and update tag map
+        // Tags: extract hashtags from comments and parts and update tag map
         const tagMap: BggTagMap = state.tags ?? {};
+        const tagsByItem: BggItemTagMap = state.tagsByItem ?? {};
 
-        const previousTagContainers = [previousComment, previousHaspartslist, previousWantpartslist];
-        const tagContainers = [comment, haspartslist, wantpartslist];
+        const previousTagContainers = [
+            previousComment,
+            previousWishlistComment,
+            previousHaspartslist,
+            previousWantpartslist
+        ];
+        const tagContainers = [
+            comment,
+            wishlistcomment,
+            haspartslist,
+            wantpartslist
+        ];
 
         previousTagContainers.forEach(container => {
             if (!container) {
@@ -142,14 +156,66 @@ const innerUpdateCollectionItems = (
             })
         }
 
+        // Keep the inverted, display-ready view in sync with the forward map: of
+        // every tag this item touched, keep the ones the forward map still lists
+        // it under, then drop bare prefixes covered by a value tag.
+        if (remove) {
+            delete tagsByItem[collectionId];
+        } else {
+            const candidateTags = new Set<string>();
+            [...previousTagContainers, ...tagContainers].forEach(container => {
+                if (!container) {
+                    return;
+                }
+                extractHashtags(container).forEach(tag => candidateTags.add(tag));
+            });
+            const itemTags = Array.from(candidateTags).filter(
+                tag => tagMap[tag]?.includes(collectionId),
+            );
+            if (itemTags.length > 0) {
+                tagsByItem[collectionId] = stripRedundantPrefixTags(itemTags);
+            } else {
+                delete tagsByItem[collectionId];
+            }
+        }
+
         state.tags = tagMap;
+        state.tagsByItem = tagsByItem;
     }
     return state.items;
 };
 
+// Matches plain hashtags (#PnP) and "value tags" (#best-at=2, #best-at=5+),
+// where the part before `=` is registered as its own tag and the whole string
+// as another.
+const HASHTAG_PATTERN = /#[\w-]+(?:=[\w+-]+)?/g;
+
 const extractHashtags = (text: string): string[] => {
-    const matches = text.match(/#[\w-]+/g);
-    return matches ? matches.map(t => t.toLowerCase()) : [];
+    const matches = text.match(HASHTAG_PATTERN);
+    if (!matches) {
+        return [];
+    }
+    const tags = new Set<string>();
+    matches.forEach(match => {
+        const tag = match.toLowerCase();
+        tags.add(tag);
+        const eqIndex = tag.indexOf('=');
+        if (eqIndex !== -1) {
+            tags.add(tag.slice(0, eqIndex));
+        }
+    });
+    return Array.from(tags);
+};
+
+// Sorted tag list with bare prefixes dropped when a value tag covers them, so an
+// item tagged `#best-at=2` shows just that rather than `#best-at #best-at=2`.
+const stripRedundantPrefixTags = (tags: string[]): string[] => {
+    const valuePrefixes = new Set(
+        tags.filter(tag => tag.includes('=')).map(tag => tag.slice(0, tag.indexOf('='))),
+    );
+    return tags
+        .filter(tag => tag.includes('=') || !valuePrefixes.has(tag))
+        .sort();
 };
 
 export type BggCollectionSliceState = {
@@ -186,6 +252,7 @@ export const bggCollectionSlice = createSlice({
                     objects: {} as BggObjectsByStatus,
                     versions: {} as BggVersionsByStatus,
                     tags: {},
+                    tagsByItem: {},
                 };
             }
             innerUpdateCollectionItems(state.users[username], { items, remove, extend });

@@ -2,6 +2,7 @@ import { describe, it, expect } from '../../../setup.js';
 import {
     getCollectionInfoByObjectId,
     getIndexesInCollectionFromInfos,
+    selectTagsByCollectionId,
 } from '@/app/lib/redux/bgg/collection/selectors';
 import type { RootState } from '@/app/lib/redux/store';
 import type {
@@ -52,6 +53,7 @@ const makeState = ({
     objectsOwn = {},
     versionsAll = {},
     versionsOwn = {},
+    tagsByItem = {},
 }: {
     username?: string;
     items?: BggCollectionMap;
@@ -59,6 +61,7 @@ const makeState = ({
     objectsOwn?: Record<number, string[]>;
     versionsAll?: Record<number, string[]>;
     versionsOwn?: Record<number, string[]>;
+    tagsByItem?: Record<number, string[]>;
 } = {}): RootState =>
     ({
         bgg: {
@@ -68,6 +71,7 @@ const makeState = ({
                     [username]: {
                         items,
                         images: {},
+                        tagsByItem,
                         objects: {
                             all: objectsAll,
                             own: objectsOwn,
@@ -285,6 +289,26 @@ describe('bgg/collection/selectors', () => {
             ]);
             expect(result.infoIndexes['all']).toContain(0);
             expect(result.infoIndexes['all']).toContain(1);
+        });
+    });
+
+    describe('#selectTagsByCollectionId', () => {
+        it('returns the per-item tag map stored on the collection slice', () => {
+            const state = makeState({
+                tagsByItem: {
+                    10: ['#best-at=2', '#pnp'],
+                    20: ['#pnp'],
+                },
+            });
+
+            const result = selectTagsByCollectionId([state]);
+            expect(result[10]).toEqual(['#best-at=2', '#pnp']);
+            expect(result[20]).toEqual(['#pnp']);
+        });
+
+        it('returns an empty map when no user is set', () => {
+            const state = makeState({ username: '' });
+            expect(selectTagsByCollectionId([state])).toEqual({});
         });
     });
 });
