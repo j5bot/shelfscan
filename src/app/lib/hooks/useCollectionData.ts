@@ -6,6 +6,13 @@ import { RootState } from '@/app/lib/redux/store';
 import { getCollectionFromXml } from '@/app/lib/services/bgg/service';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import sleep from 'sleep-promise';
+
+const REFRESH_RETRY_LIMIT = 3;
+const REFRESH_RETRY_DELAY = 5000;
+
+const isUsableCollectionXml = (value?: string): value is string =>
+    !!value && value.length > 0 && !value.trimStart().startsWith('<error');
 
 export const CollectionLoadStatuses = {
     LOADING: 'loading',
@@ -84,10 +91,31 @@ export const useCollectionData = ({ username }: UseCollectionDataOptions): UseCo
         mountedRef.current = true;
         startRefresh(async () => {
             try {
-                const [xml, expansionsXml] = await Promise.all([
-                    bggGetCollectionInner(username, false, 0),
-                    bggGetCollectionInner(username, true, 0),
-                ]);
+                let xml: string | undefined;
+                let expansionsXml: string | undefined;
+
+                for (let attempt = 0; attempt < REFRESH_RETRY_LIMIT; attempt++) {
+                    const [nextXml, nextExpansionsXml] = await Promise.all([
+                        isUsableCollectionXml(xml) ? xml : bggGetCollectionInner(username, false, 0),
+                        isUsableCollectionXml(expansionsXml) ? expansionsXml : bggGetCollectionInner(username, true, 0),
+                    ]);
+                    xml = nextXml;
+                    expansionsXml = nextExpansionsXml;
+                    if (isUsableCollectionXml(xml) && isUsableCollectionXml(expansionsXml)) {
+                        break;
+                    }
+                    if (attempt < REFRESH_RETRY_LIMIT - 1) {
+                        await sleep(REFRESH_RETRY_DELAY);
+                    }
+                }
+
+                if (!isUsableCollectionXml(xml) || !isUsableCollectionXml(expansionsXml)) {
+                    if (mountedRef.current) {
+                        setRefreshError('BGG is still preparing this collection. Please try again in a moment.');
+                    }
+                    return;
+                }
+
                 const items = getCollectionFromXml(xml, expansionsXml);
                 if (!items || Object.keys(items).length === 0) {
                     if (mountedRef.current) {
