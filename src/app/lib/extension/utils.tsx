@@ -1,9 +1,15 @@
 import { DocumentMessageDetail } from '@/app/lib/extension/messageTypes';
-import { CollectionModeSettings, ModeSetting, PlayModeSettings } from '@/app/lib/extension/types';
+import {
+    CollectionModeSettings,
+    ModeSetting, ModeSettingFormProps,
+    PlayModeSettings,
+    TagsModeSettings
+} from '@/app/lib/extension/types';
 import { BggCollectionItem, BggCollectionStatuses, BggPlayer } from '@/app/lib/types/bgg';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import { DetailedPlayForm } from '@/app/ui/extension/DetailedPlayForm';
+import { TagsForm, TagsFormProps } from '@/app/ui/extension/TagsForm';
 import { SyntheticEvent } from 'react';
 import {
     FaCircleInfo,
@@ -12,7 +18,10 @@ import {
     FaDice,
     FaHeart,
     FaPlus,
-    FaRecycle, FaTag, FaXmark
+    FaRecycle,
+    FaTag,
+    FaTags,
+    FaXmark
 } from 'react-icons/fa6';
 import { GiChessPawn } from 'react-icons/gi';
 
@@ -47,6 +56,52 @@ export const makeAddPlayModeSettings = ({
             width: 'xs:w-27.5 w-29.5',
             form: DetailedPlayForm,
             addFn,
+        },
+    });
+
+export const makeTagsModeSettings = ({ collectionId }: MakeModeSettingsParams): TagsModeSettings =>
+    ({
+        choose: {
+            label: 'Tags',
+            listText: 'Choose...',
+            icon: <FaTags className="w-4 h-4 shrink-0" />,
+            width: 'xs:w-20.5 w-21.5',
+            addFn: () => undefined,
+        },
+        wishlist: {
+            label: 'Tags',
+            listText: 'Wishlist',
+            icon: <FaTags className="w-4 h-4 shrink-0" />,
+            width: 'xs:w-20.5 w-21.5',
+            form: (props: ModeSettingFormProps) =>
+                <TagsForm {...props}
+                          field="wishlistcomment"
+                          placeholder="Tags"
+                          collectionId={collectionId!} />,
+        },
+        wantsparts: {
+            label: 'Tags-WP',
+            listText: 'Want Parts',
+            icon: <FaTags className="w-4 h-4 shrink-0" />,
+            width: 'xs:w-27 w-29',
+            form: (props: ModeSettingFormProps) =>
+                <TagsForm {...props}
+                          field="wantpartslist"
+                          placeholder="Tags"
+                          collectionId={collectionId!}
+                />,
+        },
+        hasparts: {
+            label: 'Tags-HP',
+            listText: 'Has Parts',
+            icon: <FaTags className="w-4 h-4 shrink-0" />,
+            width: 'xs:w-27 w-29',
+            form: (props: ModeSettingFormProps) =>
+                <TagsForm {...props}
+                          field="haspartslist"
+                          placeholder="Tags"
+                          collectionId={collectionId!}
+                />,
         },
     });
 
@@ -173,4 +228,5 @@ export const makeAddToCollectionModeSettings = ({
 export const MakeModeSettings = {
     collection: makeAddToCollectionModeSettings,
     play: makeAddPlayModeSettings,
+    tags: makeTagsModeSettings,
 } as const;

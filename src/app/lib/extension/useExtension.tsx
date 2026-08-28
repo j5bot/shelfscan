@@ -51,8 +51,8 @@ export const useExtension = (params?: UseExtension) => {
 
     const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
     const [newRating, setNewRating] = useState<number>(-1);
-    const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick' });
-    const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false });
+    const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
+    const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false, tags: false });
     const [players, setPlayers] = useState<BggPlayer[]>();
     const [update, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -161,6 +161,45 @@ export const useExtension = (params?: UseExtension) => {
             versionId: version?.version_id,
             date: dateString,
             playdate: dateString,
+            formValues: formEntries,
+        })?.then((detail: DocumentMessageResponseDetail | undefined) => {
+            if (!detail?.response) {
+                return;
+            }
+            const { response } = detail;
+            const { numplays } = (response ?? {}) as { numplays?: number };
+
+            if (numplays != null && collectionId && currentUsername) {
+                dispatch(updateNumPlays({
+                    username: currentUsername,
+                    collectionId,
+                    numplays,
+                }));
+            }
+        });
+
+        const target = e.currentTarget.previousElementSibling as HTMLDivElement | null;
+        if (target) {
+            void target.offsetWidth;
+            target.classList.add('add-pulse');
+            setTimeout(() => target.classList.remove('add-pulse'), 2500);
+        }
+    };
+
+    const editTags = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
+        const form = document.forms.namedItem('tags');
+        const formData = form ? new FormData(form) : undefined;
+
+        const formEntries = formData ? Object.assign(
+            {},
+            formValues,
+            Object.fromEntries(formData)
+        ): formValues;
+
+        dispatchExtensionMessage({
+            userId,
+            collectionId,
+            type: 'tags',
             formValues: formEntries,
         })?.then((detail: DocumentMessageResponseDetail | undefined) => {
             if (!detail?.response) {
@@ -311,6 +350,15 @@ export const useExtension = (params?: UseExtension) => {
         formProps: { gameName: version?.name ?? info?.name },
     }) : {};
 
+    const { block: editTagsBlock } = syncOn && userId ? makeModeBlock({
+        modeKey: 'tags',
+        defaultMode: 'choose',
+        addFn: editTags,
+        formKey: detailedPlayKey,
+        setFormKey: setDetailedPlayKey,
+        formProps: { gameName: version?.name ?? info?.name },
+    }) : {};
+
     useEffect(() => {
         if (collectionId) {
             return;
@@ -347,7 +395,7 @@ export const useExtension = (params?: UseExtension) => {
         (async () => {
             const extensionModes = await getSetting('extensionModes') as Modes ?? modes
             if (!extensionModes.collection) {
-                setModes({ collection: 'add', play: 'quick' });
+                setModes({ collection: 'add', play: 'quick', tags: 'wishlist' });
                 return;
             }
             setModes(extensionModes);
@@ -518,10 +566,12 @@ export const useExtension = (params?: UseExtension) => {
         <div key={'atcb'}>{addToCollectionBlock}</div>,
         <div key={'apb'}>{addPlayBlock}</div>,
         <div key={'arb'}>{addRatingBlock}</div>,
+        <div key={'etb'}>{editTagsBlock}</div>
     ] : [
         addToCollectionBlock,
         addPlayBlock,
         addRatingBlock,
+        editTagsBlock,
     ];
 
     const primaryActions = syncOn && userId ? <>

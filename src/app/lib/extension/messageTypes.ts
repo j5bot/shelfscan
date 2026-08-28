@@ -43,6 +43,7 @@ export type DocumentMessageDetailType =
     | 'ratings'
     | 'recheckAuth'
     | 'plays'
+    | 'tags'
     | 'searchPlayer'
     | 'sell'
     | 'setData'

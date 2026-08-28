@@ -8,12 +8,10 @@ export type SetFormValue = (field: string, value: string) => void;
 export type Modes = {
     collection: 'add' | 'trade' | 'previous' | 'clear' | 'wishlist' | 'sell' | 'info';
     play: 'quick' | 'detailed';
+    tags: 'choose' | 'wishlist' | 'wantsparts' | 'hasparts';
 };
 
-export type DisabledModes = {
-    collection: boolean;
-    play: boolean;
-};
+export type DisabledModes = Record<keyof Modes, boolean>;
 
 export type ModeSettingFormProps = {
     formValues: Record<string, string>;
@@ -41,5 +39,6 @@ export type ModeSetting = {
 }
 export type CollectionModeSettings = Record<Modes['collection'], ModeSetting>;
 export type PlayModeSettings = Record<Modes['play'], ModeSetting>;
+export type TagsModeSettings = Record<Modes['tags'], ModeSetting>;
 export type ModeSettings = Record<Modes[keyof Modes], ModeSetting>
 export type ModeSettingKey = keyof ModeSettings;

@@ -64,17 +64,17 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
                 setVersion={setVersion}
             >
                 {primaryActions && (
-                    <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
+                    <div className="flex flex-wrap justify-start content-start gap-1.25 pt-2">
                         {primaryActions}
                     </div>
                 )}
                 {pluginActions?.length > 0 && (
-                    <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
+                    <div className="flex flex-wrap justify-start content-start gap-1.25 pt-2">
                         {pluginActions}
                     </div>
                 )}
                 {settings && (
-                    <div className="flex flex-wrap justify-start content-start gap-1.5 pt-2">
+                    <div className="flex flex-wrap justify-start content-start gap-1.25 pt-2">
                         {settings}
                     </div>
                 )}
