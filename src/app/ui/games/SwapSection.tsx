@@ -56,7 +56,7 @@ export const SwapSectionInner = ({
         (state: RootState) => state.swap.data[collectionId!],
     );
 
-    const { isTrade } = useTradeMode();
+    const { isSwap, isTrade } = useTradeMode();
 
     useEffect(() => {
         if (!item) {
@@ -79,6 +79,9 @@ export const SwapSectionInner = ({
     const condition = savedData?.condition ?? conditionParser(description);
     const compareValue = savedData?.compareValue ?? 1;
     const cashValue = savedData?.cashValue ?? 0;
+
+    const needsDescription =  (isSwap || (isTrade && !['New', 'Like New'].includes(condition as string))) &&
+        (!description || description.length === 0);
 
     const name = item?.name ?? collectionId!.toString() ?? ''
 
@@ -223,7 +226,7 @@ export const SwapSectionInner = ({
                     bg-base-200 rounded p-2 h-16 overflow-y-auto`}>
                     {description}
                 </pre>
-                {!isTrade && (!description || description.length === 0) && <div className="absolute top-0.5 left-1 text-xl">
+                {needsDescription && <div className="absolute top-0.5 left-1 text-xl">
                     ⚠️
                 </div>}
                 {isTrade && condition && condition.length && <div

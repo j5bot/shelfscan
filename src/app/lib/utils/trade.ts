@@ -19,7 +19,10 @@ export const hasBodyText = (item?: BggCollectionItem, geeklistData?: GeeklistIte
     (geeklistData?.bodyText ?? item?.tradeCondition ?? '').length > 0;
 
 export const hasCondition = (swapData: SwapItemData) =>
-    swapData.condition && !['Other'].includes(swapData.condition);
+    swapData.condition && !['Other'].includes(swapData.condition as string);
+
+export const needsDescription = (swapData: SwapItemData) =>
+    !['New', 'Like New'].includes(swapData.condition as string) && (!swapData.description || swapData.description.length === 0);
 
 export const hasDescription = (item?: BggCollectionItem, swapData?: SwapItemData) =>
     (swapData?.description ?? item?.tradeCondition ?? '').length > 0;
@@ -32,9 +35,11 @@ export const getIsValidSwapItem = (item?: BggCollectionItem, swapData?: SwapItem
     return hasDescription(item, swapData);
 };
 
-export const getIsValidTradeItem = (swapData?: SwapItemData) => {
+export const getIsValidTradeItem = (item?: BggCollectionItem, swapData?: SwapItemData) => {
     if (!swapData) {
         return false;
     }
-    return hasCondition(swapData);
+    return needsDescription(swapData) ?
+           (hasDescription(item, swapData) && hasCondition(swapData))
+                                      : hasCondition(swapData);
 };
