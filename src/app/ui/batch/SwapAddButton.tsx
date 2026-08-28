@@ -45,7 +45,7 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         if (isSwap && !getIsValidSwapItem(undefined, saved[code])) {
             return false;
         }
-        if (isTrade && !getIsValidTradeItem(saved[code])) {
+        if (isTrade && !getIsValidTradeItem(undefined, saved[code])) {
             return false;
         }
         const data = gameDataMap[code];

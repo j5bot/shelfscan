@@ -202,7 +202,7 @@ export const CollectionPageContent = ({
                     return actionable;
                 case isSwap && !getIsValidSwapItem(item, swapData[collectionId]):
                     return actionable;
-                case isTrade && !getIsValidTradeItem(swapData[collectionId]):
+                case isTrade && !getIsValidTradeItem(item, swapData[collectionId]):
                     return actionable;
             }
             actionable.add(collectionId);
