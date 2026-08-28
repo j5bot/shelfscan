@@ -188,7 +188,7 @@ const innerUpdateCollectionItems = (
 // Matches plain hashtags (#PnP) and "value tags" (#best-at=2, #best-at=5+),
 // where the part before `=` is registered as its own tag and the whole string
 // as another.
-const HASHTAG_PATTERN = /#[\w-]+(?:=[\w+-]+)?/g;
+const HASHTAG_PATTERN = /#[\w-]+(?:=[\w#+-]+)?/g;
 
 const extractHashtags = (text: string): string[] => {
     const matches = text.match(HASHTAG_PATTERN);
