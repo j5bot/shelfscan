@@ -83,7 +83,7 @@ export const makeTagsModeSettings = ({ collectionId }: MakeModeSettingsParams): 
             label: 'Tags-WP',
             listText: 'Want Parts',
             icon: <FaTags className="w-4 h-4 shrink-0" />,
-            width: 'xs:w-27 w-29',
+            width: 'xs:w-27.5 w-29.5',
             form: (props: ModeSettingFormProps) =>
                 <TagsForm {...props}
                           field="wantpartslist"
