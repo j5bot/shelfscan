@@ -102,7 +102,9 @@ export const ListGame = memo((props: ListGameProps) => {
         upc={code} item={item}
     /> : null;
 
-    const tagsSection = collectionId ? <TagsSection collectionId={collectionId} /> : null;
+    const tagsSection = collectionId ? <TagsSection
+        collectionId={collectionId} className="pt-2"
+    /> : null;
 
     const thumbnail = <div className="relative">
         <ThumbnailBox

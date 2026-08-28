@@ -3,6 +3,7 @@ import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { type Game, type Version } from '@/app/lib/types/game';
 import { firstNonEmptyOrUndefined } from '@/app/lib/utils';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
+import { TagsSection } from '@/app/ui/games/TagsSection';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import { template } from '@blakeembrey/template';
 import Link from 'next/link';
@@ -53,12 +54,17 @@ export const GameDetails = ({
     const detailTemplates = usePlugins('link.details');
     const isLarge = thumbnailSize >= 250;
 
+    const { collectionId } = game ?? {};
+
     const { searchFormOpen, setSearchFormOpen, searchString, searchBlurHandler, searchClickHandler } =
         useGameDetailsSearch({
             onSearch: search?.onSearch ?? (() => {}),
             initialQuery: search?.initialQuery,
             initialOpen: search?.initialOpen,
         });
+
+    const tagsSection = view === 'collection' && collectionId
+        && <TagsSection collectionId={collectionId} className="justify-center" />;
 
     const versionInfo = version?.name && (
         <div className={isLarge ? 'w-full mt-2' : 'grow'}>
@@ -122,6 +128,7 @@ export const GameDetails = ({
                     </Link>;
                 })}
             </h2>
+            {tagsSection}
             {view === 'collection' && children && <div className={`grow max-w-full pb-0.5 ${version ? '' : 'pt-1'}`}>
                 {(game?.id ?? defaultGame?.id) && children}
             </div>}
