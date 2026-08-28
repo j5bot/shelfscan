@@ -3,6 +3,7 @@ import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { RatingForm } from '@/app/ui/extension/RatingForm';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
+import { TagsSection } from '@/app/ui/games/TagsSection';
 import { SizeKey } from '@/app/ui/grids/gridSizes';
 import { CollectionItemSwapSection, ScanSwapSection } from './SwapSection';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
@@ -101,6 +102,10 @@ export const ListGame = memo((props: ListGameProps) => {
         upc={code} item={item}
     /> : null;
 
+    const tagsSection = collectionId ? <TagsSection
+        collectionId={collectionId} className="pt-2"
+    /> : null;
+
     const thumbnail = <div className="relative">
         <ThumbnailBox
             alt={name}
@@ -186,6 +191,7 @@ export const ListGame = memo((props: ListGameProps) => {
             </div>
             {thumbnailContent}
             {ratingForm}
+            {tagsSection}
             {mathTradeSection}
             {swapSection}
             {swapScanSection}
