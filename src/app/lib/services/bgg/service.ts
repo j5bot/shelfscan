@@ -244,6 +244,9 @@ export const getCollectionFromXml = (xml?: string, expansionsXml?: string) => {
 const conditionalProps = (item: BggRawObject, propKey: keyof BggCollectionItem) =>
     item[propKey] ? { [propKey]: item[propKey] } : {};
 
+const conditionalTextField = (item: BggRawObject, field: keyof BggCollectionItem) =>
+    item.textfield?.[field]?.value ? { [field]: item.textfield?.[field]?.value } : {};
+
 export const getCollectionItemFromObject = (object: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(object);
     const version = getVersionDetailsFromObject(object.version as BggRawObject);
@@ -267,7 +270,7 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         comment: object.comment,
         haspartslist: object.textfield?.haspartslist?.value,
         wantpartslist: object.textfield?.wantpartslist?.value,
-        ...conditionalProps(object, 'wishlistcomment'),
+        ...conditionalTextField(object, 'wishlistcomment'),
         ...(Object.keys(privateInfo).length ? privateInfo : {}),
         ...conditionalProps(object, 'averageRating'),
         ...conditionalProps(object, 'rating'),
