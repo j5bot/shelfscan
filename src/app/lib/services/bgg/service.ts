@@ -241,14 +241,13 @@ export const getCollectionFromXml = (xml?: string, expansionsXml?: string) => {
     }, {} as BggCollectionMap);
 };
 
+const conditionalProps = (item: BggRawObject, propKey: keyof BggCollectionItem) =>
+    item[propKey] ? { [propKey]: item[propKey] } : {};
+
 export const getCollectionItemFromObject = (object: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(object);
     const version = getVersionDetailsFromObject(object.version as BggRawObject);
     const privateInfo = getPrivateInfoFromObject(object);
-
-    // these values come from XML but not JSON so we need to keep undefined from overwriting them
-    const averageRatingBlock = object.averageRating ? { averageRating: object.averageRating } : {};
-    const ratingBlock = object.rating ? { rating: object.rating } : {};
 
     return {
         ...commonDetails,
@@ -266,12 +265,12 @@ export const getCollectionItemFromObject = (object: BggRawObject) => {
         wishlistPriority: object.wishlistpriority,
         tradeCondition: object.textfield?.conditiontext?.value,
         comment: object.comment,
-        wishlistcomment: object.wishlistcomment,
         haspartslist: object.textfield?.haspartslist?.value,
         wantpartslist: object.textfield?.wantpartslist?.value,
+        ...conditionalProps(object, 'wishlistcomment'),
         ...(Object.keys(privateInfo).length ? privateInfo : {}),
-        ...ratingBlock,
-        ...averageRatingBlock,
+        ...conditionalProps(object, 'averageRating'),
+        ...conditionalProps(object, 'rating'),
     } as BggCollectionItem;
 };
 
