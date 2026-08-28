@@ -185,7 +185,7 @@ const SEARCH_PLACEHOLDERS: Record<SearchMode, string> = {
     all: 'name:… version:… #tag…',
     name: 'Filter by name…',
     version: 'Filter by version…',
-    tags: '#PnP #Review …',
+    tags: '#PnP #Review !#sleeved …',
 };
 
 export const CollectionControls = <F extends string>({

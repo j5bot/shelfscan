@@ -119,15 +119,29 @@ const readInitialFilters = (): CollectionFilters => {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const parseTagFilter = (raw: string): string[] => {
+// A single parsed tag token. `negate` is set when the token is prefixed with
+// `!` (e.g. `!#sleeved`), meaning the item must NOT carry that tag.
+export type TagQuery = {
+    tag: string;
+    negate: boolean;
+};
+
+const parseTagFilter = (raw: string): TagQuery[] => {
     const tokens = raw.trim().split(/[\s,]+/).filter(Boolean);
-    return tokens.map(t => (t.startsWith('#') ? t : `#${t}`).toLowerCase());
+    return tokens
+        .map(token => {
+            const negate = token.startsWith('!');
+            const bare = negate ? token.slice(1) : token;
+            const tag = (bare.startsWith('#') ? bare : `#${bare}`).toLowerCase();
+            return { tag, negate };
+        })
+        .filter(({ tag }) => tag !== '#');
 };
 
 export type UnifiedSearch = {
     nameQuery: string;
     versionQuery: string;
-    tagQueries: string[];
+    tagQueries: TagQuery[];
     // Set in All mode with no prefixes: OR match across name + version
     anyTextQuery: string;
 };
@@ -165,7 +179,7 @@ export const parseUnifiedSearch = (
 
     let nameQuery = '';
     let versionQuery = '';
-    let tagQueries: string[] = [];
+    let tagQueries: TagQuery[] = [];
 
     const before = trimmed.slice(0, matches[0].index).trim();
     if (before) { nameQuery = before.toLowerCase(); }
@@ -423,9 +437,10 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
                     return false;
                 }
 
-                // Text search: tags (AND logic)
-                for (const tag of tagQueries) {
-                    if (!(tagMap[tag]?.includes(item.collectionId))) { return false; }
+                // Text search: tags (AND logic; `!` negates)
+                for (const { tag, negate } of tagQueries) {
+                    const hasTag = tagMap[tag]?.includes(item.collectionId) ?? false;
+                    if (hasTag === negate) { return false; }
                 }
 
                 return true;
