@@ -145,7 +145,7 @@ export const SelectVersion = () => {
         <NavDrawer />
         <div className="flex flex-col items-center h-full p-3">
             <SelectVersionGameDetails header={header}>
-                <div className="flex flex-wrap justify-start gap-1.5">
+                <div className="flex flex-wrap justify-start gap-1.25">
                     {primaryActions}
                     {pluginActions}
                     {settings}
