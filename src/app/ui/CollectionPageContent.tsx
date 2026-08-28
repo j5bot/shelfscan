@@ -9,7 +9,11 @@ import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { bggHost } from '@/app/lib/services/bgg/constants';
 import { getBggImageFromItem } from '@/app/lib/utils/bggImageId';
 import { buildMathTradeBody } from '@/app/lib/utils/mathTradeFormat';
-import { downloadSwapExport, getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
+import {
+    downloadSwapExport,
+    downloadSwapExportCsv,
+    getSwapItemImageCacheKey
+} from '@/app/lib/utils/swapExport';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { parseUnifiedSearch, useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
@@ -264,7 +268,8 @@ export const CollectionPageContent = ({
         }
     }, [actionableTradeItemIds, collection, geeklistData, submitMathTrade]);
 
-    const handleSwapExport = useCallback(async () => {
+    const handleSwapExport = useCallback(
+        async (exportFn: (items: SwapItemData[], filename?: string) => void = downloadSwapExport) => {
         if (actionableTradeItemsCount === 0) { return; }
 
         const items: SwapItemData[] = Array.from(actionableTradeItemIds).flatMap(collectionId => {
@@ -291,7 +296,7 @@ export const CollectionPageContent = ({
 
         setIsExportingSwap(true);
         try {
-            await downloadSwapExport(items);
+            await exportFn(items);
             setSelectedMathTradeIds(new Set());
         } finally {
             setIsExportingSwap(false);
@@ -795,7 +800,12 @@ export const CollectionPageContent = ({
                                         uppercase text-base font-sharetech
                                         pl-6 pr-6 pt-2 pb-2
                                         ${(hasTrade ? isExportingSwap : isBulkMathTradeAdding) ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#d06b93] cursor-pointer'}`}
-                                    onClick={() => void (hasTrade ? handleSwapExport() : handleBulkMathTradeAdd())}
+                                    onClick={() => void (
+                                        hasTrade ?
+                                        handleSwapExport(
+                                            isTrade ? downloadSwapExportCsv : downloadSwapExport
+                                        ) : handleBulkMathTradeAdd()
+                                    )}
                                     disabled={hasTrade ? isExportingSwap : isBulkMathTradeAdding}
                                     aria-label={hasTrade
                                         ? `Export ${actionableTradeItemsCount} game${actionableTradeItemsCount !== 1 ? 's' : ''} to ODS`

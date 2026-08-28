@@ -3,8 +3,10 @@ import { vi } from 'vitest';
 import JSZip from 'jszip';
 import { makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import {
+    buildSwapExportCsv,
     buildSwapExportOds,
     downloadSwapExport,
+    downloadSwapExportCsv,
     getSwapItemImageCacheKey,
 } from '@/app/lib/utils/swapExport';
 import { getPageDOM } from '@/app/lib/utils/xml';
@@ -316,6 +318,98 @@ describe('swapExport', () => {
             const contentXml = await getContentXml(blob);
             const rows = getRows(contentXml);
             expect(cellTexts(rows[0])).toEqual(['Name']);
+        });
+    });
+
+    describe('#buildSwapExportCsv', () => {
+        const parseCsv = (csv: string) => csv.split('\r\n').map(line => {
+            const fields: string[] = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (inQuotes) {
+                    if (char === '"' && line[i + 1] === '"') { field += '"'; i++; }
+                    else if (char === '"') { inQuotes = false; }
+                    else { field += char; }
+                } else if (char === '"') { inQuotes = true; }
+                else if (char === ',') { fields.push(field); field = ''; }
+                else { field += char; }
+            }
+            fields.push(field);
+            return fields;
+        });
+
+        it('emits only a header row when there are no items', () => {
+            expect(buildSwapExportCsv([])).toBe('');
+        });
+
+        it('outputs present columns as CSV without the Image column', () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: 'Great condition',
+                compareValue: 5,
+                cashValue: 10,
+                imageKey: 'game-pic.jpg|400|400|90',
+            }];
+
+            const lines = parseCsv(buildSwapExportCsv(items));
+            expect(lines[0]).toEqual(['Name', 'Condition', 'Description', 'Compare Value', 'Cash Value']);
+            expect(lines[0]).not.toContain('Image');
+            expect(lines[1]).toEqual(['Catan', 'Very Good', 'Great condition', '5', '10']);
+        });
+
+        it('keeps the Image URL / Thumbnail URL columns, which are plain text', async () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'Catan',
+                description: '',
+                collectionItem: makeCollectionItem({
+                    thumbnail: 'https://cf.geekdo-images.com/thumb-pic.jpg',
+                    versionId: 686378,
+                    version: makeVersion(),
+                }),
+            }];
+
+            const lines = parseCsv(buildSwapExportCsv(items));
+            expect(lines[0]).toContain('Image URL');
+            expect(lines[0]).toContain('Thumbnail URL');
+            expect(lines[0]).not.toContain('Image');
+        });
+
+        it('quotes fields containing commas, quotes, or newlines (RFC 4180)', () => {
+            const items: SwapItemData[] = [{
+                collectionId: 1,
+                name: 'A, B & "C"',
+                description: 'line one\nline two',
+            }];
+
+            const csv = buildSwapExportCsv(items);
+            expect(csv).toContain('"A, B & ""C"""');
+            expect(csv).toContain('"line one\nline two"');
+
+            const lines = parseCsv(csv);
+            expect(lines[1]).toEqual(['A, B & "C"', 'line one\nline two']);
+        });
+    });
+
+    describe('#downloadSwapExportCsv', () => {
+        it('triggers a download of a text/csv blob', () => {
+            vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+            const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+            const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+            downloadSwapExportCsv([{ collectionId: 1, name: 'Catan', description: '' }], 'my-export.csv');
+
+            expect(createObjectURLSpy).toHaveBeenCalledTimes(1);
+            const [blobArg] = createObjectURLSpy.mock.calls[0];
+            expect((blobArg as Blob).type).toBe('text/csv;charset=utf-8');
+            expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:mock-url');
+
+            createObjectURLSpy.mockRestore();
+            revokeObjectURLSpy.mockRestore();
+            vi.restoreAllMocks();
         });
     });
 
