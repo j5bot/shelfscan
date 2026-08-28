@@ -9,7 +9,7 @@ import { BggCollectionItem, BggCollectionStatuses, BggPlayer } from '@/app/lib/t
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import { DetailedPlayForm } from '@/app/ui/extension/DetailedPlayForm';
-import { TagsForm, TagsFormProps } from '@/app/ui/extension/TagsForm';
+import { TagsForm } from '@/app/ui/extension/TagsForm';
 import { SyntheticEvent } from 'react';
 import {
     FaCircleInfo,

@@ -242,10 +242,10 @@ export const getCollectionFromXml = (xml?: string, expansionsXml?: string) => {
 };
 
 const conditionalProps = (item: BggRawObject, propKey: keyof BggCollectionItem) =>
-    item[propKey] ? { [propKey]: item[propKey] } : {};
+    item[propKey] !== undefined ? { [propKey]: item[propKey] } : {};
 
 const conditionalTextField = (item: BggRawObject, field: keyof BggCollectionItem) =>
-    item.textfield?.[field]?.value ? { [field]: item.textfield?.[field]?.value } : {};
+    item.textfield?.[field]?.value !== undefined ? { [field]: item.textfield?.[field]?.value } : {};
 
 export const getCollectionItemFromObject = (object: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(object);
