@@ -269,7 +269,7 @@ export const CollectionPageContent = ({
     }, [actionableTradeItemIds, collection, geeklistData, submitMathTrade]);
 
     const handleSwapExport = useCallback(
-        async (exportFn: (items: SwapItemData[], filename?: string) => void = downloadSwapExport) => {
+        async (exportFn: (items: SwapItemData[], filename?: string) => Promise<void> = downloadSwapExport) => {
         if (actionableTradeItemsCount === 0) { return; }
 
         const items: SwapItemData[] = Array.from(actionableTradeItemIds).flatMap(collectionId => {
@@ -288,8 +288,10 @@ export const CollectionPageContent = ({
                     item,
                 ) : description,
                 condition: savedData?.condition,
+                sweetener: savedData?.sweetener,
                 compareValue: savedData?.compareValue ?? 1,
                 cashValue: savedData?.cashValue ?? 0,
+                copies: savedData?.copies ?? 1,
                 imageKey: savedData?.imageKey ?? getSwapItemImageCacheKey(item),
             }];
         });

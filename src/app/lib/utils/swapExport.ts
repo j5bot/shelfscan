@@ -169,20 +169,20 @@ const allColumns: ColumnDef[] = [
         cellFn: stringCell,
     },
     {
-        header: 'Sweeteners',
+        header: TradeItemInteropFormatColumnHeaders.sweetener,
         width: 'text',
-        // No current source on SwapItemData or BggCollectionItem.
-        getValue: () => undefined,
+        wrap: true,
+        getValue: ({ item }) => item.sweetener,
         cellFn: stringCell,
     },
     {
-        header: 'Copies',
+        header: TradeItemInteropFormatColumnHeaders.copies,
         width: 'number',
-        getValue: () => undefined,
+        getValue: ({ item }) => item.copies ?? 1,
         cellFn: numberCell,
     },
     {
-        header: 'Compare Value',
+        header: TradeItemInteropFormatColumnHeaders.compareValue,
         width: 'number',
         getValue: ({ item }) => clampCompareValue(item.compareValue),
         cellFn: numberCell,
@@ -354,7 +354,7 @@ const triggerBlobDownload = (blob: Blob, filename: string): void => {
     URL.revokeObjectURL(url);
 };
 
-export const downloadSwapExportCsv = (items: SwapItemData[], filename = 'trade-export.csv'): void => {
+export const downloadSwapExportCsv = async (items: SwapItemData[], filename = 'trade-export.csv'): Promise<void> => {
     triggerBlobDownload(new Blob([buildSwapExportCsv(items)], { type: CSV_MIME_TYPE }), filename);
 };
 

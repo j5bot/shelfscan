@@ -17,6 +17,7 @@ export type SwapItemData = {
     compareValue?: number;
     imageKey?: string;
     cashValue?: number;
+    copies?: number;
 };
 
 export type SwapSliceState = {
