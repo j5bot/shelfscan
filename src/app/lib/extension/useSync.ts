@@ -34,7 +34,7 @@ export const useSync = () => {
         if (subscription === hasSubscription) {
             return;
         }
-        document.getElementById('subscribe-banner')?.classList.add('animate-fade');
+        document.getElementById('subscribe-banner')?.classList.add('hidden');
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasSubscription(subscription);
