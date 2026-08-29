@@ -3,17 +3,13 @@ import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { setItemData } from '@/app/lib/redux/swap/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { ComponentModeMap } from '@/app/lib/types/modes';
-import { TradeItemInteropFormat } from '@/app/lib/types/trade';
+import { TradeItemCondition } from '@/app/lib/types/trade';
 import { conditionParser, TIER_ABBREVIATION } from '@/app/lib/utils/condition';
 import { getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
-import { clampCashValue, clampCompareValue } from '@/app/lib/utils/trade';
+import { clampCashValue, clampCompareValue, clampCopies } from '@/app/lib/utils/trade';
 import { memo, useCallback, useEffect, useState } from 'react';
 
-type SwapCondition = TradeItemInteropFormat['condition'];
-
-const CONDITION_OPTIONS: { value: SwapCondition; label: string }[] = [
-    { value: undefined, label: 'Condition' },
+const CONDITION_OPTIONS: { value: TradeItemCondition; label: string }[] = [
     { value: 'New', label: 'New' },
     { value: 'Like New', label: 'Like New' },
     { value: 'Very Good', label: 'Very Good' },
@@ -66,7 +62,7 @@ export const SwapSectionInner = ({
             collectionId,
             name: item.name ?? collectionId!.toString() ?? '',
             condition: savedData?.condition ?? conditionParser(savedData?.description ?? item.tradeCondition ?? ''),
-            description: savedData?.description ?? item.tradeCondition ?? '',
+            description: savedData?.description ?? item.tradeCondition,
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
     }, [!item]);
@@ -79,6 +75,7 @@ export const SwapSectionInner = ({
     const condition = savedData?.condition ?? conditionParser(description);
     const compareValue = savedData?.compareValue ?? 1;
     const cashValue = savedData?.cashValue ?? 0;
+    const copies = savedData?.copies;
 
     const needsDescription =  (isSwap || (isTrade && !['New', 'Like New'].includes(condition as string))) &&
         (!description || description.length === 0);
@@ -91,14 +88,14 @@ export const SwapSectionInner = ({
     const cashValueMin = -1;
 
     const handleDescriptionChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, name, description: value.length > 0 ? value : undefined }));
+        dispatch(setItemData({ collectionId, name, description: value }));
     }, [dispatch, collectionId, name]);
 
     const handleSweetenerChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, name, sweetener: value.length > 0 ? value : undefined }));
+        dispatch(setItemData({ collectionId, name, sweetener: value }));
     }, [dispatch, collectionId, name]);
 
-    const handleConditionChange = useCallback((value: SwapCondition) => {
+    const handleConditionChange = useCallback((value: TradeItemCondition) => {
         dispatch(setItemData({ collectionId, name, condition: value }));
     }, [dispatch, collectionId, name]);
 
@@ -116,11 +113,35 @@ export const SwapSectionInner = ({
         }));
     }, [dispatch, collectionId, cashValue]);
 
+    const handleCopiesChange = useCallback((value: number | undefined) => {
+        dispatch(setItemData({
+            collectionId,
+            copies: clampCopies(value)
+        }));
+    }, [dispatch, collectionId, copies]);
+
     if (!item) { return null; }
 
     return <div className="mt-2 border-t border-base-content/15 pt-2">
         {expanded ? (
             <div className="flex flex-col gap-2">
+                {isTrade && (
+                    <div className="flex space-between gap-[2%]">
+                        {CONDITION_OPTIONS.map(option => (
+                            option.value === 'Other' ? null : <button className={`btn btn-xs btn-ghost rounded-md w-fit px-0 grow h-5
+                                ${condition === option.value
+                                  ? 'text-white bg-purple-400'
+                                  : 'border-gray-300 text-base-content/50'}
+                                `}
+                                aria-pressed={condition === option.value}
+                                aria-label={option.label}
+                                title={option.label}
+                                onClick={() => handleConditionChange(option.value)}>
+                                {TIER_ABBREVIATION[option.value]}
+                            </button>
+                        ))}
+                    </div>
+                )}
                 <textarea
                     className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
                     value={description}
@@ -136,34 +157,9 @@ export const SwapSectionInner = ({
                     aria-label="Sweeteners for math trade"
                 />}
                 <div className="flex flex-wrap items-center gap-1">
-                    {isTrade && (
-                        <div className="flex items-center gap-0.5">
-                            <label
-                                className="text-xs text-base-content/70"
-                                htmlFor={`condition-${collectionId}`}
-                            >
-                                Condition
-                            </label>
-                            <select
-                                id={`condition-${collectionId}`}
-                                className="select select-bordered select-xs ml-px"
-                                value={condition ?? ''}
-                                onChange={e => handleConditionChange(
-                                    e.target.value === '' ? undefined : e.target.value as SwapCondition,
-                                )}
-                                aria-label="Trade condition"
-                            >
-                                {CONDITION_OPTIONS.map(option => (
-                                    <option key={option.label} value={option.value ?? ''}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
                     <div className="flex items-center gap-0.5">
                         <label
-                            className="text-xs text-base-content/70"
+                            className="text-xs text-base-content/70 min-w-16 w-fit"
                             htmlFor={`compareValue-${collectionId}`}
                         >
                             Compare
@@ -182,10 +178,10 @@ export const SwapSectionInner = ({
                     </div>
                     <div className="flex items-center gap-0.5">
                         <label
-                            className="text-xs text-base-content/70 text-nowrap"
+                            className="text-xs text-base-content/70 min-w-16 w-fit text-nowrap"
                             htmlFor={`cashValue-${collectionId}`}
                         >
-                            Sell For
+                            <div className="flex justify-between"><div>Sell For</div><div>$</div></div>
                         </label>
                         <input
                             id={`cashValue-${collectionId}`}
@@ -201,6 +197,27 @@ export const SwapSectionInner = ({
                             aria-label="Cash value"
                         />
                     </div>
+                    {isTrade && <div className="flex items-center gap-0.5">
+                        <label
+                            className="text-xs text-base-content/70 min-w-16 w-fit text-nowrap"
+                            htmlFor={`copies-${collectionId}`}
+                        >
+                            Copies
+                        </label>
+                        <input
+                            id={`copies-${collectionId}`}
+                            type="number"
+                            className="input input-bordered input-xs ml-px w-12"
+                            value={(copies ?? 0) >= 0 ? copies : undefined}
+                            onChange={e => {
+                                const numberValue = parseInt(e.target.value, 10);
+                                handleCopiesChange(
+                                    isNaN(numberValue) ? undefined : numberValue,
+                                )
+                            }}
+                            aria-label="Copies"
+                        />
+                    </div>}
                 </div>
                 <div className="flex items-center gap-0.5">
                     <button
