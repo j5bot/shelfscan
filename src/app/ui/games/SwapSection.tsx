@@ -66,7 +66,7 @@ export const SwapSectionInner = ({
             collectionId,
             name: item.name ?? collectionId!.toString() ?? '',
             condition: savedData?.condition ?? conditionParser(savedData?.description ?? item.tradeCondition ?? ''),
-            description: savedData?.description ?? item.tradeCondition ?? '',
+            description: savedData?.description ?? item.tradeCondition,
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
     }, [!item]);
@@ -91,11 +91,11 @@ export const SwapSectionInner = ({
     const cashValueMin = -1;
 
     const handleDescriptionChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, name, description: value.length > 0 ? value : undefined }));
+        dispatch(setItemData({ collectionId, name, description: value }));
     }, [dispatch, collectionId, name]);
 
     const handleSweetenerChange = useCallback((value: string) => {
-        dispatch(setItemData({ collectionId, name, sweetener: value.length > 0 ? value : undefined }));
+        dispatch(setItemData({ collectionId, name, sweetener: value }));
     }, [dispatch, collectionId, name]);
 
     const handleConditionChange = useCallback((value: SwapCondition) => {
@@ -121,6 +121,31 @@ export const SwapSectionInner = ({
     return <div className="mt-2 border-t border-base-content/15 pt-2">
         {expanded ? (
             <div className="flex flex-col gap-2">
+                {isTrade && (
+                    <div className="flex items-center gap-0.5">
+                        <label
+                            className="text-xs text-base-content/70"
+                            htmlFor={`condition-${collectionId}`}
+                        >
+                            Condition
+                        </label>
+                        <select
+                            id={`condition-${collectionId}`}
+                            className="select select-bordered select-xs ml-px"
+                            value={condition ?? ''}
+                            onChange={e => handleConditionChange(
+                                e.target.value === '' ? undefined : e.target.value as SwapCondition,
+                            )}
+                            aria-label="Trade condition"
+                        >
+                            {CONDITION_OPTIONS.map(option => (
+                                <option key={option.label} value={option.value ?? ''}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
                 <textarea
                     className="textarea textarea-bordered w-full text-xs resize-y min-h-16 p-1.5"
                     value={description}
@@ -136,31 +161,6 @@ export const SwapSectionInner = ({
                     aria-label="Sweeteners for math trade"
                 />}
                 <div className="flex flex-wrap items-center gap-1">
-                    {isTrade && (
-                        <div className="flex items-center gap-0.5">
-                            <label
-                                className="text-xs text-base-content/70"
-                                htmlFor={`condition-${collectionId}`}
-                            >
-                                Condition
-                            </label>
-                            <select
-                                id={`condition-${collectionId}`}
-                                className="select select-bordered select-xs ml-px"
-                                value={condition ?? ''}
-                                onChange={e => handleConditionChange(
-                                    e.target.value === '' ? undefined : e.target.value as SwapCondition,
-                                )}
-                                aria-label="Trade condition"
-                            >
-                                {CONDITION_OPTIONS.map(option => (
-                                    <option key={option.label} value={option.value ?? ''}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
                     <div className="flex items-center gap-0.5">
                         <label
                             className="text-xs text-base-content/70"
