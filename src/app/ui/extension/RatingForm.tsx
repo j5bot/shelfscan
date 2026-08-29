@@ -38,7 +38,6 @@ export const RatingForm = memo(({
         return state.bgg.collection.users[username].items[collectionId ?? 0]
     });
 
-
     const { createAddRating } = useRating();
 
     const addRating = createAddRating({

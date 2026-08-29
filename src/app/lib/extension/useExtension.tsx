@@ -541,6 +541,7 @@ export const useExtension = (params?: UseExtension) => {
                         })}
                 </div>
                 <textarea name="comment"
+                          defaultValue={collectionItem?.comment}
                           className={`mt-2 textarea textarea-sm w-full min-h-8 h-8 text-xs
                             overflow-hidden
                             overflow-ellipsis
