@@ -9,6 +9,12 @@ export const clampCompareValue = (
 ): number | undefined =>
     value === undefined ? undefined : Math.min(max, Math.max(min, value));
 
+export const clampCopies = (
+    value: number | undefined,
+    min: number | undefined = 1
+): number | undefined =>
+    value === undefined ? undefined : Math.max(min, value);
+
 export const clampCashValue = (
     value: number | undefined,
     min: number | undefined = 0
