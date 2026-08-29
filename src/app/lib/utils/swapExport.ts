@@ -9,6 +9,7 @@ import JSZip from 'jszip';
 import { ImageProps } from 'next/image';
 
 const ODS_MIME_TYPE = 'application/vnd.oasis.opendocument.spreadsheet';
+const CSV_MIME_TYPE = 'text/csv;charset=utf-8';
 
 const IMAGE_CELL_WIDTH_IN = 1.5;
 const IMAGE_CELL_HEIGHT_IN = 1.5;
@@ -168,20 +169,20 @@ const allColumns: ColumnDef[] = [
         cellFn: stringCell,
     },
     {
-        header: 'Sweeteners',
+        header: TradeItemInteropFormatColumnHeaders.sweetener,
         width: 'text',
-        // No current source on SwapItemData or BggCollectionItem.
-        getValue: () => undefined,
+        wrap: true,
+        getValue: ({ item }) => item.sweetener,
         cellFn: stringCell,
     },
     {
-        header: 'Copies',
+        header: TradeItemInteropFormatColumnHeaders.copies,
         width: 'number',
-        getValue: () => undefined,
+        getValue: ({ item }) => item.copies ?? 1,
         cellFn: numberCell,
     },
     {
-        header: 'Compare Value',
+        header: TradeItemInteropFormatColumnHeaders.compareValue,
         width: 'number',
         getValue: ({ item }) => clampCompareValue(item.compareValue),
         cellFn: numberCell,
@@ -319,6 +320,43 @@ const buildManifestXml = (images: ResolvedImage[]): string => '<?xml version="1.
         `<manifest:file-entry manifest:full-path="${image.path}" manifest:media-type="${image.mediaType}"/>`
     ).join('')
     + '</manifest:manifest>';
+
+// ── CSV export ────────────────────────────────────────────────────────────────
+
+// RFC 4180: wrap in double quotes and double any embedded quote when the field
+// contains a quote, comma, or line break.
+const csvField = (value: ColumnValue): string => {
+    if (value === undefined) { return ''; }
+    const text = String(value);
+    return /["\r\n,]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+};
+
+const csvRow = (values: string[]): string => values.join(',');
+
+// Same column selection as the ODS export, minus the embedded 'Image' column
+// (CSV is text-only, so only the Image URL / Thumbnail URL columns carry over).
+export const buildSwapExportCsv = (items: SwapItemData[]): string => {
+    const rows: ResolvedRow[] = items.map(item => ({ item }));
+    const columns = selectPresentColumns(rows).filter(column => column.width !== 'image');
+
+    return [
+        csvRow(columns.map(column => csvField(column.header))),
+        ...rows.map(row => csvRow(columns.map(column => csvField(column.getValue(row))))),
+    ].join('\r\n');
+};
+
+const triggerBlobDownload = (blob: Blob, filename: string): void => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+export const downloadSwapExportCsv = async (items: SwapItemData[], filename = 'trade-export.csv'): Promise<void> => {
+    triggerBlobDownload(new Blob([buildSwapExportCsv(items)], { type: CSV_MIME_TYPE }), filename);
+};
 
 export const buildSwapExportOds = async (items: SwapItemData[]): Promise<Blob> => {
     const rows: ResolvedRow[] = await Promise.all(

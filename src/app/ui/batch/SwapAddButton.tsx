@@ -6,7 +6,7 @@ import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { RootState } from '@/app/lib/redux/store';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { gameUPCInfoAndVersionToCollectionItem, gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
-import { downloadSwapExport } from '@/app/lib/utils/swapExport';
+import { downloadSwapExport, downloadSwapExportCsv } from '@/app/lib/utils/swapExport';
 import { getIsValidSwapItem, getIsValidTradeItem } from '@/app/lib/utils/trade';
 import posthog from 'posthog-js';
 import React, { useCallback, useState } from 'react';
@@ -115,7 +115,7 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         });
 
         try {
-            await downloadSwapExport(items);
+            await (isSwap ? downloadSwapExport(items) : downloadSwapExportCsv(items));
             posthog.capture('swap_export_downloaded', {
                 game_count: items.length,
             });
