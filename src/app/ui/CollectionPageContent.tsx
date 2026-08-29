@@ -789,7 +789,7 @@ export const CollectionPageContent = ({
                                 {selectedMathTradeIds.size > 0
                                     ? `${selectedMathTradeIds.size} selected`
                                     : hasTrade
-                                        ? 'Click image to select for Swap export'
+                                        ? 'Click image to select for export'
                                         : 'Click image to select for Math Trade'
                                 }
                             </span>
