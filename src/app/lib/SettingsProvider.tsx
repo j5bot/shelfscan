@@ -39,11 +39,11 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
     useEffect(() => {
         loadSettings().then(loadedSettings => {
-            const { rememberMe, username } = loadedSettings;
-            if (!(rememberMe && username)) {
+            const { username } = loadedSettings;
+            if (!username) {
                 return;
             }
-            loadUser(username as string, rememberMe as boolean, true);
+            loadUser(username as string);
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

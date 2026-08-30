@@ -204,7 +204,6 @@ export const AllGamesContent = memo(({
     onMathTradeToggle,
     modeMap = emptyModeMap,
 }: AllGamesContentProps) => {
-    const username = useSelector((state: RootState) => state.bgg.user.user);
     const { hasTrade, isMathTrade } = useTradeMode();
 
     switch (state.status) {
@@ -231,30 +230,6 @@ export const AllGamesContent = memo(({
                     <button className="btn btn-primary" onClick={() => refreshCollection()}>
                         Retry
                     </button>
-                </div>
-            );
-
-        case CollectionLoadStatuses.EMPTY:
-            return (
-                <div className="flex flex-col items-center gap-4 p-8 pt-10 text-center">
-                    <p className="text-lg">
-                        {username ?
-                         `Your collection is empty. Start scanning games to see them here!`
-                             : `We can't display your collection without your BGG username ... please fill out the form above!`
-                        }
-                    </p>
-                    <Link
-                        href="/"
-                        title="Go to scanner"
-                        className={`scan-button cursor-pointer rounded-2xl
-                            flex justify-start items-center
-                            bg-gray-400 text-white
-                            p-6 pt-2 pb-2
-                            text-4xl`}
-                    >
-                        <FaBarcode className="w-12 h-9" />
-                        <div className="p-1.5 font-semibold uppercase">Scan</div>
-                    </Link>
                 </div>
             );
 

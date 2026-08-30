@@ -838,7 +838,7 @@ export const CollectionPageContent = ({
                             </div>
                         </div>
                     )}
-                    <section
+                    {username && <section
                         ref={sectionRef}
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
                         role="tabpanel"
@@ -904,7 +904,7 @@ export const CollectionPageContent = ({
                                 onToggleSelection={handleToggleSelection}
                             />
                         )}
-                    </section>
+                    </section>}
                 </div>
             </div>
             <CollectionItemModal item={selectedItem} onClose={() => setSelectedItem(null)} />
