@@ -110,7 +110,7 @@ export const NavDrawer = () => {
         if (!(username && settingsUsername)) {
             return;
         }
-        loadUser(settingsUsername as string, rememberMe as boolean, false);
+        loadUser(settingsUsername as string);
     };
 
     const signOutMenuItem = (username || (rememberMe && settingsUsername)) ? <li>

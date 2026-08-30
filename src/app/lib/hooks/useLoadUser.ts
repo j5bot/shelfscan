@@ -3,7 +3,7 @@ import {
     bggGetUserInner
 } from '@/app/lib/actions';
 import { addResponseToCache, getResponseFromCache } from '@/app/lib/database/cacheDatabase';
-import { getCollection, removeSetting, setSetting } from '@/app/lib/database/database';
+import { getCollection, setSetting } from '@/app/lib/database/database';
 import { useDispatch } from '@/app/lib/hooks/index';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
@@ -52,8 +52,6 @@ export const useLoadUser = () => {
 
     const loadUser = (
         username?: string,
-        rememberMe: boolean = false,
-        useCache: boolean = true
     ) => {
         if (!username) {
             return;
@@ -64,25 +62,16 @@ export const useLoadUser = () => {
             const expansionsId = `collection-expansions|${username.toLowerCase()}`;
             const userCacheId = `user|${username.toLowerCase()}`;
 
-            if (rememberMe) {
-                setSetting('username', username).then();
-            } else {
-                removeSetting('username').then();
-            }
+            setSetting('username', username).then();
 
-            let xml: string | undefined;
-            let expansionsXml: string | undefined;
-            let userXml: string | undefined;
+            let xml = await getCollectionFromCache(id);
+            let expansionsXml = await getCollectionFromCache(expansionsId);
+            let userXml = await getResponseFromCache(userCacheId);
 
-            if (useCache) {
-                xml = await getCollectionFromCache(id);
-                expansionsXml = await getCollectionFromCache(expansionsId);
-                userXml = await getResponseFromCache(userCacheId);
-            }
             if (!xml || !expansionsXml) {
                 const [gamesXml, expansionsResult] = await Promise.all([
-                    xml ?? bggGetCollectionInner(username, false, 0),
-                    expansionsXml ?? bggGetCollectionInner(username, true, 0),
+                    xml ? Promise.resolve(xml) : bggGetCollectionInner(username, false, 0),
+                    expansionsXml ? Promise.resolve(expansionsXml) : bggGetCollectionInner(username, true, 0),
                 ]);
                 xml = gamesXml;
                 expansionsXml = expansionsResult;
@@ -92,7 +81,7 @@ export const useLoadUser = () => {
                     addResponseToCache({ id: expansionsId, method: 'GET', response: expansionsXml }).then();
                 } else {
                     await sleep(10000);
-                    loadUser(username, rememberMe, useCache);
+                    loadUser(username);
                     return;
                 }
             }
@@ -102,10 +91,7 @@ export const useLoadUser = () => {
             }
             setUserXml(userXml);
 
-            let items: BggCollectionMap | undefined;
-            if (useCache) {
-                items = await getCollection(username.toLowerCase());
-            }
+            let items = await getCollection(username.toLowerCase());
             if (!items) {
                 items = getCollectionFromXml(xml, expansionsXml);
             }
