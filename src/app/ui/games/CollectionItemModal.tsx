@@ -37,13 +37,13 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
         const templateFn = template(pluginTemplate);
         return (
             <div key={index} className={`relative shrink-0 xs:h-7 h-8 ${className ?? ''} mr-0.5`}>
-                <div className={`rounded-full ${className ?? ''} border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8`} />
+                <div className={`rounded-full ${className ?? ''} border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8`} />
                 <Link title={title} href={templateFn(game)} target="_blank">
                     <button
                         className={`collection-button cursor-pointer rounded-full
                             relative w-full
                             flex justify-start items-center
-                            bg-[#e07ca4] text-white
+                            bg-brand-background text-white
                             p-1 xs:pl-1.5 pl-2 pr-1.5 xs:h-7 h-8
                             xs:font-stretch-semi-condensed xs:tracking-tight
                             text-sm`}

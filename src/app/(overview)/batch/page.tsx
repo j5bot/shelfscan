@@ -32,7 +32,7 @@ export default function Page() {
                         {' '}<Link href="/" className="underline">scanner page</Link>.
                     </p>}
                     <Link className={`btn rounded-full
-                        bg-[#e07ca4] text-white
+                        bg-brand-background text-white
                         flex items-center justify-center gap-1
                         uppercase text-md font-sharetech`}
                           href="/extension">

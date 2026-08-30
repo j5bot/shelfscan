@@ -174,7 +174,7 @@ export const makeAddToCollectionModeSettings = ({
                         <input name="shouldRemove"
                                value="remove"
                                type="checkbox"
-                               className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" />
+                               className="toggle toggle-xs checked:bg-brand-background checked:text-white" />
                         Remove
                     </label>
                 </form>;

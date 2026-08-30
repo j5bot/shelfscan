@@ -245,7 +245,9 @@ const conditionalProps = (item: BggRawObject, propKey: keyof BggCollectionItem) 
     item[propKey] !== undefined ? { [propKey]: item[propKey] } : {};
 
 const conditionalTextField = (item: BggRawObject, field: keyof BggCollectionItem) =>
-    item.textfield?.[field]?.value !== undefined ? { [field]: item.textfield?.[field]?.value } : {};
+    item.textfield?.[field]?.value !== undefined ? {
+    [field]: item.textfield?.[field]?.value.length === 0 ? null : item.textfield?.[field]?.value
+} : {};
 
 export const getCollectionItemFromObject = (object: BggRawObject) => {
     const commonDetails = getCommonDetailsFromObject(object);

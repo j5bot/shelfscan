@@ -39,7 +39,7 @@ export const BggCollectionForm = ()=> {
 
     return !(currentUsername || settingsUsername) && settingsLoaded &&
         <form action={getCollectionAction} className="w-full">
-            <fieldset className={`bg-gray-100 dark:bg-gray-900 rounded-t-lg flex flex-wrap gap-2 p-2 justify-center items-center`}>
+            <fieldset className={`text-xs bg-gray-100 dark:bg-gray-900 rounded-t-lg flex flex-wrap gap-2 p-2 justify-center items-center`}>
                 <input className="grow bg-white inset-shadow-xs/40 inset-shadow-gray-400 dark:bg-gray-700 p-2 rounded-md max-w-3/8 md:max-w-64"
                        type="text" name="username"
                        id="bgg-username"
@@ -49,7 +49,7 @@ export const BggCollectionForm = ()=> {
                 />
                 <div className="get-collection-section flex gap-2 items-center">
                     <button
-                        className="grow p-2 px-4 rounded-md bg-gray-200 dark:bg-gray-500 cursor-pointer whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
+                        className="grow p-2 px-4 rounded-md cursor-pointer whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
                         name="getCollection"
                         disabled={isPending} aria-disabled={isPending}
                         type="submit"

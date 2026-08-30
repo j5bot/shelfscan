@@ -260,7 +260,7 @@ export const useExtension = (params?: UseExtension) => {
                 <Fragment key={`${modeKey}-block`}>
                     <div data-collapse={`${modeKey}-block`}
                          className={`relative z-[9] shrink-0 ${modeSetting.width} mr-0.5`}>
-                        <div className={`rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 ${modeSetting.width}`}></div>
+                        <div className={`rounded-full border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8 ${modeSetting.width}`}></div>
                         <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${modeSetting.width}`}>
                             <input type="checkbox" className="xs:h-7 h-8" style={{
                                 padding: 0,
@@ -278,7 +278,7 @@ export const useExtension = (params?: UseExtension) => {
                                     className={`collection-button cursor-pointer rounded-l-full
                                 absolute top-0 left-0 right-5
                                 flex justify-start items-center
-                                ${disabledModes[modeKey] ? 'bg-gray-300' : 'bg-[#e07ca4]'}
+                                ${disabledModes[modeKey] ? 'bg-gray-300' : 'bg-brand-background'}
                                 text-white
                                 p-1 pl-1.5 xs:h-7 h-8
                                 z-40
@@ -293,7 +293,7 @@ export const useExtension = (params?: UseExtension) => {
                             </button>
                             <div className={`collapse-content p-0 min-w-33`}>
                                 <div className={`mt-1
-                                border border-[#e07ca4] rounded-md
+                                border border-brand-background rounded-md
                                 bg-overlay
                                 text-xs leading-5.5`}>
                                     <ul className="menu w-full p-0 m-0" data-collapse-key={`${modeKey}-block`}>
@@ -313,7 +313,7 @@ export const useExtension = (params?: UseExtension) => {
                                                                onClick={createUpdateModeFn(modeKey,
                                                                    mode,
                                                                    setting)}
-                                                               className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b border-[#e07ca433]' : ''}`.trim()}
+                                                               className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b border-brand-background/30' : ''}`.trim()}
                                                     >{setting.listText}</li>
                                                 })
                                         }
@@ -456,6 +456,7 @@ export const useExtension = (params?: UseExtension) => {
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
         const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);
         const formData = form ? new FormData(form) : undefined;
+        const formValues = Object.fromEntries(formData ?? []);
 
         dispatchExtensionMessage({
             userId,
@@ -464,7 +465,7 @@ export const useExtension = (params?: UseExtension) => {
             name: version?.name ?? info?.name,
             gameId: info?.id,
             versionId: version?.version_id,
-            formValues: Object.fromEntries(formData ?? []),
+            formValues,
         });
 
         const target = e.currentTarget?.previousElementSibling as HTMLDivElement;
@@ -483,13 +484,13 @@ export const useExtension = (params?: UseExtension) => {
 
     const addRatingBlock = syncOn && userId && (
         <Fragment key="arb">
-            <div className="flex shrink relative items-center">
+            <div className="flex shrink relative items-center gap-1">
                 <div className="relative shrink-0 xs:w-17 w-19 xs:h-7 h-8">
                     <button
                         className={`collection-button cursor-pointer rounded-full
                             relative
                             flex justify-start items-center                            
-                            bg-[#e07ca4] text-white
+                            bg-brand-background text-white
                             p-1 pl-1.5  xs:h-7 h-8
                             xs:font-stretch-semi-condensed xs:tracking-tight
                             text-sm`}
@@ -499,11 +500,11 @@ export const useExtension = (params?: UseExtension) => {
                         <div className="p-1 pr-2 font-semibold uppercase">Rate</div>
                     </button>
                 </div>
-                <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 right-0 xs:h-7 h-8 w-7"></div>
+                <div className="rounded-full border-0 border-brand-background absolute top-0 right-0 xs:h-7 h-8 w-7"></div>
                 {ratingFormOpen && newRating > 0 &&
                     <button className={`cursor-pointer relative mr-0.5 xs:h-7 h-8 items-center`}
                             onClick={addRating}>
-                        <FaSave className="w-6 h-6 text-[#e07ca4]" />
+                        <FaSave className="w-6 h-6 text-brand-background" />
                     </button>}
             </div>
             {ratingFormOpen && <form name={`rating-form-${collectionId ?? info?.id ?? 'unknown'}`}
@@ -555,7 +556,7 @@ export const useExtension = (params?: UseExtension) => {
     const settings = syncOn && userId && <div>
         <label className="flex gap-1 justify-start items-center p-2 pl-0.5 text-xs">
             <input disabled={!collectionId}
-                   className="toggle toggle-xs checked:bg-[#e07ca4] checked:text-white" type="checkbox"
+                   className="toggle toggle-xs checked:bg-brand-background checked:text-white" type="checkbox"
                    checked={collectionId !== undefined ? update : false} onChange={
                 (event) => setUpdate(event.currentTarget.checked)
             } />

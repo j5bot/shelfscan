@@ -74,7 +74,7 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
     return <div className="flex flex-col items-center gap-2 w-full">
         <button
             className={`btn rounded-full
-                bg-[#e07ca4] text-white
+                bg-brand-background text-white
                 flex items-center justify-center gap-2
                 uppercase text-lg font-sharetech
                 pl-6 pr-6 pt-2 pb-2

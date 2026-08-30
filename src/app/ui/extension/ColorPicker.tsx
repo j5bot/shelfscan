@@ -125,7 +125,7 @@ export const ColorPicker = ({ value, onChange, rowRef }: ColorPickerProps) => {
                             aria-label={color.name}
                             className={`h-6 w-full rounded cursor-pointer border-2 transition-transform hover:scale-110
                                 ${value === color.name
-                                    ? 'border-[#e07ca4]'
+                                    ? 'border-brand-background'
                                     : 'border-gray-300 border-[0.5px] hover:border-base-300'}`}
                             style={{ backgroundColor: color.css }}
                             onMouseDown={e => {

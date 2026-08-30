@@ -160,7 +160,7 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         <button
             type="button"
             className={`btn rounded-full w-full mt-2
-                ${isInGeeklist ? 'btn-warning' : 'bg-[#e07ca4] text-white'}
+                ${isInGeeklist ? 'btn-warning' : 'bg-brand-background text-white'}
                 uppercase text-xs font-sharetech
                 pt-1 pb-1
                 ${sending ? 'opacity-75 cursor-not-allowed' : ''}`}

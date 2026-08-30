@@ -112,13 +112,13 @@ export const ListGame = memo((props: ListGameProps) => {
             url={thumbnailUrl}
             imageUrl={imageUrl}
             size={thumbnailSize}
-            className={mathTradeSelected ? `p-2 border-4 border-[#e07ca4]` : ''}
+            className={mathTradeSelected ? `p-2 border-4 border-brand-background` : ''}
             styles={imageContainerStyles}
         />
         {ratingIcon && <div className="absolute flex justify-center bottom-[-3] w-full z-9">{ratingIcon}</div>}
         {mathTradeSelected && (
             <div className={`w-14 h-14 absolute top-3 left-4 flex items-center justify-center
-                bg-[#e07ca4]/90 rounded-full z-10 pointer-events-none`}>
+                bg-brand-background/90 rounded-full z-10 pointer-events-none`}>
                 <FaCheck className="text-white w-10 h-10 drop-shadow" aria-hidden="true" />
             </div>
         )}

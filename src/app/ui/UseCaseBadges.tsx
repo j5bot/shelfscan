@@ -54,7 +54,7 @@ const logPlayTooltipContent = <div className="text-left p-2">
             Click
             <button
                 className={`rounded-lg
-                        bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-1
+                        bg-brand-background/90 border-brand-background text-white p-1
                         w-fit gap-1 mt-1 items-center
                         text-xs flex uppercase font-bold`}
             >
@@ -76,7 +76,7 @@ const addToCollectionTooltipContent = <div className="text-left p-2">
             Click
             <button
                 className={`rounded-lg
-                        bg-[#e07ca4dc] border-[#e07ca4ff] text-white p-1
+                        bg-brand-background/90 border-brand-background text-white p-1
                         w-fit gap-1 mt-1 flex items-center
                         text-xs uppercase font-bold`}
             >

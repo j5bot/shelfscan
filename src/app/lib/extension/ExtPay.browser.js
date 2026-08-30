@@ -20,7 +20,7 @@ export const ExtPay = (extension_id, options = {}) => {
     const HOST = `https://extensionpay.com`;
     const EXTENSION_URL = `${HOST}/extension/${extension_id}`;
 
-    if (typeof window === 'undefined' || !window.localStorage) {
+    if (!window.localStorage) {
         throw 'ExtPay needs to be run in a browser page context with access to window.localStorage';
     }
 

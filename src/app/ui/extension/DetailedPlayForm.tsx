@@ -515,7 +515,7 @@ export const DetailedPlayForm = ({
                 <input
                     type="checkbox"
                     name="incomplete"
-                    className="checkbox checkbox-xs checked:bg-[#e07ca4] checked:text-white"
+                    className="checkbox checkbox-xs checked:bg-brand-background checked:text-white"
                     onChange={e =>
                         setFormValues(Object.assign({}, formValues, {
                             incomplete: e.currentTarget.checked ? '1' : '',
@@ -539,7 +539,7 @@ export const DetailedPlayForm = ({
                 type="button"
                 className={`collection-button cursor-pointer rounded-full
                     flex items-center gap-1
-                    bg-[#e07ca4] text-white
+                    bg-brand-background text-white
                     p-1 pl-2 pr-3
                     text-sm font-semibold uppercase`}
                 onClick={handleSubmit}

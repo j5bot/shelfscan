@@ -7,10 +7,10 @@ import { FaChrome, FaFirefox } from 'react-icons/fa6';
 export const GetExtensionLink = () => {
     return <div className="flex justify-center pb-4">
         <Link id="get-extension-link" className={`btn max-w-2/3 rounded-full
-                bg-[#e07ca4] text-white
+                bg-brand-background text-white
                 flex items-center justify-center gap-1
                 uppercase text-md font-sharetech`}
-              href="/extension">
+              href="/extension" suppressHydrationWarning>
             <FaFirefox className="w-4 h-4" />
             <GearIcon className="w-4 h-4" />
             <OrionIcon className="w-4 h-4" fill="#e07ca4" />
