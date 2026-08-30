@@ -46,9 +46,9 @@ const SubscribePage = () => {
                 </p>
 
                 <div className="pt-3">
-                    <button className="bg-[#e07ca4] rounded-xl text-white btn mr-3"
+                    <button className="bg-brand-background rounded-xl text-white btn mr-3"
                             onClick={openTrialPage}><span className="line-through">3</span> 30 Day Free Trial</button>
-                    <button className="bg-[#e07ca4] rounded-xl text-white btn"
+                    <button className="bg-brand-background rounded-xl text-white btn"
                             onClick={openPaymentPage}>Subscribe to ShelfScan</button>
 
                 </div>

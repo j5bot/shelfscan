@@ -5,6 +5,7 @@
 
 @theme {
   --animate-fade: fade 0.2s ease 0s 1 forwards;
+  --color-brand-background: #e07ca4;
 
   @keyframes fade {
     0% { opacity: 1 }
@@ -53,6 +54,10 @@ body {
 
 .bg-overlay {
   background-color: var(--background);
+}
+
+.bg-brand-background {
+  background-color: var(--color-brand-background);
 }
 
 .font-sharetech, h1, h2, h3, h4, h5, h6, h7 {

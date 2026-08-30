@@ -229,17 +229,17 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
         viewer: null,
     }));
 
-    return <div className="rounded-lg bg-overlay border-[#e07ca4] border-1 w-full flex flex-col items-center">
+    return <div className="rounded-lg bg-overlay border-brand-background border-1 w-full flex flex-col items-center">
         <div className="w-full px-2 py-1 rounded-lg">
             <div className="flex justify-between items-center w-full pl-2 py-2">
                 <h3>Data Forms</h3>
                 <div className="flex justify-end gap-1.5">
                     <div className="relative shrink-0 xs:w-20 w-22 xs:h-7 h-8">
-                        <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-20 w-22"></div>
+                        <div className="rounded-full border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8 xs:w-20 w-22"></div>
                         <button onClick={sendGetData} className="collection-button cursor-pointer rounded-full
                         relative
                         flex justify-start items-center
-                        bg-[#e07ca4] text-white
+                        bg-brand-background text-white
                         p-2 pl-2.5 xs:h-7 h-8
                         xs:font-stretch-condensed xs:tracking-tight
                         text-sm">
@@ -247,11 +247,11 @@ export const DataForms = ({ collectionId, userId, gameId }: DataFormsProps) => {
                         </button>
                     </div>
                     <div className="relative shrink-0 xs:w-26 w-28 xs:h-7 h-8">
-                        <div className="rounded-full border-0 border-[#e07ca4] absolute top-0 left-0 xs:h-7 h-8 xs:w-26 w-28"></div>
+                        <div className="rounded-full border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8 xs:w-26 w-28"></div>
                         <button onClick={handleSaveAll} className="collection-button cursor-pointer rounded-full
                         relative
                         flex justify-start items-center
-                        bg-[#e07ca4] text-white
+                        bg-brand-background text-white
                         p-2 pl-2.5 xs:h-7 h-8
                         xs:font-stretch-condensed xs:tracking-tight
                         text-sm">

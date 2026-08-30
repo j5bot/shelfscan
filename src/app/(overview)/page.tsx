@@ -52,17 +52,16 @@ export default function Page() {
     } = useScanRecorder();
 
     const compressedCodes = useMemo(() =>
-        convertToCompressedCodes(codes),
-    [codes]);
+            convertToCompressedCodes(codes),
+        [codes]);
 
     useEffect(() => {
         if (!breakpoint) {
             return;
         }
-        if (!searchParams.get('scanner-tour') && hasSeenTour('scanner')) {
-            return;
+        if (searchParams.get('scanner-tour')) {
+            startNextStep('scanner');
         }
-        startNextStep('scanner');
     }, [breakpoint, searchParams, startNextStep]);
 
     const hasGameDataMap = !!gameDataMap;
@@ -81,8 +80,8 @@ export default function Page() {
         }
         setCodes(
             upc.includes('.') || upc.length < 12 ?
-                convertFromCompressedCodes(upc.split('.')) :
-                upc.split(',')
+            convertFromCompressedCodes(upc.split('.')) :
+            upc.split(',')
         );
     }, [searchParams, setCodes]);
 
@@ -98,51 +97,67 @@ export default function Page() {
             onClearLimitReached={clearHistoryLimitReached}
         />
         {breakpoint ? (
-             <div className="flex flex-col w-full items-center p-3 sm:p-4">
-                 <div className="flex flex-col justify-center items-center gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
-                     {!(currentUsername || codes.length) && <h1 className="text-3xl sm:text-2xl my-4 text-center">For <span data-alternate-words="persnickety,picky">particular</span> people to<br />
-                         quickly curate their collections.</h1>}
-                     <Suspense fallback={loader('Focusing...')}>
-                         <div>
-                             <Scanner onScan={onScan} />
-                         </div>
-                     </Suspense>
-                 </div>
-                 <Suspense>
-                     <BggCollectionForm />
-                 </Suspense>
-                 <Suspense>
-                     <div id="scanlist" className={`relative w-full h-full
+            <>
+                {!currentUsername && <div className="flex justify-center absolute w-full top-8">
+                    <button className="btn text-xl rounded-2xl bg-brand-background text-white font-sharetech"
+                        onClick={() => startNextStep('scanner')}
+                    >Take a Tour</button>
+                </div>}
+                <div className="flex flex-col w-full items-center p-3 sm:p-4">
+                    <div className="flex flex-col justify-center items-center gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
+                        {!(
+                            currentUsername || codes.length
+                        ) && (
+                             <h1 className="text-3xl sm:text-2xl my-2 text-center">For <span
+                                 data-alternate-words="persnickety,picky">particular</span> people
+                                 to<br />
+                                 quickly curate their collections.
+                             </h1>
+                         )}
+                        <Suspense fallback={loader('Focusing...')}>
+                            <div>
+                                <Scanner onScan={onScan} />
+                            </div>
+                        </Suspense>
+                    </div>
+                    <Suspense>
+                        <BggCollectionForm />
+                    </Suspense>
+                    <Suspense>
+                        <div id="scanlist" className={`relative w-full h-full
                         bg-[#f1eff9] dark:bg-yellow-700 p-2
                         ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
-                         <div className="flex flex-col justify-center h-full w-full">
-                             {codes.length > 0
-                             ? (<>
-                                 <Scanlist codes={codes} removeCode={removeCode} />
-                                 <div className="flex justify-center pt-4 pb-2">
-                                     <button
-                                         className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+                            <div className="flex flex-col justify-center h-full w-full">
+                                {codes.length > 0
+                                 ? (
+                                     <>
+                                         <Scanlist codes={codes} removeCode={removeCode} />
+                                         <div className="flex justify-center pt-4 pb-2">
+                                             <button
+                                                 className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
                                              text-sm uppercase cursor-pointer"
-                                         onClick={() => setCodes([])}
-                                     >
-                                         Clear All
-                                     </button>
-                                 </div>
-                             </>)
-                             : (
-                                 <div className="w-full mt-2 mb-4 text-sm flex flex-col items-center justify-items-center text-center">
-                                     <UseCaseBadges />
-                                 </div>
-                             )}
-                         </div>
-                     </div>
-                     <SessionLink compressedCodes={compressedCodes} />
-                 </Suspense>
-             </div>
-         ) : (
+                                                 onClick={() => setCodes([])}
+                                             >
+                                                 Clear All
+                                             </button>
+                                         </div>
+                                     </>
+                                 )
+                                 : (
+                                     <div className="w-full mt-2 mb-4 text-sm flex flex-col items-center justify-items-center text-center">
+                                         <UseCaseBadges />
+                                     </div>
+                                 )}
+                            </div>
+                        </div>
+                        <SessionLink compressedCodes={compressedCodes} />
+                    </Suspense>
+                </div>
+            </>
+        ) : (
              <div className="absolute top-0 w-screen h-screen right-0 bottom-0 left-0 flex justify-center items-center">
                  {loader('Warming up...')}
              </div>
          )
-    }</>;
+        }</>;
 }

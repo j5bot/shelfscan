@@ -154,7 +154,7 @@ export const renderSelectedItem = (
                 <button
                     disabled={isUpdating}
                     onClick={updateGameUPC}
-                    className="update-button rounded-lg bg-[#e07ca4] text-white h-8 w-8 md:w-fit p-1 md:pl-2 md:pr-2 btn flex text-xs"
+                    className="update-button rounded-lg bg-brand-background text-white h-8 w-8 md:w-fit p-1 md:pl-2 md:pr-2 btn flex text-xs"
                 >
                     {isUpdating ?
                         <span className="loading loading-bars loading-xs" /> :

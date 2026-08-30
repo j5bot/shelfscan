@@ -757,7 +757,7 @@ export const CollectionPageContent = ({
                                 <button
                                     type="button"
                                     className={`btn rounded-full pointer-events-auto
-                                        bg-[#e07ca4] text-white
+                                        bg-brand-background text-white
                                         flex items-center justify-center gap-2
                                         uppercase text-base font-sharetech
                                         pl-6 pr-6 pt-2 pb-2
@@ -797,7 +797,7 @@ export const CollectionPageContent = ({
                                 <button
                                     type="button"
                                     className={`btn rounded-full pointer-events-auto
-                                        bg-[#e07ca4] text-white
+                                        bg-brand-background text-white
                                         flex items-center justify-center gap-2
                                         uppercase text-base font-sharetech
                                         pl-6 pr-6 pt-2 pb-2
