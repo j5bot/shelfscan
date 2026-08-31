@@ -1,1 +1,3 @@
-export const testUPC = '222222222222';
+export const testUPCs = [
+    '222222222222'
+];

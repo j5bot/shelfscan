@@ -1,6 +1,6 @@
 import { useCodes } from '@/app/lib/CodesProvider';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { testUPC } from '@/app/ui/tours/consts';
+import { testUPCs } from '@/app/ui/tours/consts';
 import { pointer } from '@/app/ui/tours/stepConfig';
 import { Tour, TourStep } from '@/app/lib/types/tour';
 import { TourCardProps } from '@/app/ui/tour/TourCard';
@@ -20,9 +20,9 @@ const gameDetailsStep = (params: TourCardProps): Step => {
     } = useGameUPCData();
 
     useEffect(() => {
-        getGameData(testUPC).then();
-        if (!codes.includes(testUPC)) {
-            setCodes([...codes, testUPC]);
+        getGameData(testUPCs[0]).then();
+        if (!codes.includes(testUPCs[0])) {
+            setCodes([...codes, testUPCs[0]]);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -33,7 +33,7 @@ const gameDetailsStep = (params: TourCardProps): Step => {
             more actions.
         </div>
         <Link
-            href={`/upc/${testUPC}`}
+            href={`/upc/${testUPCs[0]}`}
             className="btn"
             onClick={() => {
                 skipTour?.();

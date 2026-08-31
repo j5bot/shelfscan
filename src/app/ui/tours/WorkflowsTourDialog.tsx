@@ -1,4 +1,4 @@
-import { testUPC } from '@/app/ui/tours/consts';
+import { testUPCs } from '@/app/ui/tours/consts';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useNextStep } from 'nextstepjs';
@@ -20,7 +20,7 @@ const workflowLinks: WorkflowLink[] = [
     },
     {
         name: 'gameDetails',
-        href: `/upc/${testUPC}`,
+        href: `/upc/${testUPCs[0]}`,
         tour: 'gamePage',
         label: 'Game Details',
     },

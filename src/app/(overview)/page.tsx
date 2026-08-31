@@ -8,7 +8,7 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
-import { hasSeenTour } from '@/app/ui/tours';
+// import { hasSeenTour } from '@/app/ui/tours';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -101,11 +101,11 @@ export default function Page() {
         />
         {breakpoint ? (
             <>
-                {!currentUsername && <div className="flex justify-center absolute w-full top-8">
-                    <button className="btn text-xl rounded-2xl bg-brand-background text-white font-sharetech"
-                        onClick={() => workflowsTourDialogRef.current?.showModal()}
-                    >Take a Tour</button>
-                </div>}
+                {/*{<div className="flex justify-center absolute w-full top-8">*/}
+                {/*    <button className="btn text-xl rounded-2xl bg-brand-background text-white font-sharetech"*/}
+                {/*        onClick={() => workflowsTourDialogRef.current?.showModal()}*/}
+                {/*    >Take a Tour</button>*/}
+                {/*</div>}*/}
                 <WorkflowsTourDialog ref={workflowsTourDialogRef} />
                 <div className="flex flex-col w-full items-center p-3 sm:p-4">
                     <div className="flex flex-col justify-center items-center gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
