@@ -8,7 +8,7 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanRecorder } from '@/app/lib/hooks/useScanRecorder';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
-import { hasSeenTour } from '@/app/lib/tours';
+import { hasSeenTour } from '@/app/ui/tours';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
@@ -16,9 +16,10 @@ import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import { SessionLink } from '@/app/ui/SessionLink';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
+import { WorkflowsTourDialog } from '@/app/ui/tours/WorkflowsTourDialog';
 import { useSearchParams } from 'next/navigation';
 import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useEffect, useMemo } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef } from 'react';
 
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
@@ -34,6 +35,8 @@ export default function Page() {
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
 
     const { startNextStep } = useNextStep();
+
+    const workflowsTourDialogRef = useRef<HTMLDialogElement>(null);
 
     const {
         gameDataMap,
@@ -100,9 +103,10 @@ export default function Page() {
             <>
                 {!currentUsername && <div className="flex justify-center absolute w-full top-8">
                     <button className="btn text-xl rounded-2xl bg-brand-background text-white font-sharetech"
-                        onClick={() => startNextStep('scanner')}
+                        onClick={() => workflowsTourDialogRef.current?.showModal()}
                     >Take a Tour</button>
                 </div>}
+                <WorkflowsTourDialog ref={workflowsTourDialogRef} />
                 <div className="flex flex-col w-full items-center p-3 sm:p-4">
                     <div className="flex flex-col justify-center items-center gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
                         {!(
@@ -125,7 +129,7 @@ export default function Page() {
                     </Suspense>
                     <Suspense>
                         <div id="scanlist" className={`relative w-full h-full
-                        bg-[#f1eff9] dark:bg-yellow-700 p-2
+                        bg-[#f1eff9] dark:bg-green-800 p-2
                         ${currentUsername ? 'rounded-lg' : 'rounded-b-lg'}`}>
                             <div className="flex flex-col justify-center h-full w-full">
                                 {codes.length > 0

@@ -49,7 +49,7 @@ export const BggCollectionForm = ()=> {
                 />
                 <div className="get-collection-section flex gap-2 items-center">
                     <button
-                        className="grow p-2 px-4 rounded-md cursor-pointer whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
+                        className="grow btn text-lg rounded-lg bg-accent/50 text-white whitespace-nowrap max-w-1/4 min-w-fit md:max-w-52"
                         name="getCollection"
                         disabled={isPending} aria-disabled={isPending}
                         type="submit"

@@ -1,5 +1,5 @@
 import { useTailwindDarkMode } from '@/app/lib/TailwindProvider';
-import { onComplete, onSkip, onStart, onStepChange, tours } from '@/app/lib/tours';
+import { onComplete, onSkip, onStart, onStepChange, tours } from '@/app/ui/tours';
 import { TourCard } from '@/app/ui/tour/TourCard';
 import { NextStep, NextStepProvider as Provider, Tour } from 'nextstepjs';
 import { ReactNode } from 'react';

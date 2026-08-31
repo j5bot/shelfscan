@@ -843,7 +843,7 @@ export const CollectionPageContent = ({
                         id={activeTab === CollectionTabs.ALL_GAMES ? allGamesPanelId : notInCollectionPanelId}
                         role="tabpanel"
                         aria-labelledby={activeTab === CollectionTabs.ALL_GAMES ? allGamesTabId : notInCollectionTabId}
-                        className="w-full bg-[#f1eff9] dark:bg-yellow-700 rounded-md p-2 pt-0"
+                        className="w-full bg-[#f1eff9] dark:bg-green-800 rounded-md p-2 pt-0"
                     >
                         {activeTab === CollectionTabs.ALL_GAMES && (
                             <AllGamesContent

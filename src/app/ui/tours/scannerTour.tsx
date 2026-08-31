@@ -1,16 +1,54 @@
-import { GameDetailsStep } from '@/app/lib/tours/index';
-import { pointer } from '@/app/lib/tours/stepConfig';
+import { useCodes } from '@/app/lib/CodesProvider';
+import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
+import { testUPC } from '@/app/ui/tours/consts';
+import { pointer } from '@/app/ui/tours/stepConfig';
 import { Tour, TourStep } from '@/app/lib/types/tour';
 import { TourCardProps } from '@/app/ui/tour/TourCard';
 import Image from 'next/image';
-import { Step } from 'nextstepjs';
+import Link from 'next/link';
+import { Step, useNextStep } from 'nextstepjs';
+import React, { useEffect } from 'react';
 import { FaBarcode, FaCloudArrowDown, FaList, FaUser } from 'react-icons/fa6';
 
-const generateListStep = (params: TourCardProps): Step => {
+const gameDetailsStep = (params: TourCardProps): Step => {
+    const { skipTour } = params;
+
+    const { startNextStep, closeNextStep } = useNextStep();
+    const { codes, setCodes } = useCodes();
+    const {
+        getGameData,
+    } = useGameUPCData();
+
+    useEffect(() => {
+        getGameData(testUPC).then();
+        if (!codes.includes(testUPC)) {
+            setCodes([...codes, testUPC]);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const content = <div className="flex flex-col gap-2">
+        <div>
+            Click on an item in the scanned game list to view details and take
+            more actions.
+        </div>
+        <Link
+            href={`/upc/${testUPC}`}
+            className="btn"
+            onClick={() => {
+                skipTour?.();
+                closeNextStep();
+                setTimeout(() => {
+                    startNextStep('gamePage');
+                }, 1000);
+            }}
+        >Go to Game Details Tour</Link>
+    </div>;
+
     return {
         icon: <FaList className="h-5 w-5" />,
         title: 'Game Details',
-        content: <GameDetailsStep {...params} />,
+        content,
         selector: '#scanlist',
         side: 'top',
         showControls: true,
@@ -67,7 +105,7 @@ an application for managing BGG collections, scanning board game UPCs, and more`
         ...pointer,
         pointerRadius: 12,
     },
-    generateListStep,
+    gameDetailsStep,
 ];
 
 export const scannerTour: Tour = {

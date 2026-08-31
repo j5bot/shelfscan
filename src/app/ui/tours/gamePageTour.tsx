@@ -1,4 +1,4 @@
-import { pointer } from '@/app/lib/tours/stepConfig';
+import { pointer } from '@/app/ui/tours/stepConfig';
 import { Tour, TourStep } from '@/app/lib/types/tour';
 import { SvgCssGauge } from '@/app/ui/SvgCssGauge';
 import Image from 'next/image';

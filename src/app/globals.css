@@ -19,6 +19,7 @@
 }
 
 @theme inline {
+  --color-accent: #a23dfb;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
