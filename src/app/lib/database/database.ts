@@ -4,7 +4,13 @@ import { ScanHistoryEntry } from '@/app/lib/types/scanHistory';
 import Dexie, { EntityTable } from 'dexie';
 import { type ShelfScanPlugin } from '../types/plugins';
 
-export type ShelfScanSetting = string | string[] | boolean | unknown | MarketPreferences;
+export type ShelfScanSetting =
+    | string
+    | string[]
+    | boolean
+    | Record<string, boolean>
+    | MarketPreferences
+    | unknown;
 
 export type SettingEntity = {
     id: string;

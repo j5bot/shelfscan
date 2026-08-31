@@ -7,11 +7,13 @@ import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { useSettings } from '@/app/lib/SettingsProvider';
+import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { Settings } from '@/app/ui/Settings';
+import { WorkflowsTourDialog } from '@/app/ui/tours/WorkflowsTourDialog';
 import Link from 'next/link';
 import posthog from 'posthog-js';
-import { useRouter } from 'next/navigation';
-import { ReactNode, Suspense, use, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ReactNode, Ref, Suspense, use, useEffect, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
 import {
     FaBarcode,
@@ -60,6 +62,19 @@ const closeOnNavigate = () => {
 };
 
 export const NavDrawer = () => {
+    const breakpoint = useTailwindBreakpoint();
+    const searchParams = useSearchParams();
+    const toursDialogRef = useRef<HTMLDialogElement>(null);
+
+    useEffect(() => {
+        if (!breakpoint) {
+            return;
+        }
+        if (searchParams.get('tour')) {
+            toursDialogRef.current?.showModal();
+        }
+    }, [breakpoint, toursDialogRef.current, searchParams]);
+
     const dispatch = useDispatch();
     const { loadSettings, settings } = useSettings();
     const { username: settingsUsername, rememberMe } = settings;
@@ -131,6 +146,7 @@ export const NavDrawer = () => {
     </li> : null;
 
     return (<>
+        <WorkflowsTourDialog ref={toursDialogRef} />
         <dialog ref={dialogRef} className="modal">
             <div className="modal-box min-w-86">
                 <form method="dialog">
@@ -159,9 +175,9 @@ export const NavDrawer = () => {
                             <Link className="flex gap-2 grow" href="/" onNavigate={closeOnNavigate}>
                                 <FaBarcode className="inline" /> Scan
                             </Link>
-                            {!username && <button className="cursor-pointer flex gap-2" onClick={() => {
+                            {<button className="cursor-pointer flex gap-2" onClick={() => {
                                 closeOnNavigate();
-                                router.push('/?scanner-tour=true');
+                                router.push('?tour=true');
                             }}><MdTour /> Tour</button>}
                         </li>
                         {canBatch && <li className="w-full">
