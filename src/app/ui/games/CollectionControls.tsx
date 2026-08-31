@@ -80,7 +80,7 @@ const ThreeStateToggle = <S extends string>({
                                    : offLabel;
 
     const colorClass = isDefault
-                       ? 'text-base-content/40 bg-[#efefef]'
+                       ? 'text-base-content/40 bg-[#efefef] dark:bg-gray-700'
                        : isOn
                          ? 'btn-success text-success-content'
                          : 'btn-error text-error-content';
@@ -178,7 +178,7 @@ type CollectionControlsProps<F extends string> = {
     stickyTop: number;
 };
 
-const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-yellow-700 pt-2 pb-2 flex flex-col gap-2`;
+const STICKY_CLASS = `sticky z-[12] bg-[#f1eff9] dark:bg-green-800 pt-2 pb-2 flex flex-col gap-2`;
 const removeNonDigits = (value: string): string => value.replace(/\D/g, '');
 
 const SEARCH_PLACEHOLDERS: Record<SearchMode, string> = {
@@ -211,6 +211,8 @@ export const CollectionControls = <F extends string>({
     const presetsOverlayRef = useRef<HTMLDivElement>(null);
     const [presetsPos, setPresetsPos] = useState<{ top: number; left: number } | null>(null);
 
+    const buttonBgClassName = 'bg-[#efefef] dark:bg-gray-700';
+
     const handlePresetsClick = useCallback(() => {
         if (presetsPos) {
             setPresetsPos(null);
@@ -239,7 +241,9 @@ export const CollectionControls = <F extends string>({
             key={'saved-filters-control'}
             ref={presetsButtonRef}
             type="button"
-            className={`btn btn-condensed btn-xs rounded-sm ${presetsPos ? 'btn-primary' : 'text-base-content/40 bg-[#efefef]'}`}
+            className={`btn btn-condensed btn-xs rounded-sm ${presetsPos
+              ? 'btn-primary'
+              : `text-base-content/40 ${buttonBgClassName}`}`}
             onClick={handlePresetsClick}
             aria-label={presetsPos ? 'Hide presets' : 'Load saved preset'}
             aria-expanded={presetsPos !== null}
@@ -261,7 +265,9 @@ export const CollectionControls = <F extends string>({
     />
 
     const ownershipControls = filters.ownership !== 'default' ? (
-        <div key="ownership-controls" className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+        <div key="ownership-controls" className={`flex w-fit
+            ${buttonBgClassName}
+            p-0.5 rounded-sm items-center gap-0.5`}>
             {ownershipToggle}
             <select
                 className="pl-2 select rounded-sm select-bordered select-xs w-26 xs:w-28 sm:w-28 shrink-0"
@@ -280,7 +286,8 @@ export const CollectionControls = <F extends string>({
         key="want-toggle"
         type="button"
         className={`btn btn-condensed btn-xs ${
-            filters.want !== 'default' ? 'btn-success text-success-content' : 'text-base-content/40 bg-[#efefef]'
+            filters.want !== 'default' ? 'btn-success text-success-content'
+                                       : `text-base-content/40 ${buttonBgClassName}`
         } rounded-sm gap-0.5`}
         onClick={() => setFilter('want', filters.want === 'default' ? 'want' : 'default')}
         aria-label="Change want filter"
@@ -290,7 +297,7 @@ export const CollectionControls = <F extends string>({
     </button>;
 
     const wantControls = filters.want !== 'default' ? (
-        <div key="want-controls" className="flex bg-[#efefef] w-fit p-0.5 rounded-sm items-center gap-0.5">
+        <div key="want-controls" className={`flex ${buttonBgClassName} w-fit p-0.5 rounded-sm items-center gap-0.5`}>
             {wantToggle}
             <select
                 className="pl-2 select rounded-sm select-bordered select-xs w-28 shrink-0"
@@ -317,7 +324,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const ratingControls = filters.rating === 'rated' ? (
-        <div key="rating-controls" className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+        <div key="rating-controls" className={`flex w-fit ${buttonBgClassName} p-0.5 rounded-sm items-center gap-0.5`}>
             {ratingToggle}
             <button
                 type="button"
@@ -366,7 +373,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const playsControls = filters.plays === 'played' ? (
-            <div key="plays-controls" className="flex w-fit bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+            <div key="plays-controls" className={`flex w-fit ${buttonBgClassName} p-0.5 rounded-sm items-center gap-0.5`}>
                 {playsToggle}
                 <input
                     type="text"
@@ -579,11 +586,11 @@ export const CollectionControls = <F extends string>({
 
             {/* Row 2: status filters */}
             {showFilters && (
-                <div className="flex gap-0.5 bg-white rounded-md p-1.5 items-center overflow-auto"
+                <div className="flex gap-0.5 bg-white dark:bg-black rounded-md p-1.5 items-center overflow-auto"
                      role="group"
                      aria-label="Filter games">
 
-                    <div className="flex flex-wrap gap-0.5 bg-white rounded-md items-center"
+                    <div className="flex flex-wrap gap-0.5 rounded-md items-center"
                          role="group"
                          aria-label="Collection filters"
                     >

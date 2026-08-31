@@ -3,7 +3,7 @@
 import { useExtPay } from '@/app/lib/hooks/useExtPay';
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { GearIcon } from '@/app/ui/icons/GearIcon';
-import { OrionIcon } from '@/app/ui/icons/OrionIcon';
+// import { OrionIcon } from '@/app/ui/icons/OrionIcon';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
 import {
@@ -72,14 +72,14 @@ const ExtensionPage = () => {
                                   className="underline"
                 >Gear</Link> on iOS
                 </p>
-                <p className="flex items-center gap-1"><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
-                                                             target="_blank"><OrionIcon className="w-6 h-6" /> <span className="underline">
-                        Download</span>
-                </Link> for <Link
-                    href="https://orionbrowser.com/download/appstore"
-                    target="_blank"
-                    className="underline">Orion</Link> on iOS
-                </p>
+                {/*<p className="flex items-center gap-1"><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"*/}
+                {/*                                             target="_blank"><OrionIcon className="w-6 h-6" /> <span className="underline">*/}
+                {/*        Download</span>*/}
+                {/*</Link> for <Link*/}
+                {/*    href="https://orionbrowser.com/download/appstore"*/}
+                {/*    target="_blank"*/}
+                {/*    className="underline">Orion</Link> on iOS*/}
+                {/*</p>*/}
                 <p><Link className="flex items-center gap-2"
                          href="https://chromewebstore.google.com/detail/shelfscan/eohbphncdiehigcejaeaddegejphnbgd/"
                          target="_blank"><FaChrome className="w-6 h-6" /> <span className="underline">
