@@ -7,16 +7,18 @@ import { RootState } from '@/app/lib/redux/store';
 import { BatchView } from '@/app/ui/batch/BatchView';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
+import { useNextStep } from 'nextstepjs';
 import React from 'react';
 
 export default function Page() {
     useTitle('ShelfScan | Batch Scan');
 
     const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
+    const { currentTour } = useNextStep();
 
     const { canBatch, addGameToCollection } = useBatchSync();
 
-    if (!canBatch) {
+    if (!(canBatch || currentTour === 'batchscan')) {
         return <>
             <NavDrawer />
             <div className="w-screen pt-20 flex justify-center">
