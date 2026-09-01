@@ -12,7 +12,12 @@ import { FaCloudArrowUp } from 'react-icons/fa6';
 
 type BatchAddButtonProps = {
     codes: string[];
-    addGameToCollection: (info: GameUPCBggInfo, versionId?: number, collectionId?: number) => void | Promise<DocumentMessageResponseDetail | undefined>;
+    addGameToCollection: (
+        info: GameUPCBggInfo,
+        versionId?: number,
+        collectionId?: number,
+        code?: string
+    ) => void | Promise<DocumentMessageResponseDetail | boolean | undefined>;
     onComplete?: (addedCodes: string[]) => void;
 };
 
@@ -52,7 +57,7 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
             const { collectionId } =
                 getCollectionInfoByObjectId([state, info.id, undefined]);
 
-            return addGameToCollection(info, versionId, collectionId)?.then(
+            return addGameToCollection(info, versionId, collectionId, code)?.then(
                 success => success ? `${info.name} (${code})` : undefined
             );
         }).filter(Boolean);
@@ -73,6 +78,7 @@ export const BatchAddButton = (props: BatchAddButtonProps) => {
 
     return <div className="flex flex-col items-center gap-2 w-full">
         <button
+            id="batch-add-button"
             className={`btn rounded-full
                 bg-brand-background text-white
                 flex items-center justify-center gap-2

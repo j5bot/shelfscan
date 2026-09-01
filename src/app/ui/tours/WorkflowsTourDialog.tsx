@@ -14,10 +14,16 @@ type WorkflowLink = {
 
 const workflowLinks: WorkflowLink[] = [
     {
+        name: 'batchscan',
+        href: '/batch',
+        tour: 'batchscan',
+        label: 'Batch Scanning',
+    },
+    {
         name: 'scanner',
         href: '/',
         tour: 'scanner',
-        label: 'Scan Games',
+        label: 'Scanning Games',
     },
     {
         name: 'gameDetails',

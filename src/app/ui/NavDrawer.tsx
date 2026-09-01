@@ -13,7 +13,7 @@ import { WorkflowsTourDialog } from '@/app/ui/tours/WorkflowsTourDialog';
 import Link from 'next/link';
 import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ReactNode, Ref, Suspense, use, useEffect, useRef, useState } from 'react';
+import { ReactNode, Suspense, use, useEffect, useRef, useState } from 'react';
 import { FaSignOutAlt, FaSync } from 'react-icons/fa';
 import {
     FaBarcode,
