@@ -12,6 +12,7 @@ import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
 import { ScanToasts } from '@/app/ui/ScanToasts';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
+import { useNextStep } from 'nextstepjs';
 import React, { CSSProperties, Suspense, useCallback, useRef, useState } from 'react';
 import { FaBarcode } from 'react-icons/fa6';
 
@@ -21,7 +22,8 @@ export type BatchViewProps = {
             info: GameUPCBggInfo,
             versionId?: number | undefined,
             collectionId?: number | undefined,
-        ) => void | Promise<DocumentMessageResponseDetail | undefined>;
+            code?: string,
+        ) => void | Promise<DocumentMessageResponseDetail | boolean | undefined>;
     }
 };
 
@@ -30,6 +32,8 @@ export const BatchView = (props: BatchViewProps) => {
     const breakpoint = useTailwindBreakpoint();
 
     const { hasExport, isCollection, isSwap, isTrade } = useTradeMode();
+
+    const { currentTour } = useNextStep();
 
     let batchScanHeading = 'Batch Scan Mode';
     let batchScanBody = 'Scan multiple games, then add them to your BGG collection all at once.';
@@ -108,6 +112,9 @@ export const BatchView = (props: BatchViewProps) => {
         },
     ] as const : [] as const;
 
+    const showStatus = currentTour === 'batchscan' ? 'all' : shownStatus;
+    const statusCodes = (!isCollection || showStatus === 'all') ? codes : statuses[showStatus] ?? []
+
     return <>
         <NavDrawer />
         <ScanToasts
@@ -117,7 +124,7 @@ export const BatchView = (props: BatchViewProps) => {
             onClearLimitReached={clearHistoryLimitReached}
         />
         {addedNames.length > 0 && (
-            <div className="toast toast-top toast-center z-50" onClick={() => setAddedNames([])}>
+            <div id="batch-add-toast" className="toast toast-top toast-center z-50" onClick={() => setAddedNames([])}>
                 <div role="status" className="alert alert-success shadow-lg cursor-pointer">
                     <span className="text-sm">
                         Added {addedNames.length} game{addedNames.length !== 1 ? 's ' : ' '} to collection:&nbsp;
@@ -142,7 +149,7 @@ export const BatchView = (props: BatchViewProps) => {
                          ? <>
                              <div className="pb-2 pt-1">
                                  {isCollection && addGameToCollection && <BatchAddButton
-                                     codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
+                                     codes={showStatus === 'all' ? codes : statuses[showStatus] ?? []}
                                      addGameToCollection={addGameToCollection}
                                      onComplete={onComplete}
                                  />}
@@ -162,12 +169,12 @@ export const BatchView = (props: BatchViewProps) => {
                                          return <button
                                              id={`${key}-tab`}
                                              role="tab"
-                                             aria-selected={shownStatus === key}
+                                             aria-selected={showStatus === key}
                                              aria-controls={`${key}-panel`}
-                                             tabIndex={shownStatus === key ? 0 : -1}
-                                             className={`tab${shownStatus === key ? ' tab-active' : ''}
+                                             tabIndex={showStatus === key ? 0 : -1}
+                                             className={`tab${showStatus === key ? ' tab-active' : ''}
                                                 text-xs cursor-pointer pb-1`}
-                                             onClick={() => shownStatus !== key && setShownStatus(
+                                             onClick={() => showStatus !== key && setShownStatus(
                                                  key)}
                                              key={key}
                                          >
@@ -180,13 +187,13 @@ export const BatchView = (props: BatchViewProps) => {
                              </div>}
 
                              <section
-                                 id={`${shownStatus}-panel`}
+                                 id={`${showStatus}-panel`}
                                  role="tabpanel"
-                                 aria-labelledby={`${shownStatus}-tab`}
+                                 aria-labelledby={`${showStatus}-tab`}
                                  className="w-full"
                              >
                                  <Scanlist
-                                     codes={shownStatus === 'all' ? codes : statuses[shownStatus] ?? []}
+                                     codes={statusCodes}
                                      removeCode={removeCode}
                                      showGame={true}
                                  />

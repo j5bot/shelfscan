@@ -1,3 +1,4 @@
+import { useSettings } from '@/app/lib/SettingsProvider';
 import { testUPCs } from '@/app/ui/tours/consts';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,10 +14,16 @@ type WorkflowLink = {
 
 const workflowLinks: WorkflowLink[] = [
     {
+        name: 'batchscan',
+        href: '/batch',
+        tour: 'batchscan',
+        label: 'Batch Scanning',
+    },
+    {
         name: 'scanner',
         href: '/',
         tour: 'scanner',
-        label: 'Scan Games',
+        label: 'Scanning Games',
     },
     {
         name: 'gameDetails',
@@ -32,6 +39,7 @@ type WorkflowsTourDialogProps = {
 
 export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
     const { startNextStep, closeNextStep } = useNextStep();
+    const { settings: { dismissedTours }, setSetting } = useSettings();
 
     const switchTour = (
         event: MouseEvent<HTMLAnchorElement>,
@@ -42,7 +50,7 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
         setTimeout(() => startNextStep(newTour), 300);
     };
 
-    return <dialog ref={ref} className="modal">
+    return <dialog ref={ref} className="modal tours">
         <div className="modal-box min-w-86 max-w-1/2">
             <form method="dialog">
                 <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4">✕</button>
@@ -65,6 +73,18 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
                         onClick={event => switchTour(event, workflowLink.tour)}
                     >{workflowLink.label}</Link>
                 ))}
+                <button className="btn bg-gray-300 rounded-lg"
+                    onClick={event => {
+                        event.currentTarget.closest('dialog')?.close();
+                        setSetting('dismissedTours', Object.assign(
+                            dismissedTours as Record<string, boolean> ?? {}, {
+                                main: true,
+                            }
+                        )).then();
+                    }}
+                >
+                    Hide Tours
+                </button>
             </div>
         </div>
         <form method="dialog" className="modal-backdrop">

@@ -72,7 +72,7 @@ export const ListGame = memo((props: ListGameProps) => {
     const {
         hasExport,
         hasTrade,
-        isBatchScan,
+        isBatchTrade,
         isCollection,
         isMathTrade,
     } = useTradeMode();
@@ -98,7 +98,7 @@ export const ListGame = memo((props: ListGameProps) => {
         collectionId={collectionId}
     /> : null;
 
-    const swapScanSection = code && item && isBatchScan && hasExport ? <ScanSwapSection
+    const swapScanSection = code && item && isBatchTrade && hasExport ? <ScanSwapSection
         upc={code} item={item}
     /> : null;
 

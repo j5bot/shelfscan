@@ -10,7 +10,7 @@ import { Step, useNextStep } from 'nextstepjs';
 import React, { useEffect } from 'react';
 import { FaBarcode, FaCloudArrowDown, FaList, FaUser } from 'react-icons/fa6';
 
-const gameDetailsStep = (params: TourCardProps): Step => {
+export const gameDetailsStep = (params: TourCardProps): Step => {
     const { skipTour } = params;
 
     const { startNextStep, closeNextStep } = useNextStep();
