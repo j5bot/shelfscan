@@ -67,6 +67,14 @@ const WhySupportPage = () => {
                     </span>
                 </Link></p>
 
+                <p>
+                    <Link href="/alternate"
+                          className="underline"
+                    >Are you a BGG supporter who needs to use ShelfScan with
+                        an alternate account?
+                    </Link>
+                </p>
+
             </div>
         </div>
     </>;
