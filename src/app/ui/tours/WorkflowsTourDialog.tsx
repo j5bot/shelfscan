@@ -1,5 +1,7 @@
+import { useSync } from '@/app/lib/extension/useSync';
 import { useSettings } from '@/app/lib/SettingsProvider';
 import { testUPCs } from '@/app/ui/tours/consts';
+import { useCollectionSelectors } from '@/app/ui/tours/hooks';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useNextStep } from 'nextstepjs';
@@ -10,6 +12,8 @@ type WorkflowLink = {
     href: string;
     tour: string;
     label: string;
+    extensionRequired?: boolean;
+    collectionRequired?: boolean;
 };
 
 const workflowLinks: WorkflowLink[] = [
@@ -31,6 +35,14 @@ const workflowLinks: WorkflowLink[] = [
         tour: 'gamePage',
         label: 'Game Details',
     },
+    {
+        name: 'collectionFiltering',
+        href: '/collection',
+        tour: 'collectionFiltering',
+        label: 'Collection Filtering',
+        extensionRequired: true,
+        collectionRequired: true,
+    },
 ];
 
 type WorkflowsTourDialogProps = {
@@ -38,8 +50,12 @@ type WorkflowsTourDialogProps = {
 };
 
 export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
+    const { syncOn } = useSync();
+    const { currentUsername, collection } = useCollectionSelectors();
     const { startNextStep, closeNextStep } = useNextStep();
     const { settings: { dismissedTours }, setSetting } = useSettings();
+
+    const hasCollection = currentUsername !== undefined && Object.keys(collection?.items).length > 0;
 
     const switchTour = (
         event: MouseEvent<HTMLAnchorElement>,
@@ -63,16 +79,34 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
                     width={200} height={64}
                 />
                 <div>
-                    ShelfScan supports many workflows.  Select one below to begin exploring.
+                    ShelfScan supports many <Link href="/workflows"
+                                                  className="underline"
+                                                  target="_blank"
+                >workflows</Link>.  Select one below to begin exploring.
                 </div>
-                {workflowLinks.map(workflowLink => (
-                    <Link
-                        key={workflowLink.name}
-                        href={workflowLink.href}
-                        className="text-xl font-sharetech btn bg-brand-background text-white rounded-lg"
-                        onClick={event => switchTour(event, workflowLink.tour)}
-                    >{workflowLink.label}</Link>
-                ))}
+                {workflowLinks.map(workflowLink => {
+                    const disabled =
+                        (workflowLink.extensionRequired && !syncOn)
+                        || (workflowLink.collectionRequired && !hasCollection);
+
+                    return (
+                        <Link
+                            key={workflowLink.name}
+                            href={workflowLink.href}
+                            className={`text-xl font-sharetech
+                                btn bg-brand-background text-white rounded-lg
+                                ${disabled ? 'pointer-events-none cursor-not-allowed opacity-50' : ''}`}
+                            onClick={event => {
+                                if (disabled) {
+                                    event.preventDefault();
+                                    return;
+                                }
+                                switchTour(event, workflowLink.tour);
+                            }}
+                            aria-disabled={disabled}
+                        >{workflowLink.label}</Link>
+                    );
+                })}
                 <button className="btn bg-gray-300 rounded-lg"
                     onClick={event => {
                         event.currentTarget.closest('dialog')?.close();

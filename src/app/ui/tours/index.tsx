@@ -1,4 +1,5 @@
 import { batchscanTour } from '@/app/ui/tours/batchscanTour';
+import { collectionFilteringTour } from '@/app/ui/tours/collectionFilteringTour';
 import { scannerTour } from '@/app/ui/tours/scannerTour';
 import { gamePageTour } from '@/app/ui/tours/gamePageTour';
 import { Tour } from '@/app/lib/types/tour';
@@ -46,4 +47,5 @@ export const tours: Tour[] = [
     batchscanTour,
     scannerTour,
     gamePageTour,
+    collectionFilteringTour,
 ];

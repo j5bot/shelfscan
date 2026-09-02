@@ -1,48 +1,12 @@
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
-import { useSelector } from '@/app/lib/hooks';
 import { useInfoCollectionStatus } from '@/app/lib/hooks/useInfoCollectionStatus';
-import { RootState } from '@/app/lib/redux/store';
 import { testUPCs } from '@/app/ui/tours/consts';
+import { useCollection, useUsername } from '@/app/ui/tours/hooks';
 import { pointer } from '@/app/ui/tours/stepConfig';
 import { Tour, TourStep } from '@/app/lib/types/tour';
-import { CardComponentProps } from 'nextstepjs';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 import { FaBarcode, FaCloudArrowDown, FaPlus, FaUser } from 'react-icons/fa6';
-
-type NextStepFn = CardComponentProps['nextStep'];
-
-const useBatchScanSelectors = () => {
-    const currentUsername = useSelector((state: RootState) => state.bgg.user?.user);
-    const collection = useSelector((state: RootState) =>
-        state.bgg.collection?.users[currentUsername ?? '']);
-
-    return useMemo(() => ({
-        currentUsername,
-        collection,
-    }), [currentUsername, collection]);
-};
-
-const useUsername = (nextStep: NextStepFn) => {
-    const { currentUsername } = useBatchScanSelectors();
-    useEffect(() => {
-        if (!currentUsername) {
-            return;
-        }
-        nextStep();
-    }, [currentUsername]);
-};
-
-const useCollection = (nextStep: NextStepFn) => {
-    const { collection } = useBatchScanSelectors();
-
-    useEffect(() => {
-        if (!collection) {
-            return;
-        }
-        nextStep();
-    }, [collection]);
-};
 
 type BatchStepContentProps = {
     start: number;
