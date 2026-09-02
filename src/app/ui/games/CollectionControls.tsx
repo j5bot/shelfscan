@@ -51,6 +51,7 @@ import './CollectionControls.css';
 
 // ── Three-state toggle ────────────────────────────────────────────────────────
 type ThreeStateToggleProps<S extends string> = {
+    id?: string;
     value: S;
     states: readonly [S, S, S]; // [default, on, off]
     onLabel: string;
@@ -61,6 +62,7 @@ type ThreeStateToggleProps<S extends string> = {
 };
 
 const ThreeStateToggle = <S extends string>({
+    id,
     value,
     states,
     onLabel,
@@ -87,6 +89,7 @@ const ThreeStateToggle = <S extends string>({
 
     return (
         <button
+            id={id}
             type="button"
             className={`btn btn-condensed btn-xs rounded-sm gap-0.5 ${colorClass}`}
             title={label}
@@ -254,7 +257,7 @@ export const CollectionControls = <F extends string>({
     );
 
     const ownershipToggle = <ThreeStateToggle
-        key="ownership-toggle"
+        key="ownership-toggle" id="ownership-toggle"
         value={filters.ownership}
         states={['default', 'own', 'notowned'] as const}
         onLabel="Owned"
@@ -265,7 +268,7 @@ export const CollectionControls = <F extends string>({
     />
 
     const ownershipControls = filters.ownership !== 'default' ? (
-        <div key="ownership-controls" className={`flex w-fit
+        <div key="ownership-controls" id="ownership-controls" className={`flex w-fit
             ${buttonBgClassName}
             p-0.5 rounded-sm items-center gap-0.5`}>
             {ownershipToggle}
@@ -283,7 +286,7 @@ export const CollectionControls = <F extends string>({
     ) : ownershipToggle;
 
     const wantToggle = <button
-        key="want-toggle"
+        key="want-toggle" id="want-toggle"
         type="button"
         className={`btn btn-condensed btn-xs ${
             filters.want !== 'default' ? 'btn-success text-success-content'
@@ -297,7 +300,7 @@ export const CollectionControls = <F extends string>({
     </button>;
 
     const wantControls = filters.want !== 'default' ? (
-        <div key="want-controls" className={`flex ${buttonBgClassName} w-fit p-0.5 rounded-sm items-center gap-0.5`}>
+        <div key="want-controls" id="want-controls" className={`flex ${buttonBgClassName} w-fit p-0.5 rounded-sm items-center gap-0.5`}>
             {wantToggle}
             <select
                 className="pl-2 select rounded-sm select-bordered select-xs w-28 shrink-0"
@@ -313,7 +316,7 @@ export const CollectionControls = <F extends string>({
     ) : wantToggle;
 
     const ratingToggle = <ThreeStateToggle
-        key="rating-toggle"
+        key="rating-toggle" id="rating-toggle"
         value={filters.rating}
         states={['default', 'rated', 'notrated'] as const}
         onLabel="Rated"
@@ -324,7 +327,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const ratingControls = filters.rating === 'rated' ? (
-        <div key="rating-controls" className={`flex w-fit ${buttonBgClassName} p-0.5 rounded-sm items-center gap-0.5`}>
+        <div key="rating-controls" id="rating-controls" className={`flex w-fit ${buttonBgClassName} p-0.5 rounded-sm items-center gap-0.5`}>
             {ratingToggle}
             <button
                 type="button"
@@ -362,7 +365,7 @@ export const CollectionControls = <F extends string>({
     ) : ratingToggle;
 
     const playsToggle = <ThreeStateToggle
-        key="plays-toggle"
+        key="plays-toggle" id="plays-toggle"
         value={filters.plays}
         states={['default', 'played', 'notplayed'] as const}
         onLabel="Played"
@@ -373,7 +376,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const playsControls = filters.plays === 'played' ? (
-            <div key="plays-controls" className={`flex w-fit ${buttonBgClassName} p-0.5 rounded-sm items-center gap-0.5`}>
+            <div key="plays-controls" id="plays-controls" className={`flex w-fit ${buttonBgClassName} p-0.5 rounded-sm items-center gap-0.5`}>
                 {playsToggle}
                 <input
                     type="text"
@@ -400,7 +403,7 @@ export const CollectionControls = <F extends string>({
         ) : playsToggle;
 
     const tradeControl = <ThreeStateToggle
-        key="trade-control"
+        key="trade-control" id="trade-control"
         value={filters.trade}
         states={['default', 'fortrade', 'nottrade'] as const}
         onLabel="For Trade"
@@ -411,7 +414,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const conditionControl = <ThreeStateToggle
-        key="condition-control"
+        key="condition-control" id="condition-control"
         value={filters.condition}
         states={['default', 'has', 'not'] as const}
         onLabel="Has Condition"
@@ -424,7 +427,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const wishlistControls = filters.wishlist !== 'default' ? (
-        <div key="wishlist-controls" className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
+        <div key="wishlist-controls" id="wishlist-controls" className="flex bg-[#efefef] p-0.5 rounded-sm items-center gap-0.5">
             <ThreeStateToggle
                 value={filters.wishlist}
                 states={['default', 'wishlist', 'notwishlist'] as const}
@@ -451,7 +454,7 @@ export const CollectionControls = <F extends string>({
         </div>
     ) : (
          <ThreeStateToggle
-             key="wishlist-toggle"
+             key="wishlist-toggle" id="wishlist-toggle"
              value={filters.wishlist}
              states={['default', 'wishlist', 'notwishlist'] as const}
              onLabel="On Wishlist"
@@ -463,7 +466,7 @@ export const CollectionControls = <F extends string>({
      );
 
     const preorderControl = <ThreeStateToggle
-        key="preorder-toggle"
+        key="preorder-toggle" id="preorder-toggle"
         value={filters.preorder}
         states={['default', 'preordered', 'notpreordered'] as const}
         onLabel="Preordered"
@@ -474,7 +477,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const versionControl = <ThreeStateToggle
-        key="version-toggle"
+        key="version-toggle" id="version-toggle"
         value={filters.version}
         states={['default', 'versioned', 'notversioned'] as const}
         onLabel="Versioned"
@@ -485,7 +488,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const verificationControl = <ThreeStateToggle
-        key="verification-toggle"
+        key="verification-toggle" id="verification-toggle"
         value={filters.verification}
         states={['default', 'verified', 'notverified'] as const}
         onLabel="Verified"
@@ -496,7 +499,7 @@ export const CollectionControls = <F extends string>({
     />;
 
     const scanControl = <ThreeStateToggle
-        key="scan-toggle"
+        key="scan-toggle" id="scan-toggle"
         value={filters.scan}
         states={['default', 'scanned', 'notscanned'] as const}
         onLabel="Scanned"
@@ -526,10 +529,10 @@ export const CollectionControls = <F extends string>({
     const selectedContent = <button><selectedcontent className="flex items-center pl-2"></selectedcontent></button>;
 
     return (
-        <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties}>
+        <div className={STICKY_CLASS} style={{ top: stickyTop } as CSSProperties} id="collection-controls">
             {/* Row 1: unified search (dropdown + input) + filter toggle + sort */}
             <div className="flex gap-1 items-center">
-                <div className="flex flex-1 min-w-0">
+                <div className="flex flex-1 min-w-0" id="search-filters">
                     <select
                         className={`select select-bordered select-sm select-content rounded rounded-r-none border-r-0 shrink-0 flex items-center`}
                         value={filters.searchMode}
@@ -566,6 +569,7 @@ export const CollectionControls = <F extends string>({
                     aria-label={showFilters ? 'Hide filters' : 'Show filters'}
                     aria-expanded={showFilters}
                     title={showFilters ? 'Hide filters' : 'Show filters'}
+                    id="show-filters-button"
                 >
                     <FaFilter size={11} aria-hidden="true" />
                     {hasActiveFilters && !showFilters && (
@@ -573,21 +577,24 @@ export const CollectionControls = <F extends string>({
                              aria-label="Active filters" />
                     )}
                 </button>
-                <FaArrowUpWideShort size={14}
-                                    className="shrink-0 text-base-content/50"
-                                    aria-hidden="true" />
-                <SortControlsInner
-                    sortFields={sortFields}
-                    sortField={sortField}
-                    sortDirection={sortDirection}
-                    onSortClick={onSortClick}
-                />
+                <div className="flex gap-1 items-center" id="sort-controls">
+                    <FaArrowUpWideShort size={14}
+                                        className="shrink-0 text-base-content/50"
+                                        aria-hidden="true" />
+                    <SortControlsInner
+                        sortFields={sortFields}
+                        sortField={sortField}
+                        sortDirection={sortDirection}
+                        onSortClick={onSortClick}
+                    />
+                </div>
             </div>
 
             {/* Row 2: status filters */}
             {showFilters && (
                 <div className="flex gap-0.5 bg-white dark:bg-black rounded-md p-1.5 items-center overflow-auto"
                      role="group"
+                     id="filter-games"
                      aria-label="Filter games">
 
                     <div className="flex flex-wrap gap-0.5 rounded-md items-center"
