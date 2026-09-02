@@ -1,6 +1,6 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { useLayoutEffect, useState } from 'react';
+import { useLayoutEffect, useMemo, useState } from 'react';
 
 export const useSync = () => {
     const [syncOn, setSyncOn] = useState<boolean>(false);
@@ -40,10 +40,10 @@ export const useSync = () => {
         setHasSubscription(subscription);
     }, [hasSubscription]);
 
-    return {
+    return useMemo(() => ({
         syncOn,
         hasSubscription,
         userId,
         currentUsername,
-    };
+    }), [syncOn, hasSubscription, userId, currentUsername]);
 };

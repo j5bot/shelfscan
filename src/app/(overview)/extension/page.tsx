@@ -59,6 +59,12 @@ const ExtensionPage = () => {
                             onClick={openPaymentPage}>Subscribe to ShelfScan</button>
                 </div>
 
+                <p>Once your free trial is over, being a <Link href="https://boardgamegeek.com/support"
+                                                               className="underline"
+                                                               target="_blank">
+                    BGG Supporter
+                </Link> at the "ad block" level is required to use the extension.</p>
+
                 <p><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
                          target="_blank"><FaFirefox className="w-6 h-6" /> <span className="underline">
                         Download for Firefox on Android / Desktop
@@ -98,12 +104,6 @@ const ExtensionPage = () => {
 
                 <p>Get more details about ShelfScan workflows on our{' '}
                     <Link href="/workflows/" className="underline">workflows</Link> page.</p>
-
-                <p>Once your free trial is over, being a <Link href="https://boardgamegeek.com/support"
-                                                               className="underline"
-                                                               target="_blank">
-                    BGG Supporter
-                </Link> at the "ad block" level is required to use the extension.</p>
 
                 <p><Link href="/why-support/"
                          className="underline" target="_blank">Why support BoardGameGeek?</Link></p>
