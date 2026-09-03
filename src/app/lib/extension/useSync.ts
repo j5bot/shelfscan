@@ -20,8 +20,12 @@ export const useSync = () => {
         if (syncOn === newValue) {
             return;
         }
-        if (newValue) {
-            document.getElementById('get-extension-link')?.classList.add('animate-fade');
+        if (!newValue) {
+            document.getElementById('get-extension-link')?.classList
+                .add('flex opacity-100 transition-opacity');
+        } else {
+            document.getElementById('get-extension-link')?.classList
+                .add('animate-fade');
         }
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -29,12 +33,16 @@ export const useSync = () => {
     }, [syncOn]);
 
     useLayoutEffect(() => {
-        const subscription = document.cookie.includes('shelfScanSubscription=true');
+        const subscription = document.cookie
+            .includes('shelfScanSubscription=true');
 
         if (subscription === hasSubscription) {
             return;
         }
-        document.getElementById('subscribe-banner')?.classList.add('hidden');
+        if (subscription) {
+            document.getElementById('subscribe-banner')?.classList
+                .add('hidden');
+        }
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasSubscription(subscription);

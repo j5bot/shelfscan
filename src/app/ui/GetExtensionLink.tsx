@@ -5,8 +5,9 @@ import React from 'react';
 import { FaChrome, FaFirefox } from 'react-icons/fa6';
 
 export const GetExtensionLink = () => {
-    return <div className="flex justify-center pb-4">
-        <Link id="get-extension-link" className={`btn max-w-2/3 rounded-full
+    return <div id="get-extension-link" className="hidden opacity-0 justify-center pb-4">
+        <Link className={`
+                btn max-w-2/3 rounded-full
                 bg-brand-background text-white
                 flex items-center justify-center gap-1
                 uppercase text-md font-sharetech`}
