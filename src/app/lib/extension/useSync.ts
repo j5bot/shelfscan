@@ -2,8 +2,11 @@ import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { useLayoutEffect, useMemo, useState } from 'react';
 
+const fadeInClasses = 'flex transition-opacity opacity-100 duration-800'
+    .split(' ');
+
 export const useSync = () => {
-    const [syncOn, setSyncOn] = useState<boolean>(false);
+    const [syncOn, setSyncOn] = useState<boolean | null>(null);
     const [hasSubscription, setHasSubscription] = useState<boolean>();
 
     const userId = useSelector(
@@ -14,34 +17,53 @@ export const useSync = () => {
         (state: RootState) => state.bgg.user?.user,
     );
 
-    useLayoutEffect(() => {
+    const handleExtensionLink = () => {
         const newValue = document.cookie.includes('shelfScanExtension') ||
-            document.body.getAttribute('data-shelfscan-sync') === 'on';
+                         document.body.getAttribute('data-shelfscan-sync') === 'on';
+
         if (syncOn === newValue) {
             return;
         }
-        if (newValue) {
-            document.getElementById('get-extension-link')?.classList.add('animate-fade');
+
+        const extLink = document.getElementById('get-extension-link');
+        if (extLink) {
+            if (!newValue) {
+                extLink.classList.remove('hidden');
+            }
+            extLink.classList.add(...(newValue ? ['animate-fade'] : fadeInClasses));
         }
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setSyncOn(newValue);
-    }, [syncOn]);
+    };
 
-    useLayoutEffect(() => {
-        const subscription = document.cookie.includes('shelfScanSubscription=true');
+    const handleSubscribeBanner = () => {
+        const subscription = document.cookie
+            .includes('shelfScanSubscription=true');
 
         if (subscription === hasSubscription) {
             return;
         }
-        document.getElementById('subscribe-banner')?.classList.add('hidden');
+        const banner = document.getElementById('subscribe-banner');
+        if (!subscription && banner) {
+            banner.classList.remove('hidden');
+            banner.classList.add(...fadeInClasses);
+        }
 
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasSubscription(subscription);
+    };
+
+    useLayoutEffect(() => {
+        setTimeout(handleExtensionLink, 1000);
+    }, [syncOn]);
+
+    useLayoutEffect(() => {
+        setTimeout(handleSubscribeBanner, 1000);
     }, [hasSubscription]);
 
     return useMemo(() => ({
-        syncOn,
+        syncOn: !!syncOn,
         hasSubscription,
         userId,
         currentUsername,
