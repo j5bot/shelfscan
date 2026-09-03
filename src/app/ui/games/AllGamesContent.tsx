@@ -13,7 +13,6 @@ import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';
 import { ListGameRow } from '@/app/ui/games/ListGameRow';
 import { GridClasses, GridClassSize, SizeKey, ThumbnailSizes } from '@/app/ui/grids/gridSizes';
-import Link from 'next/link';
 import React, {
     forwardRef,
     memo,
@@ -22,7 +21,6 @@ import React, {
     type RefObject,
 } from 'react';
 import {
-    FaBarcode,
     FaCheck,
     FaEye,
     FaHeart,
