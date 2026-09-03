@@ -143,7 +143,7 @@ Tests live in `tests/` (mirrors `src/`). Import all test primitives from `tests/
 import { describe, it, expect, vi } from '../setup';
 ```
 
-Vitest config: `vitest.config.ts` (jsdom environment, `vite-tsconfig-paths` for `@/` alias resolution).
+Vitest config: `vitest.config.mts` (jsdom environment, `resolve.tsconfigPaths` for `@/` alias resolution).
 
 ## Dependency gotchas
 

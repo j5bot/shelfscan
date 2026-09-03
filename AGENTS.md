@@ -44,7 +44,7 @@ pnpm test:watch       # Run tests in watch mode (vitest)
 pnpm test:coverage    # Run tests with coverage (vitest run --coverage)
 ```
 
-**Test suite**: Vitest with jsdom environment. Tests live in `tests/` (mirrors `src/` structure). All test files import testing primitives from `tests/setup.ts` (re-exports `describe`, `it`, `expect`, `vi`, etc. from vitest — swap runner by changing only that file). Config: `vitest.config.ts`.
+**Test suite**: Vitest with jsdom environment. Tests live in `tests/` (mirrors `src/` structure). All test files import testing primitives from `tests/setup.ts` (re-exports `describe`, `it`, `expect`, `vi`, etc. from vitest — swap runner by changing only that file). Config: `vitest.config.mts`.
 
 ---
 
@@ -222,7 +222,7 @@ shelfscan/
 | `src/app/ui/Scanner.tsx` | Barcode scanner UI — responsive sizing, camera selection |
 | `next.config.ts` | `serverExternalPackages`, allowed image domains, dev origins |
 | `package.json` | `pnpm.overrides`, `pnpm.patchedDependencies`, `peerDependencyRules` |
-| `vitest.config.ts` | Vitest configuration (jsdom, coverage) |
+| `vitest.config.mts` | Vitest configuration (jsdom, coverage) |
 | `tests/setup.ts` | Vitest re-export shim — all test files import primitives from here |
 
 ---

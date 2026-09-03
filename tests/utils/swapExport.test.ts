@@ -110,19 +110,22 @@ describe('swapExport', () => {
             // Condition is only parseable from the first row's description, and
             // compareValue/cashValue are only set on the first row, but each column
             // still appears (and is left blank on the second row) once any row has it.
-            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description', 'Compare Value', 'Cash Value']);
+            // Copies always has a value (defaulting to 1), so it is always present.
+            expect(cellTexts(rows[0])).toEqual([
+                'Name', 'Condition', 'Description', 'Copies', 'Compare Value', 'Cash Value',
+            ]);
 
             const headerCells = Array.from(rows[0].getElementsByTagName('table:table-cell'));
             headerCells.forEach(cell => {
                 expect(cell.getAttribute('table:style-name')).toBe('coHeader');
             });
 
-            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Great conditionBox has wear', '5', '10']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Great conditionBox has wear', '1', '5', '10']);
             const descriptionParagraphs = Array.from(
                 rows[1].getElementsByTagName('table:table-cell')[2].getElementsByTagName('text:p')
             ).map(p => p.textContent);
             expect(descriptionParagraphs).toEqual(['Great condition', 'Box has wear']);
-            expect(cellTexts(rows[2])).toEqual(['Wingspan', '', 'Sleeved', '', '']);
+            expect(cellTexts(rows[2])).toEqual(['Wingspan', '', 'Sleeved', '1', '', '']);
         });
 
         it('treats an empty string as "no data" for column presence', async () => {
@@ -134,7 +137,8 @@ describe('swapExport', () => {
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
-            expect(cellTexts(rows[0])).toEqual(['Name']);
+            // Copies always has a value (defaulting to 1), so it is always present.
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Copies']);
         });
 
         it('derives type/BGG/version columns from SwapItemData.collectionItem', async () => {
@@ -154,11 +158,11 @@ describe('swapExport', () => {
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
             expect(cellTexts(rows[0])).toEqual([
-                'Type', 'Name', 'BGG ID', 'Game Year', 'Version Name', 'Version Year',
+                'Type', 'Name', 'BGG ID', 'Game Year', 'Copies', 'Version Name', 'Version Year',
                 'Version ID', 'Version Language', 'Version Publisher', 'Image URL',
             ]);
             expect(cellTexts(rows[1])).toEqual([
-                'boardgameexpansion', 'Unfair: Comicbook Hacker Kaiju Ocean Expansion', '341772', '2023',
+                'boardgameexpansion', 'Unfair: Comicbook Hacker Kaiju Ocean Expansion', '341772', '2023', '1',
                 'English edition', '2023', '686378', 'English', 'Good Games Publishing',
                 'https://cf.geekdo-images.com/version-pic.jpg',
             ]);
@@ -179,7 +183,7 @@ describe('swapExport', () => {
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
             expect(cellTexts(rows[0])).toEqual([
-                'Type', 'Name', 'BGG ID', 'Game Year', 'Version Name', 'Version Year',
+                'Type', 'Name', 'BGG ID', 'Game Year', 'Copies', 'Version Name', 'Version Year',
                 'Version ID', 'Version Language', 'Version Publisher', 'Image URL', 'Thumbnail URL',
             ]);
             const cells = cellTexts(rows[1]);
@@ -211,8 +215,8 @@ describe('swapExport', () => {
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
-            expect(cellTexts(rows[0])).toEqual(['Name', 'Compare Value', 'Cash Value']);
-            expect(cellTexts(rows[1])).toEqual(['Catan', '10', '0']);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Copies', 'Compare Value', 'Cash Value']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', '1', '10', '0']);
         });
 
         it('exports an explicit condition as-is', async () => {
@@ -225,8 +229,8 @@ describe('swapExport', () => {
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
-            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description']);
-            expect(cellTexts(rows[1])).toEqual(['Catan', 'Like New', 'Some wear on the box']);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description', 'Copies']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Like New', 'Some wear on the box', '1']);
         });
 
         it('falls back to parsing condition from the description when none is set explicitly', async () => {
@@ -238,8 +242,8 @@ describe('swapExport', () => {
 
             const contentXml = await getContentXml(await buildSwapExportOds(items));
             const rows = getRows(contentXml);
-            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description']);
-            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Condition: Very Good, minor shelf wear']);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Condition', 'Description', 'Copies']);
+            expect(cellTexts(rows[1])).toEqual(['Catan', 'Very Good', 'Condition: Very Good, minor shelf wear', '1']);
         });
 
         it('escapes XML-significant characters in text fields', async () => {
@@ -288,7 +292,7 @@ describe('swapExport', () => {
 
                 const contentXml = await getContentXml(blob);
                 const rows = getRows(contentXml);
-                expect(cellTexts(rows[0])).toEqual(['Name', 'Image']);
+                expect(cellTexts(rows[0])).toEqual(['Name', 'Copies', 'Image']);
                 expect(contentXml).toContain('xlink:href="Pictures/image0.jpg"');
                 // Aspect ratio (2:1) preserved and bounded within the 1.5in image cell.
                 const frameMatch = /svg:width="([\d.]+)in" svg:height="([\d.]+)in"/.exec(contentXml);
@@ -317,7 +321,7 @@ describe('swapExport', () => {
 
             const contentXml = await getContentXml(blob);
             const rows = getRows(contentXml);
-            expect(cellTexts(rows[0])).toEqual(['Name']);
+            expect(cellTexts(rows[0])).toEqual(['Name', 'Copies']);
         });
     });
 
@@ -355,9 +359,9 @@ describe('swapExport', () => {
             }];
 
             const lines = parseCsv(buildSwapExportCsv(items));
-            expect(lines[0]).toEqual(['Name', 'Condition', 'Description', 'Compare Value', 'Cash Value']);
+            expect(lines[0]).toEqual(['Name', 'Condition', 'Description', 'Copies', 'Compare Value', 'Cash Value']);
             expect(lines[0]).not.toContain('Image');
-            expect(lines[1]).toEqual(['Catan', 'Very Good', 'Great condition', '5', '10']);
+            expect(lines[1]).toEqual(['Catan', 'Very Good', 'Great condition', '1', '5', '10']);
         });
 
         it('keeps the Image URL / Thumbnail URL columns, which are plain text', async () => {
@@ -390,7 +394,7 @@ describe('swapExport', () => {
             expect(csv).toContain('"line one\nline two"');
 
             const lines = parseCsv(csv);
-            expect(lines[1]).toEqual(['A, B & "C"', 'line one\nline two']);
+            expect(lines[1]).toEqual(['A, B & "C"', 'line one\nline two', '1']);
         });
     });
 
