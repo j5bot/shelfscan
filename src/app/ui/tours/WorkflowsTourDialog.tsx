@@ -5,10 +5,13 @@ import { useCollectionSelectors } from '@/app/ui/tours/hooks';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useNextStep } from 'nextstepjs';
-import React, { MouseEvent, Ref } from 'react';
+import React, { MouseEvent, ReactNode, Ref } from 'react';
+import { FaInfoCircle } from 'react-icons/fa';
+import { FaBarcode, FaFilter, FaLayerGroup } from 'react-icons/fa6';
 
 type WorkflowLink = {
     name: string;
+    icon: ReactNode;
     href: string;
     tour: string;
     label: string;
@@ -19,24 +22,28 @@ type WorkflowLink = {
 const workflowLinks: WorkflowLink[] = [
     {
         name: 'batchscan',
+        icon: <FaLayerGroup className="w-5 h-5" />,
         href: '/batch',
         tour: 'batchscan',
         label: 'Batch Scanning',
     },
     {
         name: 'scanner',
+        icon: <FaBarcode className="w-5 h-5" />,
         href: '/',
         tour: 'scanner',
         label: 'Scanning Games',
     },
     {
         name: 'gameDetails',
+        icon: <FaInfoCircle className="w-5 h-5" />,
         href: `/upc/${testUPCs[0]}`,
         tour: 'gamePage',
         label: 'Game Details',
     },
     {
         name: 'collectionFiltering',
+        icon: <FaFilter className="w-5 h-5" />,
         href: '/collection',
         tour: 'collectionFiltering',
         label: 'Collection Filtering',
@@ -93,7 +100,7 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
                         <Link
                             key={workflowLink.name}
                             href={workflowLink.href}
-                            className={`text-xl font-sharetech
+                            className={`flex items-center gap-2 text-xl font-sharetech
                                 btn bg-brand-background text-white rounded-lg
                                 ${disabled ? 'pointer-events-none cursor-not-allowed opacity-50' : ''}`}
                             onClick={event => {
@@ -104,7 +111,7 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
                                 switchTour(event, workflowLink.tour);
                             }}
                             aria-disabled={disabled}
-                        >{workflowLink.label}</Link>
+                        >{workflowLink.icon} {workflowLink.label}</Link>
                     );
                 })}
                 <button className="btn bg-gray-300 rounded-lg"
