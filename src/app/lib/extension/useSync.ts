@@ -1,5 +1,6 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
+import posthog from 'posthog-js';
 import { useLayoutEffect, useMemo, useState } from 'react';
 
 const fadeInClasses = 'flex transition-opacity opacity-100 duration-800'
@@ -62,10 +63,16 @@ export const useSync = () => {
         setTimeout(handleSubscribeBanner, 1000);
     }, [hasSubscription]);
 
-    return useMemo(() => ({
-        syncOn: !!syncOn,
-        hasSubscription,
-        userId,
-        currentUsername,
-    }), [syncOn, hasSubscription, userId, currentUsername]);
+    return useMemo(() => {
+        posthog.capture('extension-check', {
+            extension: syncOn,
+            subscription: hasSubscription,
+        });
+        return {
+            syncOn: !!syncOn,
+                hasSubscription,
+                userId,
+                currentUsername,
+        };
+    }, [syncOn, hasSubscription, userId, currentUsername]);
 };
