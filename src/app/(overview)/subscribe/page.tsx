@@ -47,7 +47,7 @@ const SubscribePage = () => {
 
                 <div className="pt-3">
                     <button className="bg-brand-background rounded-xl text-white btn mr-3"
-                            onClick={openTrialPage}><span className="line-through">3</span> 30 Day Free Trial</button>
+                            onClick={openTrialPage}>30 Day Free Trial</button>
                     <button className="bg-brand-background rounded-xl text-white btn"
                             onClick={openPaymentPage}>Subscribe to ShelfScan</button>
 
@@ -55,6 +55,20 @@ const SubscribePage = () => {
                 <p>
                     After you sign up for a free trial or subscription,
                     install the <Link href="/extension" target="_blank">Extension</Link>
+                </p>
+                <p>Once your free trial is over, being a <Link href="https://boardgamegeek.com/support"
+                                                               className="underline"
+                                                               target="_blank">
+                    BGG Supporter
+                </Link> at the "ad block" level is required to use the extension.</p>
+                <p><Link href="/why-support/"
+                         className="underline" target="_blank">Why support BoardGameGeek?</Link></p>
+                <p>
+                    <Link href="/alternate"
+                          className="underline"
+                    >Are you a BGG supporter who needs to use ShelfScan with
+                        an alternate account?
+                    </Link>
                 </p>
             </div>
         </div>
