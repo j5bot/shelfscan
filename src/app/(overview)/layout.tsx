@@ -9,6 +9,7 @@ import { PlayDataProvider } from '@/app/lib/extension/PlayDataProvider';
 import { PluginMapProvider } from '@/app/lib/PluginMapProvider';
 import { ScanHistoryProvider } from '@/app/lib/ScanHistoryProvider';
 import { SettingsProvider } from '@/app/lib/SettingsProvider';
+import { SyncProvider } from '@/app/lib/extension/SyncProvider';
 import { TailwindProvider } from '@/app/lib/TailwindProvider';
 import { Provider } from '@/app/Provider';
 import { GetExtensionLink } from '@/app/ui/GetExtensionLink';
@@ -27,6 +28,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                             <GameUPCDataProvider>
                                 <ScanHistoryProvider>
                                     <NextStepProvider>
+                                        <SyncProvider>
                                         <ExtensionMessagingProvider>
                                             <PlayDataProvider>
                                             <SubscribeBanner />
@@ -52,6 +54,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                             </div>
                                             </PlayDataProvider>
                                         </ExtensionMessagingProvider>
+                                        </SyncProvider>
                                     </NextStepProvider>
                                 </ScanHistoryProvider>
                             </GameUPCDataProvider>
