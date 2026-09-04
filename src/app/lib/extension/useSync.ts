@@ -64,10 +64,12 @@ export const useSync = () => {
     }, [hasSubscription]);
 
     return useMemo(() => {
-        posthog.capture('extension-check', {
-            extension: syncOn,
-            subscription: hasSubscription,
-        });
+        if (userId && currentUsername) {
+            posthog.capture('extension-check', {
+                extension: syncOn,
+                subscription: hasSubscription,
+            });
+        }
         return {
             syncOn: !!syncOn,
                 hasSubscription,
