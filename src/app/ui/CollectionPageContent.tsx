@@ -816,7 +816,7 @@ export const CollectionPageContent = ({
                                 >
                                     {(hasTrade ? isExportingSwap : isBulkMathTradeAdding)
                                         ? <span className="loading loading-bars loading-sm" />
-                                        : hasTrade ? <FaFileExport className="w-4 h-4" /> : <FaRightLeft className="w-4 h-4" />
+                                        : isMathTrade ? <FaRightLeft className="w-4 h-4" /> : <FaFileExport className="w-4 h-4" />
                                     }
                                     {isSwap
                                         ? `Export ${actionableTradeItemsCount} for Swaptagon` :
