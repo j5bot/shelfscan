@@ -80,7 +80,9 @@ export function Scanner(props: ScannerProps) {
         if (codes.includes(code)) {
             return;
         }
-        scanAudio.play().then();
+        try {
+            scanAudio.play().then();
+        } catch (_error) {}
         posthog.capture('barcode_scanned');
         onScan(code);
     };
