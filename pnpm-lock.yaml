@@ -42,8 +42,8 @@ importers:
         specifier: ^5.16.7
         version: 5.16.7(react@19.2.8)
       '@react-barcode-scanner/components':
-        specifier: 0.1.0
-        version: 0.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: 0.1.1
+        version: 0.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@reactuses/core':
         specifier: ^6.5.5
         version: 6.5.5(react@19.2.8)
@@ -1258,14 +1258,14 @@ packages:
     peerDependencies:
       preact: '>= 10.25.0 || >=11.0.0-0'
 
-  '@react-barcode-scanner/components@0.1.0':
-    resolution: {integrity: sha512-rq4Qf6RJb/BpgdMeYbownCz0LjBq0EttZJFGWBf15ukX/bSGKJhuIATZPxwK66fbPWU5J76nrHvNBGTAIgWEOg==}
+  '@react-barcode-scanner/components@0.1.1':
+    resolution: {integrity: sha512-Wp6CHwjiHE1raTIx4FUndp9YP3kCrymNPwn1BgoFRA5UXdglp2Mz3zidfRXFIcTZfROgyPKvpFIWdIt8UATNDw==}
     peerDependencies:
       react: 18 - 19
       react-dom: 18 - 19
 
-  '@react-barcode-scanner/hooks@0.1.0':
-    resolution: {integrity: sha512-nzNkA8vSLO7Ctcp6+eQF90pGVjkdhrbBsirbFWquVzW3IjOpwevXXS5Jr/F5Mq5057uOzrUjOmsJzw3hJRPuKA==}
+  '@react-barcode-scanner/hooks@0.1.1':
+    resolution: {integrity: sha512-GEBjCl0zWtAy1vpsqBGf/X4uj9vGNziVxZ1Y/xUWL3eDJl4jZ7+pIeY8z02QZVhSd2o2s0rqYAZjQo+o2MFB0g==}
     engines: {node: '>=24'}
     peerDependencies:
       react: 18 - 19
@@ -5094,13 +5094,13 @@ snapshots:
       '@preact/signals-core': 1.14.4
       preact: 10.29.1
 
-  '@react-barcode-scanner/components@0.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@react-barcode-scanner/components@0.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
-      '@react-barcode-scanner/hooks': 0.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@react-barcode-scanner/hooks': 0.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
 
-  '@react-barcode-scanner/hooks@0.1.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@react-barcode-scanner/hooks@0.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@undecaf/barcode-detector-polyfill': 0.9.23(patch_hash=9941c4ab5f851a5998471fc173abd5725009b60cbb42b3d8793a6bbb7a7a5418)
       '@undecaf/zbar-wasm': 0.11.0

@@ -74,7 +74,6 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
 
     const value = useMemo(() => {
         if (userId && currentUsername && syncOn !== null && hasSubscription !== undefined) {
-            console.log(currentUsername, userId, syncOn, hasSubscription);
             posthog.capture('extension-check', {
                 extension: syncOn,
                 subscription: hasSubscription,
