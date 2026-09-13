@@ -12,6 +12,7 @@ import { SettingsProvider } from '@/app/lib/SettingsProvider';
 import { SyncProvider } from '@/app/lib/extension/SyncProvider';
 import { TailwindProvider } from '@/app/lib/TailwindProvider';
 import { Provider } from '@/app/Provider';
+import { ExtensionNotice } from '@/app/ui/extension/ExtensionNotice';
 import { GetExtensionLink } from '@/app/ui/GetExtensionLink';
 import { PoweredByBGGLogo } from '@/app/ui/PoweredByBGGLogo';
 import { SubscribeBanner } from '@/app/ui/SubscribeBanner';
@@ -51,6 +52,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                                         />
                                                     </Link>
                                                 </div>
+                                                <Suspense><ExtensionNotice /></Suspense>
                                             </div>
                                             </PlayDataProvider>
                                         </ExtensionMessagingProvider>
