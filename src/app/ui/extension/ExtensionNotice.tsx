@@ -5,10 +5,28 @@ import { useLayoutEffect, useRef, useState } from 'react';
 const EXTENSION_VERSION_PATTERN = /^v(?<version>\S+) \((?<hash>[^)]+)\)$/;
 
 const { version: latestVersion, requiredUpdate } = latest;
+const [latestMajorSegment, latestMinorSegment, latestPatchSegment] = latestVersion.split('.');
+const latestMajor = parseInt(latestMajorSegment, 10);
+const latestMinor = parseInt(latestMinorSegment, 10);
+const latestPatch = parseInt(latestPatchSegment, 10);
 
 type ExtensionVersionInfo = {
     version: string;
+    major: number;
+    minor: number;
+    patch: number;
     hash: string;
+};
+
+const isVersionOutdated = (info: ExtensionVersionInfo): boolean => {
+    switch (true) {
+        case info.major !== latestMajor:
+            return info.major < latestMajor;
+        case info.minor !== latestMinor:
+            return info.minor < latestMinor;
+        default:
+            return info.patch < latestPatch;
+    }
 };
 
 export const ExtensionNotice = () => {
@@ -32,8 +50,14 @@ export const ExtensionNotice = () => {
             return;
         }
 
+        const versionSegments = match.groups.version?.split('.');
+        const [major, minor, patch] = versionSegments ?? [];
+
         setVersionInfo({
             version: match.groups.version,
+            major: parseInt(major, 10),
+            minor: parseInt(minor, 10),
+            patch: parseInt(patch, 10),
             hash: match.groups.hash,
         })
 
@@ -51,15 +75,15 @@ export const ExtensionNotice = () => {
         mutationObserverRef.current.observe(document.body, { childList: true, subtree: true });
     }, [syncOn]);
 
-    const updateAvailable = syncOn && latestVersion !== versionInfo?.version;
+    const updateAvailable = !!(syncOn && versionInfo && isVersionOutdated(versionInfo));
 
-    return versionInfo?.version && updateAvailable && !dismissed ? (
+    return updateAvailable && !dismissed && (
         <div className="toast toast-top toast-center z-50">
             <div role="alert" className="alert alert-warning shadow-lg">
                 <span className="text-sm">
                     {requiredUpdate === 'true'
                         ? `A required update (v${latestVersion}) to the ShelfScan extension is available`
-                        : `An update (v${latestVersion} to the ShelfScan extension is available`}
+                        : `An update (v${latestVersion}) to the ShelfScan extension is available`}
                 </span>
                 <button
                     className="btn btn-sm btn-ghost"
@@ -69,5 +93,5 @@ export const ExtensionNotice = () => {
                 </button>
             </div>
         </div>
-    ) : null;
+    );
 };
