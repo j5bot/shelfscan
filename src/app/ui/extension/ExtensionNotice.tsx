@@ -1,15 +1,15 @@
 import { useSync } from '@/app/lib/extension/useSync';
+import latest from '@/app/lib/extension/version';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 const EXTENSION_VERSION_PATTERN = /^v(?<version>\S+) \((?<hash>[^)]+)\)$/;
+
+const { version: latestVersion, requiredUpdate } = latest;
 
 type ExtensionVersionInfo = {
     version: string;
     hash: string;
 };
-
-const latestVersion = '0.10.2';
-const requiredUpdate = true;
 
 export const ExtensionNotice = () => {
     const { syncOn } = useSync();
@@ -57,7 +57,7 @@ export const ExtensionNotice = () => {
         <div className="toast toast-top toast-center z-50">
             <div role="alert" className="alert alert-warning shadow-lg">
                 <span className="text-sm">
-                    {requiredUpdate
+                    {requiredUpdate === 'true'
                         ? `A required update (v${latestVersion}) to the ShelfScan extension is available`
                         : `An update (v${latestVersion} to the ShelfScan extension is available`}
                 </span>
