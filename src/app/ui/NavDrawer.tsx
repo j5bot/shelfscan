@@ -14,7 +14,7 @@ import Link from 'next/link';
 import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, Suspense, use, useEffect, useRef, useState } from 'react';
-import { FaSignOutAlt, FaSync } from 'react-icons/fa';
+import { FaQuestionCircle, FaSignOutAlt, FaSync } from 'react-icons/fa';
 import {
     FaBarcode,
     FaBars,
@@ -23,7 +23,6 @@ import {
     FaGlobe,
     FaLayerGroup,
     FaList,
-    FaNewspaper,
     FaRightLeft,
     FaTableList
 } from 'react-icons/fa6';
@@ -225,9 +224,8 @@ export const NavDrawer = () => {
                             </Link>
                         </li>
                         <li className="w-full">
-                            <Link className="flex gap-2 grow" href="https://boardgamegeek.com/blog/16520/shelfscan-news"
-                                  target="_blank" onNavigate={closeOnNavigate}>
-                                <FaNewspaper className="inline" /> Blog
+                            <Link className="flex gap-2 grow" href="/support" onNavigate={closeOnNavigate}>
+                                <FaQuestionCircle className="inline" /> Support
                             </Link>
                         </li>
                         <li className="w-full mt-6">
