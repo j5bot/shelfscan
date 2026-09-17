@@ -9,7 +9,7 @@ export const NORMAL_IMAGE_CACHE_QUALITY = 90;
 
 export type ImagePropsWithCacheParams = ImageProps & {
     getImageId: (props: ImageProps) => string;
-    addImageDataToCache: (id: string, data: Blob) => Promise<string>;
+    addImageDataToCache: (id: string, data: Blob) => Promise<string | undefined>;
     placeholderSrc?: string;
 };
 

@@ -4,7 +4,9 @@ import { ImageProps } from 'next/image';
 
 export type CachedImage = {
     id: string;
-    data: Blob;
+    data?: Blob;
+    arrayData?: ArrayBuffer;
+    type?: string;
     timestamp?: number;
     size?: number;
 };
@@ -34,7 +36,7 @@ cacheDatabase.version(2).stores({
 const getImageCacheSize = async () => {
     const allImages = await cacheDatabase.images.toArray();
     const totalSize = (await Promise.all(allImages)).reduce((acc, image) => {
-        return acc + (image.size ?? image.data.size);
+        return acc + (image.size ?? image.data?.size ?? 0);
     }, 0);
     return { entries: allImages.length, size: totalSize };
 };
@@ -52,18 +54,51 @@ export const makeImageCacheId = (imageProps: ImageProps) => {
     ].join('|');
 };
 
-export const getImageDataFromCache = async (id: string) =>
-    (await cacheDatabase.images.get(id))?.data;
+export const getImageDataFromCache = async (id: string)  => {
+    const cacheEntry = await cacheDatabase.images.get(id);
+    return cacheEntry?.data ?? (cacheEntry?.arrayData ? new Blob([cacheEntry.arrayData], { type: cacheEntry?.type }) : null);
+};
 
 export const hasCachedImage = async (id: string): Promise<boolean> =>
     (await cacheDatabase.images.where(':id').equals(id).count()) > 0;
 
 export const addImageDataToCache = async (id: string, blob: Blob) => {
+    const mimeType = blob.type || 'application/octet-stream';
     const previousImage = await cacheDatabase.images.get(id);
     if (previousImage) {
-        return cacheDatabase.images.put({ id, data: blob, size: blob.size, timestamp: Date.now() });
+        if (previousImage.data) {
+            return cacheDatabase.images.put({
+                id,
+                data: blob,
+                size: blob.size,
+                timestamp: Date.now()
+            });
+        } else if (previousImage.arrayData) {
+            return cacheDatabase.images.put({
+                id,
+                arrayData: await blob.arrayBuffer(),
+                type: mimeType,
+                size: blob.size,
+                timestamp: Date.now(),
+            });
+        }
     } else {
-        return cacheDatabase.images.add({ id, data: blob, size: blob.size, timestamp: Date.now() });
+        try {
+            return cacheDatabase.images.add({
+                id,
+                data: blob,
+                size: blob.size,
+                timestamp: Date.now()
+            });
+        } catch {
+            return cacheDatabase.images.add({
+                id,
+                arrayData: await blob.arrayBuffer(),
+                type: mimeType,
+                size: blob.size,
+                timestamp: Date.now(),
+            });
+        }
     }
 };
 
