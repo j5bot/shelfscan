@@ -64,7 +64,9 @@ const WorkflowsPage = () => {
                     <p>To use a computer with ShelfScan on iOS, Continuity Camera can be used so
                         that your phone acts as a wireless handheld camera for the application.
                         There are also programs available on Android OS to achieve the same
-                        functionality.</p>
+                        functionality, such as <Link href="https://play.google.com/store/apps/details?id=com.dev47apps.droidcam&hl=en"
+                            className="underline"
+                            target="_blank">DroidCam</Link>.</p>
                 </div>
             </div>
         </div>
