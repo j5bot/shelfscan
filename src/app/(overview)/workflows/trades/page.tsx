@@ -2,7 +2,9 @@
 
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
+import { AtlasRealmsTrades } from '@/app/ui/workflows/math-trades/AtlasRealmsTrades';
 import { OLWLGTrades } from '@/app/ui/workflows/math-trades/OLWLGTrades';
+import { SwaptagonTrades } from '@/app/ui/workflows/math-trades/SwaptagonTrades';
 import React, { useState } from 'react';
 
 const MathTradeWorkflowsPage = () => {
@@ -40,6 +42,30 @@ const MathTradeWorkflowsPage = () => {
                             id="math-trades-olwlg">OLWLG</h2>
                         <div className="collapse-content">
                             <OLWLGTrades />
+                        </div>
+                    </div>
+                    <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
+                        <input type="radio" name="math-trades"
+                               className="cursor-pointer"
+                               value="swaptagon"
+                               onClick={handleAccordionClick}
+                        />
+                        <h2 className="collapse-title text-lg px-3 py-0.5"
+                            id="math-trades-swaptagon">Swaptagon</h2>
+                        <div className="collapse-content">
+                            <SwaptagonTrades />
+                        </div>
+                    </div>
+                    <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
+                        <input type="radio" name="math-trades"
+                               className="cursor-pointer"
+                               value="atlas-realms"
+                               onClick={handleAccordionClick}
+                        />
+                        <h2 className="collapse-title text-lg px-3 py-0.5"
+                            id="math-trades-atlas-realms">Atlas Realms</h2>
+                        <div className="collapse-content">
+                            <AtlasRealmsTrades />
                         </div>
                     </div>
                 </div>
