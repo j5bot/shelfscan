@@ -3,12 +3,24 @@
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { WorkflowComponents, WorkflowTitleKey, WorkflowTitles } from '@/app/lib/types/workflows';
 import { NavDrawer } from '@/app/ui/NavDrawer';
+import { useRouter } from 'next/navigation';
+import { Fragment, useEffect } from 'react';
 
 export const SingleWorkflow = (props: {type: WorkflowTitleKey}) => {
     const { type } = props;
+
+    const router = useRouter();
+
     const title = WorkflowTitles[type];
     useTitle(`ShelfScan | ${title} Math Trade Workflows`);
-    const WorkflowComponent = WorkflowComponents[type];
+    const WorkflowComponent = WorkflowComponents[type] ?? Fragment;
+
+    useEffect(() => {
+        if (!type || title) {
+            return;
+        }
+        router.replace('/workflows/trades');
+    }, [title, type]);
 
     return <>
         <NavDrawer />

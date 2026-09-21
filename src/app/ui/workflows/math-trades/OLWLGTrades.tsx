@@ -7,35 +7,33 @@ export const OLWLGTrades = () => (
         <p>Navigate to the <Link href="/math-trade">Math Trade</Link> page and click{' '}
             <button className="btn btn-md bg-purple-800 text-white rounded-md font-semibold"
             >Use OLWLG Math Trade</button></p>
-        <p>
-            <figure>
-                <img src="/images/workflows/enter-geeklist-id.png" alt="Enter geeklist URL" />
-                <figcaption className="italic">Enter the Math Trade geeklist URL</figcaption>
-            </figure>
-        </p>
+        <figure>
+            <img src="/images/workflows/enter-geeklist-id.png" alt="Enter geeklist URL" />
+            <figcaption className="italic">Enter the Math Trade geeklist URL</figcaption>
+        </figure>
         <p>
             Search by name, version, tags and filter your collection in any way you want.
-            <figure>
-                <img className="max-w-4/5" src="/images/workflows/filter-buttons.png" alt="Filter buttons" />
-                <figcaption className="italic">Collection filter options</figcaption>
-            </figure>
         </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/filter-buttons.png" alt="Filter buttons" />
+            <figcaption className="italic">Collection filter options</figcaption>
+        </figure>
         <p>
             Click on the condition display box to open the Math Trade property edit form.
-            <figure>
-                <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form-click.jpg"
-                     alt="Math Trade condition display box" />
-                <figcaption className="italic">Opening the property edit form</figcaption>
-            </figure>
         </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form-click.jpg"
+                 alt="Math Trade condition display box" />
+            <figcaption className="italic">Opening the property edit form</figcaption>
+        </figure>
         <p>
             Edit the condition/description and copies values and click on "Done" when finished.
-            <figure>
-                <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form.jpg"
-                     alt="Math Trade condition display box" />
-                <figcaption className="italic">Edit the trade item properties</figcaption>
-            </figure>
         </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form.jpg"
+                 alt="Math Trade condition display box" />
+            <figcaption className="italic">Edit the trade item properties</figcaption>
+        </figure>
         <p>
             If adding only a few items, or if you're not using the extension, you may want to click
             on
@@ -66,20 +64,20 @@ export const OLWLGTrades = () => (
         </p>
         <p>
             Click on the item thumbnail to select it for batch adding.
-            <figure>
-                <img className="max-w-4/5" src="/images/workflows/math-trade-click-thumb.jpg"
-                     alt="Click thumbnail to add to batch" />
-                <figcaption className="italic">Click thumbnail to add to batch</figcaption>
-            </figure>
         </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/math-trade-click-thumb.jpg"
+                 alt="Click thumbnail to add to batch" />
+            <figcaption className="italic">Click thumbnail to add to batch</figcaption>
+        </figure>
         <p>
             Click on the open link to open the details modal to set version information.
-            <figure>
-                <img className="max-w-4/5" src="/images/workflows/math-trade-set-version.jpg"
-                     alt="Click open link to set version" />
-                <figcaption className="italic">Click open link to set version</figcaption>
-            </figure>
         </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/math-trade-set-version.jpg"
+                 alt="Click open link to set version" />
+            <figcaption className="italic">Click open link to set version</figcaption>
+        </figure>
         <p>
             Scroll to the top of the collection display and click the button to batch add the
             selected items
