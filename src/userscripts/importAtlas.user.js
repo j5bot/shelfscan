@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ShelfScan -> Atlas Realms Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.0.3
+// @version      1.0.4
 // @description  Import items from a ShelfScan trade interop file (ODS) to Atlas Realms
 // @author       ShelfScan
 // @match        https://www.atlasrealms.com/trades/*/offerings*
@@ -126,11 +126,34 @@
         return paragraphs.map(p => p.textContent ?? '').join('\n');
     };
 
+    // Guards against spreadsheet apps padding rows with a huge trailing
+    // `number-columns-repeated` (e.g. 16384 columns).
+    const MAX_COLUMNS = 1024;
+
+    // Returns one entry per real column. Spreadsheet apps (LibreOffice, Excel)
+    // collapse runs of identical adjacent cells into a single element with
+    // `table:number-columns-repeated`, and merged cells are emitted as
+    // `table:covered-table-cell`; both still occupy column positions.
+    const getRowCells = (row) => {
+        const cells = [];
+        for (const node of Array.from(row.children)) {
+            if (node.namespaceURI !== TABLE_NS) { continue; }
+            if (node.localName !== 'table-cell' && node.localName !== 'covered-table-cell') { continue; }
+
+            const repeat = parseInt(node.getAttributeNS(TABLE_NS, 'number-columns-repeated') ?? '1', 10);
+            const count = Number.isNaN(repeat) || repeat < 1 ? 1 : repeat;
+            for (let i = 0; i < count && cells.length < MAX_COLUMNS; i++) {
+                cells.push(node);
+            }
+        }
+        return cells;
+    };
+
     // Column order/presence is not fixed: swapExport.ts omits any column
     // with no data across the exported rows, so cells must be looked up by
     // header name rather than position.
     const getHeaderIndexByName = (headerRow) => {
-        const cells = Array.from(headerRow.getElementsByTagNameNS(TABLE_NS, 'table-cell'));
+        const cells = getRowCells(headerRow);
         const indexByName = {};
         cells.forEach((cell, index) => {
             const name = getCellString(cell).trim();
@@ -158,7 +181,7 @@
         };
 
         return dataRows.map((row) => {
-            const cells = Array.from(row.getElementsByTagNameNS(TABLE_NS, 'table-cell'));
+            const cells = getRowCells(row);
 
             return {
                 type: getCellString(cellFor(cells, COLUMN_HEADERS.type)) || undefined,

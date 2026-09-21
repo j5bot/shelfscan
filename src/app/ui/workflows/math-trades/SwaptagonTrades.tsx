@@ -1,16 +1,10 @@
 import Link from 'next/link';
 import React from 'react';
-import { FaRightLeft } from 'react-icons/fa6';
+import { FaFileExport } from 'react-icons/fa6';
 
 export const SwaptagonTrades = () => (
     <>
-        <p>Navigate to the <Link href="/math-trade">Math Trade</Link> page and click{' '}
-            <button className="btn btn-md bg-purple-800 text-white rounded-md font-semibold"
-            >Use OLWLG Math Trade</button></p>
-        <figure>
-            <img src="/images/workflows/enter-geeklist-id.png" alt="Enter geeklist URL" />
-            <figcaption className="italic">Enter the Math Trade geeklist URL</figcaption>
-        </figure>
+        <p>Navigate to the <Link href="/swap">Swaptagon Math Trade</Link> page.</p>
         <p>
             Search by name, version, tags and filter your collection in any way you want.
         </p>
@@ -22,51 +16,23 @@ export const SwaptagonTrades = () => (
             Click on the condition display box to open the Math Trade property edit form.
         </p>
         <figure>
-            <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form-click.jpg"
+            <img className="max-w-4/5" src="/images/workflows/swap-condition-area.jpg"
                  alt="Math Trade condition display box" />
             <figcaption className="italic">Opening the property edit form</figcaption>
         </figure>
         <p>
-            Edit the condition/description and copies values and click on "Done" when finished.
+            Edit the condition/description, compare value and sell for values and click on "Done" when finished.
         </p>
         <figure>
-            <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form.jpg"
-                 alt="Math Trade condition display box" />
+            <img className="max-w-4/5" src="/images/workflows/swap-condition-form.jpg"
+                 alt="Math Trade condition edit form" />
             <figcaption className="italic">Edit the trade item properties</figcaption>
         </figure>
-        <p>
-            If adding only a few items, or if you're not using the extension, you may want to click
-            on
-            <button
-                type="button"
-                className={`btn rounded-full mt-2
-                w-fit px-7
-                bg-brand-background text-white
-                uppercase text-xs font-sharetech
-                pt-1 pb-1
-                pointer-events-none`}
-                aria-label={`Add item to math trade`}
-            >Add to Trade</button>
-        </p>
-        <p>
-            If the collection item is already in the OLWLG geeklist, the button
-            will have a warning color
-            <button
-                type="button"
-                className={`btn rounded-full mt-2
-                w-fit px-7
-                btn-warning
-                uppercase text-xs font-sharetech
-                pt-1 pb-1
-                pointer-events-none`}
-                aria-label={`Add item to math trade`}
-            >Add to Trade</button>
-        </p>
         <p>
             Click on the item thumbnail to select it for batch adding.
         </p>
         <figure>
-            <img className="max-w-4/5" src="/images/workflows/math-trade-click-thumb.jpg"
+            <img className="max-w-4/5" src="/images/workflows/swap-click-thumb.jpg"
                  alt="Click thumbnail to add to batch" />
             <figcaption className="italic">Click thumbnail to add to batch</figcaption>
         </figure>
@@ -74,12 +40,12 @@ export const SwaptagonTrades = () => (
             Click on the open link to open the details modal to set version information.
         </p>
         <figure>
-            <img className="max-w-4/5" src="/images/workflows/math-trade-set-version.jpg"
+            <img className="max-w-4/5" src="/images/workflows/swap-select-version.jpg"
                  alt="Click open link to set version" />
             <figcaption className="italic">Click open link to set version</figcaption>
         </figure>
         <p>
-            Scroll to the top of the collection display and click the button to batch add the
+            Scroll to the top of the collection display and click the button to export the
             selected items
             <button
                 type="button"
@@ -91,9 +57,41 @@ export const SwaptagonTrades = () => (
                                         pointer-events-none
                                         pl-6 pr-6 pt-2 pb-2`}
                 aria-label={`Add 2 games to math trade geeklist`}
-            ><FaRightLeft className="w-4 h-4" />
-                Add 2 to Math Trade
+            ><FaFileExport className="w-4 h-4" />
+                Export 2 for Swaptagon
             </button>
+        </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/file-export-dialog.jpg"
+                 alt="File export save dialog" />
+            <figcaption className="italic">Save the file export</figcaption>
+        </figure>
+        <p>
+            After saving the export, you'll need to import it into Swaptagon.
+        </p>
+        <p>
+            Install the <Link href="https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js"
+                              target="_blank" className="underline">userscript</Link> according
+            to the instructions for your particular browser and operating system.
+        </p>
+        <p>
+            Go to <Link href="https://swaptagon.com" className="underline" target="_blank">
+                Swaptagon
+            </Link> and navigate to the 'Add Item' page for the swap you're participating in.
+        </p>
+        <p>
+            The import panel will appear in the lower right of the page.
+        </p>
+        <figure>
+            <img className="max-w-4/5" src="/images/workflows/swap-import-panel.jpg"
+                 alt="Swaptagon import panel" />
+            <figcaption className="italic">Swaptagon import panel</figcaption>
+        </figure>
+        <p>
+            Click on the 'Choose File' button, navigate to your export file and click 'Open'.
+        </p>
+        <p>
+            Click on 'Import Swap Data' to add the items from the export file to the swap.
         </p>
     </>
 );

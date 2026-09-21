@@ -31,7 +31,7 @@ export const OLWLGTrades = () => (
         </p>
         <figure>
             <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form.jpg"
-                 alt="Math Trade condition display box" />
+                 alt="Math Trade condition form" />
             <figcaption className="italic">Edit the trade item properties</figcaption>
         </figure>
         <p>
