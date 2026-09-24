@@ -34,8 +34,9 @@ export const StatusSelect = ({
         setValue('statuses', values.join(','));
     };
 
+    const selectedStatuses = new Set(statusesValues);
     const summary = statusesOptions
-        .filter(status => statusesValues?.includes(status.value))
+        .filter(status => selectedStatuses.has(status.value))
         .map(status => status.label)
         .join(', ') || 'Select Statuses';
 
@@ -50,7 +51,7 @@ export const StatusSelect = ({
                     <label key={status.value} className="flex items-center gap-1">
                         <input type="checkbox"
                                className="checkbox checkbox-xs rounded-sm"
-                               checked={statusesValues?.includes(status.value) ?? false}
+                               checked={selectedStatuses.has(status.value)}
                                onChange={event =>
                                    toggleStatus(status.value, event.currentTarget.checked)
                                }

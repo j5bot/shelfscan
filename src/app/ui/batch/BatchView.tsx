@@ -77,7 +77,8 @@ export const BatchView = (props: BatchViewProps) => {
             setCodes([]);
             return;
         }
-        setCodes((prev: string[]) => prev.filter(code => !statuses[status].includes(code)));
+        const toClear = new Set(statuses[status]);
+        setCodes((prev: string[]) => prev.filter(code => !toClear.has(code)));
     }, [statuses, setCodes]);
 
     if (!breakpoint) {

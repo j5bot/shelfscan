@@ -62,7 +62,7 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
     const { startNextStep, closeNextStep } = useNextStep();
     const { settings: { dismissedTours }, setSetting } = useSettings();
 
-    const hasCollection = currentUsername !== undefined && Object.keys(collection?.items).length > 0;
+    const hasCollection = currentUsername !== undefined && Object.keys(collection?.items ?? {}).length > 0;
 
     const switchTour = (
         event: MouseEvent<HTMLAnchorElement>,

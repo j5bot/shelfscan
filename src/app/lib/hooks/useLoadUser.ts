@@ -64,9 +64,11 @@ export const useLoadUser = () => {
 
             setSetting('username', username).then();
 
-            let xml = await getCollectionFromCache(id);
-            let expansionsXml = await getCollectionFromCache(expansionsId);
-            let userXml = await getResponseFromCache(userCacheId);
+            let [xml, expansionsXml, userXml] = await Promise.all([
+                getCollectionFromCache(id),
+                getCollectionFromCache(expansionsId),
+                getResponseFromCache(userCacheId),
+            ]);
 
             if (!xml || !expansionsXml) {
                 const [gamesXml, expansionsResult] = await Promise.all([

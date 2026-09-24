@@ -22,8 +22,9 @@ const BatchStepContent = (props: BatchStepContentProps) => {
     } = useGameUPCData();
 
     useEffect(() => {
+        const existingCodes = new Set(codes);
         const loadUPCs = testUPCs.slice(start, end)
-            .filter(code => !codes.includes(code));
+            .filter(code => !existingCodes.has(code));
         Promise.all(loadUPCs.map(upc => getGameData(upc))).then();
         setCodes(prev => Array.from(new Set([...prev, ...loadUPCs])));
         // eslint-disable-next-line react-hooks/exhaustive-deps

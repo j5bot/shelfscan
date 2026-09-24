@@ -7,7 +7,7 @@ import { CollectionGameDetails } from '@/app/ui/games/CollectionGameDetails';
 import { template } from '@blakeembrey/template';
 import { GameUPCBggVersion } from 'gameupc-hooks/types';
 import Link from 'next/link';
-import React, { SyntheticEvent, useEffect, useState } from 'react';
+import React, { SyntheticEvent, useEffect, useEffectEvent, useState } from 'react';
 import { FaXmark } from 'react-icons/fa6';
 
 const MODAL_THUMBNAIL_SIZE = 400;
@@ -92,14 +92,17 @@ type CollectionItemModalProps = {
 };
 
 export const CollectionItemModal = ({ item, onClose }: CollectionItemModalProps) => {
+    const onEscape = useEffectEvent(() => onClose());
+
+    const isOpen = !!item;
     useEffect(() => {
-        if (!item) { return; }
+        if (!isOpen) { return; }
         const handleKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') { onClose(); }
+            if (e.key === 'Escape') { onEscape(); }
         };
         document.addEventListener('keydown', handleKey);
         return () => document.removeEventListener('keydown', handleKey);
-    }, [item, onClose]);
+    }, [isOpen]);
 
     if (!item) { return null; }
 

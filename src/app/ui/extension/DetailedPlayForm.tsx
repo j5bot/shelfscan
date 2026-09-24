@@ -365,6 +365,7 @@ export const DetailedPlayForm = ({
                                             </li>
                                         );
                                     }
+                                    const selectedPlayerIds = new Set(selectedPlayers);
                                     return listEntries.map(([id, player]) => {
                                         const label = player.name.length > 0
                                                       ? <div className="flex flex-col"><div>{player.name}</div>
@@ -372,7 +373,7 @@ export const DetailedPlayForm = ({
                                                  ? <div className="text-[0.5rem] text-gray-500">{player.username}</div>
                                                  : null}</div>
                                                       : player.username;
-                                        const checked = selectedPlayers.includes(id);
+                                        const checked = selectedPlayerIds.has(id);
                                         const isFromSearch = playerSearchQuery.trim().length > 0;
                                         return (
                                             <li
