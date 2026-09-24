@@ -80,7 +80,7 @@ export const ExtPay = (extension_id, options = {}) => {
         window.open(
             url,
             '_blank',
-            `popup=yes,width=${width},height=${height},left=${left},top=${top}`,
+            `popup=yes,noopener,width=${width},height=${height},left=${left},top=${top}`,
         );
     }
 
@@ -90,7 +90,7 @@ export const ExtPay = (extension_id, options = {}) => {
         if (plan_nickname) {
             url = `${EXTENSION_URL}/choose-plan/${plan_nickname}?api_key=${api_key}`;
         }
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener');
     }
 
     async function open_trial_page(period) {
