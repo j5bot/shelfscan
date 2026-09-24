@@ -1,6 +1,6 @@
 import type { BggPlayer, BggPlayerPlay } from '@/app/lib/types/bgg';
 import { ColorPicker } from '@/app/ui/extension/ColorPicker';
-import { getBgClassName, getTextClassName, Ratings } from '@/app/ui/extension/RatingForm';
+import { getBgClassName, getTextClassName, Ratings } from '@/app/lib/utils/rating';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { FaStar, FaTrophy } from 'react-icons/fa6';
 

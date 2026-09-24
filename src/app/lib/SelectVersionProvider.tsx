@@ -1,13 +1,9 @@
 'use client';
 
 import { useSelectVersion } from '@/app/lib/hooks/useSelectVersion';
+import { SelectVersionContext } from '@/app/lib/SelectVersionContext';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
-import { createContext, ReactNode, useContext } from 'react';
-
-export type SelectVersionContext = ReturnType<typeof useSelectVersion>;
-
-export const SelectVersionContext =
-    createContext<SelectVersionContext>({} as SelectVersionContext);
+import { ReactNode, useContext } from 'react';
 
 export type SelectVersionProviderProps = {
     id?: string;

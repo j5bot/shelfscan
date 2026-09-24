@@ -1,19 +1,11 @@
+import { SyncContext } from '@/app/lib/extension/SyncContext';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import posthog from 'posthog-js';
-import { createContext, ReactNode, useLayoutEffect, useMemo, useState } from 'react';
+import { ReactNode, useLayoutEffect, useMemo, useState } from 'react';
 
 const fadeInClasses = 'flex transition-opacity opacity-100 duration-800'
     .split(' ');
-
-export type SyncContextValue = {
-    syncOn: boolean;
-    hasSubscription: boolean | undefined;
-    userId: string | undefined;
-    currentUsername: string | undefined;
-};
-
-export const SyncContext = createContext<SyncContextValue>({} as SyncContextValue);
 
 export const SyncProvider = ({ children }: { children: ReactNode }) => {
     const [syncOn, setSyncOn] = useState<boolean | null>(null);

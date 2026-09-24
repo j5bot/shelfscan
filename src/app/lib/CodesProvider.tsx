@@ -5,7 +5,7 @@ import {
 } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 export type Codes = string[];
 
@@ -62,12 +62,12 @@ export const CodesProvider = ({ children }: Props) => {
         setCodes(prev => prev.filter(c => c !== code));
     }, [setCodes]);
 
-    const addHistoryID = (code: string, historyID: number) => {
+    const addHistoryID = useCallback((code: string, historyID: number) => {
         const ids = historyIDsRef.current[code] ?? [];
         ids.push(historyID);
         historyIDsRef.current[code] = ids;
-    };
-    const getHistoryIDs = (code: string) => historyIDsRef.current[code] ?? [];
+    }, []);
+    const getHistoryIDs = useCallback((code: string) => historyIDsRef.current[code] ?? [], []);
 
     // load persisted codes from db
     useEffect(() => {
@@ -102,7 +102,12 @@ export const CodesProvider = ({ children }: Props) => {
         }
     }, [codes, loaded]);
 
-    return <CodesContext.Provider value={{ codes, addHistoryID, getHistoryIDs, removeCode, setCodes, loaded }}>
+    const value = useMemo(
+        () => ({ codes, addHistoryID, getHistoryIDs, removeCode, setCodes, loaded }),
+        [codes, addHistoryID, getHistoryIDs, removeCode, setCodes, loaded],
+    );
+
+    return <CodesContext.Provider value={value}>
         {children}
     </CodesContext.Provider>;
 };

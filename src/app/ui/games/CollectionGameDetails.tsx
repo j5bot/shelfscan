@@ -4,7 +4,7 @@ import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
-import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { SelectVersionContext } from '@/app/lib/SelectVersionContext';
 import { bggGetVersionsFromXML } from '@/app/lib/services/bgg/service';
 import { type BggCollectionItem, BggVersion } from '@/app/lib/types/bgg';
 import {

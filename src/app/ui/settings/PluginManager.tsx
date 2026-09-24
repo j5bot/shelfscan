@@ -1,4 +1,4 @@
-import { PluginMapContext } from '@/app/lib/PluginMapProvider';
+import { PluginMapContext } from '@/app/lib/PluginMapContext';
 import { ShelfScanPlugin } from '@/app/lib/types/plugins';
 import {
     addPlugin,

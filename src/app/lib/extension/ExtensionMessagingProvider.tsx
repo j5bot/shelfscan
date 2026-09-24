@@ -7,7 +7,7 @@ import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import posthog from 'posthog-js';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useRef } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 type DispatchExtensionMessage = (
     detail: Partial<DocumentMessageDetail>,
@@ -125,10 +125,10 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
         };
     }, [username, dispatch, dispatchExtensionMessage]);
 
+    const value = useMemo(() => ({ dispatchExtensionMessage }), [dispatchExtensionMessage]);
+
     return (
-        <ExtensionMessagingContext.Provider value={{
-            dispatchExtensionMessage,
-        }}>
+        <ExtensionMessagingContext.Provider value={value}>
             {children}
         </ExtensionMessagingContext.Provider>
     );

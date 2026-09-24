@@ -1,6 +1,6 @@
 import React, { ReactNode, useState } from 'react';
 
-export const makeListItemClassName = (current: number, selected: number | null) =>
+const makeListItemClassName = (current: number, selected: number | null) =>
     `cursor-pointer ml-0.5 mr-1 rounded-sm ${
         current === selected ?
         'p-1 pl-1.5 bg-[#f1eff9] dark:bg-green-800' :

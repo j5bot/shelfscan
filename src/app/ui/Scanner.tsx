@@ -17,7 +17,7 @@ const SCANNER_SIZES = {
     LG: { height: 480, width: 640, cropWidthRatio: 1 }
 }
 
-export const ScannerSizes = {
+const ScannerSizes = {
     loading: SCANNER_SIZES.NONE,
     mobile: SCANNER_SIZES.SM,
     sm: SCANNER_SIZES.MD,

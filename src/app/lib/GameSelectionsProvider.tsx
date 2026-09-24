@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 export type GameSelections = Record<string, number[]>;
 
@@ -18,7 +18,9 @@ export const useGameSelections = () =>
 export const GameSelectionsProvider = ({ children }: Props) => {
     const [gameSelections, setGameSelections] = useState<GameSelections>({});
 
-    return <GameSelectionsContext.Provider value={{ gameSelections, setGameSelections }}>
+    const value = useMemo(() => ({ gameSelections, setGameSelections }), [gameSelections]);
+
+    return <GameSelectionsContext.Provider value={value}>
         {children}
     </GameSelectionsContext.Provider>;
 };
