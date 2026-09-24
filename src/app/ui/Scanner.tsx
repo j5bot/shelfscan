@@ -2,7 +2,7 @@ import { useCodes } from '@/app/lib/CodesProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
 import posthog from 'posthog-js';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FaCamera } from 'react-icons/fa6';
 
 export type ScannerProps = {
@@ -17,7 +17,7 @@ const SCANNER_SIZES = {
     LG: { height: 480, width: 640, cropWidthRatio: 1 }
 }
 
-export const ScannerSizes = {
+const ScannerSizes = {
     loading: SCANNER_SIZES.NONE,
     mobile: SCANNER_SIZES.SM,
     sm: SCANNER_SIZES.MD,
@@ -87,7 +87,9 @@ export function Scanner(props: ScannerProps) {
         onScan(code);
     };
     const doScanRef = useRef(doScanImpl);
-    doScanRef.current = doScanImpl;
+    useLayoutEffect(() => {
+        doScanRef.current = doScanImpl;
+    });
     const doScan = useCallback((code: string) => doScanRef.current(code), []);
 
     const onDevices = (devices: MediaDeviceInfo[]) => {
@@ -147,8 +149,10 @@ export function Scanner(props: ScannerProps) {
                     <h3 className="pb-1 pl-0.5">Choose Camera</h3>
                     <div className="join join-vertical text-left">
                         {devices.map((device) => {
+                            // submitting the dialog form closes the picker once a camera is chosen
                             return <button
                                 key={device.deviceId}
+                                type="submit"
                                 className="btn btn-sm join-item flex justify-start"
                                 onClick={() => handleCameraChange(device.deviceId)}
                             >

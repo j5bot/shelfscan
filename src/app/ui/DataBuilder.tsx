@@ -59,6 +59,7 @@ export const DataBuilder = () => {
         return () => {
             destroyed = true;
             if (editorRef.current) {
+                editorRef.current.off('changed', handleSchemaChange);
                 editorRef.current.destroy();
                 editorRef.current = null;
             }
@@ -134,7 +135,7 @@ export const DataBuilder = () => {
                     )}
                 </div>
                 <form method="dialog" className="modal-backdrop">
-                    <button>close</button>
+                    <button type="submit">close</button>
                 </form>
             </dialog>
 

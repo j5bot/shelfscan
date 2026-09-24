@@ -119,11 +119,12 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
                 <button className="btn bg-gray-300 rounded-lg"
                     onClick={event => {
                         event.currentTarget.closest('dialog')?.close();
-                        setSetting('dismissedTours', Object.assign(
-                            dismissedTours as Record<string, boolean> ?? {}, {
-                                main: true,
-                            }
-                        )).then();
+                        setSetting('dismissedTours', {
+                            ...(dismissedTours as Record<string, boolean> | undefined),
+                            main: true,
+                        }).catch(error => {
+                            console.error('failed to save dismissed tours', error);
+                        });
                     }}
                 >
                     Hide Tours
@@ -131,7 +132,7 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
             </div>
         </div>
         <form method="dialog" className="modal-backdrop">
-            <button>close</button>
+            <button type="submit">close</button>
         </form>
     </dialog>;
 };

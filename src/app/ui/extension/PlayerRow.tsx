@@ -1,6 +1,6 @@
 import type { BggPlayer, BggPlayerPlay } from '@/app/lib/types/bgg';
 import { ColorPicker } from '@/app/ui/extension/ColorPicker';
-import { getBgClassName, getTextClassName, Ratings } from '@/app/ui/extension/RatingForm';
+import { getBgClassName, getTextClassName, Ratings } from '@/app/lib/utils/rating';
 import { CSSProperties, useEffect, useRef, useState } from 'react';
 import { FaStar, FaTrophy } from 'react-icons/fa6';
 
@@ -111,7 +111,7 @@ export const PlayerRow = ({ player, playData, onUpdate }: PlayerRowProps) => {
                         <div className="rating rating-sm rating-half">
                             {Ratings.map((rating, index) => (
                                 <input
-                                    key={index}
+                                    key={rating}
                                     type="radio"
                                     name={`player-rating-${player.username || player.name}`}
                                     className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'} ${bgClassName}`}

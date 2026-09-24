@@ -7,7 +7,9 @@ import { TradeItemCondition } from '@/app/lib/types/trade';
 import { conditionParser, TIER_ABBREVIATION } from '@/app/lib/utils/condition';
 import { getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
 import { clampCashValue, clampCompareValue, clampCopies } from '@/app/lib/utils/trade';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useEffectEvent, useState } from 'react';
+
+const CASH_VALUE_MIN = -1;
 
 const CONDITION_OPTIONS: { value: TradeItemCondition; label: string }[] = [
     { value: 'New', label: 'New' },
@@ -54,7 +56,9 @@ export const SwapSectionInner = ({
 
     const { isSwap, isTrade } = useTradeMode();
 
-    useEffect(() => {
+    // seed the swap data once when the item first becomes available; later
+    // edits to savedData must not re-run this
+    const initializeItemData = useEffectEvent(() => {
         if (!item) {
             return;
         }
@@ -65,7 +69,12 @@ export const SwapSectionInner = ({
             description: savedData?.description ?? item.tradeCondition,
             imageKey: getSwapItemImageCacheKey(item as BggCollectionItem),
         }));
-    }, [!item]);
+    });
+
+    const hasItem = !!item;
+    useEffect(() => {
+        initializeItemData();
+    }, [hasItem]);
 
     const [expanded, setExpanded] = useState(false);
 
@@ -85,8 +94,6 @@ export const SwapSectionInner = ({
     const compareValueMin = isTrade ? 0 : 1;
     const compareValueMax = isTrade ? Number.MAX_SAFE_INTEGER : 10;
 
-    const cashValueMin = -1;
-
     const handleDescriptionChange = useCallback((value: string) => {
         dispatch(setItemData({ collectionId, name, description: value }));
     }, [dispatch, collectionId, name]);
@@ -104,21 +111,21 @@ export const SwapSectionInner = ({
             collectionId,
             compareValue: clampCompareValue(value, compareValueMin, compareValueMax)
         }));
-    }, [dispatch, collectionId, compareValue]);
+    }, [dispatch, collectionId, compareValueMin, compareValueMax]);
 
     const handleCashValueChange = useCallback((value: number | undefined) => {
         dispatch(setItemData({
             collectionId,
-            cashValue: clampCashValue(value, cashValueMin)
+            cashValue: clampCashValue(value, CASH_VALUE_MIN)
         }));
-    }, [dispatch, collectionId, cashValue]);
+    }, [dispatch, collectionId]);
 
     const handleCopiesChange = useCallback((value: number | undefined) => {
         dispatch(setItemData({
             collectionId,
             copies: clampCopies(value)
         }));
-    }, [dispatch, collectionId, copies]);
+    }, [dispatch, collectionId]);
 
     if (!item) { return null; }
 
@@ -128,7 +135,7 @@ export const SwapSectionInner = ({
                 {isTrade && (
                     <div className="flex space-between gap-[2%]">
                         {CONDITION_OPTIONS.map(option => (
-                            option.value === 'Other' ? null : <button className={`btn btn-xs btn-ghost rounded-md w-fit px-0 grow h-5
+                            option.value === 'Other' ? null : <button key={option.value} className={`btn btn-xs btn-ghost rounded-md w-fit px-0 grow h-5
                                 ${condition === option.value
                                   ? 'text-white bg-purple-400'
                                   : 'border-gray-300 text-base-content/50'}
@@ -186,6 +193,7 @@ export const SwapSectionInner = ({
                         <input
                             id={`cashValue-${collectionId}`}
                             type="number"
+                            step="1"
                             className="input input-bordered input-xs ml-px w-12"
                             value={cashValue >= 0 ? cashValue : undefined}
                             onChange={e => {
@@ -246,7 +254,7 @@ export const SwapSectionInner = ({
                 {needsDescription && <div className="absolute top-0.5 left-1 text-xl">
                     ⚠️
                 </div>}
-                {isTrade && condition && condition.length && <div
+                {isTrade && !!condition && <div
                     className={`font-encode-condensed
                     font-semibold
                     px-1.5

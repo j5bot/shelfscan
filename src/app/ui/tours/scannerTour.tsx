@@ -10,9 +10,11 @@ import { Step, useNextStep } from 'nextstepjs';
 import React, { useEffect } from 'react';
 import { FaBarcode, FaCloudArrowDown, FaList, FaUser } from 'react-icons/fa6';
 
-export const gameDetailsStep = (params: TourCardProps): Step => {
-    const { skipTour } = params;
+type GameDetailsStepContentProps = {
+    skipTour: TourCardProps['skipTour'];
+};
 
+const GameDetailsStepContent = ({ skipTour }: GameDetailsStepContentProps) => {
     const { startNextStep, closeNextStep } = useNextStep();
     const { codes, setCodes } = useCodes();
     const {
@@ -27,7 +29,7 @@ export const gameDetailsStep = (params: TourCardProps): Step => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const content = <div className="flex flex-col gap-2">
+    return <div className="flex flex-col gap-2">
         <div>
             Click on an item in the scanned game list to view details and take
             more actions.
@@ -44,11 +46,15 @@ export const gameDetailsStep = (params: TourCardProps): Step => {
             }}
         >Go to Game Details Tour</Link>
     </div>;
+};
+
+export const gameDetailsStep = (params: TourCardProps): Step => {
+    const { skipTour } = params;
 
     return {
         icon: <FaList className="h-5 w-5" />,
         title: 'Game Details',
-        content,
+        content: <GameDetailsStepContent skipTour={skipTour} />,
         selector: '#scanlist',
         side: 'top',
         showControls: true,

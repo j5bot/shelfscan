@@ -66,7 +66,7 @@ export const DynamicSvgIcon = (props: SVGAttributes<unknown> & {
     </svg>;
 };
 
-export const DynamicReactIcon = <T extends { icon: string; }>(props: T) => {
+const DynamicReactIcon = <T extends { icon: string; }>(props: T) => {
     const [iconNode, setIconNode] = useState<ReactNode>(null);
     const [library, iconName] = props.icon.split('/');
 

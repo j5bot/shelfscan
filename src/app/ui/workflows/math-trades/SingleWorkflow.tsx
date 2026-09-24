@@ -20,7 +20,7 @@ export const SingleWorkflow = (props: {type: WorkflowTitleKey}) => {
             return;
         }
         router.replace('/workflows/trades');
-    }, [title, type]);
+    }, [title, type, router]);
 
     return <>
         <NavDrawer />

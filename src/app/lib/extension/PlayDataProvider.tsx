@@ -7,6 +7,7 @@ import {
     ReactNode,
     useCallback,
     useContext,
+    useMemo,
     useRef,
     useState
 } from 'react';
@@ -58,7 +59,7 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
     const [playData, setPlayData] = useState<Record<string, BggPlayerPlay>>({});
     const [locations, setLocations] = useState<string[]>([]);
 
-    const getInitialData = async (active: boolean | undefined = true) => {
+    const getInitialData = useCallback(async (active: boolean | undefined = true) => {
         const playersPromise = dispatchExtensionMessage({ userId, type: 'getPlayers' }) as
             Promise<{ response?: BggPlayer[] }> | undefined;
 
@@ -91,11 +92,11 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
             console.error('Error loading play data:', reason);
             return emptyInitialData;
         });
-    };
+    }, [dispatchExtensionMessage, userId]);
 
-    const addLocation = (location: string) => {
+    const addLocation = useCallback((location: string) => {
         setLocations(prev => prev.includes(location) ? prev : [...prev, location]);
-    };
+    }, []);
 
     const addUpdatePlayer = useCallback((player: BggPlayer) => {
         setPlayers(prev => {
@@ -126,19 +127,35 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
         return result?.response ?? [];
     }, [dispatchExtensionMessage]);
 
+    // read once per render so the memo below still picks up the ref's latest value
+    const loaded = loadedRef.current;
+
+    const value = useMemo(() => ({
+        loaded,
+        players,
+        playData,
+        locations,
+        getInitialData,
+        addLocation,
+        addUpdatePlayer,
+        addUpdatePlayData,
+        clearPlayData,
+        searchPlayers,
+    }), [
+        loaded,
+        players,
+        playData,
+        locations,
+        getInitialData,
+        addLocation,
+        addUpdatePlayer,
+        addUpdatePlayData,
+        clearPlayData,
+        searchPlayers,
+    ]);
+
     return (
-        <PlayDataContext.Provider value={{
-            loaded: loadedRef.current,
-            players,
-            playData,
-            locations,
-            getInitialData,
-            addLocation,
-            addUpdatePlayer,
-            addUpdatePlayData,
-            clearPlayData,
-            searchPlayers
-        }}>
+        <PlayDataContext.Provider value={value}>
             {children}
         </PlayDataContext.Provider>
     );

@@ -1,21 +1,11 @@
+import { PluginMapContext, PluginMapProviderValue } from '@/app/lib/PluginMapContext';
 import {
     ShelfScanPluginKey,
     ShelfScanPluginMap,
     ShelfScanPluginSection,
 } from '@/app/lib/types/plugins';
 import { makePluginMap } from '@/app/lib/plugins/plugins';
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
-export type PluginMapProviderValue = {
-    loadPlugins: () => PromiseLike<void>;
-    plugins: ShelfScanPluginMap;
-}
-
-export const PluginMapContext =
-    createContext<PluginMapProviderValue>({
-        loadPlugins: async () => undefined,
-        plugins: {} as ShelfScanPluginMap,
-    });
+import { ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 export const usePlugins = (key?: string) => {
     const { plugins } = useContext<PluginMapProviderValue>(PluginMapContext);
@@ -38,19 +28,21 @@ export const usePlugins = (key?: string) => {
 export const PluginMapProvider = ({ children }: { children: ReactNode }) => {
     const [plugins, setPlugins] = useState<ShelfScanPluginMap>({} as ShelfScanPluginMap);
 
-    const loadPlugins = async () => {
+    const loadPlugins = useCallback(async () => {
         setPlugins(await makePluginMap());
-    };
+    }, []);
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         loadPlugins().then();
-    }, []);
+    }, [loadPlugins]);
 
-    return <PluginMapContext.Provider value={{
+    const value = useMemo(() => ({
         loadPlugins,
-        plugins
-    }}>
+        plugins,
+    }), [loadPlugins, plugins]);
+
+    return <PluginMapContext.Provider value={value}>
         {children}
     </PluginMapContext.Provider>
 };

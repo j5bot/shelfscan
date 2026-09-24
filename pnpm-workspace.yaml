@@ -5,6 +5,17 @@ allowBuilds:
   core-js: true
   esbuild: true
   unrs-resolver: true
+# supply-chain hardening: skip versions published in the last day, and
+# refuse packages whose provenance weakens between versions
+minimumReleaseAge: 1440
+trustPolicy: no-downgrade
+# older releases published by their maintainers before they adopted
+# provenance attestations; exact versions so newer ones are still checked
+trustPolicyExclude:
+  - eslint-import-resolver-typescript@3.10.1
+  - reselect@5.1.1
+  - semver@6.3.1
+  - undici-types@6.21.0
 overrides:
   "@undecaf/zbar-wasm": "^0.11.0"
   "@swc/helpers": "^0.5.23"

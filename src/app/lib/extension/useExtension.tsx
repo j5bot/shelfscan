@@ -8,6 +8,7 @@ import {
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
+import { bggHost } from '@/app/lib/services/bgg/constants';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -20,6 +21,7 @@ import React, {
     Fragment,
     SyntheticEvent,
     useEffect,
+    useEffectEvent,
     useState
 } from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -54,7 +56,7 @@ export const useExtension = (params?: UseExtension) => {
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
     const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false, tags: false });
     const [players, setPlayers] = useState<BggPlayer[]>();
-    const [update, setUpdate] = useState<boolean>(true);
+    const [updateChoice, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
     const [detailedPlayKey, setDetailedPlayKey] = useState<number>(0);
 
@@ -63,6 +65,8 @@ export const useExtension = (params?: UseExtension) => {
             getCollectionInfoByObjectId([state, info?.id, info?.collectionId]));
 
     const collectionItem = collection?.items[collectionId];
+    // an item that isn't in the collection yet can't be updated
+    const update = !!collectionId && updateChoice;
 
     const { rating: collectionRating, statuses } = collectionItem ?? {};
 
@@ -361,37 +365,24 @@ export const useExtension = (params?: UseExtension) => {
         formProps: { gameName: version?.name ?? info?.name },
     }) : {};
 
+    const tradeCondition = collectionItem?.tradeCondition;
     useEffect(() => {
-        if (collectionId) {
-            return;
-        }
-        setUpdate(false);
-    }, [collectionId]);
+        setFormValues(prev => prev['tradecondition'] === tradeCondition ? prev : {
+            ...prev,
+            tradecondition: tradeCondition as string,
+        });
+    }, [tradeCondition]);
 
+    const collectionStatuses = collectionItem?.statuses;
     useEffect(() => {
-        if (formValues?.['tradecondition'] === collectionItem?.tradeCondition) {
-            return;
-        }
-        setFormValues(Object.assign(formValues, {
-            tradecondition: collectionItem?.tradeCondition
-        }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [collectionItem?.tradeCondition]);
-
-    useEffect(() => {
-        const statuses = Object.entries(collectionItem?.statuses ?? {}).reduce((acc: string[], [key, value]: [string, boolean]) => {
+        const statuses = Object.entries(collectionStatuses ?? {}).reduce((acc: string[], [key, value]: [string, boolean]) => {
             if (value) {
                 acc.push(key);
             }
             return acc;
         }, []).join(',');
-        if (formValues?.['statuses'] === statuses) {
-            return;
-        }
-        setFormValues(Object.assign(formValues, {
-            statuses,
-        }));
-    }, [collectionItem?.statuses]);
+        setFormValues(prev => prev['statuses'] === statuses ? prev : { ...prev, statuses });
+    }, [collectionStatuses]);
 
     useEffect(() => {
         (async () => {
@@ -403,7 +394,12 @@ export const useExtension = (params?: UseExtension) => {
             setModes(extensionModes);
         })();
 
-        window.addEventListener('message', (event) => {
+        const messageHandler = (event: MessageEvent) => {
+            // players come from the extension's content script on this page,
+            // infoLoad responses from the extension's hidden BGG iframe
+            if (event.origin !== window.location.origin && event.origin !== bggHost) {
+                return;
+            }
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
             }
@@ -427,7 +423,13 @@ export const useExtension = (params?: UseExtension) => {
                 infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
                 setFormValues(infoFormValues);
             }
-        });
+        };
+
+        window.addEventListener('message', messageHandler);
+
+        return () => {
+            window.removeEventListener('message', messageHandler);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -448,12 +450,18 @@ export const useExtension = (params?: UseExtension) => {
         }
     }, [update, currentATCMode, setDisabledModes]);
 
-    useEffect(() => {
+    // send once per user/item/mode; the item's own updates (often caused by
+    // this message's response) must not re-send it
+    const sendATCModeMessage = useEffectEvent(() => {
         if (!(atcModeSetting?.message && userId && collectionItem)) {
             return;
         }
         atcModeSetting.message(userId, dispatchExtensionMessage, collectionItem);
-    }, [!!atcModeSetting?.message, userId, collectionId]);
+    });
+    const hasATCModeMessage = !!atcModeSetting?.message;
+    useEffect(() => {
+        sendATCModeMessage();
+    }, [hasATCModeMessage, userId, collectionId]);
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
         const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);
@@ -535,7 +543,7 @@ export const useExtension = (params?: UseExtension) => {
                                     break;
                             }
 
-                            return <input key={index} type="radio" name="rating"
+                            return <input key={rating} type="radio" name="rating"
                                           className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'}
                                           ${bgClassName}`} aria-label={rating.toString()}
                                           value={rating}

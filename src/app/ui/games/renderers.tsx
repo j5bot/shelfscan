@@ -1,4 +1,4 @@
-import { SelectVersionContext } from '@/app/lib/SelectVersionProvider';
+import { SelectVersionContext } from '@/app/lib/SelectVersionContext';
 import { type GameUPCBggInfo, type GameUPCBggVersion } from 'gameupc-hooks/types';
 import { GameUPCStatus } from 'gameupc-hooks/useGameUPC';
 import { Thumbnail } from '@/app/ui/games/Thumbnail';

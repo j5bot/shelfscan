@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useMemo, useState } from 'react';
 
 export type GameSelections = Record<string, number[]>;
 
 const GameSelectionsContext =
     createContext<{
          gameSelections: GameSelections;
-         setGameSelections: (gameSelections: GameSelections) => void;
+         setGameSelections: Dispatch<SetStateAction<GameSelections>>;
      }>({ gameSelections: {}, setGameSelections: () => undefined });
 
 type Props = {
@@ -18,7 +18,9 @@ export const useGameSelections = () =>
 export const GameSelectionsProvider = ({ children }: Props) => {
     const [gameSelections, setGameSelections] = useState<GameSelections>({});
 
-    return <GameSelectionsContext.Provider value={{ gameSelections, setGameSelections }}>
+    const value = useMemo(() => ({ gameSelections, setGameSelections }), [gameSelections]);
+
+    return <GameSelectionsContext.Provider value={value}>
         {children}
     </GameSelectionsContext.Provider>;
 };

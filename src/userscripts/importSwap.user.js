@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         ShelfScan -> Swaptagon Import
 // @namespace    https://github.com/j5bot/shelfscan
-// @version      1.2.1
+// @version      1.2.2
 // @description  Import items from a ShelfScan trade interop file (ODS) to Swaptagon
 // @author       ShelfScan
 // @match        https://swaptagon.com/*
@@ -72,7 +72,12 @@
             headers: {
                 'X-CSRFToken': xsrfToken,
             },
-        }).then(response => response.text());
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(`image upload failed: HTTP ${response.status}`);
+            }
+            return response.text();
+        });
     };
 
     const addItem = async (item) => {
@@ -270,7 +275,12 @@
                             item.image !== undefined
                         )
                         .map(async (item) => {
-                            const imageBlob = await fetch(item.image).then(resp => resp.blob());
+                            const imageBlob = await fetch(item.image).then(resp => {
+                                if (!resp.ok) {
+                                    throw new Error(`image download failed: HTTP ${resp.status}`);
+                                }
+                                return resp.blob();
+                            });
                             return Object.assign(item, { image: imageBlob });
                         }));
                 })

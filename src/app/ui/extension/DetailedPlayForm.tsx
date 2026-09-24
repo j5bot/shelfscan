@@ -75,7 +75,7 @@ export const DetailedPlayForm = ({
             return;
         }
         getInitialData(true).then();
-    }, []);
+    }, [loaded, getInitialData]);
 
     // Sync locationOptions when provider data arrives
     useEffect(() => {

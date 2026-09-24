@@ -136,9 +136,10 @@ export const makeAddToCollectionModeSettings = ({
                            className="input text-sm p-2"
                            placeholder="Trade Condition"
                            defaultValue={formValues?.['tradecondition']}
-                           onChange={event => setFormValues(
-                               Object.assign(formValues, { tradecondition: event.currentTarget.value })
-                           )}
+                           onChange={event => {
+                               const tradecondition = event.currentTarget.value;
+                               setFormValues(prev => ({ ...prev, tradecondition }));
+                           }}
                     />
                 </form>;
             },

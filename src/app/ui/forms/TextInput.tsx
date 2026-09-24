@@ -1,5 +1,5 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React from 'react';
 
 export const TextInput = ({
     disabled,
@@ -14,23 +14,16 @@ export const TextInput = ({
     field?: string;
     label?: string;
 }) => {
-    const [tempValue, setTempValue] = useState<string>(text);
-
-    useEffect(() => {
-        setTempValue(text);
-    }, [text]);
-
-    const changeHandler = (event: ChangeEvent<HTMLInputElement>) =>
-        setTempValue(event.currentTarget.value);
-
+    // the input owns the draft while typing and commits on blur; keying by the
+    // committed text resets the draft whenever that value changes
     return <input
+        key={text}
         type="text"
         name={field}
         className="input text-sm h-7 pl-1.5 pt-1 pb-1"
         placeholder={label}
-        value={disabled ? text : tempValue}
+        defaultValue={text}
         disabled={disabled}
-        onChange={changeHandler}
         onBlur={event =>
             setValue(field, event.currentTarget.value)
         }

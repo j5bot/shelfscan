@@ -1,25 +1,18 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React from 'react';
 
 export const NotesTextArea = ({ notes, setValue }: {
     notes: string;
     setValue: SetFormValue;
 }) => {
-    const [tempValue, setTempValue] = useState<string>(notes);
-
-    useEffect(() => {
-        setTempValue(notes);
-    }, [notes]);
-
-    const changeHandler = (event: ChangeEvent<HTMLTextAreaElement>) =>
-        setTempValue(event.currentTarget.value);
-
-    return <textarea name="notes"
+    // the textarea owns the draft while typing and commits on blur; keying by
+    // the committed notes resets the draft whenever that value changes
+    return <textarea key={notes}
+              name="notes"
               rows={2}
               className="textarea text-xs pl-1.5 p-1 w-full"
               placeholder="Seller Notes"
-              value={tempValue}
-              onChange={changeHandler}
+              defaultValue={notes}
               onBlur={event =>
                   setValue('notes', event.currentTarget.value)
               }

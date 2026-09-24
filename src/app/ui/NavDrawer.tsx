@@ -72,7 +72,7 @@ export const NavDrawer = () => {
         if (searchParams.get('tour')) {
             toursDialogRef.current?.showModal();
         }
-    }, [breakpoint, toursDialogRef.current, searchParams]);
+    }, [breakpoint, searchParams]);
 
     const dispatch = useDispatch();
     const { loadSettings, settings } = useSettings();

@@ -122,7 +122,7 @@ export const SwapAddButton = (props: SwapAddButtonProps) => {
         } finally {
             setIsAdding(false);
         }
-    }, [isAdding, swappableGames, gameDataMap, saved, gameSelections]);
+    }, [isAdding, swappableGames, gameDataMap, saved, gameSelections, isSwap, isTrade]);
 
     const pendingCount = codes.length - readyGames.length;
 

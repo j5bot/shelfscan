@@ -1,4 +1,4 @@
-import { PluginMapContext } from '@/app/lib/PluginMapProvider';
+import { PluginMapContext } from '@/app/lib/PluginMapContext';
 import { ShelfScanPlugin } from '@/app/lib/types/plugins';
 import {
     addPlugin,
@@ -8,6 +8,10 @@ import {
 } from '@/app/lib/plugins/plugins';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
+
+const logPluginError = (error: unknown) => {
+    console.error('plugin update failed', error);
+};
 
 export const PluginManager = () => {
     const [enabledPlugins, setEnabledPlugins] = useState<ShelfScanPlugin[]>([]);
@@ -22,15 +26,27 @@ export const PluginManager = () => {
     const pluginTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        reloadPlugins().then();
+        let active = true;
+        Promise.all([
+            getEnabledOrDisabledPlugins(true),
+            getEnabledOrDisabledPlugins(false),
+        ]).then(([enabled, disabled]) => {
+            if (!active) {
+                return;
+            }
+            setEnabledPlugins(enabled);
+            setDisabledPlugins(disabled);
+        }).catch(logPluginError);
+        return () => { active = false; };
     }, [plugins]);
 
     const onAddPlugin = () => {
         if (!pluginTextAreaRef.current) {
             return;
         }
-        addPlugin(pluginTextAreaRef.current.value).then(loadPlugins);
+        addPlugin(pluginTextAreaRef.current.value)
+            .then(loadPlugins)
+            .catch(logPluginError);
     };
 
     return <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">
@@ -47,6 +63,7 @@ export const PluginManager = () => {
                                     enableOrDisablePlugin(plugin.id, false)
                                         .then(loadPlugins)
                                         .then(reloadPlugins)
+                                        .catch(logPluginError)
                                 }
                                 defaultChecked={true}
                             />{' '}
@@ -56,7 +73,7 @@ export const PluginManager = () => {
                             aria-label={`Remove ${plugin.name}`}
                             disabled={plugin.id.startsWith('plugin.internal')}
                             onClick={() => {
-                                removePlugin(plugin.id).then(loadPlugins);
+                                removePlugin(plugin.id).then(loadPlugins).catch(logPluginError);
                             }}
                             className="remove-button text-gray-500 h-5 w-5 md:w-fit p-1 btn flex text-xs"
                         >
@@ -73,6 +90,7 @@ export const PluginManager = () => {
                                     enableOrDisablePlugin(plugin.id, true)
                                         .then(loadPlugins)
                                         .then(reloadPlugins)
+                                        .catch(logPluginError)
                                 }
                                 defaultChecked={false}
                             />{' '}
@@ -82,7 +100,7 @@ export const PluginManager = () => {
                             aria-label={`Remove ${plugin.name}`}
                             disabled={plugin.id.startsWith('plugin.internal')}
                             onClick={() => {
-                                removePlugin(plugin.id).then(loadPlugins);
+                                removePlugin(plugin.id).then(loadPlugins).catch(logPluginError);
                             }}
                             className="remove-button text-gray-500 h-5 w-5 md:w-fit p-1 btn flex text-xs"
                         >

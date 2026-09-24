@@ -1,8 +1,8 @@
 import { BggCollectionItem, BggCollectionStatuses } from '@/app/lib/types/bgg';
-import { ReactNode, SyntheticEvent } from 'react';
+import { Dispatch, ReactNode, SetStateAction, SyntheticEvent } from 'react';
 
 export type FormValues = Record<string, string>;
-export type SetFormValues = (formValues: FormValues) => void;
+export type SetFormValues = Dispatch<SetStateAction<FormValues>>;
 export type SetFormValue = (field: string, value: string) => void;
 
 export type Modes = {

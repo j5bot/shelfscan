@@ -3,7 +3,7 @@ import React, { CSSProperties, useEffect, useRef, useState } from 'react';
 
 type ColorEntry = { name: string; css: string };
 
-export const PlayColors: ColorEntry[] = [
+const PlayColors: ColorEntry[] = [
     { name: 'Red', css: 'red' },
     { name: 'Yellow', css: 'yellow' },
     { name: 'Green', css: 'green' },
