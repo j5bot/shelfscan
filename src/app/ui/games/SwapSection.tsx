@@ -128,7 +128,7 @@ export const SwapSectionInner = ({
                 {isTrade && (
                     <div className="flex space-between gap-[2%]">
                         {CONDITION_OPTIONS.map(option => (
-                            option.value === 'Other' ? null : <button className={`btn btn-xs btn-ghost rounded-md w-fit px-0 grow h-5
+                            option.value === 'Other' ? null : <button key={option.value} className={`btn btn-xs btn-ghost rounded-md w-fit px-0 grow h-5
                                 ${condition === option.value
                                   ? 'text-white bg-purple-400'
                                   : 'border-gray-300 text-base-content/50'}

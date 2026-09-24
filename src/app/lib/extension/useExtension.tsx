@@ -8,6 +8,7 @@ import {
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
+import { bggHost } from '@/app/lib/services/bgg/constants';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -404,6 +405,11 @@ export const useExtension = (params?: UseExtension) => {
         })();
 
         const messageHandler = (event: MessageEvent) => {
+            // players come from the extension's content script on this page,
+            // infoLoad responses from the extension's hidden BGG iframe
+            if (event.origin !== window.location.origin && event.origin !== bggHost) {
+                return;
+            }
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
             }

@@ -2,7 +2,7 @@ import { useCodes } from '@/app/lib/CodesProvider';
 import { useTailwindBreakpoint } from '@/app/lib/TailwindProvider';
 import { BarcodeScanner } from '@react-barcode-scanner/components/dist';
 import posthog from 'posthog-js';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FaCamera } from 'react-icons/fa6';
 
 export type ScannerProps = {
@@ -87,7 +87,9 @@ export function Scanner(props: ScannerProps) {
         onScan(code);
     };
     const doScanRef = useRef(doScanImpl);
-    doScanRef.current = doScanImpl;
+    useLayoutEffect(() => {
+        doScanRef.current = doScanImpl;
+    });
     const doScan = useCallback((code: string) => doScanRef.current(code), []);
 
     const onDevices = (devices: MediaDeviceInfo[]) => {
