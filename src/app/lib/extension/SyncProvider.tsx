@@ -57,11 +57,13 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
     };
 
     useLayoutEffect(() => {
-        setTimeout(handleExtensionLink, 1000);
+        const timeoutId = setTimeout(handleExtensionLink, 1000);
+        return () => clearTimeout(timeoutId);
     }, [syncOn]);
 
     useLayoutEffect(() => {
-        setTimeout(handleSubscribeBanner, 1000);
+        const timeoutId = setTimeout(handleSubscribeBanner, 1000);
+        return () => clearTimeout(timeoutId);
     }, [hasSubscription]);
 
     const value = useMemo(() => {

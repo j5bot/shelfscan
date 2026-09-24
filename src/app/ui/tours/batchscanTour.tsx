@@ -1,8 +1,8 @@
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useInfoCollectionStatus } from '@/app/lib/hooks/useInfoCollectionStatus';
 import { testUPCs } from '@/app/ui/tours/consts';
-import { useCollection, useUsername } from '@/app/ui/tours/hooks';
 import { pointer } from '@/app/ui/tours/stepConfig';
+import { CollectionStepContent, UsernameStepContent } from '@/app/ui/tours/StepContent';
 import { Tour, TourStep } from '@/app/lib/types/tour';
 import { useEffect } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
@@ -56,13 +56,11 @@ const bsStep2 = generateBatchScanStep(1, 3);
 const steps: TourStep[] = [
     params => {
         const { nextStep } = params;
-        useUsername(nextStep);
 
         return {
             icon: <FaUser className="h-5 w-5" />,
             title: 'BoardGameGeek User',
-            content: `Enter your BGG username to integrate your collection info with ShelfScan.  If you
-            don't have a BGG account, just enter 'ShelfScan'`,
+            content: <UsernameStepContent nextStep={nextStep} />,
             selector: '#bgg-username',
             side: 'bottom-left',
             showControls: true,
@@ -72,12 +70,11 @@ const steps: TourStep[] = [
     },
     params => {
         const { nextStep } = params;
-        useCollection(nextStep);
 
         return {
             icon: <FaCloudArrowDown className="h-5 w-5" />,
             title: 'BGG Collection',
-            content: `Click 'Get Collection' to get BGG collection info`,
+            content: <CollectionStepContent nextStep={nextStep} />,
             selector: '.get-collection-section',
             side: 'bottom',
             showControls: true,

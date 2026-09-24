@@ -59,6 +59,7 @@ export const DataBuilder = () => {
         return () => {
             destroyed = true;
             if (editorRef.current) {
+                editorRef.current.off('changed', handleSchemaChange);
                 editorRef.current.destroy();
                 editorRef.current = null;
             }

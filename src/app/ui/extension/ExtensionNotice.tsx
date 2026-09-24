@@ -71,8 +71,14 @@ export const ExtensionNotice = () => {
         if (mutationObserverRef.current) {
             return;
         }
-        mutationObserverRef.current = new MutationObserver(getVersionInfo);
-        mutationObserverRef.current.observe(document.body, { childList: true, subtree: true });
+        const observer = new MutationObserver(getVersionInfo);
+        mutationObserverRef.current = observer;
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        return () => {
+            observer.disconnect();
+            mutationObserverRef.current = null;
+        };
     }, [syncOn]);
 
     const updateAvailable = !!(syncOn && versionInfo && isVersionOutdated(versionInfo));

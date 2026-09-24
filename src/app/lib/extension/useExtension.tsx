@@ -403,7 +403,7 @@ export const useExtension = (params?: UseExtension) => {
             setModes(extensionModes);
         })();
 
-        window.addEventListener('message', (event) => {
+        const messageHandler = (event: MessageEvent) => {
             if (!players && event.data.players) {
                 setPlayers(event.data.players);
             }
@@ -427,7 +427,13 @@ export const useExtension = (params?: UseExtension) => {
                 infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
                 setFormValues(infoFormValues);
             }
-        });
+        };
+
+        window.addEventListener('message', messageHandler);
+
+        return () => {
+            window.removeEventListener('message', messageHandler);
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
