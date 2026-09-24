@@ -76,7 +76,9 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
     return <dialog ref={ref} className="modal tours">
         <div className="modal-box min-w-86 max-w-1/2">
             <form method="dialog">
-                <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4">✕</button>
+                <button
+                    type="button"
+                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4" aria-label="Close">✕</button>
             </form>
             <div className="flex flex-col gap-2">
                 <Image

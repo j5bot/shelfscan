@@ -13,8 +13,8 @@ export const ImageCacheManager = () => {
     }, [refreshCount]);
 
     return <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">
-        <input type="radio" name="settings" />
-        <h3 className="collapse-title font-semibold">Image Cache</h3>
+        <input type="radio" name="settings" aria-labelledby="settings-image-cache" />
+        <h3 className="collapse-title font-semibold" id="settings-image-cache">Image Cache</h3>
         <div className="collapse-content text-xs">
             <div className="p-1 flex flex-col gap-2">
                 <p className="text-balance">
@@ -23,7 +23,7 @@ export const ImageCacheManager = () => {
                 </p>
                 <p>Current estimated cache usage:</p>
                 <p>
-                    {usage} <button className="ml-1" onClick={() => {
+                    {usage} <button className="ml-1" aria-label="Refresh cache usage" onClick={() => {
                         setRefreshCount(refreshCount + 1);
                     }}><FaSync className="cursor-pointer"/></button>
                 </p>

@@ -4,20 +4,20 @@ import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { OLWLGTrades } from '@/app/ui/workflows/math-trades/OLWLGTrades';
 import { SwaptagonTrades } from '@/app/ui/workflows/math-trades/SwaptagonTrades';
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 
 const MathTradeWorkflowsPage = () => {
     useTitle('ShelfScan | Math Trade Workflows');
-    const [openSection, setOpenSection] = useState<string>();
+    const openSectionRef = useRef<string>(undefined);
 
     const handleAccordionClick = (event: React.MouseEvent<HTMLInputElement>) => {
         const input = event.currentTarget;
-        if (openSection === input.value) {
+        if (openSectionRef.current === input.value) {
             input.checked = false;
-            setOpenSection(undefined);
+            openSectionRef.current = undefined;
             return false;
         }
-        setOpenSection(input.value);
+        openSectionRef.current = input.value;
     };
 
     return <>
@@ -35,6 +35,7 @@ const MathTradeWorkflowsPage = () => {
                         <input type="radio" name="math-trades"
                                className="cursor-pointer"
                                value="olwlg"
+                               aria-labelledby="math-trades-olwlg"
                                onClick={handleAccordionClick}
                         />
                         <h2 className="collapse-title text-lg px-3 py-0.5"
@@ -47,6 +48,7 @@ const MathTradeWorkflowsPage = () => {
                         <input type="radio" name="math-trades"
                                className="cursor-pointer"
                                value="swaptagon"
+                               aria-labelledby="math-trades-swaptagon"
                                onClick={handleAccordionClick}
                         />
                         <h2 className="collapse-title text-lg px-3 py-0.5"
@@ -59,6 +61,7 @@ const MathTradeWorkflowsPage = () => {
                         <input type="radio" name="math-trades"
                                className="cursor-pointer"
                                value="atlas-realms"
+                               aria-labelledby="math-trades-atlas-realms"
                                onClick={handleAccordionClick}
                         />
                         <h2 className="collapse-title text-lg px-3 py-0.5"

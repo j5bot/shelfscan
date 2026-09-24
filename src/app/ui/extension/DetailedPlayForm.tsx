@@ -4,7 +4,7 @@ import { usePlayData } from '@/app/lib/extension/PlayDataProvider';
 import { PlayerRow } from '@/app/ui/extension/PlayerRow';
 import { type BggPlayer } from '@/app/lib/types/bgg';
 import posthog from 'posthog-js';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { FaChevronDown, FaCircleCheck, FaSpinner, FaUsers, FaXmark } from 'react-icons/fa6';
 import { GiChessPawn } from 'react-icons/gi';
@@ -35,6 +35,7 @@ export const DetailedPlayForm = ({
     onClose,
     gameName,
 }: ModeSettingFormProps) => {
+    const fieldId = useId();
     const {
         loaded,
         players,
@@ -299,8 +300,9 @@ export const DetailedPlayForm = ({
 
             {/* Date */}
             <div className="flex items-center gap-1.5">
-                <label className="w-16 shrink-0">Date</label>
+                <label className="w-16 shrink-0" htmlFor={`${fieldId}-date`}>Date</label>
                 <input
+                    id={`${fieldId}-date`}
                     type="date"
                     name="playdate"
                     max={TODAY}
@@ -390,6 +392,7 @@ export const DetailedPlayForm = ({
                                                 <input
                                                     type="checkbox"
                                                     readOnly
+                                                    aria-label={player.name || player.username}
                                                     checked={checked}
                                                     className="checkbox checkbox-xs pointer-events-none"
                                                 />
@@ -471,8 +474,9 @@ export const DetailedPlayForm = ({
 
             {/* Quantity */}
             <div className="flex items-center gap-1.5">
-                <label className="w-16 shrink-0">Quantity</label>
+                <label className="w-16 shrink-0" htmlFor={`${fieldId}-quantity`}>Quantity</label>
                 <input
+                    id={`${fieldId}-quantity`}
                     type="number"
                     name="quantity"
                     min={1}
@@ -486,8 +490,9 @@ export const DetailedPlayForm = ({
 
             {/* Duration */}
             <div className="flex items-center gap-1.5">
-                <label className="w-16 shrink-0">Duration</label>
+                <label className="w-16 shrink-0" htmlFor={`${fieldId}-duration`}>Duration</label>
                 <select
+                    id={`${fieldId}-duration`}
                     className="select select-xs text-xs flex-1 min-w-0 pl-2"
                     value={duration}
                     onChange={e => handleDurationChange(e.currentTarget.value)}
@@ -511,8 +516,9 @@ export const DetailedPlayForm = ({
 
             {/* Incomplete */}
             <div className="flex items-center gap-1.5">
-                <label className="w-16 shrink-0">Incomplete</label>
+                <label className="w-16 shrink-0" htmlFor={`${fieldId}-incomplete`}>Incomplete</label>
                 <input
+                    id={`${fieldId}-incomplete`}
                     type="checkbox"
                     name="incomplete"
                     className="checkbox checkbox-xs checked:bg-brand-background checked:text-white"

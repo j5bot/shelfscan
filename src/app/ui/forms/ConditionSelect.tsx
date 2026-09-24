@@ -14,6 +14,7 @@ export const ConditionSelect = ({ condition, setValue }:
     { condition: string; setValue: SetFormValue }
 ) => (
     <select name="condition"
+            aria-label="Condition"
             className="select select-sm select-condensed h-7 pl-1.5 p-1 pr-0 w-full"
             value={condition}
             onChange={event =>

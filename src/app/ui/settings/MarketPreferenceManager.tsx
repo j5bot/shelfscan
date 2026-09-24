@@ -25,14 +25,15 @@ export const MarketPreferenceManager = () => {
 
     return syncOn &&
     <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">
-        <input type="radio" name="settings" />
-        <h3 className="collapse-title font-semibold">Market Defaults</h3>
+        <input type="radio" name="settings" aria-labelledby="settings-market-defaults" />
+        <h3 className="collapse-title font-semibold" id="settings-market-defaults">Market Defaults</h3>
         <div className="collapse-content text-xs">
             <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
                 <label className="pl-0.5">Currency &amp; Price</label>
                 <div className="flex gap-0.5">
                     <CurrencySelect currency={preferences?.['currency'] ?? ''}
                                     setValue={setValue}
+                                    label="Currency"
                     />
                     <PriceInput price={preferences?.['price'] ?? ''} setValue={setValue} />
                 </div>

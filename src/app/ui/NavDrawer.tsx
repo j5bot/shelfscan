@@ -149,7 +149,9 @@ export const NavDrawer = () => {
         <dialog ref={dialogRef} className="modal">
             <div className="modal-box min-w-86">
                 <form method="dialog">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4">✕</button>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4" aria-label="Close">✕</button>
                 </form>
                 {dialogContent}
             </div>

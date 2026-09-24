@@ -30,6 +30,7 @@ export const PaymentMethodSelect = ({
         <input type="hidden" name="paymentMethod"
                value={paymentMethodValues?.join(',')} />
         <select multiple={true}
+                aria-label="Payment methods"
                 className="grow select select-condensed text-xs w-full input h-12 ios-safari:h-6 p-1"
                 value={paymentMethodValues}
                 onChange={event => {

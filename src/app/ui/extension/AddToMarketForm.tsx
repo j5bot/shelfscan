@@ -45,6 +45,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     const showCurrencyAndPrice = <>
         <CurrencySelect currency={values?.['currency'] ?? 'USD'}
                         setValue={setValue}
+                        label="Price Currency"
                         disabled={!!preferences['currency']}
         />
         <PriceInput price={values?.['price'] ?? ''}
@@ -55,6 +56,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     const defaultCurrencyAndPrice = <>
         <CurrencySelect currency={values?.['currency'] ?? 'USD'}
                         setValue={setValue}
+                        label="Default Currency"
                         disabled={!preferences['currency']}
         />
         <PriceInput price={values?.['price'] ?? ''}
@@ -108,7 +110,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
         {showCountry && country(true)}
         {showShipSelect && shipSelect(true)}
         {hasPreferences ? <div className="collapse collapse-arrow collapse-xs text-xs">
-            <input type="checkbox" />
+            <input type="checkbox" aria-label="More Fields" />
             <div className="collapse-title p-1.5 m-0">More Fields</div>
             <div className="collapse-content flex flex-wrap gap-1 pr-1 pl-1">
                 <div className="flex gap-0.5">

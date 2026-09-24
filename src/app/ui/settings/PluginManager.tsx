@@ -34,8 +34,8 @@ export const PluginManager = () => {
     };
 
     return <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">
-        <input type="radio" name="settings" />
-        <h3 className="collapse-title font-semibold">Installed Plugins</h3>
+        <input type="radio" name="settings" aria-labelledby="settings-plugins" />
+        <h3 className="collapse-title font-semibold" id="settings-plugins">Installed Plugins</h3>
         <div className="collapse-content text-xs">
             <ul className="list-none">
                 {enabledPlugins.map(plugin => {
@@ -53,6 +53,7 @@ export const PluginManager = () => {
                             {plugin.name} ({plugin.type}/{plugin.location})
                         </label>
                         <button
+                            aria-label={`Remove ${plugin.name}`}
                             disabled={plugin.id.startsWith('plugin.internal')}
                             onClick={() => {
                                 removePlugin(plugin.id).then(loadPlugins);
@@ -78,6 +79,7 @@ export const PluginManager = () => {
                             {plugin.name} ({plugin.type}/{plugin.location})
                         </label>
                         <button
+                            aria-label={`Remove ${plugin.name}`}
                             disabled={plugin.id.startsWith('plugin.internal')}
                             onClick={() => {
                                 removePlugin(plugin.id).then(loadPlugins);
@@ -90,9 +92,9 @@ export const PluginManager = () => {
                 })}
             </ul>
             <fieldset className="fieldset relative">
-                <legend className="fieldset-legend">New Plugin JSON</legend>
-                <textarea className="textarea h-40 inset-shadow-xs/40 inset-shadow-gray-400 w-full text-xs" ref={pluginTextAreaRef}></textarea>
-                <button className="btn absolute top-2 right-1 btn-xs" onClick={onAddPlugin}>
+                <legend className="fieldset-legend" id="new-plugin-json">New Plugin JSON</legend>
+                <textarea aria-labelledby="new-plugin-json" className="textarea h-40 inset-shadow-xs/40 inset-shadow-gray-400 w-full text-xs" ref={pluginTextAreaRef}></textarea>
+                <button className="btn absolute top-2 right-1 btn-xs" aria-label="Add plugin" onClick={onAddPlugin}>
                     <FaPlus />
                 </button>
             </fieldset>

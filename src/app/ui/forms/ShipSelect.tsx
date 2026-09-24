@@ -43,6 +43,7 @@ export const ShipSelect = (
 
     return <>
         <select name="shipLocation"
+                aria-label="Ship location"
                 className="grow select select-sm select-condensed h-7 pl-1.5 p-1 pr-0"
                 value={shipLocationValue}
                 onChange={event => {
@@ -60,6 +61,7 @@ export const ShipSelect = (
                 <input type="hidden" name="shipAreas"
                        value={shipAreasValue?.join(',')} />
                 <select multiple={true}
+                        aria-label="Ship areas"
                         className="select select-condensed text-xs w-full input h-15 ios-safari:h-6 p-1 pl-1.5"
                         value={shipAreasValue}
                         onChange={event => {

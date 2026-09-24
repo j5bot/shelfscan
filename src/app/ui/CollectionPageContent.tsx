@@ -948,6 +948,7 @@ export const CollectionPageContent = ({
                             className="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
                             onClick={() => setShowConfirmModal(false)}
                             aria-label="Close"
+                            type="button"
                         >
                             <FaXmark />
                         </button>
