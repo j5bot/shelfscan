@@ -53,6 +53,11 @@ body {
   font-size: 15px;
 }
 
+/* for workflows */
+p + figure {
+  margin-top: 1em;
+}
+
 .bg-overlay {
   background-color: var(--background);
 }
