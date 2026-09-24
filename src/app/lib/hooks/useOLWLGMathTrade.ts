@@ -131,28 +131,36 @@ export const useOLWLGMathTrade = ({
         if (activeGeekListId === null) { return; }
         setIsRefreshingGeeklist(true);
         dispatch(loadGeeklistStart({ geekListId: activeGeekListId, username }));
-        const xml = await bggGetGeeklistInner(activeGeekListId);
-        if (!xml) {
+        try {
+            const xml = await bggGetGeeklistInner(activeGeekListId);
+            const geekList = xml ? bggGetGeeklistFromXML(xml) : undefined;
+            if (!geekList) {
+                dispatch(loadGeeklistError(activeGeekListId));
+                return;
+            }
+            dispatch(loadGeeklistSuccess({ collection, geekList, username }));
+        } catch (error) {
+            console.error('geeklist refresh failed', activeGeekListId, error);
             dispatch(loadGeeklistError(activeGeekListId));
+        } finally {
             setIsRefreshingGeeklist(false);
-            return;
         }
-        const geekList = bggGetGeeklistFromXML(xml);
-        if (!geekList) {
-            dispatch(loadGeeklistError(activeGeekListId));
-            setIsRefreshingGeeklist(false);
-            return;
-        }
-        dispatch(loadGeeklistSuccess({ collection, geekList, username }));
-        setIsRefreshingGeeklist(false);
     }, [activeGeekListId, dispatch, collection, username]);
 
     const submitMathTrade = useCallback(async (items: MathTradeItem[]): Promise<boolean> => {
         setIsBulkMathTradeAdding(true);
         setMathTradeError(null);
 
-        const results: MathTradeResult[] = await sendViaExtension(items);
-        setIsBulkMathTradeAdding(false);
+        let results: MathTradeResult[];
+        try {
+            results = await sendViaExtension(items);
+        } catch (error) {
+            console.error('math trade submit failed', error);
+            setMathTradeError('Failed to add items to the geeklist');
+            return false;
+        } finally {
+            setIsBulkMathTradeAdding(false);
+        }
 
         const failures = results.filter(r => !r.success);
         if (failures.length > 0) {

@@ -10,20 +10,26 @@ export const textFetchAndWait = async (
     url: string,
     depth: number = 0,
 ): Promise<string> => {
+    const retry = async (): Promise<string> => {
+        if (depth > maxRetries) {
+            throw Error(
+                `Failed to fetch ${url} after ${depth + 1} tries`,
+            );
+        }
+        await sleep(2 ** depth * waitInterval);
+        return await textFetchAndWait(url, depth + 1);
+    };
+
     return fetch(url)
-        .then((response) => response.text())
-        .then(async (text) => {
-            if (xmlErrorRegExp.test(text) && xmlMessageRegExp.test(text)) {
-                if (depth > maxRetries) {
-                    throw Error(
-                        `Failed to fetch ${url} after ${depth + 1} tries`,
-                    );
-                }
-                await sleep(2 ** depth * waitInterval);
-                return await textFetchAndWait(url, depth + 1);
-            } else {
-                return text;
+        .then(async (response) => {
+            if (!response.ok) {
+                return retry();
             }
+            const text = await response.text();
+            if (xmlErrorRegExp.test(text) && xmlMessageRegExp.test(text)) {
+                return retry();
+            }
+            return text;
         });
 };
 

@@ -7,9 +7,13 @@ export const ImageCacheManager = () => {
     const [refreshCount, setRefreshCount] = useState<number>(0);
 
     useEffect(() => {
-        (async () => {
-            setUsage(await getImageCacheUsage());
-        })();
+        let active = true;
+        getImageCacheUsage().then(newUsage => {
+            if (active) {
+                setUsage(newUsage);
+            }
+        });
+        return () => { active = false; };
     }, [refreshCount]);
 
     return <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">

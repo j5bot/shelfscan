@@ -121,7 +121,14 @@ export const useCachedImage = (
         try {
             return await enqueueFetch(() =>
                 fetch(normalSrc, { headers: { accept } })
-                    .then(r => r.blob())
+                    .then(r => {
+                        // an error page must not be cached as the image
+                        if (!r.ok) {
+                            console.error('fetch failed', normalSrc, r.status);
+                            return undefined;
+                        }
+                        return r.blob();
+                    })
                     .catch((error: unknown) => {
                         console.error('fetch failed', normalSrc, error);
                         return undefined;

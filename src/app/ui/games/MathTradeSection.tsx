@@ -62,19 +62,25 @@ export const MathTradeSection = memo(({ collectionId }: MathTradeSectionProps) =
         const imageId = getBggImageFromItem(item);
 
         if (canUseExtension) {
-            const [result] = await sendViaExtension([{
-                description: bodyText,
-                copies,
-                collectionId,
-                gameId: item.objectId,
-                versionId: item.versionId,
-                name: item.name,
-                body,
-                imageId,
-            }]);
-            setSending(false);
-            if (!result?.success) {
-                setError(result?.error ?? 'Failed to add to geeklist');
+            try {
+                const [result] = await sendViaExtension([{
+                    description: bodyText,
+                    copies,
+                    collectionId,
+                    gameId: item.objectId,
+                    versionId: item.versionId,
+                    name: item.name,
+                    body,
+                    imageId,
+                }]);
+                if (!result?.success) {
+                    setError(result?.error ?? 'Failed to add to geeklist');
+                }
+            } catch (error) {
+                console.error('math trade add failed', collectionId, error);
+                setError('Failed to add to geeklist');
+            } finally {
+                setSending(false);
             }
             return;
         }

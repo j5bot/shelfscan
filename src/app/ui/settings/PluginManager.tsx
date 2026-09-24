@@ -9,15 +9,15 @@ import {
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { FaMinus, FaPlus } from 'react-icons/fa6';
 
+const logPluginError = (error: unknown) => {
+    console.error('plugin update failed', error);
+};
+
 export const PluginManager = () => {
     const [enabledPlugins, setEnabledPlugins] = useState<ShelfScanPlugin[]>([]);
     const [disabledPlugins, setDisabledPlugins] = useState<ShelfScanPlugin[]>([]);
 
     const { loadPlugins, plugins } = useContext(PluginMapContext);
-    const logPluginError = (error: unknown) => {
-        console.error('plugin update failed', error);
-    };
-
     const reloadPlugins = async () => {
         setEnabledPlugins(await getEnabledOrDisabledPlugins(true));
         setDisabledPlugins(await getEnabledOrDisabledPlugins(false));
@@ -26,8 +26,18 @@ export const PluginManager = () => {
     const pluginTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        reloadPlugins().then();
+        let active = true;
+        Promise.all([
+            getEnabledOrDisabledPlugins(true),
+            getEnabledOrDisabledPlugins(false),
+        ]).then(([enabled, disabled]) => {
+            if (!active) {
+                return;
+            }
+            setEnabledPlugins(enabled);
+            setDisabledPlugins(disabled);
+        }).catch(logPluginError);
+        return () => { active = false; };
     }, [plugins]);
 
     const onAddPlugin = () => {

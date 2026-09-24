@@ -40,11 +40,18 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
         setLoading(true);
 
         dispatch(loadGeeklistStart({ geekListId: id, username }));
-        const xml = await bggGetGeeklistInner(id);
+        let xml: string;
+        try {
+            xml = await bggGetGeeklistInner(id);
+        } catch (error) {
+            console.error('geeklist load failed', id, error);
+            xml = '';
+        } finally {
+            setLoading(false);
+        }
 
         if (!xml) {
             dispatch(loadGeeklistError(id));
-            setLoading(false);
             setError('Failed to load geeklist. Please try again.');
             return;
         }
@@ -52,14 +59,12 @@ export const MathTradeDialog = ({ isOpen, onClose, onLoaded }: MathTradeDialogPr
         const geekList = bggGetGeeklistFromXML(xml);
         if (!geekList) {
             dispatch(loadGeeklistError(id));
-            setLoading(false);
             setError('Could not parse geeklist. Please check the URL and try again.');
             return;
         }
 
         dispatch(loadGeeklistSuccess({ collection, geekList, username }));
         posthog.capture('math_trade_geeklist_loaded');
-        setLoading(false);
         setUrl('');
         onClose();
         onLoaded(id);
