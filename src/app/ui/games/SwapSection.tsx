@@ -193,6 +193,7 @@ export const SwapSectionInner = ({
                         <input
                             id={`cashValue-${collectionId}`}
                             type="number"
+                            step="1"
                             className="input input-bordered input-xs ml-px w-12"
                             value={cashValue >= 0 ? cashValue : undefined}
                             onChange={e => {
@@ -253,7 +254,7 @@ export const SwapSectionInner = ({
                 {needsDescription && <div className="absolute top-0.5 left-1 text-xl">
                     ⚠️
                 </div>}
-                {isTrade && condition && condition.length && <div
+                {isTrade && !!condition && <div
                     className={`font-encode-condensed
                     font-semibold
                     px-1.5

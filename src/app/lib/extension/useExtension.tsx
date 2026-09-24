@@ -543,7 +543,7 @@ export const useExtension = (params?: UseExtension) => {
                                     break;
                             }
 
-                            return <input key={index} type="radio" name="rating"
+                            return <input key={rating} type="radio" name="rating"
                                           className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'}
                                           ${bgClassName}`} aria-label={rating.toString()}
                                           value={rating}

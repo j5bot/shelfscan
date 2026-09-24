@@ -74,7 +74,7 @@ export const GameDetails = ({
                      <Link href={version.pageUrl} target="_blank">{version.name}</Link> :
                      version?.name}
                 </span>
-                {version?.versionId && detailTemplates.version?.length && (
+                {!!version?.versionId && (detailTemplates.version?.length ?? 0) > 0 && (
                     <div className="shrink">
                         {detailTemplates.version?.map(plugin => {
                             const templateFn = template(plugin.template);

@@ -68,11 +68,11 @@ export const SelectVersion = () => {
     const { primaryActions, secondaryActions, settings } = useExtension({ info, version });
     const actionTemplates = usePlugins('link.actions');
 
-    const pluginActions = actionTemplates?.game?.map(((actionPlugin, index) => {
+    const pluginActions = actionTemplates?.game?.map(((actionPlugin) => {
         const { className, icon, template: pluginTemplate, title } = actionPlugin;
         const templateFn = template(pluginTemplate);
 
-        return <div key={index} className={`relative shrink-0 xs:h-7 h-8 ${className} mr-0.5`}>
+        return <div key={actionPlugin.id ?? pluginTemplate} className={`relative shrink-0 xs:h-7 h-8 ${className} mr-0.5`}>
             <div className={`rounded-full ${className} border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8 ${className}`}></div>
             <Link title={title} href={templateFn(info ?? { id })} target="_blank">
                 <button

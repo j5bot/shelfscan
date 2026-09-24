@@ -46,7 +46,7 @@ export const RatingForm = memo(({
         <div className="rating rating-sm rating-half">
             <input type="hidden" className="hidden" name="collectionId" value={item.collectionId} />
             {Ratings.map((rating, index) => (
-                <input key={index} type="radio" name="rating"
+                <input key={rating} type="radio" name="rating"
                        className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'} ${bgClassName}`}
                        aria-label={rating.toString()}
                        value={rating}
