@@ -43,7 +43,7 @@ export const StatusSelect = ({
         <input type="hidden" name="statusesKey"
                value={statusesValues?.join(',')} />
         <div className="collapse collapse-arrow collapse-xs text-xs">
-            <input type="checkbox" />
+            <input type="checkbox" aria-label={`Statuses: ${summary}`} />
             <div className="collapse-title p-1.5 m-0 truncate">{summary}</div>
             <div className="collapse-content flex flex-wrap gap-1 pr-1 pl-1">
                 {statusesOptions.map(status =>

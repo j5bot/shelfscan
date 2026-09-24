@@ -34,7 +34,7 @@ export const CurrencySelect = ({
 }:
     { currency: string; disabled?: boolean; setValue: SetFormValue; field?: string }
 ) =>
-    <select name={field} className={`text-left select select-sm
+    <select name={field} aria-label="Currency" className={`text-left select select-sm
             select-condensed
             h-7 w-24 pl-1.5 p-0`}
             value={currency}

@@ -43,6 +43,7 @@ export const ScanToasts = ({
                     </button>
                     <button
                         className="btn btn-sm btn-ghost"
+                        aria-label="Dismiss"
                         onClick={onClearLimitReached}
                     >
                         ✕

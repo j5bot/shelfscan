@@ -78,8 +78,8 @@ export const BackupManager = () => {
 
     return (
         <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
-            <input type="radio" name="settings" />
-            <h3 className="collapse-title font-semibold">Backup & Restore</h3>
+            <input type="radio" name="settings" aria-labelledby="settings-backup" />
+            <h3 className="collapse-title font-semibold" id="settings-backup">Backup & Restore</h3>
             <div className="collapse-content text-xs flex flex-col gap-3">
                 <p className="text-balance">
                     Export a full backup of your ShelfScan data (settings, plugins, collections,

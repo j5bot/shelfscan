@@ -39,7 +39,7 @@ const WorkflowsPage = () => {
                 <div className="flex flex-col gap-1 pt-2">
                     <CollectionLoading />
                     <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
-                        <input type="radio" name="math-trades" />
+                        <input type="radio" name="math-trades" aria-labelledby="math-trades" />
                         <h2 className="collapse-title text-lg px-3 py-0.5"
                             id="math-trades">Math Trades</h2>
                         <div className="collapse-content">

@@ -84,8 +84,8 @@ export const DataFormManager = () => {
 
     return (
         <div className="collapse collapse-arrow bg-base-100 border-1 border-base-300 text-sm">
-            <input type="radio" name="settings" />
-            <h3 className="collapse-title font-semibold">Data Forms</h3>
+            <input type="radio" name="settings" aria-labelledby="settings-data-forms" />
+            <h3 className="collapse-title font-semibold" id="settings-data-forms">Data Forms</h3>
             <div className="collapse-content text-xs flex flex-col gap-3">
 
                 {/* Summary */}

@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export const CollectionQuickFiltering = () => (
     <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
-        <input type="radio" name="workflows" />
+        <input type="radio" name="workflows" aria-labelledby="collection-quick-filtering" />
         <h2 className="collapse-title text-lg px-3 py-0.5"
             id="collection-quick-filtering">Collection Quick
             Filtering</h2>

@@ -128,7 +128,7 @@ export function Scanner(props: ScannerProps) {
                 blur={blur}
             />
             {devices.length > 1 && <div className="absolute top-1 right-2 text-white shadow-black">
-                <button onClick={() => {
+                <button aria-label="Choose camera" onClick={() => {
                     (document.getElementById('camera-dialog') as
                         HTMLDialogElement).showModal();
                 }}>
@@ -139,7 +139,8 @@ export function Scanner(props: ScannerProps) {
         <dialog id="camera-dialog" className="modal">
             <div className="modal-box">
                 <form method="dialog">
-                    <button className="btn btn-sm btn-circle btn-ghost absolute right-0.5 top-0.5">
+                    <button className="btn btn-sm btn-circle btn-ghost absolute right-0.5 top-0.5"
+                            aria-label="Close">
                         ✕
                     </button>
                     <h3 className="pb-1 pl-0.5">Choose Camera</h3>

@@ -183,6 +183,7 @@ export const GameDetails = ({
                                        onBlur={searchBlurHandler}
                                 />
                                 <button tabIndex={0}
+                                        aria-label="Search"
                                         onClick={searchClickHandler}
                                         className="bg-gray-400 p-0.5 rounded-full"
                                 >

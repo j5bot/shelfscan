@@ -3,24 +3,43 @@
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useRef, useSyncExternalStore } from 'react';
+
+const SUPPORTER_KEY = 'assert-supporter';
+const SUPPORTER_VALUE = 'supporter';
+
+const supporterListeners = new Set<() => void>();
+
+const subscribeToSupporter = (listener: () => void) => {
+    supporterListeners.add(listener);
+    window.addEventListener('storage', listener);
+    return () => {
+        supporterListeners.delete(listener);
+        window.removeEventListener('storage', listener);
+    };
+};
+
+const getSupporterSnapshot = () =>
+    window?.localStorage?.getItem(SUPPORTER_KEY) === SUPPORTER_VALUE;
+
+const getSupporterServerSnapshot = () => false;
 
 const AlternateSupporterPage = () => {
     useTitle('ShelfScan | Alternate Supporter');
 
-    const [agreeChecked, setAgreeChecked] = useState<boolean>(false);
-    const [isAlternate, setIsAlternate] = useState<boolean>(false);
-
-    useEffect(() => {
-        setIsAlternate(window?.localStorage?.getItem('alternate-supporter') === 'supporter');
-    }, []);
+    const agreeCheckedRef = useRef<boolean>(false);
+    const isAlternate = useSyncExternalStore(
+        subscribeToSupporter,
+        getSupporterSnapshot,
+        getSupporterServerSnapshot,
+    );
 
     const writeAssertSupporter = () => {
-        if (!agreeChecked) {
+        if (!agreeCheckedRef.current) {
             return;
         }
-        window?.localStorage?.setItem('assert-supporter', 'supporter');
-        setIsAlternate(true);
+        window?.localStorage?.setItem(SUPPORTER_KEY, SUPPORTER_VALUE);
+        supporterListeners.forEach(listener => listener());
     };
 
     return <>
@@ -45,8 +64,9 @@ const AlternateSupporterPage = () => {
                     status is a violation of the terms of service of both
                     BoardGameGeek and ShelfScan.</p>
                 <p><label htmlFor="agree"><input id="agree"
-                    type="checkbox" className="checkbox" onChange={event =>
-                        setAgreeChecked(event.target.checked)} /> I am a BGG supporter</label>
+                    type="checkbox" className="checkbox" onChange={event => {
+                        agreeCheckedRef.current = event.target.checked;
+                    }} /> I am a BGG supporter</label>
                 </p>
                 <p><button className={`btn btn-outline
                     ${isAlternate ? 'opacity-30 pointer-events-none' : ''}

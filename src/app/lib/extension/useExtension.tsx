@@ -262,10 +262,12 @@ export const useExtension = (params?: UseExtension) => {
                          className={`relative z-[9] shrink-0 ${modeSetting.width} mr-0.5`}>
                         <div className={`rounded-full border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8 ${modeSetting.width}`}></div>
                         <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${modeSetting.width}`}>
-                            <input type="checkbox" className="xs:h-7 h-8" style={{
+                            <input type="checkbox" className="xs:h-7 h-8"
+                                   aria-label={`Choose ${modeKey} action`} style={{
                                 padding: 0,
                             }} />
                             <button disabled={disabledModes[modeKey]}
+                                    aria-label={`Choose ${modeKey} action`}
                                     className={`collapse-title
                                     absolute right-0 top-0
                                     collection-button cursor-pointer rounded-r-full
@@ -503,6 +505,7 @@ export const useExtension = (params?: UseExtension) => {
                 <div className="rounded-full border-0 border-brand-background absolute top-0 right-0 xs:h-7 h-8 w-7"></div>
                 {ratingFormOpen && newRating > 0 &&
                     <button className={`cursor-pointer relative mr-0.5 xs:h-7 h-8 items-center`}
+                            aria-label="Save rating"
                             onClick={addRating}>
                         <FaSave className="w-6 h-6 text-brand-background" />
                     </button>}

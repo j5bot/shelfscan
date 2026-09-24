@@ -82,8 +82,8 @@ export const ScanHistoryManager = () => {
     };
 
     return <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
-        <input type="radio" name="settings" />
-        <h3 className="collapse-title font-semibold">Scan History</h3>
+        <input type="radio" name="settings" aria-labelledby="settings-scan-history" />
+        <h3 className="collapse-title font-semibold" id="settings-scan-history">Scan History</h3>
         <div className="collapse-content text-xs">
             <div className="p-1 flex flex-col gap-2">
                 <p className="text-balance">
@@ -166,7 +166,7 @@ export const ScanHistoryManager = () => {
             {scanError && (
                 <div role="alert" className="alert alert-error text-xs mt-2 py-2">
                     <span>Error: {scanError}</span>
-                    <button className="btn btn-xs btn-ghost" onClick={clearScanError}>✕</button>
+                    <button className="btn btn-xs btn-ghost" aria-label="Dismiss error" onClick={clearScanError}>✕</button>
                 </div>
             )}
             <p className="mt-2">

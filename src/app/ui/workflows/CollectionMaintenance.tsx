@@ -3,7 +3,7 @@ import React from 'react';
 
 export const CollectionMaintenance = () => (
     <div className="collapse collapse-arrow bg-base-100 border border-base-300 text-sm">
-        <input type="radio" name="workflows" />
+        <input type="radio" name="workflows" aria-labelledby="collection-maintenance" />
         <h2 className="collapse-title text-lg px-3 py-0.5"
             id="collection-maintenance">Collection
             Maintenance</h2>

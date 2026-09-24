@@ -83,7 +83,7 @@ const DataFormItem = ({ data, setData, entry, onViewerReady }: {
     };
 
     return <div className="collapse collapse-arrow bg-base-200 mb-1">
-        <input type="checkbox" checked={open} onChange={toggleOpen} />
+        <input type="checkbox" checked={open} onChange={toggleOpen} aria-label={entry.name} />
         <div className="collapse-title font-medium text-sm flex items-center gap-2">
             <FaChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
             {entry.name}

@@ -22,8 +22,6 @@ type Schema = Parameters<FormEditor['importSchema']>[0];
 
 export const DataBuilder = () => {
     const [formName, setFormName] = useState('');
-    const [schema, setSchema] = useState<object>(INITIAL_SCHEMA);
-    const [currentId, setCurrentId] = useState<number | undefined>(undefined);
     const [savedForms, setSavedForms] = useState<DataFormEntity[]>([]);
     const [saveStatus, setSaveStatus] = useState<string>('');
 
@@ -31,12 +29,12 @@ export const DataBuilder = () => {
     const editorContainerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<FormEditor | null>(null);
     const schemaRef = useRef<Schema>(INITIAL_SCHEMA);
+    const currentIdRef = useRef<number | undefined>(undefined);
 
     const handleSchemaChange = useCallback(() => {
         if (!editorRef.current) return;
         const currentSchema = editorRef.current.getSchema();
         schemaRef.current = currentSchema;
-        setSchema(currentSchema);
     }, []);
 
     // Initialize & teardown the editor
@@ -69,7 +67,6 @@ export const DataBuilder = () => {
 
     const loadSchemaIntoEditor = useCallback(async (newSchema: Schema) => {
         schemaRef.current = newSchema;
-        setSchema(newSchema);
         if (editorRef.current) {
             await editorRef.current.importSchema(newSchema,);
         }
@@ -81,13 +78,13 @@ export const DataBuilder = () => {
             return;
         }
 
-        const schemaToSave = transformSchemaKeys(editorRef.current?.getSchema() ?? schema);
+        const schemaToSave = transformSchemaKeys(editorRef.current?.getSchema() ?? schemaRef.current);
 
-        if (currentId !== undefined) {
-            await database.dataforms.put({ id: currentId, name: formName.trim(), schema: schemaToSave });
+        if (currentIdRef.current !== undefined) {
+            await database.dataforms.put({ id: currentIdRef.current, name: formName.trim(), schema: schemaToSave });
         } else {
             const newId = await database.dataforms.add({ name: formName.trim(), schema: schemaToSave });
-            setCurrentId(newId as number);
+            currentIdRef.current = newId as number;
         }
         loadSchemaIntoEditor(schemaToSave).then();
         setSaveStatus(`Saved "${formName.trim()}"`);
@@ -102,7 +99,7 @@ export const DataBuilder = () => {
 
     const handleLoadForm = (form: DataFormEntity) => {
         setFormName(form.name);
-        setCurrentId(form.id);
+        currentIdRef.current = form.id;
         loadSchemaIntoEditor(form.schema).then();
         openDialogRef.current?.close();
     };
@@ -112,7 +109,8 @@ export const DataBuilder = () => {
             <dialog ref={openDialogRef} className="modal">
                 <div className="modal-box min-w-96">
                     <form method="dialog">
-                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4">✕</button>
+                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4"
+                            aria-label="Close">✕</button>
                     </form>
                     <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                         <FaFolderOpen className="inline" /> Open Form

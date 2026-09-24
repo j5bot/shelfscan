@@ -87,6 +87,7 @@ export const ExtensionNotice = () => {
                 </span>
                 <button
                     className="btn btn-sm btn-ghost"
+                    aria-label="Dismiss"
                     onClick={() => setDismissed(true)}
                 >
                     ✕

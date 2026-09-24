@@ -274,6 +274,7 @@ export const CountrySelect = ({ country, setValue }:
     { country: string; setValue: SetFormValue }
 ) =>
     <select name="country"
+            aria-label="Country"
             className={`select select-sm select-condensed pl-1.5 p-1 w-full`}
             value={country}
             onChange={event =>
