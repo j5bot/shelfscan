@@ -56,7 +56,7 @@ export const useExtension = (params?: UseExtension) => {
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
     const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false, tags: false });
     const [players, setPlayers] = useState<BggPlayer[]>();
-    const [update, setUpdate] = useState<boolean>(true);
+    const [updateChoice, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
     const [detailedPlayKey, setDetailedPlayKey] = useState<number>(0);
 
@@ -65,6 +65,8 @@ export const useExtension = (params?: UseExtension) => {
             getCollectionInfoByObjectId([state, info?.id, info?.collectionId]));
 
     const collectionItem = collection?.items[collectionId];
+    // an item that isn't in the collection yet can't be updated
+    const update = !!collectionId && updateChoice;
 
     const { rating: collectionRating, statuses } = collectionItem ?? {};
 
@@ -362,13 +364,6 @@ export const useExtension = (params?: UseExtension) => {
         setFormKey: setDetailedPlayKey,
         formProps: { gameName: version?.name ?? info?.name },
     }) : {};
-
-    useEffect(() => {
-        if (collectionId) {
-            return;
-        }
-        setUpdate(false);
-    }, [collectionId]);
 
     const tradeCondition = collectionItem?.tradeCondition;
     useEffect(() => {

@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext, useMemo, useState } from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useMemo, useState } from 'react';
 
 export type GameSelections = Record<string, number[]>;
 
 const GameSelectionsContext =
     createContext<{
          gameSelections: GameSelections;
-         setGameSelections: (gameSelections: GameSelections) => void;
+         setGameSelections: Dispatch<SetStateAction<GameSelections>>;
      }>({ gameSelections: {}, setGameSelections: () => undefined });
 
 type Props = {

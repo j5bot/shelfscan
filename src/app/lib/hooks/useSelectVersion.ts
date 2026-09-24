@@ -4,9 +4,9 @@ import { useSelector } from '@/app/lib/hooks/index';
 import { getIndexesInCollectionFromInfos } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { PossibleStatusWithAll } from '@/app/lib/types/bgg';
+import { resolveGameSelection } from '@/app/lib/utils/gameSelection';
 import { CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
-import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
 
 type UseSelectVersionParams = {
@@ -21,8 +21,6 @@ export const useSelectVersion = ({
     versions: versionsParam = [],
 }: UseSelectVersionParams) => {
     const username = useSelector((state: RootState) => state.bgg.user?.user);
-    const searchParams = useSearchParams();
-    const searchQuery = searchParams.get('q');
 
     const {
         getGameData,
@@ -46,16 +44,22 @@ export const useSelectVersion = ({
     const { bgg_info_status: status, bgg_info: infos = infosParam } = gameDataMap[id ?? ''] ?? {};
 
     const defaultImageUrl = infos?.[0]?.image_url;
-    const [currentInfoIndex, setCurrentInfoIndex] = useState<number | null>(infos?.length === 1 ? 0 : null);
-    const [currentVersionIndex, setCurrentVersionIndex] = useState<number | null>(infos?.[currentInfoIndex ?? 0]?.versions.length === 1 ? 0 : null);
 
-    const [selectedInfoId, setSelectedInfoId] = useState<number>();
-    const [selectedVersionId, setSelectedVersionId] = useState<number>();
-
-    const [hoverVersionIndex, setHoverVersionIndex] = useState<number | null>(null);
+    // the shared gameSelections store is the source of truth
+    const {
+        currentInfoIndex,
+        currentVersionIndex,
+        selectedInfoId,
+        selectedVersionId,
+    } = resolveGameSelection(infos, id ? gameSelections[id] : undefined);
 
     const info = infos?.[currentInfoIndex ?? -1];
     const versions = info?.versions ?? versionsParam;
+
+    // hover belongs to the info it happened in, so it clears when the info changes
+    const [hover, setHover] = useState<{ infoIndex: number | null; versionIndex: number } | null>(null);
+    const hoverVersionIndex = hover?.infoIndex === currentInfoIndex ? hover.versionIndex : null;
+
     const version = versions?.[hoverVersionIndex ?? currentVersionIndex ?? -1];
 
     const updateGameUPC = () => {
@@ -102,111 +106,39 @@ export const useSelectVersion = ({
             return;
         }
         if (infoIndex === -1) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { [id]: _, ...newSelections } = gameSelections;
-            setGameSelections(newSelections);
+            setGameSelections(prev => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { [id]: _, ...rest } = prev;
+                return rest;
+            });
             return;
         }
+        const infoId = infos[infoIndex].id;
         if (versionIndex === -1) {
-            setSelectedInfoId(infos[infoIndex].id);
-            gameSelections[id] = [infos[infoIndex].id];
-            setGameSelections(gameSelections);
+            setGameSelections(prev => ({ ...prev, [id]: [infoId] }));
             return;
         }
-        setSelectedInfoId(infos[infoIndex].id);
-        setSelectedVersionId(versions[versionIndex].version_id);
-        gameSelections[id] = [infos[infoIndex].id, versions[versionIndex].version_id];
-        setGameSelections(gameSelections);
-    }, [id, gameSelections, setGameSelections, infos, versions]);
+        const versionId = versions[versionIndex].version_id;
+        setGameSelections(prev => ({ ...prev, [id]: [infoId, versionId] }));
+    }, [id, setGameSelections, infos, versions]);
 
-    const restorePreviousSelection = () => {
-        if (!(id && gameSelections[id])) {
-            return;
-        }
-        const selection = gameSelections[id];
-        const gameSelectionIndex = infos?.findIndex(info => info.id === selection[0]);
-        const versionSelectionIndex = infos?.
-            [gameSelectionIndex]?.versions?.
-        findIndex(
-            version => version.version_id === selection[1]
-        );
-
-        if (gameSelectionIndex > -1) {
-            setCurrentInfoIndex(gameSelectionIndex);
-            setSelectedInfoId(gameSelections[id][0]);
-        } else {
-            setCurrentInfoIndex(null);
-            setSelectedInfoId(undefined);
-        }
-        if (versionSelectionIndex > -1) {
-            setCurrentVersionIndex(versionSelectionIndex);
-            setSelectedVersionId(gameSelections[id][1]);
-        } else {
-            setCurrentVersionIndex(null);
-            setSelectedVersionId(undefined);
-        }
-    }
-
-    const infosLength = infos?.length;
-    const firstInfo = infos?.[0];
+    // record automatic selections in the shared store too, so batch add and
+    // swap export (which only read gameSelections) use the same game/version
     useEffect(() => {
-        if (infosLength === 1) {
-            setCurrentInfoIndex(0);
-            setCurrentSelection(0, -1);
-            setSelectedInfoId(firstInfo.id);
+        if (!id || selectedInfoId === undefined) {
             return;
         }
-        if ((selectedInfoId ?? -1) > -1) {
-            return;
-        }
-        setCurrentInfoIndex(null);
-        setCurrentVersionIndex(null);
-        setSelectedInfoId(undefined);
-        setHoverVersionIndex(null);
-    }, [
-        id,
-        selectedInfoId,
-        gameData,
-        firstInfo,
-        infosLength,
-        setCurrentInfoIndex,
-        setCurrentVersionIndex,
-        setSelectedVersionId,
-        setCurrentSelection,
-    ]);
-
-    const versionsLength = infos?.[currentInfoIndex ?? 0]?.versions?.length;
-    useEffect(() => {
-        if (currentInfoIndex === null) {
-            return;
-        }
-        if (infos?.[currentInfoIndex]?.versions?.length === 1) {
-            setCurrentVersionIndex(0);
-            setCurrentSelection(currentInfoIndex, 0);
-            setSelectedVersionId(infos?.[currentInfoIndex]?.versions?.[0]?.version_id);
-            return;
-        }
-        if ((selectedVersionId ?? -1) > -1) {
-            return;
-        }
-        setCurrentVersionIndex(null);
-        setSelectedVersionId(undefined);
-        setHoverVersionIndex(null);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        id,
-        gameData,
-        currentInfoIndex,
-        versionsLength,
-        setCurrentVersionIndex,
-        setCurrentSelection,
-        setHoverVersionIndex,
-    ]);
-
-    useEffect(() => {
-        restorePreviousSelection();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id, infos, searchQuery]);
+        setGameSelections(prev => {
+            const [prevInfoId, prevVersionId] = prev[id] ?? [];
+            if (prevInfoId === selectedInfoId && prevVersionId === selectedVersionId) {
+                return prev;
+            }
+            return {
+                ...prev,
+                [id]: selectedVersionId === undefined ? [selectedInfoId] : [selectedInfoId, selectedVersionId],
+            };
+        });
+    }, [id, selectedInfoId, selectedVersionId, setGameSelections]);
 
     const infoClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {
         const index = e.currentTarget.getAttribute('data-info-index') ?? null;
@@ -215,10 +147,7 @@ export const useSelectVersion = ({
             return;
         }
 
-        const currentInfo = parseInt(index, 10);
-        setCurrentInfoIndex(currentInfo);
-        setCurrentVersionIndex(null);
-        setCurrentSelection(currentInfo, -1);
+        setCurrentSelection(parseInt(index, 10), -1);
     }) as CollapsibleListProps<unknown>['onSelect'];
 
     const gameClickHandler = () => {};
@@ -230,9 +159,7 @@ export const useSelectVersion = ({
             return;
         }
 
-        const currentVersion = parseInt(index, 10);
-        setCurrentVersionIndex(currentVersion);
-        setCurrentSelection(currentInfoIndex ?? -1, currentVersion);
+        setCurrentSelection(currentInfoIndex ?? -1, parseInt(index, 10));
     }) as CollapsibleListProps<unknown>['onSelect'];
 
     const versionNameClickHandler = () => {};
@@ -245,11 +172,11 @@ export const useSelectVersion = ({
         }
 
         if (e.type === 'mouseleave') {
-            setHoverVersionIndex(null);
+            setHover(null);
             return;
         }
 
-        setHoverVersionIndex(parseInt(index, 10));
+        setHover({ infoIndex: currentInfoIndex, versionIndex: parseInt(index, 10) });
     }) as CollapsibleListProps<unknown>['onHover'];
 
     const isInfoInCollection = (index: number, status: PossibleStatusWithAll = 'own') => infoIndexesInCollection[status]?.includes(index);
@@ -283,7 +210,6 @@ export const useSelectVersion = ({
         versionNameClickHandler,
         versionHoverHandler,
         setCurrentSelection,
-        restorePreviousSelection,
         searchGameUPC,
         updateGameUPC,
         removeGameUPC,

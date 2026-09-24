@@ -2,8 +2,8 @@ import { ShelfScanSetting, ShelfScanSettings } from '@/app/lib/database/database
 import { createContext } from 'react';
 
 export type SettingsProviderContextValue = {
-    loadSettings: () => PromiseLike<ShelfScanSettings>;
-    setSetting: (setting: string, value: ShelfScanSetting) => PromiseLike<void>;
+    loadSettings: () => Promise<ShelfScanSettings>;
+    setSetting: (setting: string, value: ShelfScanSetting) => Promise<void>;
     settings: ShelfScanSettings;
 };
 
