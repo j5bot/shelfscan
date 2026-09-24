@@ -33,6 +33,7 @@ export const MarketPreferenceManager = () => {
                 <div className="flex gap-0.5">
                     <CurrencySelect currency={preferences?.['currency'] ?? ''}
                                     setValue={setValue}
+                                    label="Currency"
                     />
                     <PriceInput price={preferences?.['price'] ?? ''} setValue={setValue} />
                 </div>

@@ -37,6 +37,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
             <CurrencySelect currency={formValues?.['pp_currency'] ?? 'USD'}
                             setValue={setValue}
                             field="pp_currency"
+                            label="Paid Currency"
             />
             <PriceInput price={formValues?.['pricepaid'] ?? ''}
                         setValue={setValue}
@@ -47,6 +48,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
         <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['cv_currency'] ?? 'USD'}
                             setValue={setValue}
+                            label="Value Currency"
             />
             <PriceInput price={formValues?.['currvalue'] ?? ''}
                         setValue={setValue}

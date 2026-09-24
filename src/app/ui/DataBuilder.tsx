@@ -110,7 +110,7 @@ export const DataBuilder = () => {
                 <div className="modal-box min-w-96">
                     <form method="dialog">
                         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4"
-                            aria-label="Close">✕</button>
+                            type="button" aria-label="Close">✕</button>
                     </form>
                     <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                         <FaFolderOpen className="inline" /> Open Form

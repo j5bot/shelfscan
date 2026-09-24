@@ -45,6 +45,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     const showCurrencyAndPrice = <>
         <CurrencySelect currency={values?.['currency'] ?? 'USD'}
                         setValue={setValue}
+                        label="Price Currency"
                         disabled={!!preferences['currency']}
         />
         <PriceInput price={values?.['price'] ?? ''}
@@ -55,6 +56,7 @@ export const AddToMarketForm = ({ formValues, setFormValues }: ModeSettingFormPr
     const defaultCurrencyAndPrice = <>
         <CurrencySelect currency={values?.['currency'] ?? 'USD'}
                         setValue={setValue}
+                        label="Default Currency"
                         disabled={!preferences['currency']}
         />
         <PriceInput price={values?.['price'] ?? ''}

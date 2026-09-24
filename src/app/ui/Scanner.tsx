@@ -140,7 +140,8 @@ export function Scanner(props: ScannerProps) {
             <div className="modal-box">
                 <form method="dialog">
                     <button className="btn btn-sm btn-circle btn-ghost absolute right-0.5 top-0.5"
-                            aria-label="Close">
+                            aria-label="Close"
+                            type="button">
                         ✕
                     </button>
                     <h3 className="pb-1 pl-0.5">Choose Camera</h3>

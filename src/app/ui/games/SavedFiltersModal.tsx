@@ -43,6 +43,7 @@ export const SavedFiltersModal = ({
                     className="btn btn-sm btn-circle btn-ghost absolute top-2 right-2"
                     onClick={onClose}
                     aria-label="Close"
+                    type="button"
                 >
                     <FaXmark />
                 </button>
