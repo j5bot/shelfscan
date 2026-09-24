@@ -2,7 +2,6 @@
 
 import { useTitle } from '@/app/lib/hooks/useTitle';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { AtlasRealmsTrades } from '@/app/ui/workflows/math-trades/AtlasRealmsTrades';
 import { OLWLGTrades } from '@/app/ui/workflows/math-trades/OLWLGTrades';
 import { SwaptagonTrades } from '@/app/ui/workflows/math-trades/SwaptagonTrades';
 import React, { useState } from 'react';
@@ -65,7 +64,8 @@ const MathTradeWorkflowsPage = () => {
                         <h2 className="collapse-title text-lg px-3 py-0.5"
                             id="math-trades-atlas-realms">Atlas Realms</h2>
                         <div className="collapse-content">
-                            <AtlasRealmsTrades />
+                            <p>Workflow coming soon.</p>
+                            {/*<AtlasRealmsTrades />*/}
                         </div>
                     </div>
                 </div>

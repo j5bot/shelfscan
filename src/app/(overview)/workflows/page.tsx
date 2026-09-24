@@ -7,7 +7,6 @@ import { CollectionAudit } from '@/app/ui/workflows/CollectionAudit';
 import { CollectionLoading } from '@/app/ui/workflows/CollectionLoading';
 import { CollectionMaintenance } from '@/app/ui/workflows/CollectionMaintenance';
 import { CollectionQuickFiltering } from '@/app/ui/workflows/CollectionQuickFiltering';
-import { MathTrades } from '@/app/ui/workflows/MathTrades';
 import Link from 'next/link';
 import React from 'react';
 import {
@@ -45,7 +44,7 @@ const WorkflowsPage = () => {
                             id="math-trades">Math Trades</h2>
                         <div className="collapse-content">
                             <p>
-                                <Link className="underline" href="trades">All Math Trade Workflows</Link>
+                                <Link className="underline" href="/workflows/trades">All Math Trade Workflows</Link>
                             </p>
                         </div>
                     </div>
