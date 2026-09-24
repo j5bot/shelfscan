@@ -1,4 +1,4 @@
-import { SyntheticEvent, useEffect, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
 
 export type UseGameDetailsSearchOptions = {
     onSearch: (search: string) => void;
@@ -11,25 +11,24 @@ export const useGameDetailsSearch = ({
     initialQuery = '',
     initialOpen,
 }: UseGameDetailsSearchOptions) => {
-    const [searchFormOpen, setSearchFormOpen] = useState<boolean>(initialOpen ?? !initialQuery);
-    const [searchString, setSearchString] = useState<string>(initialQuery);
+    // a user change applies until the prop it was made against changes
+    const [openChange, setOpenChange] = useState<{ open: boolean; basis: boolean | undefined }>();
+    const [searchChange, setSearchChange] = useState<{ search: string; basis: string }>();
 
-    useEffect(() => {
-        if (initialOpen !== undefined) {
-            setSearchFormOpen(initialOpen);
-        }
-    }, [initialOpen]);
+    const defaultOpen = initialOpen ?? !initialQuery;
+    const searchFormOpen = openChange && openChange.basis === initialOpen ? openChange.open : defaultOpen;
+    const searchString = searchChange && searchChange.basis === initialQuery ? searchChange.search : initialQuery;
 
-    useEffect(() => {
-        setSearchString(initialQuery);
-    }, [initialQuery]);
+    const setSearchFormOpen = (open: boolean) => {
+        setOpenChange({ open, basis: initialOpen });
+    };
 
     const searchBlurHandler = (e: SyntheticEvent<HTMLInputElement>) => {
         const value = e.currentTarget.value;
         const url = new URL(window.location.href);
         url.searchParams.set('q', value);
         window.history.pushState(undefined, '', url.toString());
-        setSearchString(value);
+        setSearchChange({ search: value, basis: initialQuery });
     };
 
     const searchClickHandler = () => {

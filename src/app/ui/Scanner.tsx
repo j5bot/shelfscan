@@ -149,8 +149,10 @@ export function Scanner(props: ScannerProps) {
                     <h3 className="pb-1 pl-0.5">Choose Camera</h3>
                     <div className="join join-vertical text-left">
                         {devices.map((device) => {
+                            // submitting the dialog form closes the picker once a camera is chosen
                             return <button
                                 key={device.deviceId}
+                                type="submit"
                                 className="btn btn-sm join-item flex justify-start"
                                 onClick={() => handleCameraChange(device.deviceId)}
                             >

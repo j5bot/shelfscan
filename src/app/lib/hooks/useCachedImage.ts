@@ -176,9 +176,16 @@ export const useCachedImage = (
                     return;
                 }
                 if (!blob) {
-                    // hmmm....
+                    placeholderSrcPromise.resolve(undefined);
+                    cachedSrcPromise.resolve({
+                        alt,
+                        src: placeholder,
+                        srcSet: undefined,
+                        type: 'unknown',
+                    });
+                    return;
                 }
-                const url = URL.createObjectURL(blob!);
+                const url = URL.createObjectURL(blob);
                 if (urlRef.current) {
                     URL.revokeObjectURL(urlRef.current);
                 }
