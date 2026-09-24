@@ -1,7 +1,7 @@
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { CardComponentProps } from 'nextstepjs';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useEffectEvent, useMemo } from 'react';
 
 export type NextStepFn = CardComponentProps['nextStep'];
 
@@ -18,21 +18,24 @@ export const useCollectionSelectors = () => {
 
 export const useUsername = (nextStep: NextStepFn) => {
     const { currentUsername } = useCollectionSelectors();
+    const advance = useEffectEvent(() => nextStep());
+
     useEffect(() => {
         if (!currentUsername) {
             return;
         }
-        nextStep();
+        advance();
     }, [currentUsername]);
 };
 
 export const useCollection = (nextStep: NextStepFn) => {
     const { collection } = useCollectionSelectors();
+    const advance = useEffectEvent(() => nextStep());
 
     useEffect(() => {
         if (!collection) {
             return;
         }
-        nextStep();
+        advance();
     }, [collection]);
 };

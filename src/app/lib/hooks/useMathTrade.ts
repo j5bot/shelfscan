@@ -101,7 +101,7 @@ export const useMathTrade = () => {
             }));
             return { collectionId: item.collectionId, success: true };
         }).filter(x => !!x) ?? [];
-    }, [userId, activeGeekListId, syncOn, dispatchExtensionMessage, dispatch]);
+    }, [userId, activeGeekListId, dispatchExtensionMessage, dispatch]);
 
     return { syncOn, canUseExtension, sendViaExtension };
 };

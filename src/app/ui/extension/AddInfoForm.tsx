@@ -13,15 +13,16 @@ const PrivateComment = ({ formValues, setFormValues }: ModeSettingFormProps) => 
            className="textarea textarea-md text-sm p-2"
            placeholder="Private Comment"
            defaultValue={formValues?.['privatecomment']}
-           onChange={event => setFormValues(
-               Object.assign(formValues, { privatecomment: event.currentTarget.value })
-           )}
+           onChange={event => {
+               const privatecomment = event.currentTarget.value;
+               setFormValues(prev => ({ ...prev, privatecomment }));
+           }}
     />
 };
 
 export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps) => {
     const setValue = (field: string, value: string) => {
-        setFormValues(Object.assign(formValues, { [field]: value }));
+        setFormValues(prev => ({ ...prev, [field]: value }));
     };
 
     return <form name="info" className="pt-1">
@@ -48,6 +49,7 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
         <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['cv_currency'] ?? 'USD'}
                             setValue={setValue}
+                            field="cv_currency"
                             label="Value Currency"
             />
             <PriceInput price={formValues?.['currvalue'] ?? ''}

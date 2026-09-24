@@ -2,7 +2,7 @@ import { SyncContext } from '@/app/lib/extension/SyncContext';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import posthog from 'posthog-js';
-import { ReactNode, useLayoutEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffectEvent, useLayoutEffect, useMemo, useState } from 'react';
 
 const fadeInClasses = 'flex transition-opacity opacity-100 duration-800'
     .split(' ');
@@ -19,7 +19,7 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
         (state: RootState) => state.bgg.user?.user,
     );
 
-    const handleExtensionLink = () => {
+    const handleExtensionLink = useEffectEvent(() => {
         const newValue = document.cookie.includes('shelfScanExtension') ||
                          document.body.getAttribute('data-shelfscan-sync') === 'on';
 
@@ -35,11 +35,10 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
             extLink.classList.add(...(newValue ? ['animate-fade'] : fadeInClasses));
         }
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSyncOn(newValue);
-    };
+    });
 
-    const handleSubscribeBanner = () => {
+    const handleSubscribeBanner = useEffectEvent(() => {
         const subscription = document.cookie
             .includes('shelfScanSubscription=true');
 
@@ -52,17 +51,16 @@ export const SyncProvider = ({ children }: { children: ReactNode }) => {
             banner.classList.add(...fadeInClasses);
         }
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasSubscription(subscription);
-    };
+    });
 
     useLayoutEffect(() => {
-        const timeoutId = setTimeout(handleExtensionLink, 1000);
+        const timeoutId = setTimeout(() => handleExtensionLink(), 1000);
         return () => clearTimeout(timeoutId);
     }, [syncOn]);
 
     useLayoutEffect(() => {
-        const timeoutId = setTimeout(handleSubscribeBanner, 1000);
+        const timeoutId = setTimeout(() => handleSubscribeBanner(), 1000);
         return () => clearTimeout(timeoutId);
     }, [hasSubscription]);
 

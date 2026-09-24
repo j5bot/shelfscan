@@ -195,7 +195,7 @@ export const CollectionPageContent = ({
     const [isAdding, setIsAdding] = useState(false);
     const addToastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const actionableTradeItemIds = (hasExport || (isMathTrade && activeGeekListId)) ?
+    const actionableTradeItemIds = useMemo(() => (hasExport || (isMathTrade && activeGeekListId)) ?
         Array.from(selectedMathTradeIds).reduce((actionable, collectionId) => {
             const item = collection?.items[collectionId];
             if (!item) {
@@ -211,7 +211,17 @@ export const CollectionPageContent = ({
             }
             actionable.add(collectionId);
             return actionable;
-        }, new Set<number>()) : new Set<number>();
+        }, new Set<number>()) : new Set<number>(), [
+        hasExport,
+        isMathTrade,
+        isSwap,
+        isTrade,
+        activeGeekListId,
+        selectedMathTradeIds,
+        collection,
+        geeklistData,
+        swapData,
+    ]);
 
     const actionableTradeItemsCount = actionableTradeItemIds.size;
 
@@ -239,7 +249,7 @@ export const CollectionPageContent = ({
             }
             return next;
         });
-    }, [store, activeGeekListId, selectedMathTradeIds]);
+    }, [collection, geeklist, activeGeekListId, selectedMathTradeIds]);
 
     const handleBulkMathTradeAdd = useCallback(async () => {
         if (actionableTradeItemsCount === 0) { return; }
@@ -303,7 +313,7 @@ export const CollectionPageContent = ({
         } finally {
             setIsExportingSwap(false);
         }
-    }, [actionableTradeItemIds, collection, swapData]);
+    }, [actionableTradeItemIds, actionableTradeItemsCount, collection, swapData, isSwap]);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,

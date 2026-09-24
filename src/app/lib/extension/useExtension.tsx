@@ -21,6 +21,7 @@ import React, {
     Fragment,
     SyntheticEvent,
     useEffect,
+    useEffectEvent,
     useState
 } from 'react';
 import { FaSave } from 'react-icons/fa';
@@ -369,30 +370,24 @@ export const useExtension = (params?: UseExtension) => {
         setUpdate(false);
     }, [collectionId]);
 
+    const tradeCondition = collectionItem?.tradeCondition;
     useEffect(() => {
-        if (formValues?.['tradecondition'] === collectionItem?.tradeCondition) {
-            return;
-        }
-        setFormValues(Object.assign(formValues, {
-            tradecondition: collectionItem?.tradeCondition
-        }));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [collectionItem?.tradeCondition]);
+        setFormValues(prev => prev['tradecondition'] === tradeCondition ? prev : {
+            ...prev,
+            tradecondition: tradeCondition as string,
+        });
+    }, [tradeCondition]);
 
+    const collectionStatuses = collectionItem?.statuses;
     useEffect(() => {
-        const statuses = Object.entries(collectionItem?.statuses ?? {}).reduce((acc: string[], [key, value]: [string, boolean]) => {
+        const statuses = Object.entries(collectionStatuses ?? {}).reduce((acc: string[], [key, value]: [string, boolean]) => {
             if (value) {
                 acc.push(key);
             }
             return acc;
         }, []).join(',');
-        if (formValues?.['statuses'] === statuses) {
-            return;
-        }
-        setFormValues(Object.assign(formValues, {
-            statuses,
-        }));
-    }, [collectionItem?.statuses]);
+        setFormValues(prev => prev['statuses'] === statuses ? prev : { ...prev, statuses });
+    }, [collectionStatuses]);
 
     useEffect(() => {
         (async () => {
@@ -460,12 +455,18 @@ export const useExtension = (params?: UseExtension) => {
         }
     }, [update, currentATCMode, setDisabledModes]);
 
-    useEffect(() => {
+    // send once per user/item/mode; the item's own updates (often caused by
+    // this message's response) must not re-send it
+    const sendATCModeMessage = useEffectEvent(() => {
         if (!(atcModeSetting?.message && userId && collectionItem)) {
             return;
         }
         atcModeSetting.message(userId, dispatchExtensionMessage, collectionItem);
-    }, [!!atcModeSetting?.message, userId, collectionId]);
+    });
+    const hasATCModeMessage = !!atcModeSetting?.message;
+    useEffect(() => {
+        sendATCModeMessage();
+    }, [hasATCModeMessage, userId, collectionId]);
 
     const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
         const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);

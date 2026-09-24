@@ -194,7 +194,7 @@ export const CollectionGameDetails = ({
             return;
         }
         setCurrentVersionIndex(versionIndex);
-    }, [versions]);
+    }, [versions, versionId]);
 
     const versionsContent = <div
         id="select-version"
