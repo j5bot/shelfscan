@@ -39,8 +39,10 @@ export const CollectionMaintenance = () => (
             <p>To remove a game from your collection:</p>
 
             <div className="flex justify-center py-3 px-1">
+                {/* silent screen recording (its audio track is empty), so no captions are needed */}
                 <video className="max-w-full max-h-120 border border-gray-400 rounded-md"
-                       controls={true}>
+                       controls={true}
+                       muted>
                     <source src="/videos/workflows/clear-status.webm"
                             type="video/webm" />
                 </video>

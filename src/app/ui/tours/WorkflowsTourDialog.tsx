@@ -73,11 +73,11 @@ export const WorkflowsTourDialog = ({ ref }: WorkflowsTourDialogProps) => {
         setTimeout(() => startNextStep(newTour), 300);
     };
 
-    return <dialog ref={ref} className="modal tours">
+    return <dialog ref={ref} className="modal tours" aria-label="Tours">
         <div className="modal-box min-w-86 max-w-1/2">
             <form method="dialog">
                 <button
-                    type="button"
+                    type="submit"
                     className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4" aria-label="Close">✕</button>
             </form>
             <div className="flex flex-col gap-2">

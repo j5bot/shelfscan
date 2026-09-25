@@ -124,10 +124,15 @@ export const NotInCollectionContent = ({
         const isSelected = selectedIds.has(entry.id);
         const canSelectEntry = entry.bggId !== undefined;
         return (
-            <div
-                className={`relative${selectionMode && canSelectEntry ? ' cursor-pointer' : ''}${selectionMode && !canSelectEntry ? ' opacity-40' : ''}`}
-                onClick={selectionMode && canSelectEntry ? () => onToggleSelection(entry) : undefined}
-            >
+            <div className={`relative${selectionMode && !canSelectEntry ? ' opacity-40' : ''}`}>
+                {/* stretched toggle over the card while selecting */}
+                {selectionMode && canSelectEntry && <button
+                    type="button"
+                    className="absolute inset-0 w-full h-full z-20 rounded-md cursor-pointer"
+                    aria-label={`Select ${entry.gameName ?? entry.upc}`}
+                    aria-pressed={isSelected}
+                    onClick={() => onToggleSelection(entry)}
+                />}
                 <ListGame
                     keyValue={entry.id.toString()}
                     name={entry.gameName ?? entry.upc}

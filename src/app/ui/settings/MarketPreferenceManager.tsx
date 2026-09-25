@@ -8,10 +8,11 @@ import { NotesTextArea } from '@/app/ui/forms/NotesTextArea';
 import { PaymentMethodSelect } from '@/app/ui/forms/PaymentMethodSelect';
 import { PriceInput } from '@/app/ui/forms/PriceInput';
 import { ShipSelect } from '@/app/ui/forms/ShipSelect';
-import React from 'react';
+import React, { useId } from 'react';
 
 export const MarketPreferenceManager = () => {
     const { syncOn } = useExtension();
+    const fieldId = useId();
     const { settings, setSetting } = useSettings();
     const { marketPreferences = {} } = settings;
     const preferences = marketPreferences as MarketPreferences;
@@ -29,35 +30,40 @@ export const MarketPreferenceManager = () => {
         <h3 className="collapse-title font-semibold" id="settings-market-defaults">Market Defaults</h3>
         <div className="collapse-content text-xs">
             <form name="sell" className="flex flex-wrap gap-1 pb-2 pr-1.5">
-                <label className="pl-0.5">Currency &amp; Price</label>
+                <label htmlFor={`${fieldId}-currency`} className="pl-0.5">Currency &amp; Price</label>
                 <div className="flex gap-0.5">
-                    <CurrencySelect currency={preferences?.['currency'] ?? ''}
+                    <CurrencySelect id={`${fieldId}-currency`}
+                                    currency={preferences?.['currency'] ?? ''}
                                     setValue={setValue}
                                     label="Currency"
                     />
                     <PriceInput price={preferences?.['price'] ?? ''} setValue={setValue} />
                 </div>
 
-                <label className="pl-0.5">Condition</label>
-                <ConditionSelect condition={preferences?.['condition'] ?? ''}
+                <label htmlFor={`${fieldId}-condition`} className="pl-0.5">Condition</label>
+                <ConditionSelect id={`${fieldId}-condition`}
+                                 condition={preferences?.['condition'] ?? ''}
                                  setValue={setValue}
                 />
 
-                <label className="pl-0.5">Notes</label>
-                <NotesTextArea notes={preferences?.['notes'] ?? ''} setValue={setValue} />
+                <label htmlFor={`${fieldId}-notes`} className="pl-0.5">Notes</label>
+                <NotesTextArea id={`${fieldId}-notes`} notes={preferences?.['notes'] ?? ''} setValue={setValue} />
 
-                <label className="pl-0.5">Payment Methods</label>
+                <label htmlFor={`${fieldId}-payment`} className="pl-0.5">Payment Methods</label>
                 <PaymentMethodSelect
+                    id={`${fieldId}-payment`}
                     paymentMethod={preferences?.['paymentMethod']?.split(',') ?? ['']}
                     setValue={setValue} />
 
-                <label className="pl-0.5">Item Location</label>
-                <CountrySelect country={preferences?.['country'] ?? ''}
+                <label htmlFor={`${fieldId}-country`} className="pl-0.5">Item Location</label>
+                <CountrySelect id={`${fieldId}-country`}
+                               country={preferences?.['country'] ?? ''}
                                setValue={setValue}
                 />
 
-                <label className="pl-0.5">Ships To</label>
-                <ShipSelect shipLocation={preferences?.['shipLocation'] ?? ''}
+                <label htmlFor={`${fieldId}-ships`} className="pl-0.5">Ships To</label>
+                <ShipSelect id={`${fieldId}-ships`}
+                            shipLocation={preferences?.['shipLocation'] ?? ''}
                             shipAreas={preferences?.['shipAreas']?.split(',')}
                             setValue={setValue}
                 />

@@ -35,7 +35,6 @@ export const GeekListSwitcher = ({ activeId, lists, onSelect }: GeekListSwitcher
                 className="btn btn-xs btn-ghost rounded-md w-full flex items-center justify-between gap-1 px-2"
                 onClick={() => setOpen(v => !v)}
                 aria-expanded={open}
-                aria-haspopup="listbox"
                 title={activeTitle}
             >
                 <span className="truncate text-xs text-base-content/70 w-fit">
@@ -51,13 +50,13 @@ export const GeekListSwitcher = ({ activeId, lists, onSelect }: GeekListSwitcher
                     className="absolute top-full left-0 right-0 mt-0.5 z-50
                         bg-base-100 border border-base-content/20 rounded-md shadow-lg
                         py-1 overflow-y-auto max-h-48"
-                    role="listbox"
                     aria-label="Select geeklist"
                 >
                     {lists.map(gl => (
-                        <li key={gl.id} role="option" aria-selected={gl.id === activeId}>
+                        <li key={gl.id}>
                             <button
                                 type="button"
+                                aria-current={gl.id === activeId ? 'true' : undefined}
                                 className={`w-full text-left px-3 py-1.5 text-xs truncate
                                     hover:bg-base-200 block
                                     ${gl.id === activeId

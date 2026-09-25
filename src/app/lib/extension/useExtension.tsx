@@ -316,11 +316,15 @@ export const useExtension = (params?: UseExtension) => {
                                                     }
 
                                                     return <li key={mode}
-                                                               onClick={createUpdateModeFn(modeKey,
-                                                                   mode,
-                                                                   setting)}
-                                                               className={`p-1 pl-1.5 cursor-pointer ${index < array.length - 1 ? 'border-b border-brand-background/30' : ''}`.trim()}
-                                                    >{setting.listText}</li>
+                                                               className={index < array.length - 1 ? 'border-b border-brand-background/30' : undefined}
+                                                    >
+                                                        <button type="button"
+                                                                className="w-full p-1 pl-1.5 text-left cursor-pointer"
+                                                                onClick={createUpdateModeFn(modeKey,
+                                                                    mode,
+                                                                    setting)}
+                                                        >{setting.listText}</button>
+                                                    </li>
                                                 })
                                         }
                                     </ul>

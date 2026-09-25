@@ -138,15 +138,15 @@ export function Scanner(props: ScannerProps) {
                 </button>
             </div>}
         </div>
-        <dialog id="camera-dialog" className="modal">
+        <dialog id="camera-dialog" className="modal" aria-labelledby="camera-dialog-title">
             <div className="modal-box">
                 <form method="dialog">
                     <button className="btn btn-sm btn-circle btn-ghost absolute right-0.5 top-0.5"
                             aria-label="Close"
-                            type="button">
+                            type="submit">
                         ✕
                     </button>
-                    <h3 className="pb-1 pl-0.5">Choose Camera</h3>
+                    <h3 id="camera-dialog-title" className="pb-1 pl-0.5">Choose Camera</h3>
                     <div className="join join-vertical text-left">
                         {devices.map((device) => {
                             // submitting the dialog form closes the picker once a camera is chosen

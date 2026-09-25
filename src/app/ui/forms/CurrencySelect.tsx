@@ -30,11 +30,11 @@ const currencies = [
 ];
 
 export const CurrencySelect = ({
-    currency, disabled, setValue, field = 'currency', label = 'Currency'
+    id, currency, disabled, setValue, field = 'currency', label = 'Currency'
 }:
-    { currency: string; disabled?: boolean; setValue: SetFormValue; field?: string, label?: string }
+    { id?: string; currency: string; disabled?: boolean; setValue: SetFormValue; field?: string, label?: string }
 ) =>
-    <select name={field} aria-label={label} className={`text-left select select-sm
+    <select id={id} name={field} aria-label={label} className={`text-left select select-sm
             select-condensed
             h-7 w-24 pl-1.5 p-0`}
             value={currency}

@@ -107,13 +107,13 @@ export const DataBuilder = () => {
 
     return (
         <div className="data-builder w-full max-w-6xl mx-auto px-4 pb-4">
-            <dialog ref={openDialogRef} className="modal">
+            <dialog ref={openDialogRef} className="modal" aria-labelledby="data-builder-open-title">
                 <div className="modal-box min-w-96">
                     <form method="dialog">
                         <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4"
-                            type="button" aria-label="Close">✕</button>
+                            type="submit" aria-label="Close">✕</button>
                     </form>
-                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <h2 id="data-builder-open-title" className="text-xl font-semibold mb-4 flex items-center gap-2">
                         <FaFolderOpen className="inline" /> Open Form
                     </h2>
                     {savedForms.length === 0 ? (

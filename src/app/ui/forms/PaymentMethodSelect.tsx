@@ -11,9 +11,11 @@ const paymentMethodOptions = [
 ]
 
 export const PaymentMethodSelect = ({
+    id,
     paymentMethod = ['other'],
     setValue
 } : {
+    id?: string;
     paymentMethod?: string[];
     setValue: SetFormValue;
 }) => {
@@ -29,7 +31,8 @@ export const PaymentMethodSelect = ({
     return <>
         <input type="hidden" name="paymentMethod"
                value={paymentMethodValues?.join(',')} />
-        <select multiple={true}
+        <select id={id}
+                multiple={true}
                 aria-label="Payment methods"
                 className="grow select select-condensed text-xs w-full input h-12 ios-safari:h-6 p-1"
                 value={paymentMethodValues}

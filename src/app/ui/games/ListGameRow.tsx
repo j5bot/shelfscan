@@ -95,10 +95,14 @@ export const ListGameRow = ({
     );
 
     return (
-        <div
-            className={`flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1 ${onClick ? 'cursor-pointer' : ''}`}
-            onClick={onClick}
-        >
+        <div className="relative flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1">
+            {/* stretched button: the whole row opens details; the BGG link stays clickable above it */}
+            {onClick && <button
+                type="button"
+                className="absolute inset-0 w-full h-full rounded-md cursor-pointer"
+                aria-label={`View details for ${resolvedName}`}
+                onClick={onClick}
+            />}
             {onClick ? (
                 <div className="shrink-0">{thumbnailElement}</div>
             ) : (
@@ -161,7 +165,7 @@ export const ListGameRow = ({
                         rel={detailUrlRel}
                         title="Open on BGG"
                         aria-label="Open on BGG"
-                        onClick={e => e.stopPropagation()}
+                        className="relative"
                     >
                         <FaArrowUpRightFromSquare size={11} />
                     </Link>

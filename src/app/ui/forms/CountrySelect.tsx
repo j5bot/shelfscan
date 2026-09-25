@@ -270,10 +270,11 @@ const countries = [
     { value: 'Zimbabwe', label: 'Zimbabwe' },
 ];
 
-export const CountrySelect = ({ country, setValue }:
-    { country: string; setValue: SetFormValue }
+export const CountrySelect = ({ id, country, setValue }:
+    { id?: string; country: string; setValue: SetFormValue }
 ) =>
-    <select name="country"
+    <select id={id}
+            name="country"
             aria-label="Country"
             className={`select select-sm select-condensed pl-1.5 p-1 w-full`}
             value={country}
@@ -281,7 +282,7 @@ export const CountrySelect = ({ country, setValue }:
                 setValue('country', event.currentTarget.value)}
     >
         {countries.map(country =>
-            <option key={country.value}
+            <option key={country.value ?? 'none'}
                     value={country.value}>{country.label}</option>
-        )},
+        )}
     </select>;
