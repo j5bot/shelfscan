@@ -1,3 +1,4 @@
+import { thingPrefix, versionPrefix } from '@/app/lib/constants';
 import { GeeklistItemData } from '@/app/lib/redux/bgg/geeklist/slice';
 import { SwapItemData } from '@/app/lib/redux/swap/slice';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
@@ -48,4 +49,39 @@ export const getIsValidTradeItem = (item?: BggCollectionItem, swapData?: SwapIte
     return needsDescription(swapData) ?
            (hasDescription(item, swapData) && hasCondition(swapData))
                                       : hasCondition(swapData);
+};
+
+/** Swaptagon item description: the user's text followed by the BGG thing (and version) links. */
+export const makeSwapDescription = (
+    bodyText: string,
+    item: Partial<BggCollectionItem>,
+) => {
+    return `${bodyText}
+
+${thingPrefix}${item.objectId}${item.versionId !== undefined ? `
+${versionPrefix}${item.versionId}` : ''}`;
+};
+
+export type TradeActionMode = {
+    hasTrade: boolean;
+    isMathTrade: boolean;
+    isSwap: boolean;
+    isTrade: boolean;
+};
+
+const pluralGames = (count: number) => `${count} game${count !== 1 ? 's' : ''}`;
+
+/** Visible label and accessible label for the bulk trade/export action button. */
+export const getTradeActionLabels = (mode: TradeActionMode, count: number) => {
+    const ariaLabel = mode.hasTrade
+        ? `Export ${pluralGames(count)} to ODS`
+        : `Add ${pluralGames(count)} to math trade geeklist`;
+    switch (true) {
+        case mode.isSwap:
+            return { label: `Export ${count} for Swaptagon`, ariaLabel };
+        case mode.isTrade:
+            return { label: `Export ${count} for Atlas`, ariaLabel };
+        default:
+            return { label: `Add ${count} to Math Trade`, ariaLabel };
+    }
 };
