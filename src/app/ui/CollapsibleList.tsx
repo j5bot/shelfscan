@@ -40,10 +40,6 @@ export const CollapsibleList =
     const [itemsClosed, setItemsClosed] = useState<boolean>(true);
 
     const selectedItemClickHandler = <CE extends HTMLElement,>(e: React.MouseEvent<CE>) => {
-        // @ts-expect-error casting to unknown should work, right?
-        if ((e.target as unknown).tagName !== 'DIV') {
-            return;
-        }
         onClick(e);
         setItemsClosed(false);
     };
@@ -54,11 +50,20 @@ export const CollapsibleList =
     };
 
     return itemsClosed && (selectedItemIndex ?? null) !== null ?
-     <div
-         className={`rounded-sm w-full mb-1 bg-[#f1eff9] dark:bg-green-800 p-2 ${(selectedItemIndex ?? -1) >= 0 && items.length > 1 ? 'cursor-pointer' : ''}`}
-         onClick={items.length > 1 ? selectedItemClickHandler : undefined}
-     >
-         {renderSelectedItem(items[selectedItemIndex ?? 0])}
+     <div className="relative rounded-sm w-full mb-1 bg-[#f1eff9] dark:bg-green-800 p-2">
+         {/* stretched button: clicking anywhere on the row (except its own controls) reopens the list */}
+         {items.length > 1 && <button
+             type="button"
+             className="absolute inset-0 w-full h-full rounded-sm cursor-pointer"
+             aria-label="Change selection"
+             aria-expanded={false}
+             onClick={selectedItemClickHandler}
+         />}
+         <div className={`relative ${items.length > 1
+             ? 'pointer-events-none [&_a]:pointer-events-auto [&_button]:pointer-events-auto [&_.tooltip]:pointer-events-auto'
+             : ''}`}>
+             {renderSelectedItem(items[selectedItemIndex ?? 0])}
+         </div>
      </div> :
      <div className="w-full mt-1 flex flex-col items-center">
          {title}
@@ -71,11 +76,17 @@ export const CollapsibleList =
                  return <li
                      key={getItemKey(item)}
                      className={makeListItemClassName(index, selectedItemIndex)}
-                     onClick={listItemClickHandler}
-                     onMouseEnter={onHover}
-                     {...itemProps}
                  >
-                     {renderItem(item, index)}
+                     <button
+                         type="button"
+                         className="block w-full text-left cursor-pointer"
+                         aria-current={index === selectedItemIndex ? 'true' : undefined}
+                         onClick={listItemClickHandler}
+                         onMouseEnter={onHover}
+                         {...itemProps}
+                     >
+                         {renderItem(item, index)}
+                     </button>
                  </li>;
              })}
          </ul>

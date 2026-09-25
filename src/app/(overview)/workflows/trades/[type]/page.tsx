@@ -1,5 +1,6 @@
-import { WorkflowTitleKey } from '@/app/lib/types/workflows';
+import { WorkflowTitleKey, WorkflowTitles } from '@/app/lib/types/workflows';
 import { SingleWorkflow } from '@/app/ui/workflows/math-trades/SingleWorkflow';
+import { redirect } from 'next/navigation';
 import React, { Suspense } from 'react';
 
 type PageProps = {
@@ -8,6 +9,9 @@ type PageProps = {
 
 const SingleMathTradeWorkflowPage = async ({ params }: PageProps) => {
     const type = (await params).type;
+    if (!Object.hasOwn(WorkflowTitles, type)) {
+        redirect('/workflows/trades');
+    }
     return <Suspense>
         <SingleWorkflow type={type} />
     </Suspense>

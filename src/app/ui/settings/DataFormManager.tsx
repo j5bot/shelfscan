@@ -42,27 +42,21 @@ export const DataFormManager = () => {
             }
 
             const imported = parsed as DataFormEntity[];
-            let added = 0;
-            let updated = 0;
-
-            for (const form of imported) {
-                if (typeof form.name !== 'string' || typeof form.schema !== 'object') {
-                    throw new Error(`Invalid form entry: ${JSON.stringify(form)}`);
-                }
-                if (form.id !== undefined) {
-                    const exists = await database.dataforms.get(form.id);
-                    if (exists) {
-                        await database.dataforms.put(form);
-                        updated++;
-                    } else {
-                        await database.dataforms.add(form);
-                        added++;
-                    }
-                } else {
-                    await database.dataforms.add(form);
-                    added++;
-                }
+            // validate every entry before writing so a bad entry can't leave a partial import
+            const invalid = imported.find(form => typeof form.name !== 'string' || typeof form.schema !== 'object');
+            if (invalid) {
+                throw new Error(`Invalid form entry: ${JSON.stringify(invalid)}`);
             }
+
+            const importedIds = imported.flatMap(form => form.id === undefined ? [] : [form.id]);
+            const existingIds = new Set(
+                (await database.dataforms.bulkGet(importedIds)).flatMap(form => form ? [form.id] : []),
+            );
+            // put() updates forms with an existing id and adds the rest (ids auto-increment)
+            await database.dataforms.bulkPut(imported);
+
+            const updated = imported.filter(form => form.id !== undefined && existingIds.has(form.id)).length;
+            const added = imported.length - updated;
 
             await loadForms();
             setImportState('success');

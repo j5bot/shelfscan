@@ -41,13 +41,13 @@ This document defines the coding conventions used throughout the ShelfScan proje
   ```typescript
   export const PossibleStatuses = ['own', 'prevowned', ...] as const;
   export const TemplateTypes = { GAME: 'game', VERSION: 'version' } as const;
-  export const ScannerSizes = { loading: ..., mobile: ... } as const;
+  const ScannerSizes = { loading: ..., mobile: ... } as const;
   export const GameUPCStatus: Record<GameUPCStatus, GameUPCStatus> = { ... };
   ```
 - **Variables and functions**: `camelCase`.
 - **React components**: `PascalCase` — both the function name and the file name.
 - **Custom hooks**: `camelCase` prefixed with `use`. File name matches the hook name (example: `useSelectVersion.ts`).
-- **Context providers**: `PascalCase` suffixed with `Provider`. File name matches: `SettingsProvider.tsx`.
+- **Context providers**: `PascalCase` suffixed with `Provider`. File name matches: `SettingsProvider.tsx`. An exported context object lives in a sibling `SettingsContext.ts`.
 - **Redux slices**: File named `slice.ts` inside a feature directory.
 - **Selectors**: File named `selectors.ts` inside a feature directory.
 
@@ -91,7 +91,7 @@ This document defines the coding conventions used throughout the ShelfScan proje
   ```
 
 ### Imports
-- Use the `@/*` path alias for all internal imports. Never use relative paths that go up more than one directory (`../`). The only acceptable relative import is `../lib/tours` or similar single-parent references — prefer `@/` even for these.
+- Use the `@/*` path alias for all internal imports. Never use relative paths (`../`).
   ```typescript
   import { useSettings } from '@/app/lib/SettingsProvider';
   import { RootState } from '@/app/lib/redux/store';
@@ -102,7 +102,7 @@ This document defines the coding conventions used throughout the ShelfScan proje
 - Use `import type` or `import { type X }` when importing only types, where it makes the intent clearer:
   ```typescript
   import type { Metadata } from 'next';
-  import { type ShelfScanPlugin } from '../types/plugins';
+  import { type ShelfScanPlugin } from '@/app/lib/types/plugins';
   ```
 - Destructure named exports in import statements:
   ```typescript
@@ -175,6 +175,7 @@ This document defines the coding conventions used throughout the ShelfScan proje
           break;
   }
   return <div>{content}</div>;
+  ```
 
 ---
 
@@ -182,7 +183,8 @@ This document defines the coding conventions used throughout the ShelfScan proje
 
 ### File Structure
 - One primary component export per file.
-- Related helper functions and sub-components can live in the same file.
+- Related helper functions and sub-components can live in the same file **as long as they are not exported**.
+- **Component files export only components** (plus hooks and types). Exporting a helper function, constant object, or `createContext` result from a `.tsx` file that also exports components breaks Fast Refresh (edits trigger a full reload). Move shared helpers/constants to `src/app/lib/utils/` (e.g. `lib/utils/rating.ts`) and exported contexts to a sibling `FeatureContext.ts`.
 - Files in `ui/` are React components. Files in `lib/` are hooks, providers, services, types, or utilities.
 
 ### Component Declaration
@@ -259,17 +261,24 @@ This project uses a consistent pattern for all context providers. Follow it exac
 
 ```typescript
 // 1. Import dependencies
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 
 // 2. Define context value type (if complex)
 export type Codes = string[];
 
-// 3. Create context with default value
+type CodesContextValue = {
+    codes: Codes;
+    addCode: (code: string) => void;
+    setCodes: (codes: Codes) => void;
+};
+
+// 3. Create context with default value (not exported — see below)
 const CodesContext =
-    createContext<{
-        codes: Codes;
-        setCodes: (codes: Codes) => void;
-    }>({ codes: [], setCodes: () => undefined });
+    createContext<CodesContextValue>({
+        codes: [],
+        addCode: () => undefined,
+        setCodes: () => undefined,
+    });
 
 // 4. Define Props type (always { children: ReactNode })
 type Props = {
@@ -284,7 +293,15 @@ export const useCodes = () =>
 export const CodesProvider = ({ children }: Props) => {
     const [codes, setCodes] = useState<Codes>([]);
 
-    return <CodesContext.Provider value={{ codes, setCodes }}>
+    // functions in the value are stable callbacks
+    const addCode = useCallback((code: string) => {
+        setCodes(prev => [...prev, code]);
+    }, []);
+
+    // the value is memoized: an inline {{ ... }} object would re-render every consumer on every render
+    const value = useMemo(() => ({ codes, addCode, setCodes }), [codes, addCode]);
+
+    return <CodesContext.Provider value={value}>
         {children}
     </CodesContext.Provider>;
 };
@@ -294,6 +311,8 @@ Key conventions:
 - Context variable name: `PascalCaseContext` (e.g., `SettingsContext`, `CodesContext`).
 - Hook name: `use` + feature name (e.g., `useSettings`, `useCodes`, `useGameUPCData`).
 - Provider name: feature name + `Provider` (e.g., `SettingsProvider`, `CodesProvider`).
+- **Never pass an inline object/array/function as `value`** — build it with `useMemo`, and wrap every function in it with `useCallback`.
+- If other modules need the context object itself (`useContext(SettingsContext)`), define it in a sibling `SettingsContext.ts` (with its value type) and import it into the provider; the provider `.tsx` then exports only the provider and its hook.
 - Default context value: use `() => undefined` for function stubs, `{}` for empty objects, `{} as Type` when a real default isn't feasible.
 - The `<Context.Provider>` JSX opening tag goes on the same line as `return`.
 - Register new providers in `(overview)/layout.tsx` in the nested provider chain.
@@ -305,7 +324,7 @@ Key conventions:
 ### Store
 ```typescript
 export const makeStore = () => configureStore({
-    reducer: { bgg },
+    reducer: { bgg, swap },
 });
 export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<AppStore['getState']>;
@@ -319,6 +338,8 @@ export type AppDispatch = AppStore['dispatch'];
 - Initial state as a typed constant.
 - Export individual actions via destructuring.
 - Default export the reducer.
+- BGG-derived state is combined under `bgg` (`redux/bgg/bggSlice.ts`); other features are top-level reducers in `store.ts` (e.g. `swap`).
+- Keep state serializable — arrays and plain objects, not `Set`/`Map` (use a local `Set` inside a reducer for lookups if needed).
 ```typescript
 const SLICE_TITLE = 'BGG_USER';
 const initialState: BggUserSliceState = {};
@@ -429,17 +450,37 @@ export default bggUserSlice.reducer;
   const [isPending, startTransition] = useTransition();
   startTransition(async () => { ... });
   ```
-- **Cleanup pattern** in `useEffect` for async operations:
+- **Cleanup pattern** in `useEffect` for async operations — check `active` *after* each `await`, before touching state:
   ```typescript
   useEffect(() => {
       let active = true;
-      (async () => {
-          if (!active) return;
-          // ... do work
-      })();
+      loadThing(id).then(thing => {
+          if (!active) {
+              return;
+          }
+          setThing(thing);
+      });
       return () => { active = false; };
-  }, dependencies);
+  }, [id]);
   ```
+- **`fetch` in an effect** also gets an `AbortController`, aborted in the cleanup:
+  ```typescript
+  useEffect(() => {
+      const controller = new AbortController();
+      fetch(url, { signal: controller.signal }).then(/* ... */);
+      return () => controller.abort();
+  }, [url]);
+  ```
+- **Loading/busy flags** are reset in `finally`, so a rejected call can't leave a spinner running or a button disabled:
+  ```typescript
+  setLoading(true);
+  try {
+      await save();
+  } finally {
+      setLoading(false);
+  }
+  ```
+- **Independent awaits** run together with `Promise.all` (e.g. several IndexedDB reads), unless ordering, rate limits or partial-failure handling require sequencing.
 
 ---
 
@@ -447,12 +488,41 @@ export default bggUserSlice.reducer;
 
 - Minimal `try/catch` — only where failure is expected and a fallback is needed.
 - Use `void e` when catching an error that will be intentionally ignored.
-- For fetch operations, prefer `.then()` chaining with implicit error propagation.
+- For fetch operations, prefer `.then()` chaining with implicit error propagation — but **check `response.ok`** before reading the body; `fetch` resolves on 4xx/5xx.
+- Promises started in event handlers (`onClick={() => save().then(...)}`) need a `.catch()` — React error boundaries don't catch them.
 - Null/undefined: Use optional chaining (`?.`) and nullish coalescing (`??`) extensively:
   ```typescript
   const name = user?.getAttribute('name')?.toLowerCase();
   const rating = document.querySelector('traderating')?.getAttribute('value') ?? '0';
   ```
+
+---
+
+## Effects & Derived State
+
+- **Derive, don't mirror.** If a value can be computed from props or state, compute it during render (or `useMemo` if expensive). Don't copy a prop into `useState` and keep it in sync with a `useEffect`.
+- **User overrides of a prop-driven value**: store only the user's change together with the prop value it was made against; fall back to the prop when the prop moves on (see `lib/hooks/useGameDetailsSearch.ts`).
+- **Draft-then-commit inputs** (type, commit on blur): use an uncontrolled `defaultValue` and `key={committedValue}` so the input resets when the committed value changes (see `ui/forms/TextInput.tsx`).
+- **`useEffectEvent`** (React 19.2+) for effect code that needs the latest props/state but must not re-run the effect — e.g. calling an `onClose`/`nextStep` prop from a listener, or "send once per item" side effects. Only call the effect event from inside the effect.
+- **Dependency arrays list every value the effect reads.** Don't omit values to control when it runs — use `useEffectEvent` or derive a narrower value (`const hasItem = !!item;`) instead.
+- **Every effect that subscribes cleans up**: `clearTimeout`/`clearInterval`, `removeEventListener` (hoist the handler to a named const), `observer.disconnect()`, `controller.abort()`.
+- **Never mutate React state in place.** `Object.assign(stateObject, …)` followed by `setState(stateObject)` does not re-render. Use spreads or functional updates: `setFormValues(prev => ({ ...prev, [field]: value }))`.
+- **Don't read or write `ref.current` during render**; update "latest value" refs in `useLayoutEffect`.
+- **Don't read browser globals (`window`, `document`, `localStorage`) during render** — pages are also rendered on the server. Use `usePathname`/`useSearchParams`, effects, or event handlers.
+- Keys are stable per-item ids (`key={item.id}`), never the array index.
+
+---
+
+## Accessibility
+
+- **Anything clickable is a native `<button>` or `<a>`** — never `onClick` on a `div`, `span` or `li`. Always give buttons an explicit `type` (`"button"`, or `"submit"` for a form's submit).
+- **Rows/cards that contain other controls** use a *stretched button*: an absolutely positioned `<button>` covering the row, with the row's own buttons/links raised above it (`relative` / `pointer-events-auto`). See `ui/CollapsibleList.tsx` and `ui/games/ListGameRow.tsx`.
+- **Click-to-dismiss notices** use `ui/DismissibleToast.tsx`.
+- **Dialogs**: prefer native `<dialog>` + `showModal()`. Buttons that close it through `<form method="dialog">` must be `type="submit"` — `type="button"` does nothing there. Every dialog needs `aria-label` or `aria-labelledby`.
+- **Labels**: tie `<label>` to its control with `htmlFor`/`id` (generate ids with `useId()`); form components accept an optional `id` prop for this.
+- Don't nest interactive elements (a `<button>` inside a `role="option"`/`<button>`/`<a>`).
+- Use `tabIndex={-1}` (not `0`) for elements that should be focusable by tap/click or script but aren't Tab stops.
+- Silent videos are marked `muted`; videos with sound need a `<track kind="captions">`.
 
 ---
 
@@ -466,12 +536,16 @@ export default bggUserSlice.reducer;
 | UI Sub-components | `src/app/ui/feature/ComponentName.tsx` | `PascalCase.tsx` |
 | Hooks | `src/app/lib/hooks/useHookName.ts` | `camelCase.ts` |
 | Context Providers | `src/app/lib/FeatureProvider.tsx` | `PascalCase.tsx` |
+| Exported Contexts | `src/app/lib/FeatureContext.ts` | `PascalCase.ts` |
 | Redux Slices | `src/app/lib/redux/domain/feature/slice.ts` | `slice.ts` |
 | Redux Selectors | `src/app/lib/redux/domain/feature/selectors.ts` | `selectors.ts` |
 | Type Definitions | `src/app/lib/types/TypeName.ts` | `PascalCase.ts` or `camelCase.ts` |
 | Services | `src/app/lib/services/provider/service.ts` | `service.ts` or `server.ts` |
 | Server Actions | `src/app/lib/actions.ts` or `services/*/server.ts` | `server.ts` for domain-specific |
 | Pure Utilities | `src/app/lib/utils/utilName.ts` | `camelCase.ts` |
+| Web Workers | `src/app/lib/workers/workerName.ts` | `camelCase.ts` |
+| Userscripts | `src/userscripts/name.user.js` | `camelCase.user.js` (bump `@version` on change) |
+| Tests | `tests/` mirroring `src/app/lib/` | `name.test.ts` |
 | CSS | `src/app/globals.css` or co-located `.css` | `PascalCase.css` matching component |
 | Constants | Co-located `constants.ts` | `constants.ts` |
 
@@ -480,7 +554,7 @@ export default bggUserSlice.reducer;
 ## Miscellaneous Conventions
 
 - **`void` operator**: Used to suppress TypeScript unused-variable errors for intentionally unused values. Also used to mark `.then()` calls whose result is intentionally discarded.
-- **`Object.assign`**: Preferred over spread (`...`) for merging objects in several places (especially headers, reducer state). Both are used, but `Object.assign` appears in more performance-sensitive code.
+- **`Object.assign`**: Used for merging into a *fresh* target (`Object.assign({}, defaults, overrides)`) and inside Redux reducers (Immer drafts). Never `Object.assign` into React state, context values, or settings objects you then pass back to a setter — that mutates in place and React won't re-render (see Effects & Derived State).
 - **No `null` returns from components**: Components return `undefined` (implicit) or falsy via `&&` short-circuit. `null` is used only in `useState<T | null>(null)`.
 - **Always use block bodies** for `if` statements, even for single-line bodies. Never omit 
   braces.

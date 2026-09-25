@@ -10,6 +10,7 @@ import { SwapAddButton } from '@/app/ui/batch/SwapAddButton';
 import { Scanlist } from '@/app/ui/games/Scanlist';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { Scanner } from '@/app/ui/Scanner';
+import { DismissibleToast } from '@/app/ui/DismissibleToast';
 import { ScanToasts } from '@/app/ui/ScanToasts';
 import { GameUPCBggInfo } from 'gameupc-hooks/types';
 import { useNextStep } from 'nextstepjs';
@@ -77,7 +78,8 @@ export const BatchView = (props: BatchViewProps) => {
             setCodes([]);
             return;
         }
-        setCodes((prev: string[]) => prev.filter(code => !statuses[status].includes(code)));
+        const toClear = new Set(statuses[status]);
+        setCodes((prev: string[]) => prev.filter(code => !toClear.has(code)));
     }, [statuses, setCodes]);
 
     if (!breakpoint) {
@@ -124,14 +126,12 @@ export const BatchView = (props: BatchViewProps) => {
             onClearLimitReached={clearHistoryLimitReached}
         />
         {addedNames.length > 0 && (
-            <div id="batch-add-toast" className="toast toast-top toast-center z-50" onClick={() => setAddedNames([])}>
-                <div role="status" className="alert alert-success shadow-lg cursor-pointer">
-                    <span className="text-sm">
-                        Added {addedNames.length} game{addedNames.length !== 1 ? 's ' : ' '} to collection:&nbsp;
-                        {addedNames.join(', ')}
-                    </span>
-                </div>
-            </div>
+            <DismissibleToast id="batch-add-toast" kind="success" role="status" onDismiss={() => setAddedNames([])}>
+                <span className="text-sm">
+                    Added {addedNames.length} game{addedNames.length !== 1 ? 's ' : ' '} to collection:&nbsp;
+                    {addedNames.join(', ')}
+                </span>
+            </DismissibleToast>
         )}
         <div className="flex flex-col w-full items-center p-3 sm:p-4">
             <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">

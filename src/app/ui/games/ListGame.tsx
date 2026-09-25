@@ -123,15 +123,16 @@ export const ListGame = memo((props: ListGameProps) => {
             </div>
         )}
         {mathTradeSelected && onClick && (
-            <div
+            <button
+                type="button"
                 className="absolute top-2.5 right-4 z-20 pointer-events-auto
                     bg-gray-500 dark:bg-gray-800/80 rounded-full p-2 shadow
-                    text-white"
+                    text-white cursor-pointer"
                 onClick={e => { e.stopPropagation(); onClick(); }}
                 aria-label={`Edit ${name}`}
             >
                 <FaArrowUpRightFromSquare className="w-3.5 h-3.5" aria-hidden="true" />
-            </div>
+            </button>
         )}
     </div>;
 

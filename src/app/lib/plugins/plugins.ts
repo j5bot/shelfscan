@@ -199,11 +199,13 @@ export const getPluginIdList = async (enabled: boolean = true) => {
     const enabledPluginSetting = await getSetting('plugins') as string[] | undefined ?? [];
     const disabledPluginSetting = await getSetting('disabledPlugins') as string[] | undefined ?? [];
 
+    const disabledPluginSet = new Set(disabledPluginSetting);
     const enabledPluginIds = [...new Set(builtInPluginIds.concat(enabledPluginSetting))]
-        .filter(id => !disabledPluginSetting.includes(id));
+        .filter(id => !disabledPluginSet.has(id));
 
+    const enabledPluginSet = new Set(enabledPluginIds);
     const disabledPluginIds = [...new Set(disabledBuiltInPluginIds.concat(disabledPluginSetting))]
-        .filter(id => !enabledPluginIds.includes(id));
+        .filter(id => !enabledPluginSet.has(id));
 
     return enabled ? enabledPluginIds : disabledPluginIds;
 };

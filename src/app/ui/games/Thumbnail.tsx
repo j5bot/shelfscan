@@ -120,7 +120,7 @@ const ThumbnailBoxInner = ({
                     height: `${size}px`,
                     ...styles,
                 }}
-                tabIndex={0}
+                tabIndex={-1}
             >
                 <Suspense fallback={<ThumbnailBoxImage promise={placeholder} />}>
                     <ThumbnailBoxImage promise={cachePromise} />

@@ -21,7 +21,8 @@ const shipAreasOptions = [
 ];
 
 export const ShipSelect = (
-    { shipLocation, shipAreas, setValue }: {
+    { id, shipLocation, shipAreas, setValue }: {
+        id?: string;
         shipLocation: string;
         shipAreas: string[] | undefined;
         setValue: SetFormValue;
@@ -33,6 +34,7 @@ export const ShipSelect = (
     // saved value resets them whenever that value changes
     return <>
         <select key={shipLocation}
+                id={id}
                 name="shipLocation"
                 aria-label="Ship location"
                 className="grow select select-sm select-condensed h-7 pl-1.5 p-1 pr-0"

@@ -9,6 +9,7 @@ import {
     updateScanHistoryEntry,
 } from '@/app/lib/database/database';
 import { exportBackup, importBackupFile } from '@/app/lib/utils/dbBackup';
+import { findRecentDuplicate } from '@/app/lib/utils/scanHistory';
 import {
     SCAN_HISTORY_SCHEMA_VERSION,
     ScanHistoryEntry,
@@ -27,7 +28,6 @@ import {
 } from 'react';
 
 const MAX_SCAN_HISTORY = 20000;
-const DUPLICATE_WINDOW_SECS = 5 * 60; // 5 minutes
 
 type RecordScanOptions = {
     upc: string;
@@ -102,7 +102,8 @@ const pruneOldUnmatched = async (entries: ScanHistoryEntry[]): Promise<ScanHisto
     }
     const ids = toDelete.map(e => e.id!).filter(Boolean);
     await database.scanHistory.bulkDelete(ids);
-    return entries.filter(e => !toDelete.includes(e));
+    const deleted = new Set(toDelete);
+    return entries.filter(e => !deleted.has(e));
 };
 
 export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
@@ -145,14 +146,11 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         return { lastScannedMap: map, upcMap };
     }, [scanHistory]);
 
-    const recordScan = async (opts: RecordScanOptions): Promise<RecordScanResult> => {
-        const now = Date.now();
-        const nowSecs = Math.floor(now / 1000);
+    const recordScan = useCallback(async (opts: RecordScanOptions): Promise<RecordScanResult> => {
+        const nowSecs = Math.floor(Date.now() / 1000);
 
-        // Duplicate check: same UPC within 5 minutes
-        const recentDuplicate = scanHistory.find(
-            e => e.upc === opts.upc && (now - e.timestamp) < DUPLICATE_WINDOW_SECS,
-        );
+        // Duplicate check: same UPC within 5 minutes (timestamps are in seconds)
+        const recentDuplicate = findRecentDuplicate(scanHistory, opts.upc, nowSecs);
         if (recentDuplicate) {
             return { kind: 'duplicate', previousEntry: recentDuplicate };
         }
@@ -203,7 +201,7 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
             setScanError(message);
             return { kind: 'error', message };
         }
-    };
+    }, [scanHistory]);
 
     const updateEntry = useCallback(async (id: number, updates: UpdateScanOptions) => {
         try {
@@ -253,11 +251,11 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         return { count: fresh.length };
     }, []);
 
-    const unmatchedScans = scanHistory.filter(
+    const unmatchedScans = useMemo(() => scanHistory.filter(
         e => e.status === ScanHistoryMatchStatus.unmatched,
-    );
+    ), [scanHistory]);
 
-    const scanHistoryProviderValue = {
+    const scanHistoryProviderValue = useMemo(() => ({
         scanHistory,
         lastScannedMap,
         upcMap,
@@ -270,7 +268,20 @@ export const ScanHistoryProvider = ({ children }: { children: ReactNode }) => {
         associateScans,
         exportHistory,
         importHistory,
-    };
+    }), [
+        scanHistory,
+        lastScannedMap,
+        upcMap,
+        unmatchedScans,
+        scanError,
+        clearScanError,
+        recordScan,
+        updateEntry,
+        clearHistory,
+        associateScans,
+        exportHistory,
+        importHistory,
+    ]);
 
     return <ScanHistoryContext.Provider value={scanHistoryProviderValue}>
         {children}

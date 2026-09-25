@@ -206,10 +206,11 @@ const backupTitle = (tables: BackupTableName[]): string =>
 
 export const exportTablesToBlob = async (tables: BackupTableName[] = INCLUDED_TABLES): Promise<Blob> => {
     await loadDexieExportImport();
+    const included = new Set<string>(tables);
     return database.export({
         skipTables: database.tables
             .map(t => t.name)
-            .filter(name => !tables.includes(name as BackupTableName)),
+            .filter(name => !included.has(name)),
     });
 };
 
@@ -245,9 +246,10 @@ export const importTablesFromBlob = async (
     // clearTablesBeforeImport clears every local table not named in skipTables — including
     // ones absent from the blob entirely (e.g. `scanned`) — so this must be computed from the
     // full local table list, not from meta.data.tables.
+    const included = new Set<string>(tables);
     const skipTables = database.tables
         .map(t => t.name)
-        .filter(name => !tables.includes(name as BackupTableName));
+        .filter(name => !included.has(name));
 
     await database.import(blob, {
         acceptMissingTables: true,
@@ -260,7 +262,7 @@ export const importTablesFromBlob = async (
 
     return {
         tables: meta.data.tables
-            .filter(t => tables.includes(t.name as BackupTableName))
+            .filter(t => included.has(t.name))
             .map(t => ({ name: t.name, rowCount: t.rowCount })),
     };
 };

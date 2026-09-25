@@ -213,7 +213,10 @@ export const DetailedPlayForm = ({
             p => p.name.toLowerCase() === query.toLowerCase() ||
                  p.username.toLowerCase() === query.toLowerCase(),
         );
-        if (!exactMatch) {
+        if (exactMatch) {
+            const id = exactMatch.username.length > 0 ? exactMatch.username : exactMatch.name;
+            selectSearchResult(id, exactMatch);
+        } else {
             const newPlayer = makeNonUserPlayer(query);
             addUpdatePlayer(newPlayer);
             togglePlayer(query);
@@ -317,10 +320,12 @@ export const DetailedPlayForm = ({
 
             {/* Players multi-select with search */}
             <div className="flex items-start gap-1.5">
-                <label className="w-16 shrink-0 pt-0.5">Players</label>
+                <label htmlFor={`${fieldId}-players`} className="w-16 shrink-0 pt-0.5">Players</label>
                 <div ref={playersRef} className="relative flex-1 min-w-0">
                     <button
+                        id={`${fieldId}-players`}
                         type="button"
+                        aria-expanded={playersOpen}
                         className="btn btn-xs w-full flex justify-between items-center gap-1 bg-white"
                         onClick={() => setPlayersOpen(prev => !prev)}
                     >
@@ -365,6 +370,7 @@ export const DetailedPlayForm = ({
                                             </li>
                                         );
                                     }
+                                    const selectedPlayerIds = new Set(selectedPlayers);
                                     return listEntries.map(([id, player]) => {
                                         const label = player.name.length > 0
                                                       ? <div className="flex flex-col"><div>{player.name}</div>
@@ -372,31 +378,27 @@ export const DetailedPlayForm = ({
                                                  ? <div className="text-[0.5rem] text-gray-500">{player.username}</div>
                                                  : null}</div>
                                                       : player.username;
-                                        const checked = selectedPlayers.includes(id);
+                                        const checked = selectedPlayerIds.has(id);
                                         const isFromSearch = playerSearchQuery.trim().length > 0;
                                         return (
-                                            <li
-                                                key={id}
-                                                className={`flex items-center gap-1.5 cursor-pointer
-                                                    px-2 py-0.5 rounded hover:bg-base-200`}
-                                                onMouseDown={e => {
-                                                    e.preventDefault();
-                                                    if (isFromSearch) {
-                                                        selectSearchResult(id, player);
-                                                    } else {
-                                                        togglePlayer(id);
-                                                    }
-                                                    setPlayerSearchQuery('');
-                                                }}
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    readOnly
-                                                    aria-label={player.name || player.username}
-                                                    checked={checked}
-                                                    className="checkbox checkbox-xs pointer-events-none"
-                                                />
-                                                <span>{label}</span>
+                                            <li key={id}>
+                                                <label className={`flex items-center gap-1.5 cursor-pointer
+                                                    px-2 py-0.5 rounded hover:bg-base-200`}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={checked}
+                                                        className="checkbox checkbox-xs"
+                                                        onChange={() => {
+                                                            if (isFromSearch) {
+                                                                selectSearchResult(id, player);
+                                                            } else {
+                                                                togglePlayer(id);
+                                                            }
+                                                            setPlayerSearchQuery('');
+                                                        }}
+                                                    />
+                                                    <span>{label}</span>
+                                                </label>
                                             </li>
                                         );
                                     });
@@ -427,9 +429,10 @@ export const DetailedPlayForm = ({
 
             {/* Location combobox */}
             <div className="flex items-center gap-1.5">
-                <label className="w-16 shrink-0">Location</label>
+                <label htmlFor={`${fieldId}-location`} className="w-16 shrink-0">Location</label>
                 <div ref={locationRef} className="relative flex-1 min-w-0">
                     <input
+                        id={`${fieldId}-location`}
                         type="text"
                         value={locationInput}
                         placeholder="Location"
@@ -444,12 +447,15 @@ export const DetailedPlayForm = ({
                                 rounded-box shadow-md
                                 max-h-32 overflow-y-auto p-1`}>
                             {filteredLocations.map(loc => (
-                                <li
-                                    key={loc}
-                                    className="cursor-pointer px-2 py-0.5 rounded hover:bg-base-200"
-                                    onMouseDown={e => { e.preventDefault(); handleLocationSelect(loc); }}
-                                >
-                                    {loc}
+                                <li key={loc}>
+                                    <button
+                                        type="button"
+                                        className="w-full text-left cursor-pointer px-2 py-0.5 rounded hover:bg-base-200"
+                                        onMouseDown={e => e.preventDefault()}
+                                        onClick={() => handleLocationSelect(loc)}
+                                    >
+                                        {loc}
+                                    </button>
                                 </li>
                             ))}
                         </ul>
@@ -459,8 +465,9 @@ export const DetailedPlayForm = ({
 
             {/* Comments */}
             <div className="flex items-start gap-1.5">
-                <label className="w-16 shrink-0 pt-0.5">Comments</label>
+                <label htmlFor={`${fieldId}-comments`} className="w-16 shrink-0 pt-0.5">Comments</label>
                 <textarea
+                    id={`${fieldId}-comments`}
                     name="comments"
                     placeholder="Comments"
                     className={`textarea textarea-xs text-xs flex-1 min-w-0 min-h-8 h-8

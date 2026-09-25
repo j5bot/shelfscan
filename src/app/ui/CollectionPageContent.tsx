@@ -43,6 +43,7 @@ import { MathTradeDialog } from '@/app/ui/MathTradeDialog';
 import { AllGamesContent, type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
 import { CollectionItemModal } from '@/app/ui/games/CollectionItemModal';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
+import { DismissibleToast } from '@/app/ui/DismissibleToast';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { type GameUPCBggInfo } from 'gameupc-hooks/types';
 import Link from 'next/link';
@@ -838,15 +839,9 @@ export const CollectionPageContent = ({
                         </div>
                     )}
                     {mathTradeError && (
-                        <div className="toast toast-top toast-center z-50">
-                            <div
-                                role="alert"
-                                className="alert alert-error shadow-lg cursor-pointer"
-                                onClick={() => setMathTradeError(null)}
-                            >
-                                <span className="text-sm">{mathTradeError}</span>
-                            </div>
-                        </div>
+                        <DismissibleToast kind="error" onDismiss={() => setMathTradeError(null)}>
+                            <span className="text-sm">{mathTradeError}</span>
+                        </DismissibleToast>
                     )}
                     {username && <section
                         ref={sectionRef}
@@ -930,17 +925,12 @@ export const CollectionPageContent = ({
                 }}
             />
             {addedNames.length > 0 && (
-                <div
-                    className="toast toast-top toast-center z-50"
-                    onClick={() => setAddedNames([])}
-                >
-                    <div role="status" className="alert alert-success shadow-lg cursor-pointer">
-                        <span className="text-sm">
-                            Added {addedNames.length} game{addedNames.length !== 1 ? 's' : ''} to collection:&nbsp;
-                            {addedNames.join(', ')}
-                        </span>
-                    </div>
-                </div>
+                <DismissibleToast kind="success" role="status" onDismiss={() => setAddedNames([])}>
+                    <span className="text-sm">
+                        Added {addedNames.length} game{addedNames.length !== 1 ? 's' : ''} to collection:&nbsp;
+                        {addedNames.join(', ')}
+                    </span>
+                </DismissibleToast>
             )}
             {showConfirmModal && (
                 <div

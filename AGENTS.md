@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-ShelfScan is a **board game UPC barcode scanner** web application. Users scan board game barcodes (via webcam/phone camera), look up game data through the [GameUPC API](https://gameupc.com), and interact with [BoardGameGeek (BGG)](https://boardgamegeek.com). A companion Firefox browser extension enables additional actions like adding games to a BGG collection or posting to the BGG GeekMarket.
+ShelfScan is a **board game UPC barcode scanner** web application. Users scan board game barcodes (via webcam/phone camera), look up game data through the [GameUPC API](https://gameupc.com), and interact with [BoardGameGeek (BGG)](https://boardgamegeek.com). A companion browser extension (Chrome, Edge, Firefox, Safari; source in the sibling `shelfscan-extension` repo) enables additional actions like adding games to a BGG collection, logging plays, rating, posting to the BGG GeekMarket, and adding items to math-trade geeklists.
+
+Beyond scanning, the app covers collection browsing and filtering, batch add, and **math trades** — OLWLG geeklists (`/math-trade`), Swaptagon (`/swap`, `/swapscan`) and Atlas Realms / trade exports (`/trade`, `/tradescan`), plus step-by-step workflow guides under `/workflows` (see also `docs/Workflows.md`).
 
 **Live site:** https://shelfscan.io
 
@@ -14,7 +16,7 @@ ShelfScan is a **board game UPC barcode scanner** web application. Users scan bo
 |---|---|---|
 | Framework | **Next.js** (App Router) | 16.x |
 | Language | **TypeScript** | 6.x |
-| UI | **React** | 19.x |
+| UI | **React** | 19.3 |
 | Styling | **Tailwind CSS** v4 + **DaisyUI** v5 | 4.2 / 5.5 |
 | State (global) | **Redux Toolkit** (`@reduxjs/toolkit`) + `react-redux` | 2.x / 9.x |
 | State (local) | React Context providers (many) | — |
@@ -22,11 +24,11 @@ ShelfScan is a **board game UPC barcode scanner** web application. Users scan bo
 | Barcode scanning | `@react-barcode-scanner/components`, `@undecaf/zbar-wasm` | custom / 0.11 |
 | Animation | `motion` (Framer Motion successor) | 12.x |
 | Validation | **Zod** v4 | 4.x |
-| Analytics | `@vercel/analytics` | 2.x |
+| Analytics | `@vercel/analytics` + **PostHog** (`posthog-js`, init in `instrumentation-client.ts`) | 2.x / 1.x |
 | Tours | `nextstepjs` | 2.x |
 | Package manager | **pnpm** | — |
 | Deployment | **Vercel** | — |
-| Linting | ESLint 10 + `eslint-config-next` (flat config) | 10.x |
+| Linting | ESLint 10 + `eslint-config-next` (flat config); React Doctor via `pnpm doctor` | 10.x |
 | PostCSS | `@tailwindcss/postcss` | 4.x |
 
 ---
@@ -42,7 +44,10 @@ pnpm lint             # Run ESLint (pnpm exec eslint .)
 pnpm test             # Run tests once (vitest run)
 pnpm test:watch       # Run tests in watch mode (vitest)
 pnpm test:coverage    # Run tests with coverage (vitest run --coverage)
+pnpm doctor           # React Doctor scan (npx react-doctor@latest)
 ```
+
+Requires **Node 24.x** (`.nvmrc`, `engines`) and **pnpm 12** (`packageManager`).
 
 **Test suite**: Vitest with jsdom environment. Tests live in `tests/` (mirrors `src/` structure). All test files import testing primitives from `tests/setup.ts` (re-exports `describe`, `it`, `expect`, `vi`, etc. from vitest — swap runner by changing only that file). Config: `vitest.config.mts`.
 
@@ -56,8 +61,11 @@ Defined in `.env` (local) and Vercel environment settings (production):
 |---|---|
 | `BGG_TOKEN` | Bearer token for authenticated BGG XML API v2 requests (server-side only) |
 | `GAMEUPC_TOKEN` | API key for GameUPC API requests (server-side only, sent as `x-api-key` header) |
+| `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` | PostHog project token (client) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog ingestion host (reverse proxy, `https://rpt.shelfscan.io`) |
+| `NEXT_PUBLIC_POSTHOG_UI_HOST` | PostHog UI host |
 
-Both are used exclusively in **Server Actions** (`src/app/lib/actions.ts`, `gameupc-hooks/server`) and are never exposed to the client.
+`BGG_TOKEN` and `GAMEUPC_TOKEN` are used exclusively in **Server Actions** (`src/app/lib/actions.ts`, `gameupc-hooks/server`) and are never exposed to the client. The PostHog variables are read by `instrumentation-client.ts`; in development it **throws** if the token or host is missing. See `.env.example`.
 
 ---
 
@@ -68,76 +76,91 @@ shelfscan/
 ├── public/                    # Static assets (images, favicons, sounds, videos, extension .xpi)
 ├── patches/                   # pnpm patch for @undecaf/barcode-detector-polyfill
 ├── assets/                    # Source design files and blog drafts (not deployed)
+├── docs/                      # User-facing docs (Workflows.md, extension privacy policy)
+├── dev-docs/                  # Product requirement docs
+├── instrumentation-client.ts  # PostHog client init
+├── pnpm-workspace.yaml        # pnpm overrides, patches, allowed builds, supply-chain policy
 ├── src/
+│   ├── userscripts/           # Userscripts importing ShelfScan exports into Swaptagon / Atlas Realms
 │   └── app/                   # Next.js App Router root
 │       ├── layout.tsx         # Root layout (Server Component) — fonts, metadata, global chrome
 │       ├── globals.css        # Global styles (Tailwind v4, DaisyUI plugin, custom variants)
 │       ├── Provider.tsx       # Redux <Provider> wrapper (client component)
 │       ├── (overview)/        # Route group — the main app shell
-│       │   ├── layout.tsx     # Client layout — deeply nested context providers
+│       │   ├── layout.tsx     # Client layout — context providers, SubscribeBanner, ExtensionNotice
 │       │   ├── page.tsx       # Home / scanner page
-│       │   ├── loading.tsx    # Suspense loading fallback
-│       │   ├── about/         # /about page
-│       │   ├── batch/         # /batch — batch-add games to BGG collection
-│       │   ├── collection/    # /collection — view BGG collection
+│       │   ├── loading.tsx    # Suspense loading fallback (pages stream; redirect() is streamed)
+│       │   ├── upc/[id]/      # /upc/:id — single UPC detail page (async Server Component)
+│       │   ├── collection/    # /collection — BGG collection viewer ─┐
+│       │   ├── math-trade/    # /math-trade, /math-trade/:geeklistId  ├─ all render ui/CollectionPageContent
+│       │   ├── swap/ trade/   # /swap, /trade — Swaptagon / trade   ─┘
+│       │   ├── batch/         # /batch — batch-add games ─┐
+│       │   ├── swapscan/      # /swapscan               ├─ all render ui/batch/BatchView
+│       │   ├── tradescan/     # /tradescan             ─┘
+│       │   ├── workflows/     # /workflows, /workflows/trades, /workflows/trades/:type
 │       │   ├── data-builder/  # /data-builder — experimental BPMN form builder
-│       │   ├── extension/     # /extension page
-│       │   └── upc/[id]/     # /upc/:id — single UPC detail page
+│       │   ├── extension/ subscribe/ why-subscribe/ support/ why-support/ alternate/
+│       │   └── about/ privacy/
 │       ├── lib/               # Shared logic (non-UI)
 │       │   ├── actions.ts     # Next.js Server Actions (BGG API proxy)
-│       │   ├── utils.ts       # Fetch-with-retry helper
-│       │   ├── CodesProvider.tsx
-│       │   ├── GameSelectionsProvider.tsx
-│       │   ├── GameUPCDataProvider.tsx
-│       │   ├── NextStepProvider.tsx
-│       │   ├── PluginMapProvider.tsx
-│       │   ├── ScanHistoryProvider.tsx  # Scan history (Dexie-backed, useScanHistory hook)
-│       │   ├── SelectVersionProvider.tsx
-│       │   ├── SettingsProvider.tsx
-│       │   ├── TailwindProvider.tsx
+│       │   ├── utils.ts       # Fetch-with-retry helper, string helpers
+│       │   ├── constants.ts
+│       │   ├── *Provider.tsx  # Codes, GameSelections, GameUPCData, NextStep, PluginMap,
+│       │   │                  #   ScanHistory, SelectVersion, Settings, Tailwind providers
+│       │   ├── *Context.ts    # Exported contexts kept out of component files
+│       │   │                  #   (PluginMapContext, SelectVersionContext, SettingsContext)
 │       │   ├── database/      # Dexie IndexedDB schemas & helpers
-│       │   │   ├── database.ts      # Main DB (settings, plugins, collections)
+│       │   │   ├── database.ts      # Main DB (settings, plugins, collections, scanned,
+│       │   │   │                    #   dataforms, scanHistory, filters)
 │       │   │   └── cacheDatabase.ts # Cache DB (images, responses)
-│       │   ├── extension/     # Browser extension communication
-│       │   │   ├── ExtensionMessagingProvider.tsx  # Context provider for extension messaging
-│       │   │   ├── messageTypes.ts
-│       │   │   ├── types.ts
-│       │   │   ├── useBatchSync.ts
-│       │   │   ├── useExtension.tsx
-│       │   │   ├── useRating.ts
-│       │   │   └── useSync.ts
-│       │   ├── hooks/         # Custom React hooks
-│       │   ├── plugins/       # Plugin system (built-in + JSON definitions)
+│       │   ├── extension/     # Browser extension bridge
+│       │   │   ├── ExtensionMessagingProvider.tsx  # postMessage bridge (origin-checked)
+│       │   │   ├── SyncProvider.tsx / SyncContext.ts / useSync.ts  # extension + subscription status
+│       │   │   ├── PlayDataProvider.tsx            # players / locations / play data for play logging
+│       │   │   ├── useExtension.tsx                # per-game extension actions & mode forms
+│       │   │   ├── ExtPay.browser.js               # ExtensionPay port for plain web pages
+│       │   │   └── messageTypes.ts, types.ts, useBatchSync.ts, useRating.ts, utils.tsx, version.ts
+│       │   ├── hooks/         # Custom React hooks (useSelectVersion, useTradeMode, useCachedImage,
+│       │   │                  #   useCollectionFilters, useOLWLGMathTrade, useMathTrade, ...)
+│       │   ├── plugins/       # Plugin system (plugins.ts built-ins + example JSON definitions)
 │       │   ├── redux/         # Redux store, slices
-│       │   │   ├── store.ts   # configureStore + type exports
-│       │   │   └── bgg/       # BGG feature slice
-│       │   │       ├── bggSlice.ts       # combineReducers(user, collection)
-│       │   │       ├── user/slice.ts     # User state
-│       │   │       └── collection/slice.ts # Collection state
-│       │   ├── services/      # External API service layers
-│       │   │   ├── bgg/       # BGG XML API parsing
-│       │   │   └── gameupc/   # GameUPC REST API (server.ts = Server Actions)
-│       │   ├── tours/         # nextstepjs tour definitions
-│       │   ├── types/         # TypeScript type definitions
-│       │   └── utils/         # Pure utility functions (array, image, size, transforms, xml)
-│       │       ├── fetchQueue.ts    # p-queue throttle wrapper — use enqueueFetch() for API calls
-│       │       ├── formKeyTransform.ts
-│       │       ├── gameAdapters.ts  # Adapters between BGG/GameUPC types and internal Game/Version types
-│       │       └── ...
+│       │   │   ├── store.ts   # configureStore({ bgg, swap }) + type exports
+│       │   │   ├── bgg/       # BGG feature reducers
+│       │   │   │   ├── bggSlice.ts            # combineReducers(user, collection, geeklist)
+│       │   │   │   ├── user/                  # slice + selectors
+│       │   │   │   ├── collection/            # slice + selectors
+│       │   │   │   └── geeklist/slice.ts      # math-trade geeklists & matching
+│       │   │   └── swap/slice.ts              # per-item swap/trade export data
+│       │   ├── services/bgg/  # BGG XML API parsing
+│       │   ├── types/         # TypeScript type definitions (bgg, game, geeklist, trade, workflows, ...)
+│       │   ├── workers/       # Web workers (dbBackupWorker — backup PNG encode/decode)
+│       │   └── utils/         # Pure utility functions
+│       │       ├── fetchQueue.ts     # p-queue throttle wrapper — use enqueueFetch() for API calls
+│       │       ├── gameAdapters.ts   # Adapters between BGG/GameUPC types and internal Game/Version types
+│       │       ├── gameSelection.ts  # resolveGameSelection() — current info/version for a UPC
+│       │       ├── scanHistory.ts    # findRecentDuplicate() — 5-minute duplicate window
+│       │       ├── dbBackup.ts, backupCodec.ts  # backup/restore
+│       │       ├── swapExport.ts, trade.ts, mathTradeFormat.ts, condition.ts, rating.ts
+│       │       └── array, image, size, transforms, xml, object, bggImageId, formKeyTransform
 │       └── ui/                # React UI components
 │           ├── Scanner.tsx    # Barcode scanner component
-│           ├── NavDrawer.tsx  # Navigation drawer
+│           ├── NavDrawer.tsx  # Navigation drawer (+ Settings and Tours dialogs)
+│           ├── CollectionPageContent.tsx  # Collection / swap / trade / math-trade page body
+│           ├── CollapsibleList.tsx        # Game/version picker list
+│           ├── DismissibleToast.tsx       # Click/keyboard-dismissible toast
 │           ├── DataBuilder.tsx  # BPMN form builder UI (@bpmn-io/form-js)
 │           ├── ScanToasts.tsx   # Toast notifications for scan events
 │           ├── games/         # Game display components (Scanlist, GameDetails, SelectVersion, Thumbnail,
-│           │                  #   CollectionGameDetails, CollectionItemModal, NotInCollectionContent,
-│           │                  #   UnmatchedScansTab, ListGame, ListGameRow, GameListContainer, renderers)
-│           ├── batch/         # BatchAddButton — bulk BGG collection add
+│           │                  #   CollectionGameDetails, CollectionItemModal, CollectionControls,
+│           │                  #   SwapSection, MathTradeSection, ListGame, ListGameRow, renderers, ...)
+│           ├── batch/         # BatchView, BatchAddButton, SwapAddButton
 │           ├── settings/      # Settings management UI
-│           ├── extension/     # Extension-related UI
+│           ├── extension/     # Extension-related UI (mode forms, play logging, ratings)
 │           ├── forms/         # Form input components
-│           ├── icons/         # Icon components
-│           └── tour/          # Tour card component
+│           ├── workflows/     # Workflow guide sections + math-trades/ per-platform guides
+│           ├── tours/         # nextstepjs tour definitions + step content components
+│           ├── tour/          # Tour card component
+│           ├── grids/ icons/
 ```
 
 ---
@@ -147,13 +170,21 @@ shelfscan/
 ### Next.js App Router
 - Uses the **App Router** (not Pages Router). The root `layout.tsx` is a **Server Component**.
 - The `(overview)` route group wraps the main app in a **client-side layout** that provides all context providers.
-- The `/upc/[id]` route uses an **async Server Component** page with `params: Promise<{id}>` (Next.js 16 pattern).
+- The `/upc/[id]` and `/workflows/trades/[type]` routes use **async Server Component** pages with `params: Promise<{...}>` (Next.js 16 pattern). Validate params and `redirect()` on the server rather than redirecting from a client effect.
 - **Server Actions** (`'use server'`) in `actions.ts` and `gameupc-hooks/server` proxy external API calls to keep tokens secret.
 
 ### State Management — Hybrid Approach
-1. **Redux Toolkit** — Global state for BGG user and collection data. Store created per-request via `makeStore()` pattern. Typed hooks exported from `lib/hooks/index.ts`.
-2. **React Context** — Feature-specific state via provider components. Current nesting order in `(overview)/layout.tsx` (outermost → innermost): `Provider` (Redux) → `SettingsProvider` → `TailwindProvider` → `PluginMapProvider` → `CodesProvider` → `GameSelectionsProvider` → `GameUPCDataProvider` → `ScanHistoryProvider` → `NextStepProvider` → `ExtensionMessagingProvider`.
-3. **Dexie (IndexedDB)** — Persistent client-side storage for settings, plugins, collections, and cached images/responses. Two databases: `db` (main) and `cache`.
+1. **Redux Toolkit** — Global state: `bgg` (user, collection, geeklist) and `swap` (swap/trade export data per item). Store created per-request via `makeStore()` pattern. Typed hooks exported from `lib/hooks/index.ts`. Keep state serializable (use arrays, not `Set`/`Map`).
+2. **React Context** — Feature-specific state via provider components. Current nesting order in `(overview)/layout.tsx` (outermost → innermost): `Provider` (Redux) → `SettingsProvider` → `TailwindProvider` → `PluginMapProvider` → `CodesProvider` → `GameSelectionsProvider` → `GameUPCDataProvider` → `ScanHistoryProvider` → `NextStepProvider` → `SyncProvider` → `ExtensionMessagingProvider` → `PlayDataProvider`. Provider `value`s are memoized (`useMemo`/`useCallback`).
+3. **Dexie (IndexedDB)** — Persistent client-side storage for settings, plugins, collections, scanned codes, data forms, scan history, saved filters, and cached images/responses. Two databases: `db` (main) and `cache`. Backup/restore: `lib/utils/dbBackup.ts`.
+
+### Game Selection
+- The chosen `[infoId, versionId]` for each UPC lives in `GameSelectionsProvider`; the scan list, batch add (`BatchAddButton`) and swap export (`SwapAddButton`) all read it.
+- `useSelectVersion` derives the current info/version with `resolveGameSelection()` (`lib/utils/gameSelection.ts`): a stored selection wins; otherwise a lone info / lone version is auto-selected, and that auto-selection is written back to the store so batch add uses it too.
+- Always update with functional updates (`setGameSelections(prev => ({ ...prev, [upc]: [...] }))`) — many providers write concurrently.
+
+### Trade Modes
+- `useTradeMode()` derives `isMathTrade` / `isSwap` / `isTrade` / `isBatchTrade` etc. from the pathname, so the same components (`CollectionPageContent`, `BatchView`, `SwapSection`, `MathTradeSection`) adapt per route.
 
 ### Barcode Scanning
 - Uses `@react-barcode-scanner/components` (author's own library) which internally uses `@undecaf/zbar-wasm` for WASM-based barcode detection.
@@ -165,7 +196,8 @@ shelfscan/
 - Plugins are JSON-defined templates (built-in and user-managed) stored in Dexie.
 - Templates use `{{mustache}}` syntax (via `@blakeembrey/template`) for URL generation.
 - Plugins have `type` (e.g., `link`) and `location` (e.g., `details`, `actions`).
-- Built-in plugins: BGG Links, BGG Market, Board Game Stats.
+- Built-in plugins are defined inline in `plugins.ts`: enabled by default — BGG Link, BGG Collection Link; available but disabled by default — BGG Market, Board Game Stats, Board Record, Dust & Dice. Users enable/disable/add plugins under Settings → Installed Plugins.
+- The `*.json` files in `src/app/lib/plugins/` (BGG, Board Game Stats, Dice Tower) are example definitions users can paste into Settings; they are not imported by the app.
 
 ### Styling
 - **Tailwind CSS v4** with the `@tailwindcss/postcss` plugin (not the legacy PostCSS plugin).
@@ -180,13 +212,16 @@ shelfscan/
 
 ### Browser Extension
 - Extension types, hooks, and context are in `src/app/lib/extension/`.
-- `ExtensionMessagingProvider` wraps the app and provides messaging context; consume via hooks in `src/app/lib/extension/` (`useExtension`, `useSync`, `useBatchSync`, `useRating`).
+- The web app dispatches `shelfscan-sync` CustomEvents; the extension's content script forwards them to a hidden `boardgamegeek.com/404` iframe and replies via `postMessage`. **Always check `event.origin`** in `message` listeners (the page's own origin for the content script, `bggHost` for the iframe).
+- `SyncProvider` / `useSync()` expose whether the extension is installed (`syncOn`) and subscription status; extension UI renders only when `syncOn && userId`, so it never renders on the server.
+- `ExtensionMessagingProvider` provides `dispatchExtensionMessage`; `PlayDataProvider` holds players/locations for play logging. Consume via `useExtension`, `useSync`, `useBatchSync`, `useRating`, `usePlayData`.
+- `ExtPay.browser.js` is ShelfScan's port of ExtensionPay for plain web pages; the extension reads its key from the page's `localStorage`.
 
 ### Scan History
 - `ScanHistoryProvider` stores per-scan records (UPC, match status, game name, BGG ID, timestamps) in the main Dexie `db` under the `scanHistory` table.
 - Cap: 20,000 entries; unmatched entries older than 30 days are pruned automatically.
-- Duplicate suppression: same UPC within 5 minutes is treated as a duplicate.
-- Consume via `useScanHistory()` — exposes `scanHistory`, `unmatchedScans`, `recordScan`, `updateEntry`, `clearHistory`, `associateScans`.
+- Duplicate suppression: same UPC within 5 minutes is treated as a duplicate (`findRecentDuplicate()` in `lib/utils/scanHistory.ts`). Entry timestamps are Unix **seconds** — convert `Date.now()` before comparing.
+- Consume via `useScanHistory()` — exposes `scanHistory`, `lastScannedMap`, `upcMap`, `unmatchedScans`, `scanError`, `recordScan`, `updateEntry`, `clearHistory`, `associateScans`, `exportHistory`, `importHistory`.
 - Types: `src/app/lib/types/scanHistory.ts` (`ScanHistoryEntry`, `ScanHistoryMatchStatus`, `ScanHistoryError`).
 
 ### API Fetch Queue
@@ -211,6 +246,10 @@ shelfscan/
 | `gameupc-hooks/server` | Server Actions — GameUPC API proxy with auth |
 | `src/app/lib/GameUPCDataProvider.tsx` | GameUPC context provider backed by `gameupc-hooks/useGameUPC` |
 | `src/app/lib/ScanHistoryProvider.tsx` | Scan history context — records, updates, clears scan entries |
+| `src/app/lib/hooks/useSelectVersion.ts` | Game/version selection for a UPC |
+| `src/app/lib/hooks/useTradeMode.ts` | Trade-mode flags derived from the pathname |
+| `src/app/ui/CollectionPageContent.tsx` | Collection / swap / trade / math-trade page body |
+| `src/app/ui/batch/BatchView.tsx` | Batch / swapscan / tradescan page body |
 | `src/app/lib/extension/ExtensionMessagingProvider.tsx` | Browser extension messaging context |
 | `src/app/lib/database/database.ts` | Dexie schema — settings, plugins, collections, scanHistory |
 | `src/app/lib/database/cacheDatabase.ts` | Dexie schema — image and response caching |
@@ -220,8 +259,9 @@ shelfscan/
 | `src/app/lib/utils/fetchQueue.ts` | Throttled fetch queue via `p-queue` (`enqueueFetch`) |
 | `src/app/lib/utils/gameAdapters.ts` | Type adapters between BGG/GameUPC and internal Game/Version types |
 | `src/app/ui/Scanner.tsx` | Barcode scanner UI — responsive sizing, camera selection |
-| `next.config.ts` | `serverExternalPackages`, allowed image domains, dev origins |
-| `package.json` | `pnpm.overrides`, `pnpm.patchedDependencies`, `peerDependencyRules` |
+| `next.config.ts` | `serverExternalPackages`, image rewrites, allowed image domains, dev origins |
+| `pnpm-workspace.yaml` | `overrides`, `patchedDependencies`, `allowBuilds`, `peerDependencyRules`, supply-chain policy |
+| `instrumentation-client.ts` | PostHog initialisation |
 | `vitest.config.mts` | Vitest configuration (jsdom, coverage) |
 | `tests/setup.ts` | Vitest re-export shim — all test files import primitives from here |
 
@@ -229,7 +269,8 @@ shelfscan/
 
 ## Dependency Notes & Gotchas
 
-- **pnpm only** — the project uses pnpm workspaces features (overrides, patched dependencies). Do not use npm or yarn.
+- **pnpm only** — the project uses pnpm workspace features (overrides, patched dependencies), configured in `pnpm-workspace.yaml`. Do not use npm or yarn.
+- **Supply-chain policy** (`pnpm-workspace.yaml`): `minimumReleaseAge: 1440` refuses package versions less than a day old, and `trustPolicy: no-downgrade` refuses versions whose provenance weakens (`trustPolicyExclude` lists exact old versions published before their maintainers adopted provenance). pnpm 12 applies both to the existing lockfile too — if an install is blocked, wait or add a narrowly scoped `minimumReleaseAgeExclude`; don't remove the policy.
 - **Patched dependency**: `@undecaf/barcode-detector-polyfill@0.9.23` is patched to import `@undecaf/zbar-wasm` from the local package instead of a CDN URL. If this package is upgraded, the patch may need to be regenerated.
 - **pnpm overrides**: `@undecaf/zbar-wasm` is overridden to `^0.11.0` to ensure all transitive deps use the same version.
 - **Peer dependency rules**: TypeScript 6 and ESLint 10 are explicitly allowed for packages that haven't updated their peer dep ranges.
@@ -256,16 +297,17 @@ shelfscan/
 1. Create a `*Provider.tsx` file in `src/app/lib/`.
 2. Add it to the provider nesting chain in `src/app/(overview)/layout.tsx`.
 3. Export a `use*` hook for consuming components.
+4. Memoize the provider `value` with `useMemo` and wrap its functions in `useCallback`.
+5. If the context object itself must be exported, put `createContext` in a sibling `*Context.ts` — component files should export only components/hooks/types (Fast Refresh).
 
 ### Adding a New Redux Slice
-1. Create a new directory under `src/app/lib/redux/bgg/` (or a sibling to `bgg/`).
+1. BGG-derived state: a new directory under `src/app/lib/redux/bgg/`, registered in `bggSlice.ts`. Anything else: a sibling of `bgg/` (like `swap/`), registered in `store.ts`.
 2. Export a slice with `createSlice` from `@reduxjs/toolkit`.
-3. Add a `selectors.ts` sibling file for memoized/computed selectors (see `collection/selectors.ts` as reference).
-4. Register it in the appropriate `combineReducers` call or in `store.ts`.
+3. Add a `selectors.ts` sibling file for memoized/computed selectors (use `memoize` from `proxy-memoize`; see `collection/selectors.ts`).
 
 ### Adding a New Plugin
-1. Create a JSON file in `src/app/lib/plugins/` following the `ShelfScanPlugin` type.
-2. Register it in `plugins.ts` under `builtInPlugins` or `disabledBuiltInPlugins`.
+1. For a built-in: add a `ShelfScanPlugin` object (id `plugin.internal.*`) to `builtInPlugins` (on by default) or `disabledBuiltInPlugins` (off by default) in `plugins.ts`.
+2. For a shareable example: add a JSON file in `src/app/lib/plugins/` that users can paste into Settings → Installed Plugins.
 
 ---
 
@@ -306,12 +348,24 @@ const MyContext = createContext<MyType>(defaultValue);
 // 2. Export hook
 export const useMyContext = () => useContext(MyContext);
 
-// 3. Provider component wraps children
+// 3. Provider component wraps children; memoize the value so consumers
+//    only re-render when something in it actually changes
 export const MyProvider = ({ children }) => {
-    const value = useMyLogic();
+    const [items, setItems] = useState<Item[]>([]);
+    const addItem = useCallback((item: Item) => setItems(prev => [...prev, item]), []);
+    const value = useMemo(() => ({ items, addItem }), [items, addItem]);
     return <MyContext.Provider value={value}>{children}</MyContext.Provider>;
 };
 ```
+
+### Effects, State and Accessibility
+- **Derive, don't mirror**: compute from props/state during render; don't copy props into state via effects. Drafts committed on blur use uncontrolled `defaultValue` + `key={committedValue}`.
+- **`useEffectEvent`** for effect code that needs the latest props without re-running the effect.
+- **Clean up** timers, listeners, observers and `fetch`es (`AbortController`); guard post-`await` updates with an `active` flag.
+- **Never mutate state in place** (`Object.assign(state, …)` + `setState(state)` doesn't re-render); use spreads or functional updates.
+- Reset loading flags in `finally`; check `response.ok`; `.catch()` promises started in event handlers.
+- Clickable things are native `<button>`/`<a>`; rows containing controls use a **stretched button** (`CollapsibleList`, `ListGameRow`); dismiss-on-click notices use `DismissibleToast`.
+- `<form method="dialog">` close buttons must be `type="submit"`; every `<dialog>` needs `aria-label`/`aria-labelledby`; labels use `htmlFor`.
 
 ### Typed Redux Hooks
 ```typescript

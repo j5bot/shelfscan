@@ -116,11 +116,15 @@ export const useCachedImage = (
         return undefined;
     };
 
-    const queueFetchBlob = async () => {
+    const queueFetchBlob = async (signal: AbortSignal) => {
         const accept = getAcceptHeader(src.toString());
         try {
-            return await enqueueFetch(() =>
-                fetch(normalSrc, { headers: { accept } })
+            return await enqueueFetch(async () => {
+                // the image went away while waiting in the queue: don't spend a slot on it
+                if (signal.aborted) {
+                    return undefined;
+                }
+                return fetch(normalSrc, { headers: { accept }, signal })
                     .then(r => {
                         // an error page must not be cached as the image
                         if (!r.ok) {
@@ -130,10 +134,12 @@ export const useCachedImage = (
                         return r.blob();
                     })
                     .catch((error: unknown) => {
-                        console.error('fetch failed', normalSrc, error);
+                        if (!signal.aborted) {
+                            console.error('fetch failed', normalSrc, error);
+                        }
                         return undefined;
-                    }),
-            ) ?? undefined;
+                    });
+            }) ?? undefined;
         } catch (e) {
             console.error('enqueueFetch threw', normalSrc, e);
         }
@@ -164,6 +170,7 @@ export const useCachedImage = (
         }
 
         let active = true;
+        const controller = new AbortController();
 
         (async () => {
             const isCached = await checkCache(normalImageId);
@@ -208,7 +215,7 @@ export const useCachedImage = (
                 type: 'placeholder',
             });
 
-            queueFetchBlob()
+            queueFetchBlob(controller.signal)
                 .then(blob => {
                     if (!active) {
                         return;
@@ -245,6 +252,7 @@ export const useCachedImage = (
 
         return () => {
             active = false;
+            controller.abort();
             if (urlRef.current) {
                 URL.revokeObjectURL(urlRef.current);
                 urlRef.current = undefined;

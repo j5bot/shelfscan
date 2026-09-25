@@ -1,4 +1,5 @@
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
+import { DismissibleToast } from '@/app/ui/DismissibleToast';
 import React from 'react';
 
 type ScanToastsProps = {
@@ -18,13 +19,11 @@ export const ScanToasts = ({
 
     return <>
         {duplicateUpc && (
-            <div className="toast toast-top toast-center z-50" onClick={onClearDuplicate}>
-                <div role="alert" className="alert alert-warning shadow-lg cursor-pointer">
-                    <span className="text-sm">
-                        Already scanned <span className="font-mono">{duplicateUpc}</span> recently — duplicate not recorded.
-                    </span>
-                </div>
-            </div>
+            <DismissibleToast kind="warning" onDismiss={onClearDuplicate}>
+                <span className="text-sm">
+                    Already scanned <span className="font-mono">{duplicateUpc}</span> recently — duplicate not recorded.
+                </span>
+            </DismissibleToast>
         )}
         {historyLimitReached && (
             <div className="toast toast-top toast-center z-50">
@@ -52,13 +51,11 @@ export const ScanToasts = ({
             </div>
         )}
         {scanError && (
-            <div className="toast toast-top toast-center z-50" onClick={clearScanError}>
-                <div role="alert" className="alert alert-error shadow-lg cursor-pointer">
-                    <span className="text-sm">
-                        Scan history error: {scanError}
-                    </span>
-                </div>
-            </div>
+            <DismissibleToast kind="error" onDismiss={clearScanError}>
+                <span className="text-sm">
+                    Scan history error: {scanError}
+                </span>
+            </DismissibleToast>
         )}
     </>;
 };

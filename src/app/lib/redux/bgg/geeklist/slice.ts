@@ -170,6 +170,11 @@ export const geeklistSlice = createSlice({
             }
 
             if (lowerUser) {
+                const matched = new Set(entry.matched);
+                const markMatched = (collectionId: number) => {
+                    matched.add(collectionId);
+                    entry.matched.push(collectionId);
+                };
                 entry.userItems?.[lowerUser]?.forEach(listItemId => {
                     const listItem = entry.geeklistItems[listItemId];
 
@@ -180,30 +185,30 @@ export const geeklistSlice = createSlice({
                     const { collectionid: collectionId, versionid: versionId } = options;
 
                     if (collectionId) {
-                        if (entry.matched.includes(collectionId as number)) {
+                        if (matched.has(collectionId as number)) {
                             return;
                         }
-                        entry.matched.push(collectionId as number);
+                        markMatched(collectionId as number);
                         listItem.matched = true;
                         return;
                     }
 
                     const collectionVersionItems = collection?.versions.all[parseInt(versionId?.toString() ?? 0, 10)];
                     const matchedVersionCollectionId = collectionVersionItems?.find(
-                        collectionId => !entry.matched.includes(collectionId)
+                        collectionId => !matched.has(collectionId)
                     );
                     if (matchedVersionCollectionId) {
-                        entry.matched.push(matchedVersionCollectionId);
+                        markMatched(matchedVersionCollectionId);
                         listItem.matched = true;
                         return;
                     }
 
                     const gameItems = collection?.objects.all[parseInt(id.toString(), 10)];
                     const matchedGameCollectionId = gameItems?.find(
-                        collectionId => !entry.matched.includes(collectionId)
+                        collectionId => !matched.has(collectionId)
                     );
                     if (matchedGameCollectionId) {
-                        entry.matched.push(matchedGameCollectionId);
+                        markMatched(matchedGameCollectionId);
                         listItem.matched = true;
                         return;
                     }

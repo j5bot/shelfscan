@@ -146,11 +146,11 @@ export const NavDrawer = () => {
 
     return (<>
         <WorkflowsTourDialog ref={toursDialogRef} />
-        <dialog ref={dialogRef} className="modal">
+        <dialog ref={dialogRef} className="modal" aria-labelledby="nav-dialog-title">
             <div className="modal-box min-w-86">
                 <form method="dialog">
                     <button
-                        type="button"
+                        type="submit"
                         className="btn btn-sm btn-circle btn-ghost absolute right-2 top-4" aria-label="Close">✕</button>
                 </form>
                 {dialogContent}
@@ -231,16 +231,16 @@ export const NavDrawer = () => {
                             </Link>
                         </li>
                         <li className="w-full mt-6">
-                            <div className="flex gap-2 grow"
+                            <button type="button" className="flex gap-2 grow"
                                  onClick={() => {
                                      setDialogContent(<>
-                                        <h2 className="m-0">Settings</h2>
+                                        <h2 id="nav-dialog-title" className="m-0">Settings</h2>
                                         <Settings />
                                      </>);
                                      dialogRef.current?.showModal();
                                  }}>
                                 <FaGear className="inline" /> Settings
-                            </div>
+                            </button>
                         </li>
                         {signOutMenuItem}
                     </ul>
