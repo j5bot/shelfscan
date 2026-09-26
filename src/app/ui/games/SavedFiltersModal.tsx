@@ -12,13 +12,15 @@ type SavedFiltersModalProps = {
     onClose: () => void;
 };
 
-export const SavedFiltersModal = ({
-    savedFilters,
-    onRename,
-    onDelete,
-    onDuplicate,
-    onClose,
-}: SavedFiltersModalProps) => {
+export const SavedFiltersModal = (props: SavedFiltersModalProps) => {
+    const {
+        savedFilters,
+        onRename,
+        onDelete,
+        onDuplicate,
+        onClose,
+    } = props;
+
     useEffect(() => {
         const handleKey = (e: KeyboardEvent) => {
             if (e.key === 'Escape') { onClose(); }

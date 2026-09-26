@@ -1,19 +1,23 @@
 import { SetFormValue } from '@/app/lib/extension/types';
 import React from 'react';
 
-export const PriceInput = ({
-    disabled,
-    price,
-    setValue,
-    field = 'price',
-    label = 'Price',
-}: {
+type PriceInputProps = {
     disabled?: boolean;
     price: string | number;
     setValue: SetFormValue;
     field?: string;
     label?: string;
-}) => {
+};
+
+export const PriceInput = (props: PriceInputProps) => {
+    const {
+        disabled,
+        price,
+        setValue,
+        field = 'price',
+        label = 'Price',
+    } = props;
+
     // the input owns the draft while typing and commits on blur; keying by the
     // committed price resets the draft whenever that value changes
     return <input

@@ -222,11 +222,14 @@ This document defines the coding conventions used throughout the ShelfScan proje
   ```
 
 ### Props
-- **Destructure props** at the top of the component or in parameters:
+- **Destructuring parameters**: destructure in the parameter list only when taking **3 or fewer** properties. With more than 3, take the whole object (`props` for components, `options` for hooks/helpers, `params` when the type is a `…Params` type) and destructure on the first line of the body. Defaults and renames move with the destructuring.
   ```typescript
-  const { onScan } = props;
-  // or
   export const CodesProvider = ({ children }: { children: ReactNode }) => { ... };
+
+  export const TradeActionBar = (props: TradeActionBarProps) => {
+      const { mode, selectedCount, actionableCount, isBusy, onAction } = props;
+      // ...
+  };
   ```
 - Use `Readonly<{ children: React.ReactNode }>` for layout props (Next.js convention).
 - Spread props onto elements when forwarding:

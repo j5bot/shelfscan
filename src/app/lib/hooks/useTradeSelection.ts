@@ -27,13 +27,15 @@ export type SwapExportFn = (items: SwapItemData[], filename?: string) => Promise
  * Items selected for a math trade or a swap/trade export, which of them are
  * complete enough to act on, and the bulk add / export actions.
  */
-export const useTradeSelection = ({
-    collection,
-    activeGeekListId,
-    geeklist,
-    geeklistData,
-    submitMathTrade,
-}: UseTradeSelectionOptions) => {
+export const useTradeSelection = (options: UseTradeSelectionOptions) => {
+    const {
+        collection,
+        activeGeekListId,
+        geeklist,
+        geeklistData,
+        submitMathTrade,
+    } = options;
+
     const { hasExport, isMathTrade, isSwap, isTrade } = useTradeMode();
     const swapData = useSelector((state: RootState) => state.swap.data);
 

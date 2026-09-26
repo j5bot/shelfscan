@@ -80,15 +80,17 @@ type GridItemProps = {
 
 const emptyModeMap = {} as ComponentModeMap;
 
-const GridItem = ({
-    collectionId,
-    sizeKey,
-    thumbnailSize,
-    onSelectItem,
-    mathTradeSelected,
-    onMathTradeToggle,
-    modeMap,
-}: GridItemProps) => {
+const GridItem = (props: GridItemProps) => {
+    const {
+        collectionId,
+        sizeKey,
+        thumbnailSize,
+        onSelectItem,
+        mathTradeSelected,
+        onMathTradeToggle,
+        modeMap,
+    } = props;
+
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';
         return state.bgg.collection.users[username].items[collectionId];
@@ -174,34 +176,36 @@ type AllGamesContentProps = {
     modeMap?: ComponentModeMap;
 };
 
-export const AllGamesContent = memo(({
-    state,
-    sentinelRef,
-    stickyTop,
-    view,
-    scannedSet,
-    verifiedSet,
-    sortFields,
-    sortField,
-    sortDirection,
-    onSortClick,
-    displayItems,
-    filters,
-    setFilter,
-    hasActiveFilters,
-    resetFilters,
-    savedFilters,
-    onSaveFilters,
-    onLoadFilter,
-    onRenameFilter,
-    onDeleteFilter,
-    onDuplicateFilter,
-    refreshCollection,
-    onSelectItem,
-    mathTradeSelectedIds,
-    onMathTradeToggle,
-    modeMap = emptyModeMap,
-}: AllGamesContentProps) => {
+export const AllGamesContent = memo((props: AllGamesContentProps) => {
+    const {
+        state,
+        sentinelRef,
+        stickyTop,
+        view,
+        scannedSet,
+        verifiedSet,
+        sortFields,
+        sortField,
+        sortDirection,
+        onSortClick,
+        displayItems,
+        filters,
+        setFilter,
+        hasActiveFilters,
+        resetFilters,
+        savedFilters,
+        onSaveFilters,
+        onLoadFilter,
+        onRenameFilter,
+        onDeleteFilter,
+        onDuplicateFilter,
+        refreshCollection,
+        onSelectItem,
+        mathTradeSelectedIds,
+        onMathTradeToggle,
+        modeMap = emptyModeMap,
+    } = props;
+
     const { hasTrade, isMathTrade } = useTradeMode();
 
     switch (state.status) {

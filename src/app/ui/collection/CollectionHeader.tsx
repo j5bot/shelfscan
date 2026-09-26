@@ -39,20 +39,22 @@ type CollectionHeaderProps = {
     setView: (view: CollectionView) => void;
 };
 
-export const CollectionHeader = ({
-    heading,
-    activeTab,
-    gamesAndExpansionsMode,
-    onCycleGamesAndExpansions,
-    canRefresh,
-    isRefreshing,
-    onRefresh,
-    canBatchRate,
-    batchRate,
-    onToggleBatchRate,
-    view,
-    setView,
-}: CollectionHeaderProps) => {
+export const CollectionHeader = (props: CollectionHeaderProps) => {
+    const {
+        heading,
+        activeTab,
+        gamesAndExpansionsMode,
+        onCycleGamesAndExpansions,
+        canRefresh,
+        isRefreshing,
+        onRefresh,
+        canBatchRate,
+        batchRate,
+        onToggleBatchRate,
+        view,
+        setView,
+    } = props;
+
     const GamesAndExpansionsModeIcon = GamesAndExpansionsModeIcons[gamesAndExpansionsMode];
     const modeLabel = GamesAndExpansionsModeLabels[gamesAndExpansionsMode];
 
