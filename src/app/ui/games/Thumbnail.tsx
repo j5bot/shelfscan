@@ -18,7 +18,9 @@ type ThumbnailInnerProps = {
     className?: string;
 };
 
-const ThumbnailInner = ({ src, placeholderPromise, cachePromise, className }: ThumbnailInnerProps) => {
+const ThumbnailInner = (props: ThumbnailInnerProps) => {
+    const { src, placeholderPromise, cachePromise, className } = props;
+
     if (!src || src.length === 0) {
         return null;
     }
@@ -88,14 +90,16 @@ const ThumbnailBoxImage = ({ promise, className }: { promise: ResolvedImageProps
     />;
 };
 
-const ThumbnailBoxInner = ({
-    src,
-    placeholderPromise,
-    cachePromise,
-    size,
-    className = '',
-    styles,
-}: ThumbnailBoxInnerProps) => {
+const ThumbnailBoxInner = (props: ThumbnailBoxInnerProps) => {
+    const {
+        src,
+        placeholderPromise,
+        cachePromise,
+        size,
+        className = '',
+        styles,
+    } = props;
+
     if (!src || src.length === 0) {
         return null;
     }

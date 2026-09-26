@@ -17,18 +17,15 @@ import { updateNumPlays } from '@/app/lib/redux/bgg/collection/slice';
 import { BggCollectionItem, BggPlayer } from '@/app/lib/types/bgg';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { DataForms } from '@/app/ui/extension/DataForms';
+import { ModeActionBlock } from '@/app/ui/extension/ModeActionBlock';
+import { RatingActionBlock } from '@/app/ui/extension/RatingActionBlock';
+import { UpdateInCollectionToggle } from '@/app/ui/extension/UpdateInCollectionToggle';
 import React, {
-    Fragment,
     SyntheticEvent,
     useEffect,
     useEffectEvent,
     useState
 } from 'react';
-import { FaSave } from 'react-icons/fa';
-import {
-    FaChevronDown,
-    FaStar,
-} from 'react-icons/fa6';
 
 type UseExtension = {
     info?: GameUPCBggInfo & { collectionId?: number };
@@ -45,14 +42,47 @@ export type MakeModeBlockParams = {
     formProps?: Partial<ModeSettingFormProps>;
 };
 
+// wrapper keys for the collection view, in block order
+const PrimaryBlockKeys = ['atcb', 'apb', 'arb', 'etb'];
+
+/** Today as YYYY-MM-DD in local time. */
+const todayString = () => {
+    const todayDate = new Date();
+    return `${
+        todayDate.getFullYear()
+    }-${
+        String(todayDate.getMonth() + 1).padStart(2, '0')
+    }-${
+        String(todayDate.getDate()).padStart(2, '0')
+    }`;
+};
+
+/** The named form's current fields layered over the accumulated form values. */
+const readForm = (formName: string, formValues: Record<string, string>) => {
+    const form = document.forms.namedItem(formName);
+    const formData = form ? new FormData(form) : undefined;
+    return {
+        formData,
+        entries: formData ? Object.assign({}, formValues, Object.fromEntries(formData)) : formValues,
+    };
+};
+
+/** Briefly pulses the element to confirm an action was sent. */
+const pulse = (target: Element | null | undefined) => {
+    if (!target) {
+        return;
+    }
+    void (target as HTMLElement).offsetWidth;
+    target.classList.add('add-pulse');
+    setTimeout(() => target.classList.remove('add-pulse'), 2500);
+};
+
 export const useExtension = (params?: UseExtension) => {
     const { info, version, view = 'version' } = params ?? {};
     const { syncOn, userId, currentUsername } = useSync();
     const dispatch = useDispatch();
     const { dispatchExtensionMessage } = useExtensionMessaging();
 
-    const [ratingFormOpen, setRatingFormOpen] = useState<boolean>(false);
-    const [newRating, setNewRating] = useState<number>(-1);
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
     const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false, tags: false });
     const [players, setPlayers] = useState<BggPlayer[]>();
@@ -67,10 +97,10 @@ export const useExtension = (params?: UseExtension) => {
     const collectionItem = collection?.items[collectionId];
     // an item that isn't in the collection yet can't be updated
     const update = !!collectionId && updateChoice;
+    const isEnabled = !!(syncOn && userId);
+    const gameName = version?.name ?? info?.name;
 
-    const { rating: collectionRating, statuses } = collectionItem ?? {};
-
-    const userRating = newRating >= 0 ? newRating : collectionRating ?? -1;
+    const statuses = collectionItem?.statuses;
 
     const updateModes = async (
         event: SyntheticEvent<HTMLElement> | undefined,
@@ -92,7 +122,7 @@ export const useExtension = (params?: UseExtension) => {
         setModes(modes);
     };
     const createUpdateModeFn =
-        (type: keyof Modes, mode: Modes[keyof Modes], setting: ModeSetting)  =>
+        (type: keyof Modes) => (mode: Modes[keyof Modes], setting: ModeSetting) =>
             (e: SyntheticEvent<HTMLElement>) => {
                 if (userId && collectionItem && setting.message) {
                     setting.message(userId, dispatchExtensionMessage, collectionItem);
@@ -100,143 +130,84 @@ export const useExtension = (params?: UseExtension) => {
                 return updateModes(e, Object.assign({}, modes, { [type]: mode }));
             };
 
+    // a play or tag edit can change the play count; keep the collection in sync
+    const syncNumPlays = (detail: DocumentMessageResponseDetail | undefined) => {
+        const { numplays } = (detail?.response ?? {}) as { numplays?: number };
+        if (numplays != null && collectionId && currentUsername) {
+            dispatch(updateNumPlays({
+                username: currentUsername,
+                collectionId,
+                numplays,
+            }));
+        }
+    };
+
     const addToCollection = (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document
-            .forms.namedItem(modes.collection);
-        const formData = form ? new FormData(form) : undefined;
+        const { formData, entries } = readForm(modes.collection, formValues);
         if (modeSetting.validator && formData && !modeSetting.validator(formData)) {
             // TODO: handle invalid cases
             return;
         }
 
-        const formEntries = formData ? Object.assign(
-            {},
-            formValues,
-            Object.fromEntries(formData)
-        ): formValues;
-
         dispatchExtensionMessage({
             userId,
             type: modes.collection,
             collectionId: update ? collectionId : undefined,
-            name: version?.name ?? info?.name,
+            name: gameName,
             gameId: info?.id,
             versionId: version?.version_id,
-            formValues: formEntries,
+            formValues: entries,
         });
 
-        const target = e.currentTarget.parentElement?.previousElementSibling as HTMLDivElement;
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
+        pulse(e.currentTarget.parentElement?.previousElementSibling);
     };
 
     const addPlay = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document.forms.namedItem(modes.play);
-        const formData = form ? new FormData(form) : undefined;
-
-        const dateValue = formData?.get('playdate') as string | undefined;
-        let dateString: string;
-        if (dateValue) {
-            dateString = dateValue;
-        } else {
-            const todayDate = new Date();
-            dateString = `${
-                todayDate.getFullYear()
-            }-${
-                String(todayDate.getMonth() + 1).padStart(2, '0')
-            }-${
-                String(todayDate.getDate()).padStart(2, '0')
-            }`;
-        }
-
-        const formEntries = formData ? Object.assign(
-            {},
-            formValues,
-            Object.fromEntries(formData)
-        ): formValues;
+        const { formData, entries } = readForm(modes.play, formValues);
+        const dateString = (formData?.get('playdate') as string | undefined) || todayString();
 
         dispatchExtensionMessage({
             userId,
             collectionId,
             type: 'plays',
-            name: version?.name ?? info?.name,
+            name: gameName,
             gameId: info?.id,
             versionId: version?.version_id,
             date: dateString,
             playdate: dateString,
-            formValues: formEntries,
-        })?.then((detail: DocumentMessageResponseDetail | undefined) => {
-            if (!detail?.response) {
-                return;
-            }
-            const { response } = detail;
-            const { numplays } = (response ?? {}) as { numplays?: number };
+            formValues: entries,
+        })?.then(syncNumPlays);
 
-            if (numplays != null && collectionId && currentUsername) {
-                dispatch(updateNumPlays({
-                    username: currentUsername,
-                    collectionId,
-                    numplays,
-                }));
-            }
-        });
-
-        const target = e.currentTarget.previousElementSibling as HTMLDivElement | null;
-        if (target) {
-            void target.offsetWidth;
-            target.classList.add('add-pulse');
-            setTimeout(() => target.classList.remove('add-pulse'), 2500);
-        }
+        pulse(e.currentTarget.previousElementSibling);
     };
 
     const editTags = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document.forms.namedItem('tags');
-        const formData = form ? new FormData(form) : undefined;
-
-        const formEntries = formData ? Object.assign(
-            {},
-            formValues,
-            Object.fromEntries(formData)
-        ): formValues;
+        const { entries } = readForm('tags', formValues);
 
         dispatchExtensionMessage({
             userId,
             collectionId,
             type: 'tags',
-            formValues: formEntries,
-        })?.then((detail: DocumentMessageResponseDetail | undefined) => {
-            if (!detail?.response) {
-                return;
-            }
-            const { response } = detail;
-            const { numplays } = (response ?? {}) as { numplays?: number };
+            formValues: entries,
+        })?.then(syncNumPlays);
 
-            if (numplays != null && collectionId && currentUsername) {
-                dispatch(updateNumPlays({
-                    username: currentUsername,
-                    collectionId,
-                    numplays,
-                }));
-            }
-        });
-
-        const target = e.currentTarget.previousElementSibling as HTMLDivElement | null;
-        if (target) {
-            void target.offsetWidth;
-            target.classList.add('add-pulse');
-            setTimeout(() => target.classList.remove('add-pulse'), 2500);
-        }
+        pulse(e.currentTarget.previousElementSibling);
     };
 
-    const makeModeBlock = ({
-        modeKey,
-        defaultMode,
-        addFn,
-        formKey,
-        setFormKey,
-        formProps,
-    }: MakeModeBlockParams) => {
+    const makeModeBlock = (params: MakeModeBlockParams) => {
+        const {
+            modeKey,
+            defaultMode,
+            addFn,
+            formKey,
+            setFormKey,
+            formProps,
+        } = params;
+
+        if (!isEnabled) {
+            return {};
+        }
+
         const modeSettings =
             MakeModeSettings[modeKey]({
                 collectionId: collectionItem?.collectionId,
@@ -250,8 +221,7 @@ export const useExtension = (params?: UseExtension) => {
         const currentMode = allowedModes.includes(modes[modeKey]) ? modes[modeKey] : defaultMode;
         const modeSetting = modeSettings[currentMode];
 
-        const ModeForm = modeSetting?.form;
-
+        // modes with their own form (e.g. detailed play) open it; others act immediately
         const handleButtonClick = modeSetting.addFn
                                   ? () => setFormKey?.(k => k + 1)
                                   : (e: SyntheticEvent<HTMLButtonElement>) =>
@@ -261,113 +231,52 @@ export const useExtension = (params?: UseExtension) => {
             currentMode,
             modeSetting,
             block: modeSetting && (
-                <Fragment key={`${modeKey}-block`}>
-                    <div data-collapse={`${modeKey}-block`}
-                         className={`relative z-[9] shrink-0 ${modeSetting.width} mr-0.5`}>
-                        <div className={`rounded-full border-0 border-brand-background absolute top-0 left-0 xs:h-7 h-8 ${modeSetting.width}`}></div>
-                        <div className={`collapse xs:min-h-7 min-h-8 rounded-none overflow-visible ${modeSetting.width}`}>
-                            <input type="checkbox" className="xs:h-7 h-8"
-                                   aria-label={`Choose ${modeKey} action`} style={{
-                                padding: 0,
-                            }} />
-                            <button disabled={disabledModes[modeKey]}
-                                    aria-label={`Choose ${modeKey} action`}
-                                    className={`collapse-title
-                                    absolute right-0 top-0
-                                    collection-button cursor-pointer rounded-r-full
-                                    flex items-center
-                                    bg-[#e07ca4bb] text-white
-                                    p-1 xs:h-7 h-8 w-4.5`}>
-                                <FaChevronDown className="w-2 h-2" />
-                            </button>
-                            <button disabled={disabledModes[modeKey]}
-                                    className={`collection-button cursor-pointer rounded-l-full
-                                absolute top-0 left-0 right-5
-                                flex justify-start items-center
-                                ${disabledModes[modeKey] ? 'bg-gray-300' : 'bg-brand-background'}
-                                text-white
-                                p-1 pl-1.5 xs:h-7 h-8
-                                z-40
-                                xs:font-stretch-semi-condensed xs:tracking-tight
-                                text-sm`}
-                                    onClick={handleButtonClick}
-                            >
-                                {modeSetting.icon}
-                                <div className="p-0.5 font-semibold uppercase">
-                                    {modeSetting.label}
-                                </div>
-                            </button>
-                            <div className={`collapse-content p-0 min-w-33`}>
-                                <div className={`mt-1
-                                border border-brand-background rounded-md
-                                bg-overlay
-                                text-xs leading-5.5`}>
-                                    <ul className="menu w-full p-0 m-0" data-collapse-key={`${modeKey}-block`}>
-                                        {
-                                            Object.entries(modeSettings)
-                                                .map(([key, setting], index, array) => {
-                                                    const mode = key as Modes[keyof Modes];
-                                                    const shouldShow = setting.shouldShow ? setting.shouldShow(
-                                                        statuses ?? null,
-                                                        update) : true;
-
-                                                    if (!shouldShow) {
-                                                        return null;
-                                                    }
-
-                                                    return <li key={mode}
-                                                               className={index < array.length - 1 ? 'border-b border-brand-background/30' : undefined}
-                                                    >
-                                                        <button type="button"
-                                                                className="w-full p-1 pl-1.5 text-left cursor-pointer"
-                                                                onClick={createUpdateModeFn(modeKey,
-                                                                    mode,
-                                                                    setting)}
-                                                        >{setting.listText}</button>
-                                                    </li>
-                                                })
-                                        }
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {ModeForm && <ModeForm
-                        key={formKey}
-                        formValues={formValues}
-                        setFormValues={setFormValues}
-                        addFn={modeSetting.addFn}
-                        {...(formProps ?? {})}
-                    />}
-                </Fragment>
+                <ModeActionBlock
+                    key={`${modeKey}-block`}
+                    modeKey={modeKey}
+                    modeSettings={modeSettings}
+                    modeSetting={modeSetting}
+                    disabled={disabledModes[modeKey]}
+                    statuses={statuses}
+                    update={update}
+                    onAction={handleButtonClick}
+                    onSelectMode={createUpdateModeFn(modeKey)}
+                    formProps={{
+                        key: formKey,
+                        formValues,
+                        setFormValues,
+                        addFn: modeSetting.addFn,
+                        ...formProps,
+                    }}
+                />
             ),
         };
     };
 
     const { currentMode: currentATCMode, modeSetting: atcModeSetting, block: addToCollectionBlock } =
-        syncOn && userId ? makeModeBlock({
+        makeModeBlock({
             modeKey: 'collection',
             defaultMode: 'add',
             addFn: addToCollection,
-        }) : {};
+        });
 
-    const { block: addPlayBlock } = syncOn && userId ? makeModeBlock({
+    const { block: addPlayBlock } = makeModeBlock({
         modeKey: 'play',
         defaultMode: 'quick',
         addFn: addPlay,
         formKey: detailedPlayKey,
         setFormKey: setDetailedPlayKey,
-        formProps: { gameName: version?.name ?? info?.name },
-    }) : {};
+        formProps: { gameName },
+    });
 
-    const { block: editTagsBlock } = syncOn && userId ? makeModeBlock({
+    const { block: editTagsBlock } = makeModeBlock({
         modeKey: 'tags',
         defaultMode: 'choose',
         addFn: editTags,
         formKey: detailedPlayKey,
         setFormKey: setDetailedPlayKey,
-        formProps: { gameName: version?.name ?? info?.name },
-    }) : {};
+        formProps: { gameName },
+    });
 
     const tradeCondition = collectionItem?.tradeCondition;
     useEffect(() => {
@@ -467,136 +376,36 @@ export const useExtension = (params?: UseExtension) => {
         sendATCModeMessage();
     }, [hasATCModeMessage, userId, collectionId]);
 
-    const addRating = (e: SyntheticEvent<HTMLButtonElement>) => {
-        const form = document.forms.namedItem(`rating-form-${collectionId ?? info?.id ?? 'unknown'}`);
-        const formData = form ? new FormData(form) : undefined;
-        const formValues = Object.fromEntries(formData ?? []);
 
-        dispatchExtensionMessage({
-            userId,
-            type: 'ratings',
-            collectionId,
-            name: version?.name ?? info?.name,
-            gameId: info?.id,
-            versionId: version?.version_id,
-            formValues,
-        });
-
-        const target = e.currentTarget?.previousElementSibling as HTMLDivElement;
-        if (!target || target.tagName.toLowerCase() !== 'button') {
-            return;
-        }
-
-        void target.offsetWidth;
-        target.classList.add('add-pulse');
-        setTimeout(() => target.classList.remove('add-pulse'), 2500);
-    };
-
-    const toggleRatingForm = () => {
-        setRatingFormOpen(!ratingFormOpen);
-    };
-
-    const addRatingBlock = syncOn && userId && (
-        <Fragment key="arb">
-            <div className="flex shrink relative items-center gap-1">
-                <div className="relative shrink-0 xs:w-17 w-19 xs:h-7 h-8">
-                    <button
-                        className={`collection-button cursor-pointer rounded-full
-                            relative
-                            flex justify-start items-center                            
-                            bg-brand-background text-white
-                            p-1 pl-1.5  xs:h-7 h-8
-                            xs:font-stretch-semi-condensed xs:tracking-tight
-                            text-sm`}
-                        onClick={toggleRatingForm}
-                    >
-                        <FaStar className="w-4 h-4" />
-                        <div className="p-1 pr-2 font-semibold uppercase">Rate</div>
-                    </button>
-                </div>
-                <div className="rounded-full border-0 border-brand-background absolute top-0 right-0 xs:h-7 h-8 w-7"></div>
-                {ratingFormOpen && newRating > 0 &&
-                    <button className={`cursor-pointer relative mr-0.5 xs:h-7 h-8 items-center`}
-                            aria-label="Save rating"
-                            onClick={addRating}>
-                        <FaSave className="w-6 h-6 text-brand-background" />
-                    </button>}
-            </div>
-            {ratingFormOpen && <form name={`rating-form-${collectionId ?? info?.id ?? 'unknown'}`}
-                                     className="pt-0.5 pb-2 xs:scale-90 relative xs:-left-2.5">
-                <div className="rating rating-sm rating-half">
-                    <input type="hidden" className="hidden" name="collectionId" value={collectionId} />
-                    {[0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]
-                        .map((rating, index, array) => {
-                            let bgClassName = 'bg-green-400';
-
-                            switch (true) {
-                                case newRating < 3:
-                                    bgClassName = 'bg-red-400';
-                                    break;
-                                case newRating < 4:
-                                    bgClassName = 'bg-orange-400';
-                                    break;
-                                case newRating < 5.5:
-                                    bgClassName = 'bg-yellow-400';
-                                    break;
-                                case newRating < 7:
-                                    bgClassName = 'bg-lime-400';
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            return <input key={rating} type="radio" name="rating"
-                                          className={`mask mask-star-2 ${index % 2 ? 'mask-half-2' : 'mask-half-1'}
-                                          ${bgClassName}`} aria-label={rating.toString()}
-                                          value={rating}
-                                          defaultChecked={userRating >= rating && userRating < (array[index + 1] ?? 11)}
-                                          onClick={() => setNewRating(rating)}
-                            />
-                        })}
-                </div>
-                <textarea name="comment"
-                          defaultValue={collectionItem?.comment}
-                          className={`mt-2 textarea textarea-sm w-full min-h-8 h-8 text-xs
-                            overflow-hidden
-                            overflow-ellipsis
-                            pl-1.5 pr-1.5
-                            focus:h-16 focus:overflow-auto`}
-                          placeholder="Comment/Review" />
-            </form>}
-        </Fragment>
+    const addRatingBlock = isEnabled && (
+        <RatingActionBlock
+            key="arb"
+            userId={userId ?? ''}
+            collectionId={collectionId}
+            gameId={info?.id}
+            versionId={version?.version_id}
+            name={gameName}
+            collectionRating={collectionItem?.rating}
+            comment={collectionItem?.comment}
+        />
     );
 
-    const settings = syncOn && userId && <div>
-        <label className="flex gap-1 justify-start items-center p-2 pl-0.5 text-xs">
-            <input disabled={!collectionId}
-                   className="toggle toggle-xs checked:bg-brand-background checked:text-white" type="checkbox"
-                   checked={collectionId !== undefined ? update : false} onChange={
-                (event) => setUpdate(event.currentTarget.checked)
-            } />
-            Update in Collection
-        </label>
-    </div>;
+    const settings = isEnabled && <UpdateInCollectionToggle
+        collectionId={collectionId}
+        update={update}
+        onChange={setUpdate}
+    />;
 
-    const primaries = view === 'collection' ? [
-        <div key={'atcb'}>{addToCollectionBlock}</div>,
-        <div key={'apb'}>{addPlayBlock}</div>,
-        <div key={'arb'}>{addRatingBlock}</div>,
-        <div key={'etb'}>{editTagsBlock}</div>
-    ] : [
-        addToCollectionBlock,
-        addPlayBlock,
-        addRatingBlock,
-        editTagsBlock,
-    ];
+    const blocks = [addToCollectionBlock, addPlayBlock, addRatingBlock, editTagsBlock];
+    const primaries = view === 'collection'
+        ? blocks.map((block, index) => <div key={PrimaryBlockKeys[index]}>{block}</div>)
+        : blocks;
 
-    const primaryActions = syncOn && userId ? <>
+    const primaryActions = isEnabled ? <>
         {primaries}
-    </> : null
+    </> : null;
 
-    const secondaryActions = syncOn && userId && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
+    const secondaryActions = isEnabled && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };
-

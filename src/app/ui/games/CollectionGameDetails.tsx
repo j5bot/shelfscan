@@ -98,13 +98,15 @@ const versionTitle = <h4 className="uppercase tracking-[0.25rem] text-center blo
  * renders without a search form. Accepts children for future BGG-specific
  * information such as rating and play count.
  */
-export const CollectionGameDetails = ({
-    item,
-    header,
-    children,
-    thumbnailSize,
-    setVersion,
-}: CollectionGameDetailsProps) => {
+export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
+    const {
+        item,
+        header,
+        children,
+        thumbnailSize,
+        setVersion,
+    } = props;
+
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const liveItem = useSelector(state => username ? state.bgg.collection.users[username].items[item.collectionId] : undefined);
     const bggId = liveItem?.objectId;

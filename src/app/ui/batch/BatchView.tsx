@@ -28,6 +28,88 @@ export type BatchViewProps = {
     }
 };
 
+type BatchStatuses = Omit<ReturnType<typeof useInfoCollectionStatus>, 'codes' | 'removeCode' | 'setCodes'>;
+
+const getBatchScanCopy = ({ isSwap, isTrade }: { isSwap: boolean; isTrade: boolean }) => {
+    switch (true) {
+        case isSwap:
+            return { heading: 'Swap Scan', body: 'Scan multiple games, then export them for a Swap' };
+        case isTrade:
+            return { heading: 'Trade Scan', body: 'Scan multiple games, then export them for a Trade' };
+        default:
+            return {
+                heading: 'Batch Scan Mode',
+                body: 'Scan multiple games, then add them to your BGG collection all at once.',
+            };
+    }
+};
+
+const getStatusSegments = (statuses: BatchStatuses, codes: string[]) => [
+    { key: 'none', name: 'New', codes: statuses['none'] },
+    { key: 'prevowned', name: 'Prev.', codes: statuses['prevowned'] },
+    { key: 'own', name: 'Own', codes: statuses['own'] },
+    { key: 'all', name: 'Scanned', codes },
+] as const;
+
+type StatusSegment = ReturnType<typeof getStatusSegments>[number];
+
+type StatusSegmentTabsProps = {
+    segments: readonly StatusSegment[];
+    showStatus: PossibleStatusWithAllAndNone;
+    onSelect: (status: PossibleStatusWithAllAndNone) => void;
+};
+
+const StatusSegmentTabs = ({ segments, showStatus, onSelect }: StatusSegmentTabsProps) =>
+    <div
+        role="tablist"
+        aria-label="Collection views"
+        className="tabs tabs-border mb-2"
+        style={{'--tab-height': '28px'} as CSSProperties}
+    >
+        {segments.map(({ key, name, codes }) => (
+            <button
+                id={`${key}-tab`}
+                role="tab"
+                aria-selected={showStatus === key}
+                aria-controls={`${key}-panel`}
+                tabIndex={showStatus === key ? 0 : -1}
+                className={`tab${showStatus === key ? ' tab-active' : ''}
+                   text-xs cursor-pointer pb-1`}
+                onClick={() => showStatus !== key && onSelect(key)}
+                key={key}
+            >
+                {name}
+                <span className="badge badge-xs text-xs p-0.5 ml-0.5" style={{scale: 0.85}}>
+                    {codes?.length ?? 0}
+                </span>
+            </button>
+        ))}
+    </div>;
+
+const clearButtonClassName = `btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
+    text-sm uppercase cursor-pointer`;
+
+const BatchScanIntro = ({ heading, body }: { heading: string; body: string }) =>
+    <div className="w-full flex flex-col items-center justify-items-center text-center">
+        <h2 className="text-xl tracking-widest">{heading}</h2>
+        <div className="mt-2 mb-2 text-sm">
+            <p>{body}</p>
+        </div>
+        <h4 className="text-lg flex items-center gap-2">
+            <FaBarcode className="w-5 h-5" /> Start scanning!
+        </h4>
+    </div>;
+
+const AddedGamesToast = ({ names, onDismiss }: { names: string[]; onDismiss: () => void }) =>
+    names.length > 0 && (
+        <DismissibleToast id="batch-add-toast" kind="success" role="status" onDismiss={onDismiss}>
+            <span className="text-sm">
+                Added {names.length} game{names.length !== 1 ? 's ' : ' '} to collection:&nbsp;
+                {names.join(', ')}
+            </span>
+        </DismissibleToast>
+    );
+
 export const BatchView = (props: BatchViewProps) => {
     const { fns: { addGameToCollection } = {} } = props;
     const breakpoint = useTailwindBreakpoint();
@@ -35,19 +117,6 @@ export const BatchView = (props: BatchViewProps) => {
     const { hasExport, isCollection, isSwap, isTrade } = useTradeMode();
 
     const { currentTour } = useNextStep();
-
-    let batchScanHeading = 'Batch Scan Mode';
-    let batchScanBody = 'Scan multiple games, then add them to your BGG collection all at once.';
-    switch (true) {
-        case isSwap:
-            batchScanHeading = 'Swap Scan';
-            batchScanBody = 'Scan multiple games, then export them for a Swap';
-            break;
-        case isTrade:
-            batchScanHeading = 'Trade Scan';
-            batchScanBody = 'Scan multiple games, then export them for a Trade';
-            break;
-    }
 
     const { codes, removeCode, setCodes, ...statuses } = useInfoCollectionStatus();
 
@@ -91,31 +160,9 @@ export const BatchView = (props: BatchViewProps) => {
         </>;
     }
 
-    const segments = isCollection ? [
-        {
-            key: 'none',
-            name: 'New',
-            codes: statuses['none'],
-        },
-        {
-            key: 'prevowned',
-            name: 'Prev.',
-            codes: statuses['prevowned'],
-        },
-        {
-            key: 'own',
-            name: 'Own',
-            codes: statuses['own'],
-        },
-        {
-            key: 'all',
-            name: 'Scanned',
-            codes,
-        },
-    ] as const : [] as const;
-
+    const copy = getBatchScanCopy({ isSwap, isTrade });
     const showStatus = currentTour === 'batchscan' ? 'all' : shownStatus;
-    const statusCodes = (!isCollection || showStatus === 'all') ? codes : statuses[showStatus] ?? []
+    const statusCodes = (!isCollection || showStatus === 'all') ? codes : statuses[showStatus] ?? [];
 
     return <>
         <NavDrawer />
@@ -125,14 +172,7 @@ export const BatchView = (props: BatchViewProps) => {
             onClearDuplicate={clearDuplicateUpc}
             onClearLimitReached={clearHistoryLimitReached}
         />
-        {addedNames.length > 0 && (
-            <DismissibleToast id="batch-add-toast" kind="success" role="status" onDismiss={() => setAddedNames([])}>
-                <span className="text-sm">
-                    Added {addedNames.length} game{addedNames.length !== 1 ? 's ' : ' '} to collection:&nbsp;
-                    {addedNames.join(', ')}
-                </span>
-            </DismissibleToast>
-        )}
+        <AddedGamesToast names={addedNames} onDismiss={() => setAddedNames([])} />
         <div className="flex flex-col w-full items-center p-3 sm:p-4">
             <div className="flex gap-2 pb-3 mt-20 md:mt-30 p-3 sm:pb-5 bg-overlay">
                 <Suspense fallback={loader('Focusing...')}>
@@ -145,87 +185,53 @@ export const BatchView = (props: BatchViewProps) => {
                 <div className={`relative w-full h-full
                     bg-[#f1eff9] dark:bg-green-800 p-2 rounded-lg`}>
                     <div className="flex flex-col justify-center h-full w-full">
-                        {codes.length > 0
-                         ? <>
-                             <div className="pb-2 pt-1">
-                                 {isCollection && addGameToCollection && <BatchAddButton
-                                     codes={showStatus === 'all' ? codes : statuses[showStatus] ?? []}
-                                     addGameToCollection={addGameToCollection}
-                                     onComplete={onComplete}
-                                 />}
-                                 {hasExport && <SwapAddButton
-                                     codes={codes}
-                                 />}
-                             </div>
+                        {codes.length === 0 && <BatchScanIntro heading={copy.heading} body={copy.body} />}
+                        {codes.length > 0 && <>
+                            <div className="pb-2 pt-1">
+                                {isCollection && addGameToCollection && <BatchAddButton
+                                    codes={statusCodes}
+                                    addGameToCollection={addGameToCollection}
+                                    onComplete={onComplete}
+                                />}
+                                {hasExport && <SwapAddButton
+                                    codes={codes}
+                                />}
+                            </div>
 
-                             {segments.length > 0 && <div
-                                 role="tablist"
-                                 aria-label="Collection views"
-                                 className="tabs tabs-border mb-2"
-                                 style={{'--tab-height': '28px'} as CSSProperties}
-                             >
-                                 {segments
-                                     .map(({key, name, codes}) => {
-                                         return <button
-                                             id={`${key}-tab`}
-                                             role="tab"
-                                             aria-selected={showStatus === key}
-                                             aria-controls={`${key}-panel`}
-                                             tabIndex={showStatus === key ? 0 : -1}
-                                             className={`tab${showStatus === key ? ' tab-active' : ''}
-                                                text-xs cursor-pointer pb-1`}
-                                             onClick={() => showStatus !== key && setShownStatus(
-                                                 key)}
-                                             key={key}
-                                         >
-                                             {name}
-                                             <span className="badge badge-xs text-xs p-0.5 ml-0.5" style={{scale: 0.85}}>
-                                                    {codes?.length ?? 0}
-                                                </span>
-                                         </button>;
-                                     })}
-                             </div>}
+                            {isCollection && <StatusSegmentTabs
+                                segments={getStatusSegments(statuses, codes)}
+                                showStatus={showStatus}
+                                onSelect={setShownStatus}
+                            />}
 
-                             <section
-                                 id={`${showStatus}-panel`}
-                                 role="tabpanel"
-                                 aria-labelledby={`${showStatus}-tab`}
-                                 className="w-full"
-                             >
-                                 <Scanlist
-                                     codes={statusCodes}
-                                     removeCode={removeCode}
-                                     showGame={true}
-                                 />
-                             </section>
+                            <section
+                                id={`${showStatus}-panel`}
+                                role="tabpanel"
+                                aria-labelledby={`${showStatus}-tab`}
+                                className="w-full"
+                            >
+                                <Scanlist
+                                    codes={statusCodes}
+                                    removeCode={removeCode}
+                                    showGame={true}
+                                />
+                            </section>
 
-                             <div className="flex justify-center gap-3 pt-4 pb-2">
-                                 {isCollection && <button
-                                     className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
-                                            text-sm uppercase cursor-pointer"
-                                     onClick={() => onClear(shownStatus)}
-                                 >
-                                     Clear Segment
-                                 </button>}
-                                 <button
-                                     className="btn btn-sm rounded-full bg-gray-300 dark:bg-gray-600
-                                                text-sm uppercase cursor-pointer"
-                                     onClick={() => onClear()}
-                                 >
-                                     Clear All
-                                 </button>
-                             </div>
-                         </>
-                         : <div className="w-full flex flex-col items-center justify-items-center text-center">
-                             <h2 className="text-xl tracking-widest">{batchScanHeading}</h2>
-                             <div className="mt-2 mb-2 text-sm">
-                                 <p>{batchScanBody}</p>
-                             </div>
-                             <h4 className="text-lg flex items-center gap-2">
-                                 <FaBarcode className="w-5 h-5" /> Start scanning!
-                             </h4>
-                         </div>
-                        }
+                            <div className="flex justify-center gap-3 pt-4 pb-2">
+                                {isCollection && <button
+                                    className={clearButtonClassName}
+                                    onClick={() => onClear(shownStatus)}
+                                >
+                                    Clear Segment
+                                </button>}
+                                <button
+                                    className={clearButtonClassName}
+                                    onClick={() => onClear()}
+                                >
+                                    Clear All
+                                </button>
+                            </div>
+                        </>}
                     </div>
                 </div>
             </Suspense>

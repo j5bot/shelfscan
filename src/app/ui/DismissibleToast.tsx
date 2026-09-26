@@ -15,8 +15,16 @@ type DismissibleToastProps = {
 };
 
 /** A toast whose whole body is a dismiss button, so it can be dismissed by keyboard as well as by click. */
-export const DismissibleToast = ({ id, kind, role = 'alert', onDismiss, children }: DismissibleToastProps) =>
-    <div id={id} className="toast toast-top toast-center z-50">
+export const DismissibleToast = (props: DismissibleToastProps) => {
+    const {
+        id,
+        kind,
+        role = 'alert',
+        onDismiss,
+        children,
+    } = props;
+
+    return <div id={id} className="toast toast-top toast-center z-50">
         <div role={role}>
             <button
                 type="button"
@@ -28,3 +36,4 @@ export const DismissibleToast = ({ id, kind, role = 'alert', onDismiss, children
             </button>
         </div>
     </div>;
+};

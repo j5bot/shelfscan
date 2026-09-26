@@ -22,12 +22,16 @@ type FormInstanceEntry = {
     viewer: FormViewer | null;
 };
 
-const DataFormItem = ({ data, setData, entry, onViewerReady }: {
+type DataFormItemProps = {
     data?: unknown;
     setData: (id: string, data?: unknown) => void;
     entry: FormInstanceEntry;
     onViewerReady: (id: number, viewer: FormViewer) => void;
-}) => {
+};
+
+const DataFormItem = (props: DataFormItemProps) => {
+    const { data, setData, entry, onViewerReady } = props;
+
     const containerRef = useRef<HTMLDivElement>(null);
     const viewerRef = useRef<FormViewer | null>(null);
     const [open, setOpen] = useState(false);

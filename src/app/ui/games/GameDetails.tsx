@@ -38,77 +38,159 @@ export type GameDetailsProps = {
     thumbnailSize?: number;
 };
 
-export const GameDetails = ({
-    code,
-    game,
-    defaultGame,
-    version,
-    defaultImageUrl,
-    search,
-    header,
-    children,
-    versionSelect,
-    view,
-    thumbnailSize = 150,
-}: GameDetailsProps) => {
+type DetailTemplates = ReturnType<typeof usePlugins>;
+type PluginTemplates = DetailTemplates['game'];
+
+type PluginLinksProps = {
+    plugins: PluginTemplates | undefined;
+    data: object;
+    linkClassName?: string;
+    iconClassName: string;
+    defaultIconSize: number;
+};
+
+/** Icon links built from `link.details` plugin URL templates. */
+const PluginLinks = (props: PluginLinksProps) => {
+    const { plugins, data, linkClassName, iconClassName, defaultIconSize } = props;
+
+    return plugins?.map(plugin => {
+        const templateFn = template(plugin.template);
+        return <Link
+            className={linkClassName}
+            key={plugin.template}
+            title={plugin.title}
+            href={templateFn(data)}
+            target="_blank"
+        >
+            <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? defaultIconSize} className={iconClassName} />
+        </Link>;
+    });
+};
+
+type VersionInfoProps = {
+    version: Version;
+    isLarge: boolean;
+    plugins: PluginTemplates | undefined;
+};
+
+const VersionInfo = ({ version, isLarge, plugins }: VersionInfoProps) =>
+    <div className={isLarge ? 'w-full mt-2' : 'grow'}>
+        <div className="border-b border-b-gray-200 pb-1 flex gap-1 text-balance">
+            <span className="grow">
+                {version.versionId ?
+                 <Link href={version.pageUrl} target="_blank">{version.name}</Link> :
+                 version.name}
+            </span>
+            {!!version.versionId && (plugins?.length ?? 0) > 0 && (
+                <div className="shrink">
+                    <PluginLinks
+                        plugins={plugins}
+                        data={version}
+                        defaultIconSize={8}
+                        iconClassName="text-gray-400 inline-block align-super ml-1"
+                    />
+                </div>
+            )}
+        </div>
+        <h4 className="pb-0.5">{version.published || 'Unknown'}</h4>
+    </div>;
+
+const GameSearchForm = ({ search }: { search: GameDetailsSearchProps }) => {
+    const { searchFormOpen, setSearchFormOpen, searchString, searchBlurHandler, searchClickHandler } =
+        useGameDetailsSearch(search);
+
+    return <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
+        <div className="cursor-pointer align-middle text-gray-500 border-base-300 btn h-7 w-7 p-0 mr-1">
+            <FaSearch className="w-4 m-2" onClick={() => {
+                setSearchFormOpen(!searchFormOpen);
+            }} />
+        </div>
+        <div className={`align-middle items-center gap-1 ${searchFormOpen ? 'flex' : 'hidden'}`}>
+            <input tabIndex={0}
+                   type="text"
+                   className="input h-7 text-xs max-w-fit"
+                   name="search"
+                   placeholder="Search for game"
+                   defaultValue={searchString}
+                   onBlur={searchBlurHandler}
+            />
+            <button tabIndex={0}
+                    aria-label="Search"
+                    onClick={searchClickHandler}
+                    className="bg-gray-400 p-0.5 rounded-full"
+            >
+                <FaCaretRight className="text-white"/>
+            </button>
+        </div>
+    </div>;
+};
+
+const getHeaderClasses = (header: ReactNode, view: GameDetailsProps['view']) => {
+    if (!header) {
+        return 'h-15';
+    }
+    return view === 'version' ? 'h-22' : 'h-12 md:h-12 mt-[-1rem]';
+};
+
+/** The version's images win, then the game's, then the default game's, then the fallback. */
+const getGameImages = (props: GameDetailsProps) => {
+    const { version, game, defaultGame, defaultImageUrl } = props;
+
+    return {
+        alt: version?.name ?? game?.name ?? defaultGame?.name ?? 'Game Image',
+        imageUrl: firstNonEmptyOrUndefined(version?.imageUrl, game?.imageUrl, defaultGame?.imageUrl, defaultImageUrl),
+        thumbnailUrl: firstNonEmptyOrUndefined(
+            version?.thumbnailUrl, game?.thumbnailUrl, defaultGame?.thumbnailUrl, defaultImageUrl,
+        ) ?? '',
+    };
+};
+
+type ChildrenSlotProps = {
+    game?: Game;
+    defaultGame?: Game;
+    hasVersion: boolean;
+    className: string;
+    children: ReactNode;
+};
+
+/** Children (e.g. extension actions) render only once a game is known. */
+const ChildrenSlot = (props: ChildrenSlotProps) => {
+    const { game, defaultGame, hasVersion, className, children } = props;
+
+    return <div className={`${className} pb-0.5 ${hasVersion ? '' : 'pt-1'}`}>
+        {!!(game?.id ?? defaultGame?.id) && children}
+    </div>;
+};
+
+export const GameDetails = (props: GameDetailsProps) => {
+    const {
+        code,
+        game,
+        defaultGame,
+        version,
+        search,
+        header,
+        children,
+        versionSelect,
+        view,
+        thumbnailSize = 150,
+    } = props;
+
     const detailTemplates = usePlugins('link.details');
     const isLarge = thumbnailSize >= 250;
-
+    const isCollectionView = view === 'collection';
     const { collectionId } = game ?? {};
+    const images = getGameImages(props);
 
-    const { searchFormOpen, setSearchFormOpen, searchString, searchBlurHandler, searchClickHandler } =
-        useGameDetailsSearch({
-            onSearch: search?.onSearch ?? (() => {}),
-            initialQuery: search?.initialQuery,
-            initialOpen: search?.initialOpen,
-        });
-
-    const tagsSection = view === 'collection' && collectionId
-        && <TagsSection collectionId={collectionId} className="justify-center" />;
-
-    const versionInfo = version?.name && (
-        <div className={isLarge ? 'w-full mt-2' : 'grow'}>
-            <div className="border-b border-b-gray-200 pb-1 flex gap-1 text-balance">
-                <span className="grow">
-                    {version?.versionId ?
-                     <Link href={version.pageUrl} target="_blank">{version.name}</Link> :
-                     version?.name}
-                </span>
-                {!!version?.versionId && (detailTemplates.version?.length ?? 0) > 0 && (
-                    <div className="shrink">
-                        {detailTemplates.version?.map(plugin => {
-                            const templateFn = template(plugin.template);
-                            return (
-                                <Link
-                                    key={plugin.template}
-                                    title={plugin.title}
-                                    href={templateFn(version)}
-                                    target="_blank"
-                                >
-                                    <DynamicIcon
-                                        icon={plugin.icon}
-                                        size={8}
-                                        className="text-gray-400 inline-block align-super ml-1"
-                                    />
-                                </Link>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-            <h4 className="pb-0.5">{version?.published || 'Unknown'}</h4>
-        </div>
+    const versionInfo = version?.name && <VersionInfo version={version} isLarge={isLarge} plugins={detailTemplates.version} />;
+    const childrenSlot = (className: string) => children && (
+        <ChildrenSlot game={game} defaultGame={defaultGame} hasVersion={!!version} className={className}>
+            {children}
+        </ChildrenSlot>
     );
 
-    const headerClasses = header
-        ? view === 'version' ? 'h-22' : 'h-12 md:h-12 mt-[-1rem]'
-        : 'h-15';
-
-    const imageUrl = firstNonEmptyOrUndefined(version?.imageUrl, game?.imageUrl, defaultGame?.imageUrl, defaultImageUrl);
-    const thumbnailUrl = firstNonEmptyOrUndefined(version?.thumbnailUrl, game?.thumbnailUrl, defaultGame?.thumbnailUrl, defaultImageUrl) ?? '';
-
     return <div id="game-details">
-        <div className={`${headerClasses} flex justify-center items-center md:gap-2`}>
+        <div className={`${getHeaderClasses(header, view)} flex justify-center items-center md:gap-2`}>
             {header}
         </div>
         <div className={`pt-3 bg-overlay min-w-23`}>
@@ -116,28 +198,22 @@ export const GameDetails = ({
                 {game?.pageUrl ?
                  <Link className="hover:underline" href={game.pageUrl} target="_blank">{game.name}</Link> :
                  game?.name ?? code}
-                {game && detailTemplates.game?.map(plugin => {
-                    const templateFn = template(plugin.template);
-                    return <Link className="mb-2"
-                                 key={plugin.template}
-                                 title={plugin.title}
-                                 href={templateFn(game)}
-                                 target="_blank"
-                    >
-                        <DynamicIcon icon={plugin.icon} size={plugin.iconSize ?? 12} className="text-gray-400 ml-1" />
-                    </Link>;
-                })}
+                {game && <PluginLinks
+                    plugins={detailTemplates.game}
+                    data={game}
+                    linkClassName="mb-2"
+                    defaultIconSize={12}
+                    iconClassName="text-gray-400 ml-1"
+                />}
             </h2>
-            {tagsSection}
-            {view === 'collection' && children && <div className={`grow max-w-full pb-0.5 ${version ? '' : 'pt-1'}`}>
-                {(game?.id ?? defaultGame?.id) && children}
-            </div>}
+            {isCollectionView && !!collectionId && <TagsSection collectionId={collectionId} className="justify-center" />}
+            {isCollectionView && childrenSlot('grow max-w-full')}
             {isLarge ? (
                 <div className="flex flex-col items-center pb-2">
                     <ThumbnailBox
-                        alt={version?.name ?? game?.name ?? defaultGame?.name ?? 'Game Image'}
-                        url={thumbnailUrl}
-                        imageUrl={imageUrl}
+                        alt={images.alt}
+                        url={images.thumbnailUrl}
+                        imageUrl={images.imageUrl}
                         size={thumbnailSize}
                         styles={{
                             width: `min(${thumbnailSize}px, calc(100dvw - 4rem))`,
@@ -145,7 +221,7 @@ export const GameDetails = ({
                         }}
                     />
                     {versionInfo}
-                    {view === 'collection' && (
+                    {isCollectionView && (
                         <div className="flex flex-col gap-1 w-full grow">
                             {versionSelect}
                         </div>
@@ -155,42 +231,17 @@ export const GameDetails = ({
                 <div className="flex gap-2 items-stretch justify-center pb-2">
                     <div className="flex items-start">
                         <ThumbnailBox
-                            alt={version?.name ?? game?.name ?? defaultGame?.name ?? 'Game Image'}
-                            url={thumbnailUrl}
-                            imageUrl={imageUrl}
+                            alt={images.alt}
+                            url={images.thumbnailUrl}
+                            imageUrl={images.imageUrl}
                             size={thumbnailSize}
                         />
                     </div>
                     <div className="flex flex-col gap-1 w-full grow xs:max-w-46.25 lg:max-w-2/3">
                         {versionInfo}
-                        {view === 'collection' && versionSelect}
-                        {view === 'version' && children && <div className={`grow max-w-60 pb-0.5 ${version ? '' : 'pt-1'}`}>
-                            {(game?.id ?? defaultGame?.id) && children}
-                        </div>}
-                        {search && <div id="search-game-form" className="shrink pb-1 flex gap-0.5 items-center">
-                            <div className="cursor-pointer align-middle text-gray-500 border-base-300 btn h-7 w-7 p-0 mr-1">
-                                <FaSearch className="w-4 m-2" onClick={() => {
-                                    setSearchFormOpen(!searchFormOpen);
-                                }} />
-                            </div>
-                            <div className={`align-middle items-center gap-1 ${searchFormOpen ? 'flex' : 'hidden'}`}>
-                                <input tabIndex={0}
-                                       type="text"
-                                       className="input h-7 text-xs max-w-fit"
-                                       name="search"
-                                       placeholder="Search for game"
-                                       defaultValue={searchString}
-                                       onBlur={searchBlurHandler}
-                                />
-                                <button tabIndex={0}
-                                        aria-label="Search"
-                                        onClick={searchClickHandler}
-                                        className="bg-gray-400 p-0.5 rounded-full"
-                                >
-                                    <FaCaretRight className="text-white"/>
-                                </button>
-                            </div>
-                        </div>}
+                        {isCollectionView && versionSelect}
+                        {view === 'version' && childrenSlot('grow max-w-60')}
+                        {search && <GameSearchForm search={search} />}
                     </div>
                 </div>
             )}

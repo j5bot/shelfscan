@@ -9,12 +9,9 @@ type ScanToastsProps = {
     onClearLimitReached: () => void;
 };
 
-export const ScanToasts = ({
-    duplicateUpc,
-    historyLimitReached,
-    onClearDuplicate,
-    onClearLimitReached,
-}: ScanToastsProps) => {
+export const ScanToasts = (props: ScanToastsProps) => {
+    const { duplicateUpc, historyLimitReached, onClearDuplicate, onClearLimitReached } = props;
+
     const { clearHistory, scanError, clearScanError } = useScanHistory();
 
     return <>

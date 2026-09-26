@@ -9,14 +9,16 @@ type ConfirmAddToCollectionModalProps = {
     onConfirm: () => void;
 };
 
-export const ConfirmAddToCollectionModal = ({
-    entries,
-    selectedCount,
-    isAdding,
-    onCancel,
-    onConfirm,
-}: ConfirmAddToCollectionModalProps) =>
-    <div
+export const ConfirmAddToCollectionModal = (props: ConfirmAddToCollectionModalProps) => {
+    const {
+        entries,
+        selectedCount,
+        isAdding,
+        onCancel,
+        onConfirm,
+    } = props;
+
+    return <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
         onClick={onCancel}
         role="dialog"
@@ -71,3 +73,4 @@ export const ConfirmAddToCollectionModal = ({
             </div>
         </div>
     </div>;
+};

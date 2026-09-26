@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useStoredChoice } from '@/app/lib/hooks/useStoredChoice';
 
 export const CollectionTabs = {
     ALL_GAMES: 'all-games',
@@ -12,13 +12,7 @@ export const getPanelId = (tab: CollectionTab) => `panel-${tab}`;
 
 const LS_ACTIVE_TAB_KEY = 'collection-active-tab';
 
-const readStoredTab = (): CollectionTab => {
-    if (typeof window === 'undefined') { return CollectionTabs.ALL_GAMES; }
-    const stored = localStorage.getItem(LS_ACTIVE_TAB_KEY);
-    return (stored === CollectionTabs.ALL_GAMES || stored === CollectionTabs.NOT_IN_COLLECTION)
-        ? stored as CollectionTab
-        : CollectionTabs.ALL_GAMES;
-};
+const TAB_CHOICES = Object.values(CollectionTabs);
 
 type UseActiveTabResult = {
     activeTab: CollectionTab;
@@ -26,14 +20,8 @@ type UseActiveTabResult = {
 };
 
 export const useActiveCollectionTab = (): UseActiveTabResult => {
-    const [activeTab, setActiveTabInner] = useState<CollectionTab>(readStoredTab);
-
-    const setActiveTab = useCallback((tab: CollectionTab) => {
-        setActiveTabInner(tab);
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(LS_ACTIVE_TAB_KEY, tab);
-        }
-    }, []);
+    const [activeTab, setActiveTab] =
+        useStoredChoice<CollectionTab>(LS_ACTIVE_TAB_KEY, TAB_CHOICES, CollectionTabs.ALL_GAMES);
 
     return { activeTab, setActiveTab };
 };

@@ -1,6 +1,7 @@
 import { useSelector } from '@/app/lib/hooks';
 import { EMPTY_TAGS, selectTagsByCollectionId } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
+import { BggCollectionItem, BggCollectionStatuses } from '@/app/lib/types/bgg';
 import { ComponentModeMap } from '@/app/lib/types/modes';
 import { ThumbnailBox } from '@/app/ui/games/Thumbnail';
 import Link from 'next/link';
@@ -56,19 +57,71 @@ const StatusBadge = ({ icon, label, active }: { icon: ReactNode; label: string; 
         </span>
     ) : null;
 
-export const ListGameRow = ({
-    collectionId,
-    name,
-    thumbnailUrl: thumbnailUrlProp,
-    detailUrl,
-    detailUrlTarget,
-    detailUrlRel,
-    isScanned = false,
-    isVerified = false,
-    extraBadges,
-    onClick,
-    modeMap,
-}: ListGameRowProps) => {
+const CollectionStatusBadges = ({ statuses }: { statuses: BggCollectionStatuses }) => <>
+    <StatusBadge icon={<FaCheck size={11} />} label="Owned" active={statuses.own} />
+    <StatusBadge icon={<FaRecycle size={11} />} label="For Trade" active={statuses.fortrade} />
+    <StatusBadge icon={<FaHeart size={11} />} label="Wishlist" active={statuses.wishlist} />
+    <StatusBadge icon={<FaStar size={11} />} label="Want" active={statuses.want || statuses.wanttoplay || statuses.wanttobuy} />
+    <StatusBadge icon={<FaCalendar size={11} />} label="Preordered" active={statuses.preordered} />
+</>;
+
+const RowTags = ({ tags }: { tags: string[] }) => tags.length > 0 && (
+    <div className="flex gap-1 overflow-hidden mt-0.5">
+        {tags.map(tag => (
+            <span
+                key={tag}
+                className="text-[10px] leading-tight px-1 rounded bg-base-200 text-base-content/60 whitespace-nowrap"
+            >
+                {tag}
+            </span>
+        ))}
+    </div>
+);
+
+type DetailLinkProps = {
+    href?: string;
+    target?: string;
+    rel?: string;
+    className: string;
+    title?: string;
+    children: ReactNode;
+};
+
+/** Links to the detail page, or is a plain wrapper when the row opens its own action instead. */
+const DetailLink = (props: DetailLinkProps) => {
+    const {
+        href,
+        target,
+        rel,
+        className,
+        title,
+        children,
+    } = props;
+
+    return href
+    ? <Link href={href} target={target} rel={rel} className={className} title={title}>{children}</Link>
+    : <div className={className} title={title}>{children}</div>;
+};
+
+const getRowDisplay = (item: BggCollectionItem | undefined, name?: string, thumbnailUrl?: string) => item
+    ? { name: item.name, thumbnailUrl: item.version?.image ?? item.image ?? item.thumbnail ?? '' }
+    : { name, thumbnailUrl: thumbnailUrl ?? '' };
+
+export const ListGameRow = (props: ListGameRowProps) => {
+    const {
+        collectionId,
+        name,
+        thumbnailUrl: thumbnailUrlProp,
+        detailUrl,
+        detailUrlTarget,
+        detailUrlRel,
+        isScanned = false,
+        isVerified = false,
+        extraBadges,
+        onClick,
+        modeMap,
+    } = props;
+
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';
         return collectionId
@@ -80,19 +133,10 @@ export const ListGameRow = ({
         (collectionId ? selectTagsByCollectionId([state])[collectionId] : undefined) ?? EMPTY_TAGS,
     );
 
-    const resolvedName = item ? item.name : name;
-    const resolvedThumbnailUrl = item
-        ? (item.version?.image ?? item.image ?? item.thumbnail ?? '')
-        : (thumbnailUrlProp ?? '');
+    const { name: resolvedName, thumbnailUrl: resolvedThumbnailUrl } = getRowDisplay(item, name, thumbnailUrlProp);
     const statuses = item?.statuses;
-
-    const thumbnailElement = (
-        <ThumbnailBox
-            alt={resolvedName ?? resolvedThumbnailUrl}
-            url={resolvedThumbnailUrl}
-            size={LIST_THUMBNAIL_SIZE}
-        />
-    );
+    // when the row has its own action, the thumbnail and name are not links
+    const linkHref = onClick ? undefined : detailUrl;
 
     return (
         <div className="relative flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1">
@@ -103,58 +147,27 @@ export const ListGameRow = ({
                 aria-label={`View details for ${resolvedName}`}
                 onClick={onClick}
             />}
-            {onClick ? (
-                <div className="shrink-0">{thumbnailElement}</div>
-            ) : (
-                <Link
-                    href={detailUrl}
+            <DetailLink href={linkHref} target={detailUrlTarget} rel={detailUrlRel} className="shrink-0">
+                <ThumbnailBox
+                    alt={resolvedName ?? resolvedThumbnailUrl}
+                    url={resolvedThumbnailUrl}
+                    size={LIST_THUMBNAIL_SIZE}
+                />
+            </DetailLink>
+            <div className="flex-1 min-w-0">
+                <DetailLink
+                    href={linkHref}
                     target={detailUrlTarget}
                     rel={detailUrlRel}
-                    className="shrink-0"
+                    className="block text-sm font-medium truncate"
+                    title={resolvedName}
                 >
-                    {thumbnailElement}
-                </Link>
-            )}
-            <div className="flex-1 min-w-0">
-                {onClick ? (
-                    <div
-                        className="text-sm font-medium truncate"
-                        title={resolvedName}
-                    >
-                        {resolvedName}
-                    </div>
-                ) : (
-                    <Link
-                        href={detailUrl}
-                        target={detailUrlTarget}
-                        rel={detailUrlRel}
-                        className="block text-sm font-medium truncate"
-                        title={resolvedName}
-                    >
-                        {resolvedName}
-                    </Link>
-                )}
-                {tags.length > 0 && (
-                    <div className="flex gap-1 overflow-hidden mt-0.5">
-                        {tags.map(tag => (
-                            <span
-                                key={tag}
-                                className="text-[10px] leading-tight px-1 rounded bg-base-200 text-base-content/60 whitespace-nowrap"
-                            >
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-                )}
+                    {resolvedName}
+                </DetailLink>
+                <RowTags tags={tags} />
             </div>
             <div className="flex items-center gap-1.5 shrink-0 text-base-content/60">
-                {statuses && <>
-                    <StatusBadge icon={<FaCheck size={11} />} label="Owned" active={statuses.own} />
-                    <StatusBadge icon={<FaRecycle size={11} />} label="For Trade" active={statuses.fortrade} />
-                    <StatusBadge icon={<FaHeart size={11} />} label="Wishlist" active={statuses.wishlist} />
-                    <StatusBadge icon={<FaStar size={11} />} label="Want" active={statuses.want || statuses.wanttoplay || statuses.wanttobuy} />
-                    <StatusBadge icon={<FaCalendar size={11} />} label="Preordered" active={statuses.preordered} />
-                </>}
+                {statuses && <CollectionStatusBadges statuses={statuses} />}
                 <StatusBadge icon={<FaBarcode size={11} />} label="Scanned" active={isScanned} />
                 <StatusBadge icon={<FaThumbsUp size={11} />} label="Verified" active={isVerified} />
                 {extraBadges}
@@ -174,4 +187,3 @@ export const ListGameRow = ({
         </div>
     );
 };
-

@@ -63,7 +63,7 @@ ${versionPrefix}${item.versionId}` : ''}`;
 };
 
 export type TradeActionMode = {
-    hasTrade: boolean;
+    hasExport: boolean;
     isMathTrade: boolean;
     isSwap: boolean;
     isTrade: boolean;
@@ -73,7 +73,7 @@ const pluralGames = (count: number) => `${count} game${count !== 1 ? 's' : ''}`;
 
 /** Visible label and accessible label for the bulk trade/export action button. */
 export const getTradeActionLabels = (mode: TradeActionMode, count: number) => {
-    const ariaLabel = mode.hasTrade
+    const ariaLabel = mode.hasExport
         ? `Export ${pluralGames(count)} to ODS`
         : `Add ${pluralGames(count)} to math trade geeklist`;
     switch (true) {

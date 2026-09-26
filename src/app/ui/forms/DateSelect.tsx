@@ -2,11 +2,23 @@ import { SetFormValue } from '@/app/lib/extension/types';
 import { DatePicker } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export const DateSelect = ({
-        date, disabled, setValue, field = 'currency', label = 'Date'
-    }:
-    { date: string; disabled?: boolean; setValue: SetFormValue; field?: string; label?: string }
-) => {
+type DateSelectProps = {
+    date: string;
+    disabled?: boolean;
+    setValue: SetFormValue;
+    field?: string;
+    label?: string;
+};
+
+export const DateSelect = (props: DateSelectProps) => {
+    const {
+        date,
+        disabled,
+        setValue,
+        field = 'currency',
+        label = 'Date',
+    } = props;
+
     const isDefaultDate = !date;
 
     return <DatePicker className={`input text-xs h-7 w-21.5 pl-1.5 pt-1 pb-1 ${isDefaultDate ? 'bg-gray-300' : ''}`.trim()}

@@ -8,13 +8,15 @@ type AddToCollectionBarProps = {
     onRequestAdd: () => void;
 };
 
-export const AddToCollectionBar = ({
-    selectionMode,
-    selectedCount,
-    isAdding,
-    onToggleSelectionMode,
-    onRequestAdd,
-}: AddToCollectionBarProps) => {
+export const AddToCollectionBar = (props: AddToCollectionBarProps) => {
+    const {
+        selectionMode,
+        selectedCount,
+        isAdding,
+        onToggleSelectionMode,
+        onRequestAdd,
+    } = props;
+
     const games = `Game${selectedCount !== 1 ? 's' : ''}`;
 
     return <div className="flex items-center justify-between gap-2 pt-2 p-2 bg-overlay">

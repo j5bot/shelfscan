@@ -9,15 +9,11 @@ import {
     loadGeeklistSuccess,
     setActiveGeekList,
 } from '@/app/lib/redux/bgg/geeklist/slice';
+import { GeekListSummary, selectLoadedGeekLists } from '@/app/lib/redux/bgg/geeklist/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { bggGetGeeklistFromXML } from '@/app/lib/services/bgg/service';
 import { BggCollection } from '@/app/lib/types/bgg';
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
-
-export type GeekListSummary = {
-    id: number;
-    title: string;
-};
 
 type UseOLWLGMathTradeOptions = {
     username: string | undefined;
@@ -79,14 +75,7 @@ export const useOLWLGMathTrade = ({
             ? state.bgg.geeklist.geekLists[activeGeekListId]?.geekList?.title
             : undefined,
     );
-    const allGeekLists = useSelector((state: RootState) =>
-        Object.entries(state.bgg.geeklist.geekLists)
-            .filter(([, entry]) => entry.status === 'loaded')
-            .map(([id, entry]) => ({
-                id: parseInt(id, 10),
-                title: entry.geekList?.title ?? `Geeklist ${id}`,
-            })),
-    );
+    const allGeekLists = useSelector((state: RootState) => selectLoadedGeekLists([state]));
 
     // Autoload the geeklist and enter math trade mode when an ID is provided via route params.
     // Skips the network request if the geeklist is already loaded in Redux (e.g. after a dialog

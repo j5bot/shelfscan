@@ -60,7 +60,7 @@ export const CollectionPageContent = ({
     const collection = useSelector((state: RootState) => state.bgg.collection?.users[username?.toLowerCase() ?? ''] ?? undefined);
     const { syncOn } = useSync();
     const tradeMode = useTradeMode();
-    const { hasTrade, isMathTrade, isTrade } = tradeMode;
+    const { hasExport, isMathTrade, isTrade } = tradeMode;
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -111,8 +111,9 @@ export const CollectionPageContent = ({
         mathTrade.setMathTradeMode(true);
     };
 
+    // swap/trade pages export a file; math trades post to the geeklist via the extension
     const runTradeAction = () => void (
-        hasTrade ?
+        hasExport ?
         tradeSelection.handleSwapExport(isTrade ? downloadSwapExportCsv : downloadSwapExport) :
         tradeSelection.handleBulkMathTradeAdd()
     );
@@ -132,7 +133,7 @@ export const CollectionPageContent = ({
     };
 
     const showAddToCollectionBar = addSelection.canBatch && activeTab === CollectionTabs.NOT_IN_COLLECTION;
-    const showTradeActionBar = (mathTrade.mathTradeMode && syncOn) || hasTrade;
+    const showTradeActionBar = (mathTrade.mathTradeMode && syncOn) || hasExport;
 
     let tabContent = <AllGamesContent
         state={state}
@@ -234,7 +235,7 @@ export const CollectionPageContent = ({
                             mode={tradeMode}
                             selectedCount={tradeSelection.selectedMathTradeIds.size}
                             actionableCount={tradeSelection.actionableTradeItemsCount}
-                            isBusy={hasTrade ? tradeSelection.isExportingSwap : mathTrade.isBulkMathTradeAdding}
+                            isBusy={hasExport ? tradeSelection.isExportingSwap : mathTrade.isBulkMathTradeAdding}
                             onAction={runTradeAction}
                         />
                     )}

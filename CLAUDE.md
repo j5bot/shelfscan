@@ -80,6 +80,7 @@ Full style guide is in `copilot-instructions.md`. Key points:
 - **4 spaces** indentation, always semicolons, single quotes (double only in JSX string attributes).
 - **`type` not `interface`**. `PascalCase` for types/components, `camelCase` for variables/hooks, `UPPER_SNAKE_CASE` for true constants, `PascalCase` for const objects used as enums/maps.
 - **`const` arrow functions** for everything except Next.js page/layout default exports (those use `function`).
+- **Parameter destructuring**: destructure in the parameter list only for **3 or fewer** properties. With more, take `props` (components), `options` (hooks/helpers) or `params` (`…Params` types) and destructure on the first line of the body.
 - **`@/*` path alias** for all internal imports (`@/app/lib/...`). Never use `../../` relative paths. Group imports: `@/` first, then external packages.
 - **No barrel files** — each module exports its own symbols. Exception: `lib/hooks/index.ts` re-exports typed Redux hooks.
 - **`void` operator** to suppress unused-variable warnings and mark intentionally discarded `.then()` results.
