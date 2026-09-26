@@ -7,6 +7,9 @@ export const CollectionTabs = {
 
 export type CollectionTab = typeof CollectionTabs[keyof typeof CollectionTabs];
 
+export const getTabId = (tab: CollectionTab) => `tab-${tab}`;
+export const getPanelId = (tab: CollectionTab) => `panel-${tab}`;
+
 const LS_ACTIVE_TAB_KEY = 'collection-active-tab';
 
 const readStoredTab = (): CollectionTab => {
