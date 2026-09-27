@@ -37,15 +37,7 @@ const buildUserXml = (overrides: Record<string, string> = {}) => {
 // ---------------------------------------------------------------------------
 // Helper: build a minimal BGG collection XML with one item
 // ---------------------------------------------------------------------------
-const buildCollectionXml = ({
-    objectId = '100',
-    collId = '200',
-    name = 'Catan',
-    yearPublished = '1995',
-    subType = 'boardgame',
-    own = '1',
-    rating = '8.5',
-}: {
+type BuildCollectionXmlOptions = {
     objectId?: string;
     collId?: string;
     name?: string;
@@ -53,20 +45,34 @@ const buildCollectionXml = ({
     subType?: string;
     own?: string;
     rating?: string;
-} = {}) => `<?xml version="1.0" encoding="utf-8"?>
-<items totalitems="1">
-  <item objecttype="thing" objectid="${objectId}" subtype="${subType}" collid="${collId}">
-    <name sortindex="1">${name}</name>
-    <yearpublished>${yearPublished}</yearpublished>
-    <status own="${own}" prevowned="0" fortrade="0" want="0" wanttoplay="0"
-            wanttobuy="0" wishlist="0" preordered="0" lastmodified="2024-01-01 00:00:00" />
-    <stats minplayers="2" maxplayers="6" minplaytime="60" maxplaytime="120" numowned="150000">
-      <rating value="${rating}">
-        <usersrated value="50000" />
-      </rating>
-    </stats>
-  </item>
-</items>`;
+};
+
+const buildCollectionXml = (options: BuildCollectionXmlOptions = {}) => {
+    const {
+        objectId = '100',
+        collId = '200',
+        name = 'Catan',
+        yearPublished = '1995',
+        subType = 'boardgame',
+        own = '1',
+        rating = '8.5',
+    } = options;
+
+    return `<?xml version="1.0" encoding="utf-8"?>
+    <items totalitems="1">
+      <item objecttype="thing" objectid="${objectId}" subtype="${subType}" collid="${collId}">
+        <name sortindex="1">${name}</name>
+        <yearpublished>${yearPublished}</yearpublished>
+        <status own="${own}" prevowned="0" fortrade="0" want="0" wanttoplay="0"
+                wanttobuy="0" wishlist="0" preordered="0" lastmodified="2024-01-01 00:00:00" />
+        <stats minplayers="2" maxplayers="6" minplaytime="60" maxplaytime="120" numowned="150000">
+          <rating value="${rating}">
+            <usersrated value="50000" />
+          </rating>
+        </stats>
+      </item>
+    </items>`;
+};
 
 // ---------------------------------------------------------------------------
 // Provide window.DOMParser in the jsdom environment

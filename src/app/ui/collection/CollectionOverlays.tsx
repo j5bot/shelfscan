@@ -20,16 +20,18 @@ type CollectionOverlaysProps = {
 };
 
 /** Toasts, modals and dialogs that float above the collection page. */
-export const CollectionOverlays = ({
-    refreshError,
-    onDismissRefreshError,
-    selectedItem,
-    onCloseItem,
-    onGeeklistLoaded,
-    mathTrade,
-    tradeSelection,
-    addSelection,
-}: CollectionOverlaysProps) => {
+export const CollectionOverlays = (props: CollectionOverlaysProps) => {
+    const {
+        refreshError,
+        onDismissRefreshError,
+        selectedItem,
+        onCloseItem,
+        onGeeklistLoaded,
+        mathTrade,
+        tradeSelection,
+        addSelection,
+    } = props;
+
     const addedCount = addSelection.addedNames.length;
 
     return <>

@@ -10,13 +10,14 @@ export type TagsFormProps = {
     collectionId: number;
 };
 
-export const TagsForm = ({
-    formValues,
-    setFormValues,
-    field,
-    placeholder,
-    collectionId,
-}:ModeSettingFormProps & TagsFormProps) => {
+export const TagsForm = (props: ModeSettingFormProps & TagsFormProps) => {
+    const {
+        formValues,
+        setFormValues,
+        field,
+        placeholder,
+        collectionId,
+    } = props;
 
     const item = useSelector((state: RootState) => {
         const username = state.bgg.user.user?.toLowerCase() ?? '';

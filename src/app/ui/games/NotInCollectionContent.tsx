@@ -70,33 +70,35 @@ type NotInCollectionContentProps = {
     onToggleSelection: (entry: NotInCollectionEntry) => void;
 };
 
-export const NotInCollectionContent = ({
-    collectionHasData,
-    username,
-    isRefreshing,
-    refreshCollection,
-    view,
-    notInCollectionItems,
-    scanHistoryLength,
-    sortFields,
-    sortField,
-    sortDirection,
-    onSortClick,
-    displayItems,
-    filters,
-    setFilter,
-    hasActiveFilters,
-    resetFilters,
-    savedFilters,
-    onSaveFilters,
-    onLoadFilter,
-    onRenameFilter,
-    onDeleteFilter,
-    onDuplicateFilter,
-    selectionMode,
-    selectedIds,
-    onToggleSelection,
-}: NotInCollectionContentProps) => {
+export const NotInCollectionContent = (props: NotInCollectionContentProps) => {
+    const {
+        collectionHasData,
+        username,
+        isRefreshing,
+        refreshCollection,
+        view,
+        notInCollectionItems,
+        scanHistoryLength,
+        sortFields,
+        sortField,
+        sortDirection,
+        onSortClick,
+        displayItems,
+        filters,
+        setFilter,
+        hasActiveFilters,
+        resetFilters,
+        savedFilters,
+        onSaveFilters,
+        onLoadFilter,
+        onRenameFilter,
+        onDeleteFilter,
+        onDuplicateFilter,
+        selectionMode,
+        selectedIds,
+        onToggleSelection,
+    } = props;
+
     if (!collectionHasData) {
         return (
             <div className="flex flex-col items-center gap-4 p-8 pt-10 text-center">

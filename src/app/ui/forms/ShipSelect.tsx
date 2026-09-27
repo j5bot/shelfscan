@@ -21,13 +21,15 @@ const shipAreasOptions = [
 ];
 
 export const ShipSelect = (
-    { id, shipLocation, shipAreas, setValue }: {
+    props: {
         id?: string;
         shipLocation: string;
         shipAreas: string[] | undefined;
         setValue: SetFormValue;
     }
 ) => {
+    const { id, shipLocation, shipAreas, setValue } = props;
+
     const shipAreasKey = shipAreas?.join(',');
 
     // the selects own the pending choice (saving can be async); keying by the

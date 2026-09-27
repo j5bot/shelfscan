@@ -9,9 +9,17 @@ type TradeActionBarProps = {
     onAction: () => void;
 };
 
-export const TradeActionBar = ({ mode, selectedCount, actionableCount, isBusy, onAction }: TradeActionBarProps) => {
+export const TradeActionBar = (props: TradeActionBarProps) => {
+    const {
+        mode,
+        selectedCount,
+        actionableCount,
+        isBusy,
+        onAction,
+    } = props;
+
     const { label, ariaLabel } = getTradeActionLabels(mode, actionableCount);
-    const hint = mode.hasTrade ? 'Click image to select for export' : 'Click image to select for Math Trade';
+    const hint = mode.hasExport ? 'Click image to select for export' : 'Click image to select for Math Trade';
 
     let icon = <FaFileExport className="w-4 h-4" />;
     switch (true) {

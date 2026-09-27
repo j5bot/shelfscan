@@ -46,15 +46,7 @@ const makeCollectionItem = (
     thumbnail: undefined,
 });
 
-const makeState = ({
-    username = 'alice',
-    items = {},
-    objectsAll = {},
-    objectsOwn = {},
-    versionsAll = {},
-    versionsOwn = {},
-    tagsByItem = {},
-}: {
+type MakeStateOptions = {
     username?: string;
     items?: BggCollectionMap;
     objectsAll?: Record<number, string[]>;
@@ -62,8 +54,20 @@ const makeState = ({
     versionsAll?: Record<number, string[]>;
     versionsOwn?: Record<number, string[]>;
     tagsByItem?: Record<number, string[]>;
-} = {}): RootState =>
-    ({
+};
+
+const makeState = (options: MakeStateOptions = {}): RootState => {
+    const {
+        username = 'alice',
+        items = {},
+        objectsAll = {},
+        objectsOwn = {},
+        versionsAll = {},
+        versionsOwn = {},
+        tagsByItem = {},
+    } = options;
+
+    return ({
         bgg: {
             user: { user: username },
             collection: {
@@ -85,6 +89,7 @@ const makeState = ({
             },
         },
     }) as unknown as RootState;
+};
 
 const makeInfo = (
     id: number,

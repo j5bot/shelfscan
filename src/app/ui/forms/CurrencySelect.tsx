@@ -29,12 +29,26 @@ const currencies = [
     { value: 'THB', label: '฿' },
 ];
 
-export const CurrencySelect = ({
-    id, currency, disabled, setValue, field = 'currency', label = 'Currency'
-}:
-    { id?: string; currency: string; disabled?: boolean; setValue: SetFormValue; field?: string, label?: string }
-) =>
-    <select id={id} name={field} aria-label={label} className={`text-left select select-sm
+type CurrencySelectProps = {
+    id?: string;
+    currency: string;
+    disabled?: boolean;
+    setValue: SetFormValue;
+    field?: string;
+    label?: string;
+};
+
+export const CurrencySelect = (props: CurrencySelectProps) => {
+    const {
+        id,
+        currency,
+        disabled,
+        setValue,
+        field = 'currency',
+        label = 'Currency',
+    } = props;
+
+    return <select id={id} name={field} aria-label={label} className={`text-left select select-sm
             select-condensed
             h-7 w-24 pl-1.5 p-0`}
             value={currency}
@@ -47,3 +61,4 @@ export const CurrencySelect = ({
                     value={currency.value}>{currency.label}</option>
         )}
 </select>;
+};

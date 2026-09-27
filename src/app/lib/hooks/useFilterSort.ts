@@ -27,15 +27,17 @@ type UseFilterSortResult<F extends string> = {
     displayItems: ReturnType<typeof Array.prototype.slice>;
 };
 
-export const useFilterSort = <T, F extends string>({
-    items = [],
-    filterFn,
-    extraFilterFn,
-    sortFields,
-    defaultSortField,
-    defaultSortDirection = 'asc',
-    storageKeyPrefix,
-}: UseFilterSortOptions<T, F>): UseFilterSortResult<F> & { displayItems: T[] } => {
+export const useFilterSort = <T, F extends string>(options: UseFilterSortOptions<T, F>): UseFilterSortResult<F> & { displayItems: T[] } => {
+    const {
+        items = [],
+        filterFn,
+        extraFilterFn,
+        sortFields,
+        defaultSortField,
+        defaultSortDirection = 'asc',
+        storageKeyPrefix,
+    } = options;
+
     const lsFilterKey = storageKeyPrefix ? `${storageKeyPrefix}-filter` : null;
     const lsSortFieldKey = storageKeyPrefix ? `${storageKeyPrefix}-sort-field` : null;
     const lsSortDirKey = storageKeyPrefix ? `${storageKeyPrefix}-sort-dir` : null;

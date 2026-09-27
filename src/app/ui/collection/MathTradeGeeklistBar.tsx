@@ -1,5 +1,5 @@
 import { bggHost } from '@/app/lib/services/bgg/constants';
-import { GeekListSummary } from '@/app/lib/hooks/useOLWLGMathTrade';
+import { GeekListSummary } from '@/app/lib/redux/bgg/geeklist/selectors';
 import { GeekListSwitcher } from '@/app/ui/GeekListSwitcher';
 import Link from 'next/link';
 import { FaExternalLinkAlt } from 'react-icons/fa';
@@ -14,15 +14,17 @@ type MathTradeGeeklistBarProps = {
     onLoadAnother: () => void;
 };
 
-export const MathTradeGeeklistBar = ({
-    activeGeekListId,
-    allGeekLists,
-    isRefreshingGeeklist,
-    onRefreshGeeklist,
-    onSelectGeeklist,
-    onLoadAnother,
-}: MathTradeGeeklistBarProps) =>
-    <div className="w-full flex items-center justify-center gap-0.5">
+export const MathTradeGeeklistBar = (props: MathTradeGeeklistBarProps) => {
+    const {
+        activeGeekListId,
+        allGeekLists,
+        isRefreshingGeeklist,
+        onRefreshGeeklist,
+        onSelectGeeklist,
+        onLoadAnother,
+    } = props;
+
+    return <div className="w-full flex items-center justify-center gap-0.5">
         {activeGeekListId !== null && (
             <button
                 type="button"
@@ -61,3 +63,4 @@ export const MathTradeGeeklistBar = ({
             <FaPlus aria-hidden="true" />
         </button>
     </div>;
+};
