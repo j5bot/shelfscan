@@ -34,3 +34,6 @@ peerDependencyRules:
   allowedVersions:
     "typescript": "6"
     "eslint": "10"
+minimumReleaseAgeExclude:
+  - '@react-barcode-scanner/components@0.2.0'
+  - '@react-barcode-scanner/hooks@0.2.0'

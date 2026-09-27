@@ -3,6 +3,7 @@
 import { CodesProvider } from '@/app/lib/CodesProvider';
 import { GameSelectionsProvider } from '@/app/lib/GameSelectionsProvider';
 import { GameUPCDataProvider } from '@/app/lib/GameUPCDataProvider';
+import { McpToolsProvider } from '@/app/lib/McpToolsProvider';
 import { ExtensionMessagingProvider } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { NextStepProvider } from '@/app/lib/NextStepProvider';
 import { PlayDataProvider } from '@/app/lib/extension/PlayDataProvider';
@@ -32,6 +33,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                         <SyncProvider>
                                         <ExtensionMessagingProvider>
                                             <PlayDataProvider>
+                                            <McpToolsProvider>
                                             <SubscribeBanner />
                                             <div style={{
                                                 minHeight: 'calc(100dvh - 7.5em)'
@@ -54,6 +56,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                                                 </div>
                                                 <Suspense><ExtensionNotice /></Suspense>
                                             </div>
+                                            </McpToolsProvider>
                                             </PlayDataProvider>
                                         </ExtensionMessagingProvider>
                                         </SyncProvider>
