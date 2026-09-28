@@ -19,6 +19,7 @@
     "@bpmn-io/form-js-viewer": "2.0.0",
     "@loadable/component": "5.16.7",
     "@react-barcode-scanner/components": "0.2.0",
+    "@react-barcode-scanner/hooks": "0.2.0",
     "@reactuses/core": "6.5.9",
     "@reduxjs/toolkit": "2.12.0",
     "@undecaf/zbar-wasm": "0.11.0",

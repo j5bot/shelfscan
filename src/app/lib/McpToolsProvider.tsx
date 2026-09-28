@@ -1,4 +1,6 @@
-import { useScannedCodesTool } from '@/app/lib/hooks/useScannedCodesTool';
+import { useGameUPCDataTool } from '@/app/lib/hooks/webmcp/useGameUPCDataTool';
+import { useScannedCodesTool } from '@/app/lib/hooks/webmcp/useScannedCodesTool';
+import { useScanUPCTool } from '@/app/lib/hooks/webmcp/useScanUPCTool';
 import { ReactNode } from 'react';
 import { WebMCPProvider } from 'webmcp-react';
 
@@ -8,7 +10,9 @@ type Props = {
 
 // tool hooks must run inside WebMCPProvider, so they live in a child component
 const McpTools = ({ children }: Props) => {
+    useGameUPCDataTool();
     useScannedCodesTool();
+    useScanUPCTool();
     return children;
 };
 

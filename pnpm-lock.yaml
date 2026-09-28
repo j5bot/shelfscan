@@ -200,6 +200,9 @@ importers:
       '@react-barcode-scanner/components':
         specifier: 0.2.0
         version: 0.2.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      '@react-barcode-scanner/hooks':
+        specifier: ^0.2.0
+        version: 0.2.0(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@reactuses/core':
         specifier: 6.5.9
         version: 6.5.9(react@19.3.0)
