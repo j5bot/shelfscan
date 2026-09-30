@@ -8,6 +8,8 @@ import {
     getPrivateInfoFromObject,
     getCollectionFromXml,
     getCollectionItemFromObject,
+    getBggXmlError,
+    summarizeCollection,
 } from '@/app/lib/services/bgg/service';
 
 // Mock Dexie-backed cache so the service module loads cleanly
@@ -329,6 +331,44 @@ describe('bgg/service', () => {
             };
             const result = getCollectionItemFromObject(obj);
             expect(result.subType).toEqual('boardgame');
+        });
+    });
+
+    describe('getBggXmlError', () => {
+        it('returns undefined for a valid response', () => {
+            expect(getBggXmlError('<items totalitems="0"></items>')).toBeUndefined();
+        });
+
+        it('returns the message of an <errors> response', () => {
+            const xml = '<errors><error><message>Invalid username specified</message></error></errors>';
+            expect(getBggXmlError(xml)).toEqual('Invalid username specified');
+        });
+
+        it('returns the text of a bare <error> response', () => {
+            expect(getBggXmlError('<error>Rate limited</error>')).toEqual('Rate limited');
+        });
+
+        it('reports an empty response', () => {
+            expect(getBggXmlError('')).toEqual('Empty response from BGG');
+        });
+    });
+
+    describe('summarizeCollection', () => {
+        it('counts games, expansions and statuses', () => {
+            const items = {
+                1: { collectionId: 1, subType: 'boardgame', statuses: { own: true, fortrade: true } },
+                2: { collectionId: 2, subType: 'boardgameexpansion', statuses: { own: true } },
+                3: { collectionId: 3, subType: 'boardgame', statuses: { wishlist: true } },
+            } as unknown as Parameters<typeof summarizeCollection>[0];
+
+            const summary = summarizeCollection(items);
+            expect(summary.total).toEqual(3);
+            expect(summary.games).toEqual(2);
+            expect(summary.expansions).toEqual(1);
+            expect(summary.statuses.own).toEqual(2);
+            expect(summary.statuses.fortrade).toEqual(1);
+            expect(summary.statuses.wishlist).toEqual(1);
+            expect(summary.statuses.preordered).toEqual(0);
         });
     });
 });

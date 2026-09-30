@@ -40,7 +40,7 @@ ShelfScan is a board game UPC barcode scanner web app. Users scan barcodes via w
 ### State management — three layers
 
 1. **Redux Toolkit** (`src/app/lib/redux/`) — Store created via `makeStore()` with two top-level reducers: `bgg` (combines `user`, `collection`, `geeklist`) and `swap` (per-item swap/trade export data). Always import typed hooks from `@/app/lib/hooks`, never directly from `react-redux`. Redux state must stay serializable (arrays, not `Set`s).
-2. **React Context** — Feature-specific state. Provider nesting order in `(overview)/layout.tsx` (outer → inner): `Provider` (Redux) → `SettingsProvider` → `TailwindProvider` → `PluginMapProvider` → `CodesProvider` → `GameSelectionsProvider` → `GameUPCDataProvider` → `ScanHistoryProvider` → `NextStepProvider` → `SyncProvider` → `ExtensionMessagingProvider` → `PlayDataProvider`. New providers go here.
+2. **React Context** — Feature-specific state. Provider nesting order in `(overview)/layout.tsx` (outer → inner): `Provider` (Redux) → `SettingsProvider` → `TailwindProvider` → `PluginMapProvider` → `CodesProvider` → `GameSelectionsProvider` → `GameUPCDataProvider` → `ScanHistoryProvider` → `NextStepProvider` → `SyncProvider` → `ExtensionMessagingProvider` → `PlayDataProvider` → `McpToolsProvider`. New providers go here.
 3. **Dexie (IndexedDB)** — Persistent client storage. Two databases: `db` (settings, plugins, collections, scanned, dataforms, scanHistory, filters) and `cache` (images, responses). Schemas in `src/app/lib/database/`. Backup/restore lives in `lib/utils/dbBackup.ts` (PNG-wrapped export, encoded off-thread by `lib/workers/dbBackupWorker.ts`).
 
 **Game selection**: the chosen `[infoId, versionId]` per UPC lives in `GameSelectionsProvider` (shared by the scan list, batch add and swap export). `useSelectVersion` derives the current info/version from it with `resolveGameSelection()` (`lib/utils/gameSelection.ts`), which auto-selects a lone info/version; always update selections with functional `setGameSelections(prev => …)`.
@@ -66,6 +66,7 @@ BGG API has a retry loop for 202 "please wait" responses (up to 20 retries, 2 s 
 | `src/app/lib/hooks/useSelectVersion.ts` | Game/version selection for a UPC (see Game selection above) |
 | `src/app/lib/hooks/useTradeMode.ts` | Swap / trade / math-trade mode flags derived from the pathname |
 | `src/app/lib/extension/` | Extension bridge: `ExtensionMessagingProvider` (postMessage, origin-checked), `SyncProvider` / `useSync` (extension + subscription status), `PlayDataProvider`, `useExtension` |
+| `src/app/lib/McpToolsProvider.tsx` | `WebMCPProvider` (webmcp-react) + registration of WebMCP tools; each tool is a `use…Tool` hook in `lib/hooks/` called from `McpTools` |
 | `src/app/ui/DismissibleToast.tsx` | Click- or keyboard-dismissible toast — use for dismiss-on-click notices |
 | `src/app/ui/Scanner.tsx` | Barcode scanner UI |
 | `next.config.ts` | `serverExternalPackages`, image rewrites (`/bgg-images`, `/gameupc-images`), allowed image domains |

@@ -7,13 +7,13 @@ import { getCollection, setSetting } from '@/app/lib/database/database';
 import { useDispatch } from '@/app/lib/hooks/index';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
+import { getUserCacheIds, identifyBggUser } from '@/app/lib/services/bgg/loadUser';
 import {
     getBggUser,
     getCollectionFromCache,
     getCollectionFromXml
 } from '@/app/lib/services/bgg/service';
 import { BggCollectionMap } from '@/app/lib/types/bgg';
-import posthog from 'posthog-js';
 import { useEffect, useState, useTransition } from 'react';
 import sleep from 'sleep-promise';
 
@@ -29,19 +29,7 @@ export const useLoadUser = () => {
             return;
         }
         const user = getBggUser(userXml);
-
-        if (user.id) {
-            const distinctId = `bgg:${user.user}`;
-            const currentDistinctId = posthog.get_distinct_id();
-
-            if (currentDistinctId.startsWith('bgg:') && currentDistinctId !== distinctId) {
-                posthog.reset();
-            }
-
-            posthog.identify(distinctId, {
-                bgg_username: user.user,
-            });
-        }
+        identifyBggUser(user);
 
         dispatch(setBggUser(user));
         dispatch(updateCollectionItems({
@@ -58,9 +46,11 @@ export const useLoadUser = () => {
         }
         setUsername(username);
         startTransition(async () => {
-            const id = `collection|${username.toLowerCase()}`;
-            const expansionsId = `collection-expansions|${username.toLowerCase()}`;
-            const userCacheId = `user|${username.toLowerCase()}`;
+            const {
+                collection: id,
+                expansions: expansionsId,
+                user: userCacheId,
+            } = getUserCacheIds(username);
 
             setSetting('username', username).then();
 
