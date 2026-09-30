@@ -5,6 +5,7 @@ import {
     BggCollectionStatuses,
     BggRawObject,
     BggUser,
+    PossibleStatus,
     PossibleStatuses
 } from '@/app/lib/types/bgg';
 import { GeekList } from '@/app/lib/types/geeklist';
@@ -377,5 +378,39 @@ export const bggGetGeeklistFromXML = (xml: string): GeekList | undefined => {
         title,
         description,
         items,
+    };
+};
+// BGG reports bad requests (e.g. an unknown username) as 200 responses with an <error> body
+export const getBggXmlError = (xml?: string): string | undefined => {
+    if (!xml || xml.length === 0) {
+        return 'Empty response from BGG';
+    }
+    const error = getPageDOM(xml, true).querySelector('error');
+    if (!error) {
+        return undefined;
+    }
+    return (error.querySelector('message') ?? error).textContent?.trim() || 'Unknown BGG error';
+};
+
+export type BggCollectionSummary = {
+    total: number;
+    games: number;
+    expansions: number;
+    statuses: Record<PossibleStatus, number>;
+};
+
+export const summarizeCollection = (items: BggCollectionMap): BggCollectionSummary => {
+    const values = Object.values(items);
+    const expansions = values.filter(item => item.subType === 'boardgameexpansion').length;
+    const statuses = Object.fromEntries(PossibleStatuses.map(status => [
+        status,
+        values.filter(item => item.statuses?.[status]).length,
+    ])) as BggCollectionSummary['statuses'];
+
+    return {
+        total: values.length,
+        games: values.length - expansions,
+        expansions,
+        statuses,
     };
 };

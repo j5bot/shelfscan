@@ -27,7 +27,7 @@
     "daisyui": "5.7.44",
     "dexie": "4.4.6",
     "dexie-export-import": "4.4.1",
-    "gameupc-hooks": "1.0.12",
+    "gameupc-hooks": "1.1.0",
     "jszip": "3.10.2",
     "motion": "13.4.2",
     "next": "16.3.6",
