@@ -26,7 +26,7 @@ Run a single test file: `pnpm exec vitest run tests/utils.test.ts`
 
 ShelfScan is a board game UPC barcode scanner web app. Users scan barcodes via webcam/phone camera, look up game data via the [GameUPC API](https://gameupc.com), and interact with [BoardGameGeek (BGG)](https://boardgamegeek.com). A companion browser extension (Chrome, Edge, Firefox, Safari — source in the sibling `shelfscan-extension` repo) enables BGG collection, play, rating and market actions, and math-trade geeklist posting. Beyond scanning, the app covers collection browsing/filtering, batch add, and math trades (OLWLG geeklists, Swaptagon, Atlas Realms) — trade mode is derived from the URL by `useTradeMode()` (`/math-trade`, `/swap`, `/trade`, `/swapscan`, `/tradescan`).
 
-**Stack**: Next.js 16 (App Router) · React 19.3 · TypeScript 6 · Tailwind CSS v4 + DaisyUI v5 · Redux Toolkit · Dexie (IndexedDB) · PostHog + Vercel Analytics · Vitest · Deployed on Vercel.
+**Stack**: Next.js 16 (App Router) · React 19.3 · TypeScript 7 · Tailwind CSS v4 + DaisyUI v5 · Redux Toolkit · Dexie (IndexedDB) · PostHog + Vercel Analytics · Vitest · Deployed on Vercel.
 
 ### Next.js App Router layout
 
@@ -187,6 +187,7 @@ Tests cover pure logic (utils, services, redux, plugins); there are no component
 ## Dependency gotchas
 
 - pnpm settings live in **`pnpm-workspace.yaml`** (not `package.json`): `overrides`, `patchedDependencies`, `allowBuilds`, `peerDependencyRules`.
+- **ESLint runs on TypeScript 6**: typescript-eslint doesn't support TypeScript 7 yet, so `.pnpmfile.cjs` turns `eslint-config-next`'s `typescript` peer into a dependency on 6.0.3 (pnpm overrides and `packageExtensions` can't redirect a peer). `tsc` and `next build` use 7. Remove the hook once typescript-eslint supports 7.
 - **Supply-chain policy** (`pnpm-workspace.yaml`): `minimumReleaseAge: 1440` (versions under a day old are refused) and `trustPolicy: no-downgrade` (with exact-version `trustPolicyExclude` entries for old releases published before their maintainers adopted provenance). pnpm 12 also checks the existing lockfile, so if an install is blocked, wait for the release to age or add a scoped `minimumReleaseAgeExclude` for an urgent fix — don't remove the policy.
 - `@undecaf/barcode-detector-polyfill@0.9.23` is **patched** (see `patches/`) to import zbar-wasm from the local package instead of CDN. If upgraded, regenerate the patch.
 - `@undecaf/zbar-wasm` is **overridden** to `^0.11.0` across all transitive deps.

@@ -18,7 +18,7 @@ export const useBGGCollectionTool = () => {
     const dispatch = useDispatch();
 
     useMcpTool({
-        name: 'bgg_load_collection',
+        name: 'load_bgg_collection',
         title: 'Load a BGG collection',
         description: 'Fetch a fresh (non-cached) copy of a BoardGameGeek user\'s collection, games and expansions, '
             + 'and make it the active ShelfScan user and collection. Transient BGG errors are retried for up to a minute. '
