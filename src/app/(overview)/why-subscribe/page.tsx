@@ -23,7 +23,7 @@ const WhySubscribePage = () => {
                     Why a Subscription?
                 </h1>
 
-                <h3 className="font-semibold mb-2">It's Simple. Costs.</h3>
+                <h3 className="font-semibold mb-2">It&apos;s Simple. Costs.</h3>
                 <p>
                     There are both fixed and variable costs to developing and hosting
                     the ShelfScan web app, and to providing an iOS extension on the

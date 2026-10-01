@@ -63,7 +63,7 @@ const ExtensionPage = () => {
                                                                className="underline"
                                                                target="_blank">
                     BGG Supporter
-                </Link> at the "ad block" level is required to use the extension.</p>
+                </Link> at the &quot;ad block&quot; level is required to use the extension.</p>
 
                 <p><Link className="flex items-center gap-2" href="https://addons.mozilla.org/en-US/firefox/addon/shelfscan-io/"
                          target="_blank"><FaFirefox className="w-6 h-6" /> <span className="underline">

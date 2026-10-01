@@ -53,15 +53,15 @@ const WorkflowsPage = () => {
                     <CollectionQuickFiltering />
                 </div>
                 <div className="p-2">
-                    <p>For all workflows, make sure that you have 'signed in' with your
+                    <p>For all workflows, make sure that you have &apos;signed in&apos; with your
                         BGG username, and that you have recently refreshed your
-                        collection data using the 'Refresh Collection' button in the
+                        collection data using the &apos;Refresh Collection&apos; button in the
                         navigation menu.</p>
                     <p>If a workflow requires the <Link href="/extension">ShelfScan
                         Extension</Link>, make sure that you have it installed in your
                         browser, that you are an active <a href="https://boardgamegeek.com/support">BGG
                             Supporter</a> or Free Trial user. Also make sure that you have
-                        logged into BGG with the same user with which you 'signed in' to
+                        logged into BGG with the same user with which you &apos;signed in&apos; to
                         ShelfScan.</p>
 
                     <p>For most uses of ShelfScan, we recommend using the same mobile

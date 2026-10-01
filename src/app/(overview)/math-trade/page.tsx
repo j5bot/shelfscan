@@ -36,7 +36,7 @@ export default function MathTradeLandingPage() {
                     </p>
                     <p>
                         The OLWLG app can synchronize your BGG collection and
-                        assist you with adding 'For Trade' items to the geeklist.
+                        assist you with adding &apos;For Trade&apos; items to the geeklist.
                     </p>
                     <p>
                         With ShelfScan, you can add items to an OLWLG geeklist

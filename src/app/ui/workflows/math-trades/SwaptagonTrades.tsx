@@ -21,7 +21,7 @@ export const SwaptagonTrades = () => (
             <figcaption className="italic">Opening the property edit form</figcaption>
         </figure>
         <p>
-            Edit the condition/description, compare value and sell for values and click on "Done" when finished.
+            Edit the condition/description, compare value and sell for values and click on &quot;Done&quot; when finished.
         </p>
         <figure>
             <img className="max-w-4/5" src="/images/workflows/swap-condition-form.jpg"
@@ -67,7 +67,7 @@ export const SwaptagonTrades = () => (
             <figcaption className="italic">Save the file export</figcaption>
         </figure>
         <p>
-            After saving the export, you'll need to import it into Swaptagon.
+            After saving the export, you&apos;ll need to import it into Swaptagon.
         </p>
         <p>
             Install the <Link href="https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js"
@@ -77,7 +77,7 @@ export const SwaptagonTrades = () => (
         <p>
             Go to <Link href="https://swaptagon.com" className="underline" target="_blank">
                 Swaptagon
-            </Link> and navigate to the 'Add Item' page for the swap you're participating in.
+            </Link> and navigate to the &apos;Add Item&apos; page for the swap you&apos;re participating in.
         </p>
         <p>
             The import panel will appear in the lower right of the page.
@@ -88,10 +88,10 @@ export const SwaptagonTrades = () => (
             <figcaption className="italic">Swaptagon import panel</figcaption>
         </figure>
         <p>
-            Click on the 'Choose File' button, navigate to your export file and click 'Open'.
+            Click on the &apos;Choose File&apos; button, navigate to your export file and click &apos;Open&apos;.
         </p>
         <p>
-            Click on 'Import Swap Data' to add the items from the export file to the swap.
+            Click on &apos;Import Swap Data&apos; to add the items from the export file to the swap.
         </p>
     </>
 );
