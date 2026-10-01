@@ -54,7 +54,7 @@ export default function RootLayout({
           <link rel="manifest" href="/favicons/site.webmanifest" />
           <Script src="https://cdn.jsdelivr.net/npm/image-blob-reduce@4.1.0/dist/image-blob-reduce.min.js" strategy="beforeInteractive"></Script>
       </head>
-      <body className={`
+      <body suppressHydrationWarning className={`
           w-full min-h-screen
           ${geistSans.variable} ${geistMono.variable} ${shareTech.variable} ${encodeCondensed.variable}
           antialiased
