@@ -11,7 +11,7 @@ export const MathTrades = () => (
 
             <p>Math Trades are easier with ShelfScan. You can search and filter your
                 entire collection or for some platforms, simply scan games.</p>
-            <p>Then you'll open new windows, export files from ShelfScan to import
+            <p>Then you&apos;ll open new windows, export files from ShelfScan to import
                 into other sites, or with the
                 <Link className="underline"
                       href="/extension">Extension</Link>, add items with the click of

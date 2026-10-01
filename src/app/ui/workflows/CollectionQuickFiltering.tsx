@@ -24,21 +24,21 @@ export const CollectionQuickFiltering = () => (
             </div>
             <p>Above you can see the quick filter buttons and what filtering they
                 are associated with.</p>
-            <p>Most filters have an 'on', 'not', and 'off' state, which you
+            <p>Most filters have an &apos;on&apos;, &apos;not&apos;, and &apos;off&apos; state, which you
                 toggle through by clicking on the button.</p>
-            <p>In the 'on' state, only games that match the filter criteria will
+            <p>In the &apos;on&apos; state, only games that match the filter criteria will
                 be shown.</p>
-            <p>In the 'not' state, only games that do not match the filter
+            <p>In the &apos;not&apos; state, only games that do not match the filter
                 criteria will be shown.</p>
-            <p>In the 'off' state, the filter is not applied and all games will
+            <p>In the &apos;off&apos; state, the filter is not applied and all games will
                 be shown regardless of that criteria.</p>
-            <p>Some filters, such as the 'Rating' and 'Plays' filters, also have
+            <p>Some filters, such as the &apos;Rating&apos; and &apos;Plays&apos; filters, also have
                 min and max input fields to allow you to narrow the results to a
-                specific range. The 'Wishlist' filter also has a parameter -
+                specific range. The &apos;Wishlist&apos; filter also has a parameter -
                 a priority selection dropdown.</p>
             <p>You can combine multiple filters to narrow your search and find
                 just the games you are interested in. For example, you could
-                select an 'Owned' filter and 'Rating' filter, and enter min and
+                select an &apos;Owned&apos; filter and &apos;Rating&apos; filter, and enter min and
                 max rating values to find all the games in your collection that you
                 have rated poorly.</p>
             <div className="flex justify-center py-3 px-1">

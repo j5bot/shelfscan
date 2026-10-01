@@ -47,7 +47,7 @@ const generateBatchScanStep = (start: number, end: number): TourStep => {
     };
     return Object.assign(batchScanStep, {
         selector: '#scan-barcodes',
-        side: start > 1 ? undefined : 'bottom' as 'bottom',
+        side: start > 1 ? undefined : 'bottom' as const,
     });
 };
 

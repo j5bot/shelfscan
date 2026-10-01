@@ -1,5 +1,5 @@
 import { SetFormValue } from '@/app/lib/extension/types';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const paymentMethodOptions = [
     { value: 'paypal', label: 'PayPal' },
@@ -19,14 +19,10 @@ export const PaymentMethodSelect = ({
     paymentMethod?: string[];
     setValue: SetFormValue;
 }) => {
-    const [paymentMethodValues, setPaymentMethodValues] =
-        useState<string[] | undefined>(paymentMethod);
-
+    // the user's selection, kept with the prop value it was made against so a new prop resets it
     const paymentMethodKey = paymentMethod.join(',');
-    useEffect(() => {
-        setPaymentMethodValues(paymentMethod);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [paymentMethodKey]);;
+    const [override, setOverride] = useState<{ key: string; values: string[] }>();
+    const paymentMethodValues = override?.key === paymentMethodKey ? override.values : paymentMethod;
 
     return <>
         <input type="hidden" name="paymentMethod"
@@ -39,8 +35,8 @@ export const PaymentMethodSelect = ({
                 onChange={event => {
                     const values = Array.from(event.currentTarget
                         .selectedOptions)?.map(option => option.value);
-                    setPaymentMethodValues(values);
-                    setValue('statuses', values.join(','));
+                    setOverride({ key: paymentMethodKey, values });
+                    setValue('paymentMethod', values.join(','));
                 }}
         >
             {paymentMethodOptions.map(paymentMethod =>

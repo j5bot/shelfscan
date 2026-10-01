@@ -40,8 +40,8 @@ export const PlayerPicker = (props: PlayerPickerProps) => {
 
     const [open, setOpen] = useState<boolean>(false);
     const [query, setQuery] = useState<string>('');
-    const [searchResults, setSearchResults] = useState<PlayersMap>({});
-    const [isSearching, setIsSearching] = useState<boolean>(false);
+    // results are kept with the query they answer, so a late response for an old query is ignored
+    const [search, setSearch] = useState<{ query: string; results: PlayersMap }>({ query: '', results: {} });
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -54,26 +54,31 @@ export const PlayerPicker = (props: PlayerPickerProps) => {
         return () => document.removeEventListener('mousedown', handler);
     }, []);
 
+    const canSearch = query.trim().length >= SEARCH_MIN_LENGTH;
+    const isSearching = canSearch && search.query !== query;
+    const searchResults = canSearch && !isSearching ? search.results : {};
+
     // Debounced player search
     useEffect(() => {
-        if (query.trim().length < SEARCH_MIN_LENGTH) {
-            setSearchResults({});
-            setIsSearching(false);
+        if (!canSearch) {
             return;
         }
-        setIsSearching(true);
         const timer = setTimeout(() => {
-            searchPlayers(query).then(results => {
-                const resultMap = results.reduce((acc, p) => {
-                    acc[playerId(p)] = p;
-                    return acc;
-                }, {} as PlayersMap);
-                setSearchResults(resultMap);
-                setIsSearching(false);
-            });
+            searchPlayers(query)
+                .then(results => {
+                    const resultMap = results.reduce((acc, p) => {
+                        acc[playerId(p)] = p;
+                        return acc;
+                    }, {} as PlayersMap);
+                    setSearch({ query, results: resultMap });
+                })
+                .catch(error => {
+                    console.error('player search failed', error);
+                    setSearch({ query, results: {} });
+                });
         }, SEARCH_DEBOUNCE_MS);
         return () => clearTimeout(timer);
-    }, [query, searchPlayers]);
+    }, [query, canSearch, searchPlayers]);
 
     const selectSearchResult = (resultId: string, player: BggPlayer) => {
         addUpdatePlayer(player);

@@ -35,8 +35,8 @@ export const CollectionLoading = () => (
             </p>
             <p>There are separate tabs for games that are already in
                 your collection and freshly scanned games, so you can make sure
-                you don't accidentally add duplicates.</p>
-            <p>When you're done with a grouping of games, click
+                you don&apos;t accidentally add duplicates.</p>
+            <p>When you&apos;re done with a grouping of games, click
                 the <img alt="Add X Games to Collection"
                          src="/images/workflows/add-games-to-collection.png"
                          className="inline-block" /> button

@@ -15,7 +15,15 @@ export const DataFormManager = () => {
     };
 
     useEffect(() => {
-        loadForms().then();
+        let active = true;
+        database.dataforms.toArray().then(loadedForms => {
+            if (active) {
+                setForms(loadedForms);
+            }
+        });
+        return () => {
+            active = false;
+        };
     }, []);
 
     const handleExport = () => {

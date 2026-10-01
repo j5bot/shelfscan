@@ -22,7 +22,7 @@ type CollectionSearchProps = {
 export const CollectionSearch = (props: CollectionSearchProps) => {
     const { searchMode, searchText, onSearchModeChange, onSearchTextChange } = props;
 
-    // @ts-ignore
+    // @ts-expect-error selectedcontent (customizable <select>) is not in React's JSX types yet
     const selectedContent = <button><selectedcontent className="flex items-center pl-2"></selectedcontent></button>;
 
     return <div className="flex flex-1 min-w-0" id="search-filters">

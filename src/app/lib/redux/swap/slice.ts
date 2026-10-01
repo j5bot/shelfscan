@@ -1,5 +1,5 @@
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { TradeItemCondition, TradeItemInteropFormat } from '@/app/lib/types/trade';
+import { TradeItemCondition } from '@/app/lib/types/trade';
 import { extend } from '@/app/lib/utils/object';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 

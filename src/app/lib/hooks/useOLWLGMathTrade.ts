@@ -50,6 +50,15 @@ export const useOLWLGMathTrade = ({
     const { sendViaExtension } = useMathTrade();
 
     const [mathTradeMode, setMathTradeMode] = useState(!!initialMathTradeGeeklistId);
+
+    // a new geeklist id from the route turns math trade mode on (adjusted during render, not in an effect)
+    const [modeGeeklistId, setModeGeeklistId] = useState(initialMathTradeGeeklistId);
+    if (modeGeeklistId !== initialMathTradeGeeklistId) {
+        setModeGeeklistId(initialMathTradeGeeklistId);
+        if (initialMathTradeGeeklistId) {
+            setMathTradeMode(true);
+        }
+    }
     const [showMathTradeDialog, setShowMathTradeDialog] = useState(false);
     const [isBulkMathTradeAdding, setIsBulkMathTradeAdding] = useState(false);
     const [mathTradeError, setMathTradeError] = useState<string | null>(null);
@@ -87,7 +96,6 @@ export const useOLWLGMathTrade = ({
         if (!initialMathTradeGeeklistId) { return; }
         if (initialMathTradeGeeklistStatus === 'loaded') {
             dispatch(setActiveGeekList(initialMathTradeGeeklistId));
-            setMathTradeMode(true);
             return;
         }
         let active = true;

@@ -60,7 +60,7 @@ const SubscribePage = () => {
                                                                className="underline"
                                                                target="_blank">
                     BGG Supporter
-                </Link> at the "ad block" level is required to use the extension.</p>
+                </Link> at the &quot;ad block&quot; level is required to use the extension.</p>
                 <p><Link href="/why-support/"
                          className="underline" target="_blank">Why support BoardGameGeek?</Link></p>
                 <p>

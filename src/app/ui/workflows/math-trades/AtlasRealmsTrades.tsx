@@ -21,7 +21,7 @@ export const AtlasRealmsTrades = () => (
             <figcaption className="italic">Opening the property edit form</figcaption>
         </figure>
         <p>
-            Edit the condition/description, compare value and sell for values and click on "Done" when finished.
+            Edit the condition/description, compare value and sell for values and click on &quot;Done&quot; when finished.
         </p>
         <figure>
             <img className="max-w-4/5" src="/images/workflows/swap-condition-form.jpg"
@@ -67,7 +67,7 @@ export const AtlasRealmsTrades = () => (
             <figcaption className="italic">Save the file export</figcaption>
         </figure>
         <p>
-            After saving the export, you'll need to import it into Swaptagon.
+            After saving the export, you&apos;ll need to import it into Swaptagon.
         </p>
         <p>
             Install the <Link href="https://raw.githubusercontent.com/j5bot/shelfscan/refs/heads/main/src/userscripts/importSwap.user.js"

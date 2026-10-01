@@ -35,7 +35,7 @@ export const CollectionMaintenance = () => (
                 of the game that you own. It also puts verification of the mapping
                 between the scanned UPC and the BGG version of the game front and
                 center, which helps to build confidence in the accuracy of
-                everyone's scans.</p>
+                everyone&apos;s scans.</p>
             <p>To remove a game from your collection:</p>
 
             <div className="flex justify-center py-3 px-1">
@@ -60,7 +60,7 @@ export const CollectionMaintenance = () => (
                                         src="/images/workflows/update-in-collection.png"
                                         className="inline-block"
                 /> is switched on, in the
-                    bottom of the action area, to the right of the game's thumbnail
+                    bottom of the action area, to the right of the game&apos;s thumbnail
                     image on the scan details page, bottom left above the thumbnail
                     image on the collection details page.
                 </li>

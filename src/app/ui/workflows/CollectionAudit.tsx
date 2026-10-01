@@ -9,7 +9,7 @@ export const CollectionAudit = () => (
             Audit</h2>
         <div className="collapse-content">
 
-            <p>ShelfScan's collection audit workflow allows you to methodically verify
+            <p>ShelfScan&apos;s collection audit workflow allows you to methodically verify
                 the accuracy of your collection data on BGG, and make additions
                 and subtractions as needed.</p>
             <p>This workflow requires the <Link className="underline"
@@ -45,10 +45,10 @@ export const CollectionAudit = () => (
                 in
                 your collection and review the games in your collection that you did
                 not scan.</p>
-            <p>To see the games that are not in your collection, click the 'Not
-                in Collection' tab.</p>
+            <p>To see the games that are not in your collection, click the &apos;Not
+                in Collection&apos; tab.</p>
             <p>To see the games that are in your collection but not scanned,
-                click on the 'Scanned' filter button until it turns red with an
+                click on the &apos;Scanned&apos; filter button until it turns red with an
                 X mark in the bottom right corner, which limits the games shown
                 to those that do not appear in the scan history that is saved on
                 your device.</p>

@@ -27,7 +27,7 @@ export const OLWLGTrades = () => (
             <figcaption className="italic">Opening the property edit form</figcaption>
         </figure>
         <p>
-            Edit the condition/description and copies values and click on "Done" when finished.
+            Edit the condition/description and copies values and click on &quot;Done&quot; when finished.
         </p>
         <figure>
             <img className="max-w-4/5" src="/images/workflows/math-trade-edit-form.jpg"
@@ -35,7 +35,7 @@ export const OLWLGTrades = () => (
             <figcaption className="italic">Edit the trade item properties</figcaption>
         </figure>
         <p>
-            If adding only a few items, or if you're not using the extension, you may want to click
+            If adding only a few items, or if you&apos;re not using the extension, you may want to click
             on
             <button
                 type="button"

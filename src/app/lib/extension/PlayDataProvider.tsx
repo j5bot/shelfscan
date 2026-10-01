@@ -8,7 +8,6 @@ import {
     useCallback,
     useContext,
     useMemo,
-    useRef,
     useState
 } from 'react';
 
@@ -52,8 +51,8 @@ export const usePlayData = () => useContext(PlayDataContext);
 
 export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
     const { dispatchExtensionMessage } = useExtensionMessaging();
-    const { userId, syncOn } = useSync();
-    const loadedRef = useRef<boolean>(false);
+    const { userId } = useSync();
+    const [loaded, setLoaded] = useState(false);
 
     const [players, setPlayers] = useState<Record<string, BggPlayer>>({});
     const [playData, setPlayData] = useState<Record<string, BggPlayerPlay>>({});
@@ -74,7 +73,7 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
             if (!active) {
                 return emptyInitialData;
             }
-            loadedRef.current = true;
+            setLoaded(true);
             if (playersResp?.response) {
                 players = playersResp.response.reduce((acc, player) => {
                     const id = player.username.length > 0 ? player.username : player.name;
@@ -126,9 +125,6 @@ export const PlayDataProvider = ({ children }: { children: ReactNode }) => {
         const result = await promise;
         return result?.response ?? [];
     }, [dispatchExtensionMessage]);
-
-    // read once per render so the memo below still picks up the ref's latest value
-    const loaded = loadedRef.current;
 
     const value = useMemo(() => ({
         loaded,
