@@ -5,10 +5,23 @@ export type FormValues = Record<string, string>;
 export type SetFormValues = Dispatch<SetStateAction<FormValues>>;
 export type SetFormValue = (field: string, value: string) => void;
 
+export const CollectionModes = [
+    'add', 'trade', 'previous', 'clear', 'wishlist', 'sell', 'info'
+] as const;
+export type CollectionModes = typeof CollectionModes[number];
+export const PlayModes = [
+    'quick', 'detailed'
+] as const;
+export type PlayModes = typeof PlayModes[number];
+export const TagModes = [
+    'choose', 'wishlist', 'wantsparts', 'hasparts'
+] as const;
+export type TagModes = typeof TagModes[number];
+
 export type Modes = {
-    collection: 'add' | 'trade' | 'previous' | 'clear' | 'wishlist' | 'sell' | 'info';
-    play: 'quick' | 'detailed';
-    tags: 'choose' | 'wishlist' | 'wantsparts' | 'hasparts';
+    collection: CollectionModes;
+    play: PlayModes;
+    tags: TagModes;
 };
 
 export type DisabledModes = Record<keyof Modes, boolean>;
@@ -29,7 +42,7 @@ export type ModeSetting = {
     width: string;
     form?: (props: ModeSettingFormProps) => ReactNode;
     shouldShow?: (statuses: BggCollectionStatuses | null, update: boolean) => boolean;
-    validator?: (formData: FormData) => boolean;
+    validator?: (formValues: Record<string, string>) => boolean;
     message?: (
         userId: string,
         dispatchExtensionMessage: (detail: object) => void,

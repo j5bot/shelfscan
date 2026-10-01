@@ -9,7 +9,7 @@ import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
 import posthog from 'posthog-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
-type DispatchExtensionMessage = (
+export type DispatchExtensionMessage = (
     detail: Partial<DocumentMessageDetail>,
 ) => Promise<DocumentMessageResponseDetail | undefined> | void;
 
@@ -122,6 +122,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
 
         return () => {
             window.removeEventListener('message', messageHandler);
+            listeningRef.current = false;
         };
     }, [username, dispatch, dispatchExtensionMessage]);
 
