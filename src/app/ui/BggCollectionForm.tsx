@@ -1,11 +1,10 @@
 'use client';
 
-import { setSetting } from '@/app/lib/database/database';
 import { useSelector } from '@/app/lib/hooks';
 import { RootState } from '@/app/lib/redux/store';
 import { useSettings } from '@/app/lib/SettingsProvider';
 import { useLoadUser } from '@/app/lib/hooks/useLoadUser';
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 export const BggCollectionForm = ()=> {
     const { settings } = useSettings();

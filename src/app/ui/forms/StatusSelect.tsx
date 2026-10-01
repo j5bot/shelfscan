@@ -3,7 +3,7 @@ import {
     PossibleStatuses,
     PossibleStatusesLabels
 } from '@/app/lib/types/bgg';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const statusesOptions = PossibleStatuses
     .map((status, index) => ({
@@ -17,20 +17,16 @@ export const StatusSelect = ({
     statuses?: string[];
     setValue: SetFormValue;
 }) => {
-    const [statusesValues, setStatusesValues] =
-        useState<string[] | undefined>(statuses);
-
+    // the user's selection, kept with the prop value it was made against so a new prop resets it
     const statusesKey = statuses.join(',');
-    useEffect(() => {
-        setStatusesValues(statuses);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [statusesKey]);
+    const [override, setOverride] = useState<{ key: string; values: string[] }>();
+    const statusesValues = override?.key === statusesKey ? override.values : statuses;
 
     const toggleStatus = (status: string, checked: boolean) => {
         const values = checked
             ? [...(statusesValues ?? []), status]
             : (statusesValues ?? []).filter(value => value !== status);
-        setStatusesValues(values);
+        setOverride({ key: statusesKey, values });
         setValue('statuses', values.join(','));
     };
 

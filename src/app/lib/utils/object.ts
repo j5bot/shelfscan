@@ -4,6 +4,6 @@ export const stripUndefinedProperties = <T extends object>(object: T): T => {
     ) as T;
 };
 
-export const extend = (object: Object, ...extensions: Object[]) => {
+export const extend = (object: object, ...extensions: object[]) => {
     return Object.assign(object, ...extensions.map(stripUndefinedProperties));
 };

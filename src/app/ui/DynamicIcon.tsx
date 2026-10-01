@@ -67,7 +67,8 @@ export const DynamicSvgIcon = (props: SVGAttributes<unknown> & {
 };
 
 const DynamicReactIcon = <T extends { icon: string; }>(props: T) => {
-    const [iconNode, setIconNode] = useState<ReactNode>(null);
+    // the loaded node is kept with the icon it was loaded for, so a stale one is never shown
+    const [loaded, setLoaded] = useState<{ icon: string; node: ReactNode }>();
     const [library, iconName] = props.icon.split('/');
 
     const importFn = IconLibraryImportMap[library];
@@ -82,20 +83,18 @@ const DynamicReactIcon = <T extends { icon: string; }>(props: T) => {
                     },
                 );
 
-                setIconNode(<Component {...props} />);
+                setLoaded({ icon: props.icon, node: <Component {...props} /> });
             } catch (error) {
                 console.error(`Error loading icon ${iconName} from ${library}:`, error);
-                setIconNode(null);
+                setLoaded({ icon: props.icon, node: null });
             }
         };
 
         if (iconName && library) {
             loadIcon().then();
-        } else {
-            setIconNode(null);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [iconName, library]);
 
-    return iconNode;
+    return loaded?.icon === props.icon ? loaded.node : null;
 };

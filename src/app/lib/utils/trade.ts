@@ -16,10 +16,8 @@ export const clampCopies = (
 ): number | undefined =>
     value === undefined ? undefined : Math.max(min, value);
 
-export const clampCashValue = (
-    value: number | undefined,
-    min: number | undefined = 0
-): number | undefined =>
+// cash values are never negative
+export const clampCashValue = (value: number | undefined): number | undefined =>
     value === undefined ? undefined : Math.max(0, value);
 
 export const hasBodyText = (item?: BggCollectionItem, geeklistData?: GeeklistItemData) =>

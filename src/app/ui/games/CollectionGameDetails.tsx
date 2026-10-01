@@ -122,7 +122,20 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
 
     const [versions, setVersions] = useState<GameUPCBggVersion[]>(infoVersions ?? []);
 
-    const [currentVersionIndex, setCurrentVersionIndex] = useState<number | null>(null);
+    // a clicked version is kept with the versions/versionId it was chosen against; once either
+    // changes, the item's own version (if it is in the list) is selected again
+    const [selection, setSelection] = useState<{
+        index: number;
+        versions: GameUPCBggVersion[];
+        versionId: typeof versionId;
+    }>();
+    const itemVersionIndex = versionId
+        ? versions.findIndex(version => version.version_id === versionId)
+        : -1;
+    const selectionIsCurrent = selection?.versions === versions && selection?.versionId === versionId;
+    const currentVersionIndex = itemVersionIndex >= 0 && !selectionIsCurrent
+        ? itemVersionIndex
+        : selection?.index ?? null;
 
     const versionClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {
         const index = e.currentTarget.getAttribute('data-version-index') ?? null;
@@ -132,7 +145,7 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
         }
 
         const currentVersion = parseInt(index, 10);
-        setCurrentVersionIndex(currentVersion);
+        setSelection({ index: currentVersion, versions, versionId });
         setVersion(versions[currentVersion]);
     }) as CollapsibleListProps<unknown>['onSelect'];
 
@@ -163,7 +176,7 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
             try {
                 xml = await getResponseFromCache(cacheId);
             } catch (e) {
-                console.error('error getting from cache', cacheId);
+                console.error('error getting from cache', cacheId, e);
             }
 
             if (!xml) {
@@ -184,19 +197,6 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
             active = false;
         };
     }, [bggId, isGetPending, isLoading, versions]);
-
-    useEffect(() => {
-        if (!versionId) {
-            return;
-        }
-        const versionIndex = versions?.findIndex(
-            version => version.version_id === versionId
-        );
-        if (versionIndex < 0) {
-            return;
-        }
-        setCurrentVersionIndex(versionIndex);
-    }, [versions, versionId]);
 
     const versionsContent = <div
         id="select-version"

@@ -19,6 +19,12 @@ const eslintConfig = defineConfig([
             react: { version: "19" } // Avoids auto-detection crash
         }
     },
+    {
+        rules: {
+            // plain <img> is intentional: these are small static images where next/image's sizing would change layout
+            '@next/next/no-img-element': 'off',
+        },
+    },
 ])
 
 export default eslintConfig;

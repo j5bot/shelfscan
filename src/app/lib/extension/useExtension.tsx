@@ -3,7 +3,6 @@ import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes'
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
 import {
     Modes,
-    DisabledModes,
     ModeSetting, ModeSettings, ModeSettingFormProps, CollectionModes
 } from '@/app/lib/extension/types';
 import {
@@ -27,7 +26,7 @@ import { UpdateInCollectionToggle } from '@/app/ui/extension/UpdateInCollectionT
 import React, {
     SyntheticEvent,
     useEffect,
-    useEffectEvent, useMemo,
+    useEffectEvent,
     useState
 } from 'react';
 
@@ -56,6 +55,11 @@ export type AddToCollectionParams = {
     versionId?: number;
     name?: string;
     dispatchExtensionMessage: DispatchExtensionMessage;
+};
+
+// stable across renders: addToCollection is a plain module function
+const ToolFunctions = {
+    addToCollection,
 };
 
 // wrapper keys for the collection view, in block order
@@ -100,7 +104,6 @@ export const useExtension = (params?: UseExtension) => {
     const { dispatchExtensionMessage } = useExtensionMessaging();
 
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
-    const [disabledModes, setDisabledModes] = useState<DisabledModes>({ collection: false, play: false, tags: false });
     const [players, setPlayers] = useState<BggPlayer[]>();
     const [updateChoice, setUpdate] = useState<boolean>(true);
     const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -235,6 +238,8 @@ export const useExtension = (params?: UseExtension) => {
             .filter(x => x);
         const currentMode = allowedModes.includes(modes[modeKey]) ? modes[modeKey] : defaultMode;
         const modeSetting = modeSettings[currentMode];
+        // only adding a new item can't be 'previous' or 'clear'
+        const isDisabled = modeKey === 'collection' && !update && ['previous', 'clear'].includes(currentMode);
 
         // modes with their own form (e.g. detailed play) open it; others act immediately
         const handleButtonClick = modeSetting.addFn
@@ -251,7 +256,7 @@ export const useExtension = (params?: UseExtension) => {
                     modeKey={modeKey}
                     modeSettings={modeSettings}
                     modeSetting={modeSetting}
-                    disabled={disabledModes[modeKey]}
+                    disabled={isDisabled}
                     statuses={statuses}
                     update={update}
                     onAction={handleButtonClick}
@@ -268,7 +273,7 @@ export const useExtension = (params?: UseExtension) => {
         };
     };
 
-    const { currentMode: currentATCMode, modeSetting: atcModeSetting, block: addToCollectionBlock } =
+    const { modeSetting: atcModeSetting, block: addToCollectionBlock } =
         makeModeBlock({
             modeKey: 'collection',
             defaultMode: 'add',
@@ -361,22 +366,6 @@ export const useExtension = (params?: UseExtension) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-        if (update) {
-            setDisabledModes(prev => Object.assign({}, prev, { collection: false }));
-            return;
-        }
-
-        switch (currentATCMode) {
-            case 'previous':
-            case 'clear':
-                setDisabledModes(prev => Object.assign({}, prev, { collection: true }));
-                break;
-            default:
-                setDisabledModes(prev => Object.assign({}, prev, { collection: false }));
-                break;
-        }
-    }, [update, currentATCMode, setDisabledModes]);
 
     // send once per user/item/mode; the item's own updates (often caused by
     // this message's response) must not re-send it
@@ -422,9 +411,7 @@ export const useExtension = (params?: UseExtension) => {
 
     const secondaryActions = isEnabled && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
-    const toolFunctions = useMemo(() => ({
-        addToCollection,
-    }), [addToCollection]);
+    const toolFunctions = ToolFunctions;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings, toolFunctions };
 };

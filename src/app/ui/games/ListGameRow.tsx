@@ -119,7 +119,6 @@ export const ListGameRow = (props: ListGameRowProps) => {
         isVerified = false,
         extraBadges,
         onClick,
-        modeMap,
     } = props;
 
     const item = useSelector((state: RootState) => {

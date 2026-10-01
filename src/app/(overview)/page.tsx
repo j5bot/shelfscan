@@ -16,10 +16,8 @@ import { ScanToasts } from '@/app/ui/ScanToasts';
 import { Scanner } from '@/app/ui/Scanner';
 import { SessionLink } from '@/app/ui/SessionLink';
 import { UseCaseBadges } from '@/app/ui/UseCaseBadges';
-import { WorkflowsTourDialog } from '@/app/ui/tours/WorkflowsTourDialog';
 import { useSearchParams } from 'next/navigation';
-import { useNextStep } from 'nextstepjs';
-import React, { Suspense, useEffect, useMemo, useRef } from 'react';
+import React, { Suspense, useEffect, useMemo } from 'react';
 
 const convertToCompressedCodes = (codes: string[]) => codes
     .map(code => parseInt(code, 10).toString(36));
@@ -93,7 +91,7 @@ export default function Page() {
             <>
                 {!dismissedMainTour && <div className="flex justify-center absolute w-full top-8">
                     <button className="btn text-xl rounded-2xl bg-brand-background text-white font-sharetech"
-                        onClick={event =>
+                        onClick={() =>
                             (
                                 document.querySelector('dialog.tours') as
                                     HTMLDialogElement

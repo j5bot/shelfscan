@@ -9,8 +9,6 @@ import { getSwapItemImageCacheKey } from '@/app/lib/utils/swapExport';
 import { clampCashValue, clampCompareValue, clampCopies } from '@/app/lib/utils/trade';
 import { useCallback } from 'react';
 
-const CASH_VALUE_MIN = -1;
-
 /** Swap/trade export data for one item (Redux `swap` slice), seeded from the collection item. */
 export const useSwapItemEditor = (item: Partial<BggCollectionItem> | undefined, collectionId: number | string | undefined) => {
     const dispatch = useDispatch();
@@ -53,7 +51,7 @@ export const useSwapItemEditor = (item: Partial<BggCollectionItem> | undefined, 
     const handleCashValueChange = useCallback((value: number | undefined) => {
         dispatch(setItemData({
             collectionId,
-            cashValue: clampCashValue(value, CASH_VALUE_MIN)
+            cashValue: clampCashValue(value)
         }));
     }, [dispatch, collectionId]);
 
