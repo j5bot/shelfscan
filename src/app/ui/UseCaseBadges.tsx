@@ -1,7 +1,7 @@
 import { BadgeWithHelpTip } from '@/app/ui/BadgeWithHelpTip';
 import Link from 'next/link';
 import React from 'react';
-import { FaDice, FaPlus, FaThumbsUp } from 'react-icons/fa6';
+import { FaDice, FaPlus } from 'react-icons/fa6';
 
 const scanTooltipContent = <div className="text-left p-2">
     <ol>
@@ -30,15 +30,6 @@ const exploreTooltipContent = <div className="text-left p-2">
             Go to <Link href="/collection" className="underline">collection</Link>
         </li>
         <li>Explore &amp; filter</li>
-    </ol>
-</div>;
-
-const updateGameUPCTooltipContent = <div className="text-left p-2">
-    <ol>
-        <li>Scan game UPC</li>
-        <li>Click game in list</li>
-        <li>Select game &amp; version</li>
-        <li className="flex gap-2 items-center">Click <FaThumbsUp size={10} /></li>
     </ol>
 </div>;
 
