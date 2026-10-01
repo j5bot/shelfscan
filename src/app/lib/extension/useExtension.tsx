@@ -1,11 +1,15 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
 import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
+import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
 import {
     Modes,
     DisabledModes,
-    ModeSetting, ModeSettings, ModeSettingFormProps
+    ModeSetting, ModeSettings, ModeSettingFormProps, CollectionModes
 } from '@/app/lib/extension/types';
-import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
+import {
+    DispatchExtensionMessage,
+    useExtensionMessaging
+} from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
 import { bggHost } from '@/app/lib/services/bgg/constants';
@@ -23,15 +27,15 @@ import { UpdateInCollectionToggle } from '@/app/ui/extension/UpdateInCollectionT
 import React, {
     SyntheticEvent,
     useEffect,
-    useEffectEvent,
+    useEffectEvent, useMemo,
     useState
 } from 'react';
 
-type UseExtension = {
+export type UseExtension = {
     info?: GameUPCBggInfo & { collectionId?: number };
     version?: GameUPCBggVersion;
     view?: 'version' | 'collection'
-}
+};
 
 export type MakeModeBlockParams = {
     modeKey: keyof Modes;
@@ -40,6 +44,18 @@ export type MakeModeBlockParams = {
     formKey?: number;
     setFormKey?: (key: number | ((prev: number) => number)) => void;
     formProps?: Partial<ModeSettingFormProps>;
+};
+
+export type AddToCollectionParams = {
+    mode: CollectionModes;
+    modeSetting: ModeSetting;
+    entries: Record<string, string>;
+    userId: string;
+    collectionId?: number;
+    bggId: number;
+    versionId?: number;
+    name?: string;
+    dispatchExtensionMessage: DispatchExtensionMessage;
 };
 
 // wrapper keys for the collection view, in block order
@@ -142,24 +158,23 @@ export const useExtension = (params?: UseExtension) => {
         }
     };
 
-    const addToCollection = (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const { formData, entries } = readForm(modes.collection, formValues);
-        if (modeSetting.validator && formData && !modeSetting.validator(formData)) {
-            // TODO: handle invalid cases
+    const addToCollectionFromEvent = async (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
+        if (!(userId && info?.id)) {
             return;
         }
-
-        dispatchExtensionMessage({
+        const { entries } = readForm(modes.collection, formValues);
+        const resultPromise = addToCollection({
+            mode: modes.collection,
+            modeSetting,
+            entries,
             userId,
-            type: modes.collection,
-            collectionId: update ? collectionId : undefined,
             name: gameName,
-            gameId: info?.id,
+            bggId: info?.id,
             versionId: version?.version_id,
-            formValues: entries,
+            dispatchExtensionMessage,
         });
-
         pulse(e.currentTarget.parentElement?.previousElementSibling);
+        return await resultPromise;
     };
 
     const addPlay = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
@@ -257,7 +272,7 @@ export const useExtension = (params?: UseExtension) => {
         makeModeBlock({
             modeKey: 'collection',
             defaultMode: 'add',
-            addFn: addToCollection,
+            addFn: addToCollectionFromEvent,
         });
 
     const { block: addPlayBlock } = makeModeBlock({
@@ -407,5 +422,9 @@ export const useExtension = (params?: UseExtension) => {
 
     const secondaryActions = isEnabled && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
-    return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
+    const toolFunctions = useMemo(() => ({
+        addToCollection,
+    }), [addToCollection]);
+
+    return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings, toolFunctions };
 };

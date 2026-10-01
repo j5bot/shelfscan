@@ -32,6 +32,10 @@ type MakeModeSettingsParams = {
     addFn?: (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => void;
 };
 
+// revealed with these when the extension link or subscribe banner needs to show
+export const fadeInClasses = 'flex transition-opacity opacity-100 duration-800'
+    .split(' ');
+
 export const makeNonUserPlayer = (name: string): BggPlayer => ({
     name,
     username: '',
@@ -143,8 +147,7 @@ export const makeAddToCollectionModeSettings = ({
                     />
                 </form>;
             },
-            validator: (formData: FormData)=> {
-                const formValues = Object.fromEntries(formData ?? []);
+            validator: (formValues)=> {
                 return !!(formValues['tradecondition'] as string | undefined)?.length;
             }
         },
@@ -188,8 +191,7 @@ export const makeAddToCollectionModeSettings = ({
             icon: <FaTag className="w-4 h-4 mr-0.5 shrink-0" />,
             width: 'xs:w-20.5 w-22.5',
             form: AddToMarketForm,
-            validator: (formData: FormData) => {
-                const formValues = Object.fromEntries(formData ?? []);
+            validator: (formValues: Record<string, string>) => {
                 const required = [
                     'currency', 'price',
                     'condition', 'notes',

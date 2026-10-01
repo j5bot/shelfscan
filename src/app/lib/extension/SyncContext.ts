@@ -5,6 +5,7 @@ export type SyncContextValue = {
     hasSubscription: boolean | undefined;
     userId: string | undefined;
     currentUsername: string | undefined;
+    extensionUser: string | undefined;
 };
 
 export const SyncContext = createContext<SyncContextValue>({} as SyncContextValue);

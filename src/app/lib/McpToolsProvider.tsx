@@ -1,4 +1,5 @@
-import { useBGGCollectionTool } from '@/app/lib/hooks/webmcp/extension/useBGGCollectionTool';
+import { useManageCollectionTool } from '@/app/lib/hooks/webmcp/extension/useManageCollectionTool';
+import { useBGGCollectionTool } from '@/app/lib/hooks/webmcp/useBGGCollectionTool';
 import { useGameUPCDataTools } from '@/app/lib/hooks/webmcp/useGameUPCDataTools';
 import { useScannedCodesTool } from '@/app/lib/hooks/webmcp/useScannedCodesTool';
 import { useScanUPCTool } from '@/app/lib/hooks/webmcp/useScanUPCTool';
@@ -13,6 +14,7 @@ type Props = {
 const McpTools = ({ children }: Props) => {
     useBGGCollectionTool();
     useGameUPCDataTools();
+    useManageCollectionTool();
     useScannedCodesTool();
     useScanUPCTool();
     return children;
