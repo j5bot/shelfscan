@@ -2,8 +2,12 @@ import { getSetting, setSetting } from '@/app/lib/database/database';
 import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
 import {
+    CollectionModes,
     Modes,
-    ModeSetting, ModeSettings, ModeSettingFormProps, CollectionModes
+    ModeSetting,
+    ModeSettings,
+    ModeSettingFormProps,
+    SetFormValues,
 } from '@/app/lib/extension/types';
 import {
     DispatchExtensionMessage,
@@ -18,6 +22,11 @@ import {
 } from '@/app/lib/redux/bgg/collection/selectors';
 import { updateNumPlays } from '@/app/lib/redux/bgg/collection/slice';
 import { BggCollectionItem, BggPlayer } from '@/app/lib/types/bgg';
+import {
+    CollectionFormState,
+    resolveCollectionFormValues,
+    statusesToFormValue,
+} from '@/app/lib/utils/collectionFormValues';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { DataForms } from '@/app/ui/extension/DataForms';
 import { ModeActionBlock } from '@/app/ui/extension/ModeActionBlock';
@@ -25,8 +34,10 @@ import { RatingActionBlock } from '@/app/ui/extension/RatingActionBlock';
 import { UpdateInCollectionToggle } from '@/app/ui/extension/UpdateInCollectionToggle';
 import React, {
     SyntheticEvent,
+    useCallback,
     useEffect,
     useEffectEvent,
+    useMemo,
     useState
 } from 'react';
 
@@ -56,6 +67,19 @@ export type AddToCollectionParams = {
     name?: string;
     dispatchExtensionMessage: DispatchExtensionMessage;
 };
+
+// collection item fields an infoLoad reply copies into the info form
+const InfoLoadFields = [
+    'tradecondition',
+    'pricepaid',
+    'pp_currency',
+    'currvalue',
+    'cv_currency',
+    'acquisitiondate',
+    'acquiredfrom',
+    'invdate',
+    'invlocation',
+];
 
 // stable across renders: addToCollection is a plain module function
 const ToolFunctions = {
@@ -106,7 +130,7 @@ export const useExtension = (params?: UseExtension) => {
     const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
     const [players, setPlayers] = useState<BggPlayer[]>();
     const [updateChoice, setUpdate] = useState<boolean>(true);
-    const [formValues, setFormValues] = useState<Record<string, string>>({});
+    const [formState, setFormState] = useState<CollectionFormState>({ values: {} });
     const [detailedPlayKey, setDetailedPlayKey] = useState<number>(0);
 
     const { collectionId, collection } =
@@ -120,6 +144,27 @@ export const useExtension = (params?: UseExtension) => {
     const gameName = version?.name ?? info?.name;
 
     const statuses = collectionItem?.statuses;
+
+    // trade condition and statuses follow the collection item; other fields keep the user's edits
+    const currentTradeCondition = collectionItem?.tradeCondition as string | undefined;
+    const currentStatuses = statusesToFormValue(collectionItem?.statuses);
+    const formValues = useMemo(
+        () => resolveCollectionFormValues(formState, {
+            tradecondition: currentTradeCondition,
+            statuses: currentStatuses,
+        }),
+        [formState, currentTradeCondition, currentStatuses],
+    );
+    const setFormValues = useCallback<SetFormValues>(action => {
+        const against = { tradecondition: currentTradeCondition, statuses: currentStatuses };
+        setFormState(prev => {
+            const current = resolveCollectionFormValues(prev, against);
+            return {
+                values: typeof action === 'function' ? action(current) : action,
+                against,
+            };
+        });
+    }, [currentTradeCondition, currentStatuses]);
 
     const updateModes = async (
         event: SyntheticEvent<HTMLElement> | undefined,
@@ -298,24 +343,16 @@ export const useExtension = (params?: UseExtension) => {
         formProps: { gameName },
     });
 
-    const tradeCondition = collectionItem?.tradeCondition;
-    useEffect(() => {
-        setFormValues(prev => prev['tradecondition'] === tradeCondition ? prev : {
-            ...prev,
-            tradecondition: tradeCondition as string,
+    // an infoLoad reply fills the info form from the item on BGG, on top of the latest form values
+    const applyInfoLoad = useEffectEvent((colItem: BggCollectionItem & { textfield: { privatecomment: { value: string } } }) => {
+        setFormValues(prev => {
+            const infoFormValues = InfoLoadFields.reduce((acc, field) => Object.assign(acc, {
+                [field]: colItem?.[field as keyof BggCollectionItem]?.toString() ?? undefined,
+            }), { ...prev });
+            infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
+            return infoFormValues;
         });
-    }, [tradeCondition]);
-
-    const collectionStatuses = collectionItem?.statuses;
-    useEffect(() => {
-        const statuses = Object.entries(collectionStatuses ?? {}).reduce((acc: string[], [key, value]: [string, boolean]) => {
-            if (value) {
-                acc.push(key);
-            }
-            return acc;
-        }, []).join(',');
-        setFormValues(prev => prev['statuses'] === statuses ? prev : { ...prev, statuses });
-    }, [collectionStatuses]);
+    });
 
     useEffect(() => {
         (async () => {
@@ -337,24 +374,7 @@ export const useExtension = (params?: UseExtension) => {
                 setPlayers(event.data.players);
             }
             if (event.data?.type === 'infoLoad-response') {
-                const colItem = event.data.response.collectionItem;
-                const infoFormValues = [
-                    'tradecondition',
-                    'pricepaid',
-                    'pp_currency',
-                    'currvalue',
-                    'cv_currency',
-                    'acquisitiondate',
-                    'acquiredfrom',
-                    'invdate',
-                    'invlocation',
-                ].reduce((acc, field) => {
-                    return Object.assign(acc, {
-                        [field]: colItem?.[field as keyof BggCollectionItem]?.toString() ?? undefined
-                    });
-                }, { ...formValues });
-                infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
-                setFormValues(infoFormValues);
+                applyInfoLoad(event.data.response.collectionItem);
             }
         };
 
