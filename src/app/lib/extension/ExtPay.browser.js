@@ -27,7 +27,7 @@ export const ExtPay = (extension_id, options = {}) => {
     function get_key() {
         try {
             return window.localStorage.getItem(STORAGE_KEY) ?? null;
-        } catch (e) {
+        } catch {
             return null;
         }
     }

@@ -1,4 +1,5 @@
-export default {
-    "version": "0.10.2",
-    "requiredUpdate": "true"
+const version = {
+    "version": "0.11.0",
+    "requiredUpdate": "false"
 };
+export default version;
