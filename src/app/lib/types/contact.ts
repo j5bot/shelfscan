@@ -13,3 +13,9 @@ export type ContactFormState = {
     fieldErrors?: ContactFieldErrors;
     fields?: Partial<ContactFields>;
 };
+
+/** Analytics context about the sender, read from PostHog in the browser. */
+export type ContactMetadata = {
+    posthogDistinctId?: string;
+    posthogSessionReplayUrl?: string;
+};

@@ -2,10 +2,55 @@
 
 import { sendContactMessage } from '@/app/lib/services/contact/server';
 import { ContactFields, ContactFormState } from '@/app/lib/types/contact';
-import { CONTACT_HONEYPOT_FIELD, CONTACT_LIMITS } from '@/app/lib/utils/contact';
+import {
+    CONTACT_HONEYPOT_FIELD,
+    CONTACT_LIMITS,
+    ContactMetadataFields,
+    contactEventProperties,
+    readContactFields,
+} from '@/app/lib/utils/contact';
+import posthog from 'posthog-js';
 import { ReactNode, useActionState, useId } from 'react';
 
 const INITIAL_STATE: ContactFormState = { status: 'idle' };
+
+const UNREACHABLE_STATE: ContactFormState = {
+    status: 'error',
+    message: 'Sorry, your message could not be sent. Please check your connection and try again.',
+};
+
+/** Attach the sender's PostHog identity so it can be included in the email. */
+const addPostHogMetadata = (formData: FormData) => {
+    try {
+        formData.set(ContactMetadataFields.posthogDistinctId, posthog.get_distinct_id() ?? '');
+        formData.set(
+            ContactMetadataFields.posthogSessionReplayUrl,
+            posthog.get_session_replay_url({ withTimestamp: true }) ?? '',
+        );
+    } catch {
+        // PostHog isn't initialised (e.g. no project token): send without metadata
+    }
+};
+
+const submitContactForm = async (previous: ContactFormState, formData: FormData) => {
+    const fields = readContactFields(formData);
+    const properties = contactEventProperties(fields);
+    addPostHogMetadata(formData);
+    posthog.capture('contact_form_submitted', properties);
+
+    const result = await sendContactMessage(previous, formData)
+        .catch(() => ({ ...UNREACHABLE_STATE, fields }));
+
+    if (result.status === 'success') {
+        posthog.capture('contact_form_sent', properties);
+    } else {
+        posthog.capture('contact_form_failed', {
+            ...properties,
+            invalid_fields: Object.keys(result.fieldErrors ?? {}),
+        });
+    }
+    return result;
+};
 
 type ContactFieldProps = {
     field: keyof ContactFields;
@@ -44,7 +89,7 @@ const ContactField = (props: ContactFieldProps) => {
 };
 
 export const ContactForm = () => {
-    const [state, formAction, isPending] = useActionState(sendContactMessage, INITIAL_STATE);
+    const [state, formAction, isPending] = useActionState(submitContactForm, INITIAL_STATE);
 
     let notice: ReactNode;
     switch (state.status) {

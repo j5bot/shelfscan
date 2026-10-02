@@ -6,6 +6,7 @@ import {
     buildContactText,
     isHoneypotFilled,
     readContactFields,
+    readContactMetadata,
     validateContactFields,
 } from '@/app/lib/utils/contact';
 import { Resend } from 'resend';
@@ -49,7 +50,7 @@ export const sendContactMessage = async (
             to: to.split(',').map(address => address.trim()),
             replyTo: data.email,
             subject: buildContactSubject(data),
-            text: buildContactText(data),
+            text: buildContactText(data, readContactMetadata(formData)),
         });
         if (error) {
             console.error('resend rejected contact message', error);

@@ -4,8 +4,11 @@ import {
     buildContactText,
     CONTACT_HONEYPOT_FIELD,
     CONTACT_LIMITS,
+    contactEventProperties,
+    ContactMetadataFields,
     isHoneypotFilled,
     readContactFields,
+    readContactMetadata,
     validateContactFields,
 } from '@/app/lib/utils/contact';
 
@@ -92,12 +95,64 @@ describe('contact utils', () => {
         });
     });
 
+    describe('#readContactMetadata', () => {
+        it('reads the PostHog distinct ID and session replay URL', () => {
+            const formData = new FormData();
+            formData.set(ContactMetadataFields.posthogDistinctId, 'bgg:ada');
+            formData.set(ContactMetadataFields.posthogSessionReplayUrl, 'https://us.posthog.com/replay/abc?t=10');
+
+            expect(readContactMetadata(formData)).toEqual({
+                posthogDistinctId: 'bgg:ada',
+                posthogSessionReplayUrl: 'https://us.posthog.com/replay/abc?t=10',
+            });
+        });
+
+        it('drops missing, oversized and non-https values', () => {
+            const formData = new FormData();
+            formData.set(ContactMetadataFields.posthogDistinctId, 'x'.repeat(501));
+            formData.set(ContactMetadataFields.posthogSessionReplayUrl, 'javascript:alert(1)');
+
+            expect(readContactMetadata(formData)).toEqual({
+                posthogDistinctId: undefined,
+                posthogSessionReplayUrl: undefined,
+            });
+            expect(readContactMetadata(new FormData())).toEqual({
+                posthogDistinctId: undefined,
+                posthogSessionReplayUrl: undefined,
+            });
+        });
+
+        it('collapses line breaks in the distinct ID', () => {
+            const formData = new FormData();
+            formData.set(ContactMetadataFields.posthogDistinctId, 'bgg:ada\nFake: header');
+
+            expect(readContactMetadata(formData).posthogDistinctId).toBe('bgg:ada Fake: header');
+        });
+    });
+
     describe('#buildContactText', () => {
         it('includes the sender details and message', () => {
             const text = buildContactText(validFields);
             expect(text).toContain('Name: Ada Lovelace');
             expect(text).toContain('Email: ada@example.com');
-            expect(text.endsWith(validFields.message)).toBe(true);
+            expect(text).toContain(validFields.message);
+            expect(text).toContain('PostHog distinct ID: (unavailable)');
+        });
+
+        it('includes the PostHog identity when available', () => {
+            const text = buildContactText(validFields, {
+                posthogDistinctId: 'bgg:ada',
+                posthogSessionReplayUrl: 'https://us.posthog.com/replay/abc',
+            });
+            expect(text).toContain('PostHog distinct ID: bgg:ada');
+            expect(text).toContain('PostHog session replay: https://us.posthog.com/replay/abc');
+        });
+    });
+
+    describe('#contactEventProperties', () => {
+        it('describes the submission without its content', () => {
+            expect(contactEventProperties({ ...validFields, subject: ' ', message: ' hello ' }))
+                .toEqual({ has_subject: false, message_length: 5 });
         });
     });
 });
