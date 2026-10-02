@@ -48,7 +48,7 @@ const SupportPage = () => {
                     </li>
                     <li className="flex leading-7 items-center">
                         <FaEnvelope className="w-4 h-4 p-0.5 mr-2" />
-                        Email support@[domain]
+                        <Link href="/contact" className="underline">Contact Form</Link>
                     </li>
                 </ul>
 

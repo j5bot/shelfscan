@@ -20,7 +20,7 @@ Run a single test file: `pnpm exec vitest run tests/utils.test.ts`
 
 **Node version**: 24.x (see `.nvmrc`). **pnpm** 12 (`packageManager` in `package.json`).
 
-**Env vars**: `BGG_TOKEN` and `GAMEUPC_TOKEN` (server-only, see Server Actions below), plus `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST`, `NEXT_PUBLIC_POSTHOG_UI_HOST` for PostHog (initialised in `instrumentation-client.ts`; `pnpm dev` throws if the token or host is missing). See `.env.example`.
+**Env vars**: `BGG_TOKEN` and `GAMEUPC_TOKEN` (server-only, see Server Actions below), `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` and `CONTACT_TO_EMAIL` (server-only, used by the `/contact` form via Resend), plus `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST`, `NEXT_PUBLIC_POSTHOG_UI_HOST` for PostHog (initialised in `instrumentation-client.ts`; `pnpm dev` throws if the token or host is missing). See `.env.example`.
 
 ## Architecture
 
@@ -47,7 +47,7 @@ ShelfScan is a board game UPC barcode scanner web app. Users scan barcodes via w
 
 ### Server Actions (API proxy)
 
-`src/app/lib/actions.ts` and `gameupc-hooks/server` contain all `'use server'` functions. These proxy BGG XML API v2 and GameUPC REST API calls, keeping `BGG_TOKEN` and `GAMEUPC_TOKEN` server-side only. All `process.env` access belongs in these files.
+`src/app/lib/actions.ts`, `lib/services/contact/server.ts` (contact form → Resend) and `gameupc-hooks/server` contain all `'use server'` functions. These proxy BGG XML API v2 and GameUPC REST API calls, keeping `BGG_TOKEN` and `GAMEUPC_TOKEN` server-side only. All `process.env` access belongs in these files.
 
 BGG API has a retry loop for 202 "please wait" responses (up to 20 retries, 2 s delay). All throttled external calls go through `enqueueFetch()` in `src/app/lib/utils/fetchQueue.ts` (p-queue, concurrency 1, 300 ms interval).
 
