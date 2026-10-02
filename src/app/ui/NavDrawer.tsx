@@ -14,7 +14,7 @@ import Link from 'next/link';
 import posthog from 'posthog-js';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ReactNode, Suspense, use, useEffect, useRef, useState } from 'react';
-import { FaQuestionCircle, FaSignOutAlt, FaSync } from 'react-icons/fa';
+import { FaEnvelope, FaQuestionCircle, FaSignOutAlt, FaSync } from 'react-icons/fa';
 import {
     FaBarcode,
     FaBars,
@@ -227,6 +227,11 @@ export const NavDrawer = () => {
                         <li className="w-full">
                             <Link className="flex gap-2 grow" href="/support" onNavigate={closeOnNavigate}>
                                 <FaQuestionCircle className="inline" /> Support
+                            </Link>
+                        </li>
+                        <li className="w-full">
+                            <Link className="flex gap-2 grow" href="/contact" onNavigate={closeOnNavigate}>
+                                <FaEnvelope className="inline" /> Contact
                             </Link>
                         </li>
                         <li className="w-full mt-6">
