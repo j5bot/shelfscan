@@ -1,6 +1,7 @@
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { addPlay } from '@/app/lib/extension/messaging/addPlay';
 import { withExtensionTimeout } from '@/app/lib/extension/messaging/withExtensionTimeout';
+import { makeUnavailableTool } from '@/app/lib/hooks/webmcp/extension/unavailableTool';
 import { useDispatch, useStore } from '@/app/lib/hooks';
 import { getCollectionInfoByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
 import { todayString } from '@/app/lib/utils/date';
@@ -80,21 +81,7 @@ const TOOL_BASE = {
                  + 'subscription in order to use this tool.',
 };
 
-const UNAVAILABLE_TOOL: McpToolConfigZod = {
-    ...TOOL_BASE,
-    input: z.object({}),
-    handler: async () => {
-        return {
-            content: [
-                {
-                    type: 'text',
-                    text: 'Unavailable when ShelfScan extension is not' +
-                          ' installed or there is no subscription'
-                }
-            ],
-        };
-    },
-};
+const UNAVAILABLE_TOOL = makeUnavailableTool(TOOL_BASE);
 
 type PlayResponse = {
     error?: boolean;
