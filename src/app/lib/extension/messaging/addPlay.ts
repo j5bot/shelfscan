@@ -1,43 +1,45 @@
 import { DispatchExtensionMessage } from '@/app/lib/extension/ExtensionMessagingProvider';
-import { CollectionModes, ModeSetting } from '@/app/lib/extension/types';
+import { syncNumPlays } from '@/app/lib/extension/messaging/syncNumPlays';
+import { updateNumPlays } from '@/app/lib/redux/bgg/collection/slice';
+import { Dispatch } from '@reduxjs/toolkit';
 
-export type AddToCollectionParams = {
-    mode: CollectionModes;
-    modeSetting: ModeSetting;
+export type AddPlayParams = {
     entries: Record<string, string>;
     userId: string;
+    username: string;
     collectionId?: number;
     bggId: number;
     versionId?: number;
     name?: string;
+    date: string;
+    dispatch: Dispatch<ReturnType<typeof updateNumPlays>>;
     dispatchExtensionMessage: DispatchExtensionMessage;
 };
 
-export const addToCollection = async (params: AddToCollectionParams) => {
+export const addPlay = (params: AddPlayParams) => {
     const {
-        mode,
-        modeSetting,
         entries,
         userId,
         collectionId,
         bggId,
         versionId,
         name,
+        date,
         dispatchExtensionMessage,
     } = params;
 
-    if (modeSetting.validator && (Object.keys(entries).length === 0 || !modeSetting.validator(entries))) {
-        // TODO: handle invalid cases
-        return;
-    }
-
     return dispatchExtensionMessage({
         userId,
-        type: mode,
         collectionId,
+        type: 'plays',
         name,
-        gameId: bggId,
+        gameId:  bggId,
         versionId,
+        date,
+        playdate: date,
         formValues: entries,
+    })?.then(details => {
+        syncNumPlays(params, details);
+        return details;
     });
 };

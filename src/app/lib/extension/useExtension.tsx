@@ -1,26 +1,22 @@
 import { getSetting, setSetting } from '@/app/lib/database/database';
-import { DocumentMessageResponseDetail } from '@/app/lib/extension/messageTypes';
+import { addPlay } from '@/app/lib/extension/messaging/addPlay';
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
 import {
-    CollectionModes,
     Modes,
     ModeSetting,
     ModeSettings,
     ModeSettingFormProps,
     SetFormValues,
 } from '@/app/lib/extension/types';
-import {
-    DispatchExtensionMessage,
-    useExtensionMessaging
-} from '@/app/lib/extension/ExtensionMessagingProvider';
+import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
 import { bggHost } from '@/app/lib/services/bgg/constants';
+import { todayString } from '@/app/lib/utils/date';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { updateNumPlays } from '@/app/lib/redux/bgg/collection/slice';
 import { BggCollectionItem, BggPlayer } from '@/app/lib/types/bgg';
 import {
     CollectionFormState,
@@ -56,18 +52,6 @@ export type MakeModeBlockParams = {
     formProps?: Partial<ModeSettingFormProps>;
 };
 
-export type AddToCollectionParams = {
-    mode: CollectionModes;
-    modeSetting: ModeSetting;
-    entries: Record<string, string>;
-    userId: string;
-    collectionId?: number;
-    bggId: number;
-    versionId?: number;
-    name?: string;
-    dispatchExtensionMessage: DispatchExtensionMessage;
-};
-
 // collection item fields an infoLoad reply copies into the info form
 const InfoLoadFields = [
     'tradecondition',
@@ -88,18 +72,6 @@ const ToolFunctions = {
 
 // wrapper keys for the collection view, in block order
 const PrimaryBlockKeys = ['atcb', 'apb', 'arb', 'etb'];
-
-/** Today as YYYY-MM-DD in local time. */
-const todayString = () => {
-    const todayDate = new Date();
-    return `${
-        todayDate.getFullYear()
-    }-${
-        String(todayDate.getMonth() + 1).padStart(2, '0')
-    }-${
-        String(todayDate.getDate()).padStart(2, '0')
-    }`;
-};
 
 /** The named form's current fields layered over the accumulated form values. */
 const readForm = (formName: string, formValues: Record<string, string>) => {
@@ -194,17 +166,6 @@ export const useExtension = (params?: UseExtension) => {
                 return updateModes(e, Object.assign({}, modes, { [type]: mode }));
             };
 
-    // a play or tag edit can change the play count; keep the collection in sync
-    const syncNumPlays = (detail: DocumentMessageResponseDetail | undefined) => {
-        const { numplays } = (detail?.response ?? {}) as { numplays?: number };
-        if (numplays != null && collectionId && currentUsername) {
-            dispatch(updateNumPlays({
-                username: currentUsername,
-                collectionId,
-                numplays,
-            }));
-        }
-    };
 
     const addToCollectionFromEvent = async (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
         if (!(userId && info?.id)) {
@@ -225,23 +186,29 @@ export const useExtension = (params?: UseExtension) => {
         return await resultPromise;
     };
 
-    const addPlay = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const { formData, entries } = readForm(modes.play, formValues);
-        const dateString = (formData?.get('playdate') as string | undefined) || todayString();
+    const addPlayFromEvent = async (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
+        const { entries } = readForm(modes.play, formValues);
+        const date = entries.playdate ?? todayString();
 
-        dispatchExtensionMessage({
+        if (!(userId && currentUsername && info?.id)) {
+            return;
+        }
+
+        const resultPromise = addPlay({
             userId,
+            username: currentUsername,
             collectionId,
-            type: 'plays',
             name: gameName,
-            gameId: info?.id,
+            bggId: info?.id,
             versionId: version?.version_id,
-            date: dateString,
-            playdate: dateString,
-            formValues: entries,
-        })?.then(syncNumPlays);
+            date,
+            entries,
+            dispatch,
+            dispatchExtensionMessage,
+        });
 
         pulse(e.currentTarget.previousElementSibling);
+        return resultPromise;
     };
 
     const editTags = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
@@ -252,7 +219,7 @@ export const useExtension = (params?: UseExtension) => {
             collectionId,
             type: 'tags',
             formValues: entries,
-        })?.then(syncNumPlays);
+        });
 
         pulse(e.currentTarget.previousElementSibling);
     };
@@ -328,7 +295,7 @@ export const useExtension = (params?: UseExtension) => {
     const { block: addPlayBlock } = makeModeBlock({
         modeKey: 'play',
         defaultMode: 'quick',
-        addFn: addPlay,
+        addFn: addPlayFromEvent,
         formKey: detailedPlayKey,
         setFormKey: setDetailedPlayKey,
         formProps: { gameName },
