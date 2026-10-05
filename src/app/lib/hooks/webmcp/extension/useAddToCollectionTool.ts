@@ -1,5 +1,6 @@
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
+import { withExtensionTimeout } from '@/app/lib/extension/messaging/withExtensionTimeout';
 import { CollectionModes, ModeSetting } from '@/app/lib/extension/types';
 import { McpToolConfigZod, useMcpTool } from 'webmcp-react';
 import { z } from 'zod';
@@ -52,17 +53,6 @@ const UNAVAILABLE_TOOL: McpToolConfigZod = {
     },
 };
 
-// the extension only replies once BGG answers; give up before WebMCP's own 30 s limit
-const EXTENSION_TIMEOUT_MS = 25_000;
-
-const withTimeout = <T>(promise: Promise<T>, ms: number) => {
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const timeout = new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`No response from the ShelfScan extension after ${ms / 1000} s`)), ms);
-    });
-    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
-};
-
 // userId is the active ShelfScan BGG user (set by bgg_load_collection); the tool is unavailable without one
 export const useAddToCollectionTool = (userId?: string) => {
     const { dispatchExtensionMessage } = useExtensionMessaging();
@@ -79,7 +69,7 @@ export const useAddToCollectionTool = (userId?: string) => {
                 throw new Error('No BGG user is logged in to the ShelfScan extension');
             }
 
-            const result = await withTimeout(Promise.resolve(addToCollection({
+            const result = await withExtensionTimeout(Promise.resolve(addToCollection({
                 mode: type,
                 modeSetting: {} as ModeSetting,
                 entries: {},
@@ -89,7 +79,7 @@ export const useAddToCollectionTool = (userId?: string) => {
                 versionId,
                 name: gameName,
                 dispatchExtensionMessage,
-            })), EXTENSION_TIMEOUT_MS);
+            })));
 
             const response = result?.response as Record<string, unknown> | undefined;
             // same shape ExtensionMessagingProvider reads: the item may be nested under collectionItem
