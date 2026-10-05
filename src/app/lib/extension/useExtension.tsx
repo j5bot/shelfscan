@@ -65,11 +65,6 @@ const InfoLoadFields = [
     'invlocation',
 ];
 
-// stable across renders: addToCollection is a plain module function
-const ToolFunctions = {
-    addToCollection,
-};
-
 // wrapper keys for the collection view, in block order
 const PrimaryBlockKeys = ['atcb', 'apb', 'arb', 'etb'];
 
@@ -398,7 +393,5 @@ export const useExtension = (params?: UseExtension) => {
 
     const secondaryActions = isEnabled && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
-    const toolFunctions = ToolFunctions;
-
-    return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings, toolFunctions };
+    return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };

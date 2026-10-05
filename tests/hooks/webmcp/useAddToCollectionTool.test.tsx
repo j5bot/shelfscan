@@ -107,6 +107,15 @@ describe('useAddToCollectionTool', () => {
         expect(result.content[0].text).toContain('invalid_value');
     });
 
+    it('only accepts the add action', async () => {
+        await mount(<Probe userId={USER_ID} />);
+        for (const type of ['trade', 'wishlist', 'previous', 'clear', 'sell', 'info']) {
+            const result = await execute({ type, bggId: 342942 });
+            expect(result.isError).toBe(true);
+        }
+        expect(addToCollection).not.toHaveBeenCalled();
+    });
+
     it('accepts a valid collection action', async () => {
         await mount(<Probe userId={USER_ID} />);
         vi.mocked(addToCollection).mockResolvedValue({ response: { collid: 99 } } as never);
