@@ -6,6 +6,7 @@ import {
     TagsModeSettings
 } from '@/app/lib/extension/types';
 import { BggCollectionItem, BggCollectionStatuses, BggPlayer } from '@/app/lib/types/bgg';
+import { TagLocations } from '@/app/lib/utils/tags';
 import { AddInfoForm } from '@/app/ui/extension/AddInfoForm';
 import { AddToMarketForm } from '@/app/ui/extension/AddToMarketForm';
 import { DetailedPlayForm } from '@/app/ui/extension/DetailedPlayForm';
@@ -74,35 +75,35 @@ export const makeTagsModeSettings = ({ collectionId }: MakeModeSettingsParams): 
         },
         wishlist: {
             label: 'Tags',
-            listText: 'Wishlist',
+            listText: TagLocations.wishlist.label,
             icon: <FaTags className="w-4 h-4 shrink-0" />,
             width: 'xs:w-20.5 w-21.5',
             form: (props: ModeSettingFormProps) =>
                 <TagsForm {...props}
-                          field="wishlistcomment"
+                          field={TagLocations.wishlist.field}
                           placeholder="Tags"
                           collectionId={collectionId!} />,
         },
         wantsparts: {
             label: 'Tags-WP',
-            listText: 'Want Parts',
+            listText: TagLocations.wantsparts.label,
             icon: <FaTags className="w-4 h-4 shrink-0" />,
             width: 'xs:w-27.5 w-29.5',
             form: (props: ModeSettingFormProps) =>
                 <TagsForm {...props}
-                          field="wantpartslist"
+                          field={TagLocations.wantsparts.field}
                           placeholder="Tags"
                           collectionId={collectionId!}
                 />,
         },
         hasparts: {
             label: 'Tags-HP',
-            listText: 'Has Parts',
+            listText: TagLocations.hasparts.label,
             icon: <FaTags className="w-4 h-4 shrink-0" />,
             width: 'xs:w-27 w-29',
             form: (props: ModeSettingFormProps) =>
                 <TagsForm {...props}
-                          field="haspartslist"
+                          field={TagLocations.hasparts.field}
                           placeholder="Tags"
                           collectionId={collectionId!}
                 />,

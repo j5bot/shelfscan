@@ -14,6 +14,7 @@ import {
     conditionalAddToArray,
     removeAndDeletePropertyIfArrayEmpty,
 } from '@/app/lib/utils/array';
+import { extractHashtags } from '@/app/lib/utils/tags';
 import { createSlice, current, PayloadAction } from '@reduxjs/toolkit';
 
 const innerUpdateCollectionItems = (
@@ -183,28 +184,6 @@ const innerUpdateCollectionItems = (
         state.tagsByItem = tagsByItem;
     }
     return state.items;
-};
-
-// Matches plain hashtags (#PnP) and "value tags" (#best-at=2, #best-at=5+),
-// where the part before `=` is registered as its own tag and the whole string
-// as another.
-const HASHTAG_PATTERN = /#[\w-]+(?:=[\w#+-]+)?/g;
-
-const extractHashtags = (text: string): string[] => {
-    const matches = text.match(HASHTAG_PATTERN);
-    if (!matches) {
-        return [];
-    }
-    const tags = new Set<string>();
-    matches.forEach(match => {
-        const tag = match.toLowerCase();
-        tags.add(tag);
-        const eqIndex = tag.indexOf('=');
-        if (eqIndex !== -1) {
-            tags.add(tag.slice(0, eqIndex));
-        }
-    });
-    return Array.from(tags);
 };
 
 // Sorted tag list with bare prefixes dropped when a value tag covers them, so an
