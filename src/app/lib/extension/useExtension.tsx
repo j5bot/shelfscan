@@ -90,7 +90,7 @@ const pulse = (target: Element | null | undefined) => {
 
 export const useExtension = (params?: UseExtension) => {
     const { info, version, view = 'version' } = params ?? {};
-    const { syncOn, userId, currentUsername } = useSync();
+    const { syncOn, userId, currentUsername, extensionUser } = useSync();
     const dispatch = useDispatch();
     const { dispatchExtensionMessage } = useExtensionMessaging();
 
@@ -107,7 +107,9 @@ export const useExtension = (params?: UseExtension) => {
     const collectionItem = collection?.items[collectionId];
     // an item that isn't in the collection yet can't be updated
     const update = !!collectionId && updateChoice;
-    const isEnabled = !!(syncOn && userId);
+    const isEnabled = syncOn && !!userId && (
+        !extensionUser || currentUsername === extensionUser
+    );
     const gameName = version?.name ?? info?.name;
 
     const statuses = collectionItem?.statuses;
