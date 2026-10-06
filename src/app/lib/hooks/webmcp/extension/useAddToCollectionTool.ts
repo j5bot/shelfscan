@@ -1,5 +1,6 @@
 import { CollectionItemInput } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { useCollectionActionTool } from '@/app/lib/hooks/webmcp/extension/useCollectionActionTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 
 const AddToCollectionInput = CollectionItemInput;
 
@@ -11,13 +12,13 @@ const TOOL_BASE = {
                  ' this tool.',
 };
 
-// userId is the active ShelfScan BGG user (set by bgg_load_collection); the tool is unavailable without one
-export const useAddToCollectionTool = (userId?: string) => useCollectionActionTool({
+// access holds the active ShelfScan BGG user (set by load_bgg_collection); the tool is unavailable without it
+export const useAddToCollectionTool = (access: ExtensionToolAccess) => useCollectionActionTool({
     base: TOOL_BASE,
     input: AddToCollectionInput,
     mode: 'add',
-    userId,
+    access,
     describeResult: ({ bggId, gameName }, collid) =>
-        `Add of ${gameName ?? `BGG game ${bggId}`} for BGG user ${userId} `
+        `Add of ${gameName ?? `BGG game ${bggId}`} for BGG user ${access.userId} `
         + `succeeded; collection item id: ${collid}.`,
 });

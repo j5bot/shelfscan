@@ -2,6 +2,7 @@ import { useStore } from '@/app/lib/hooks';
 import { getMatchingCollectionItem } from '@/app/lib/hooks/webmcp/extension/collectionItemGuard';
 import { CollectionItemInput } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { useCollectionActionTool } from '@/app/lib/hooks/webmcp/extension/useCollectionActionTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 import { z } from 'zod';
 
 const RemoveCollectionItemInput = CollectionItemInput.extend({
@@ -25,14 +26,14 @@ const TOOL_BASE = {
                  + 'installed and have a subscription in order to use this tool.',
 };
 
-export const useRemoveCollectionItemTool = (userId?: string) => {
+export const useRemoveCollectionItemTool = (access: ExtensionToolAccess) => {
     const store = useStore();
 
     return useCollectionActionTool({
         base: TOOL_BASE,
         input: RemoveCollectionItemInput,
         mode: 'clear',
-        userId,
+        access,
         // the extension deletes (rather than clears) the item when formValues.shouldRemove is set
         makeEntries: () => ({ shouldRemove: 'remove' }),
         // a wrong or guessed collection id must not delete some other game
@@ -41,6 +42,6 @@ export const useRemoveCollectionItemTool = (userId?: string) => {
         },
         describeResult: ({ bggId, gameName, collectionId }) =>
             `Permanently deleted ${gameName ?? `BGG game ${bggId}`} (collection item ${collectionId}) `
-            + `from BGG user ${userId}'s collection. This cannot be undone.`,
+            + `from BGG user ${access.userId}'s collection. This cannot be undone.`,
     });
 };

@@ -23,7 +23,7 @@ type ModelContext = {
 };
 
 const Probe = ({ userId }: ProbeProps) => {
-    useAddToWishlistTool(userId);
+    useAddToWishlistTool({ canUseExtension: !!userId, userId });
     return <span>ok</span>;
 };
 

@@ -1,5 +1,6 @@
 import { CollectionItemInput } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { useCollectionActionTool } from '@/app/lib/hooks/webmcp/extension/useCollectionActionTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 import { z } from 'zod';
 
 // BGG's wishlist priorities, worded as in the collection's wishlist priority filter
@@ -33,15 +34,15 @@ const TOOL_BASE = {
 };
 
 // a collectionId updates that item; without one the extension adds a new item on the wishlist
-export const useAddToWishlistTool = (userId?: string) => useCollectionActionTool({
+export const useAddToWishlistTool = (access: ExtensionToolAccess) => useCollectionActionTool({
     base: TOOL_BASE,
     input: AddToWishlistInput,
     mode: 'wishlist',
-    userId,
+    access,
     // the extension reads the wishlist priority from formValues.priority
     makeEntries: ({ priority }) => ({ priority: String(priority) }),
     describeResult: ({ bggId, gameName, collectionId, priority }, collid) =>
         `Added ${gameName ?? `BGG game ${bggId}`} to the wishlist${collectionId ? '' : ' as a new collection item'} `
-        + `for BGG user ${userId} (priority ${priority}, ${WishlistPriorityLabels[priority]}); `
+        + `for BGG user ${access.userId} (priority ${priority}, ${WishlistPriorityLabels[priority]}); `
         + `collection item id: ${collid}.`,
 });

@@ -38,15 +38,15 @@ type ModelContext = {
 };
 
 const PreviouslyOwnedProbe = () => {
-    useSetPreviouslyOwnedTool(USER_ID);
+    useSetPreviouslyOwnedTool({ canUseExtension: true, userId: USER_ID });
     return <span>ok</span>;
 };
 const ClearProbe = () => {
-    useClearCollectionStatusesTool(USER_ID);
+    useClearCollectionStatusesTool({ canUseExtension: true, userId: USER_ID });
     return <span>ok</span>;
 };
 const RemoveProbe = ({ userId }: { userId?: string }) => {
-    useRemoveCollectionItemTool(userId);
+    useRemoveCollectionItemTool({ canUseExtension: !!userId, userId });
     return <span>ok</span>;
 };
 
