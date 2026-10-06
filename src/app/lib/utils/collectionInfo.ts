@@ -82,10 +82,8 @@ const PLAIN_INFO_FIELDS = INFO_FORM_FIELD_NAMES
 export type InfoLoadItem = Record<string, unknown> & {
     objectid?: string | number;
     status?: Record<string, boolean>;
-    textfield?: {
-        privatecomment?: { value?: string };
-        conditiontext?: { value?: string };
-    };
+    // privatecomment, conditiontext, wishlistcomment, wantpartslist, haspartslist, ...
+    textfield?: Partial<Record<string, { value?: string }>>;
 };
 
 export type InfoValues = Partial<Record<InfoFormField, string>>;

@@ -7,6 +7,7 @@ import { useClearCollectionStatusesTool } from '@/app/lib/hooks/webmcp/extension
 import { useCollectionInfoTool } from '@/app/lib/hooks/webmcp/extension/useCollectionInfoTool';
 import { useRemoveCollectionItemTool } from '@/app/lib/hooks/webmcp/extension/useRemoveCollectionItemTool';
 import { useSetPreviouslyOwnedTool } from '@/app/lib/hooks/webmcp/extension/useSetPreviouslyOwnedTool';
+import { useSetTagsTool } from '@/app/lib/hooks/webmcp/extension/useSetTagsTool';
 import { getExtensionToolAccess } from '@/app/lib/utils/extensionToolAccess';
 
 export const useExtensionTool = () => {
@@ -19,5 +20,6 @@ export const useExtensionTool = () => {
     useClearCollectionStatusesTool(access);
     useRemoveCollectionItemTool(access);
     useCollectionInfoTool(access);
+    useSetTagsTool(access);
     useAddPlayTool(access);
 };

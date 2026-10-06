@@ -1,6 +1,7 @@
 import { useStore } from '@/app/lib/hooks';
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
+import { loadCollectionItem } from '@/app/lib/extension/messaging/loadCollectionItem';
 import { confirmCollectionItemId } from '@/app/lib/extension/messaging/collectionResponse';
 import { withExtensionTimeout } from '@/app/lib/extension/messaging/withExtensionTimeout';
 import { ModeSetting } from '@/app/lib/extension/types';
@@ -13,7 +14,6 @@ import {
     InfoFieldKind,
     InfoFormField,
     InfoFormFields,
-    InfoLoadItem,
     InfoUpdates,
     InfoValues,
     mergeInfoFormValues,
@@ -93,28 +93,6 @@ export const useCollectionInfoTool = (access: ExtensionToolAccess) => {
 
     const store = useStore();
 
-    // the item's current info from BGG, checked against the game it should be
-    const loadInfo = async (params: CollectionInfoParams) => {
-        const { bggId, versionId, collectionId } = params;
-        const loadResult = await withExtensionTimeout(Promise.resolve(dispatchExtensionMessage({
-            userId,
-            type: 'infoLoad',
-            collectionId,
-            gameId: bggId,
-            versionId,
-        })));
-        const item = (loadResult?.response as { collectionItem?: InfoLoadItem } | undefined)?.collectionItem;
-        if (!item) {
-            throw new Error(`The extension could not load collection item ${collectionId} from BGG`);
-        }
-        // a wrong or guessed collection id must not change (or report) some other game's info
-        if (item.objectid != null && Number(item.objectid) !== bggId) {
-            throw new Error(`Collection item ${collectionId} is BGG game ${item.objectid}, not BGG game ${bggId}; `
-                            + 'nothing was changed');
-        }
-        return readLoadedInfo(item);
-    };
-
     // without a preload, the loaded ShelfScan collection (when it has the item) guards against a wrong collection id
     const checkLoadedCollectionItem = (params: CollectionInfoParams) => {
         const { bggId, collectionId } = params;
@@ -152,7 +130,12 @@ export const useCollectionInfoTool = (access: ExtensionToolAccess) => {
                 throw new Error('Send the info fields to update, or read: true to read the current info');
             }
 
-            const loaded = read || preload ? await loadInfo(params) : undefined;
+            // the item's current info from BGG, checked against the game it should be
+            const loaded = read || preload
+                ? readLoadedInfo(await loadCollectionItem({
+                    userId, collectionId, bggId, versionId, dispatchExtensionMessage,
+                }))
+                : undefined;
             if (read) {
                 return {
                     content: [{
