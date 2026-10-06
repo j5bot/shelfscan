@@ -31,7 +31,7 @@ const Probe = ({ userId }: ProbeProps) => {
 // stands in for useBGGCollectionTool, which is registered alongside in McpToolsProvider
 const LoadCollectionStub = () => {
     useMcpTool({
-        name: 'bgg_load_collection',
+        name: 'load_bgg_collection',
         description: 'stub',
         input: BGGLoadCollectionInput,
         handler: () => ({ content: [] }),
@@ -90,13 +90,13 @@ describe('useAddToCollectionTool', () => {
             .toEqual(['bggId', 'collectionId', 'gameName', 'versionId']);
     });
 
-    it('does not collide with bgg_load_collection', async () => {
+    it('does not collide with load_bgg_collection', async () => {
         await mount(<>
             <LoadCollectionStub />
             <Probe userId={USER_ID} />
         </>);
         const names = (await modelContext().getTools()).map(tool => tool.name);
-        expect(names).toContain('bgg_load_collection');
+        expect(names).toContain('load_bgg_collection');
         expect(names).toHaveLength(2);
     });
 

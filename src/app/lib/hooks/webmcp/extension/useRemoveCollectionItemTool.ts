@@ -21,7 +21,7 @@ const TOOL_BASE = {
                  + 'its statuses, rating, comments, trade condition, wishlist details and private info. This cannot '
                  + 'be undone. Only use it when the user has explicitly asked to delete this specific item. To stop '
                  + 'owning a game use set_bgg_previously_owned, and to drop its statuses but keep the item use '
-                 + 'clear_bgg_collection_statuses. The item must be in the loaded collection (bgg_load_collection) '
+                 + 'clear_bgg_collection_statuses. The item must be in the loaded collection (load_bgg_collection) '
                  + 'and match bggId, otherwise nothing is deleted. The browser must have the ShelfScan extension '
                  + 'installed and have a subscription in order to use this tool.',
 };
