@@ -23,7 +23,7 @@ type ModelContext = {
 };
 
 const Probe = ({ userId }: ProbeProps) => {
-    useAddToCollectionForTradeTool(userId);
+    useAddToCollectionForTradeTool({ canUseExtension: !!userId, userId });
     return <span>ok</span>;
 };
 

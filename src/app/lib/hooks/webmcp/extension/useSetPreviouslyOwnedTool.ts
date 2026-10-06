@@ -1,5 +1,6 @@
 import { CollectionItemInput } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { useCollectionActionTool } from '@/app/lib/hooks/webmcp/extension/useCollectionActionTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 
 const SetPreviouslyOwnedInput = CollectionItemInput.extend({
     collectionId: CollectionItemInput.shape.collectionId
@@ -16,12 +17,12 @@ const TOOL_BASE = {
                  + 'subscription in order to use this tool.',
 };
 
-export const useSetPreviouslyOwnedTool = (userId?: string) => useCollectionActionTool({
+export const useSetPreviouslyOwnedTool = (access: ExtensionToolAccess) => useCollectionActionTool({
     base: TOOL_BASE,
     input: SetPreviouslyOwnedInput,
     mode: 'previous',
-    userId,
+    access,
     describeResult: ({ bggId, gameName, collectionId }, collid) =>
         `Set ${gameName ?? `BGG game ${bggId}`} as previously owned`
-        + `${collectionId ? '' : ' as a new collection item'} for BGG user ${userId}; collection item id: ${collid}.`,
+        + `${collectionId ? '' : ' as a new collection item'} for BGG user ${access.userId}; collection item id: ${collid}.`,
 });

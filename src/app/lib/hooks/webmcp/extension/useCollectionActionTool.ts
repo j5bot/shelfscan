@@ -5,6 +5,7 @@ import { withExtensionTimeout } from '@/app/lib/extension/messaging/withExtensio
 import { CollectionModes, FormValues, ModeSetting } from '@/app/lib/extension/types';
 import { CollectionItemInputValues } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { makeUnavailableTool } from '@/app/lib/hooks/webmcp/extension/unavailableTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 import { McpToolConfigZod, useMcpTool } from 'webmcp-react';
 import { ZodObjectSchema } from 'webmcp-react/types';
 import { z } from 'zod';
@@ -24,8 +25,8 @@ export type CollectionActionToolOptions<T extends ZodObjectSchema> = {
     input: T;
     /** The extension's collection mode for this action, or a function choosing it per call */
     mode: CollectionModes | ((params: ActionParams<T>) => CollectionModes);
-    /** The active ShelfScan BGG user (set by bgg_load_collection); the tool is unavailable without one */
-    userId?: string;
+    /** The active ShelfScan BGG user (set by load_bgg_collection) when the tool can run, otherwise why not */
+    access: ExtensionToolAccess;
     /** Form values the extension reads for this mode */
     makeEntries?: (params: ActionParams<T>) => FormValues;
     /** Runs before anything is sent; throw to refuse the call */
@@ -36,7 +37,8 @@ export type CollectionActionToolOptions<T extends ZodObjectSchema> = {
 
 /** A WebMCP tool that runs one extension collection action (addToCollection in a given mode). */
 export const useCollectionActionTool = <T extends ZodObjectSchema>(options: CollectionActionToolOptions<T>) => {
-    const { base, input, mode, userId, makeEntries, check, describeResult } = options;
+    const { base, input, mode, access, makeEntries, check, describeResult } = options;
+    const { userId, canUseExtension, unavailableMessage } = access;
     const { dispatchExtensionMessage } = useExtensionMessaging();
 
     // useMcpTool re-registers when the schema changes and always calls the latest handler,
@@ -74,7 +76,9 @@ export const useCollectionActionTool = <T extends ZodObjectSchema>(options: Coll
             };
         },
     };
-    const config = (userId ? actionConfig : makeUnavailableTool(base)) as McpToolConfigZod;
+    const config = (canUseExtension && userId
+                    ? actionConfig
+                    : makeUnavailableTool(base, unavailableMessage)) as McpToolConfigZod;
 
     useMcpTool(config);
 

@@ -1,5 +1,6 @@
 import { CollectionItemInput } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { useCollectionActionTool } from '@/app/lib/hooks/webmcp/extension/useCollectionActionTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 import { z } from 'zod';
 
 const AddToCollectionForTradeInput = CollectionItemInput.extend({
@@ -21,14 +22,14 @@ const TOOL_BASE = {
 };
 
 // a collectionId updates that item; without one the extension adds a new item marked for trade
-export const useAddToCollectionForTradeTool = (userId?: string) => useCollectionActionTool({
+export const useAddToCollectionForTradeTool = (access: ExtensionToolAccess) => useCollectionActionTool({
     base: TOOL_BASE,
     input: AddToCollectionForTradeInput,
     mode: 'trade',
-    userId,
+    access,
     // the extension saves formValues.tradecondition as the item's condition text
     makeEntries: ({ tradeCondition }) => ({ tradecondition: tradeCondition }),
     describeResult: ({ bggId, gameName, collectionId, tradeCondition }, collid) =>
-        `${collectionId ? 'Marked' : 'Added'} ${gameName ?? `BGG game ${bggId}`} for trade for BGG user ${userId} `
+        `${collectionId ? 'Marked' : 'Added'} ${gameName ?? `BGG game ${bggId}`} for trade for BGG user ${access.userId} `
         + `(condition: ${tradeCondition}); collection item id: ${collid}.`,
 });

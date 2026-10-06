@@ -13,6 +13,7 @@ import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
 import { bggHost } from '@/app/lib/services/bgg/constants';
 import { todayString } from '@/app/lib/utils/date';
+import { extensionUserMatches } from '@/app/lib/utils/extensionToolAccess';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
@@ -107,9 +108,7 @@ export const useExtension = (params?: UseExtension) => {
     const collectionItem = collection?.items[collectionId];
     // an item that isn't in the collection yet can't be updated
     const update = !!collectionId && updateChoice;
-    const isEnabled = syncOn && !!userId && (
-        !extensionUser || currentUsername === extensionUser
-    );
+    const isEnabled = syncOn && !!userId && extensionUserMatches(currentUsername, extensionUser);
     const gameName = version?.name ?? info?.name;
 
     const statuses = collectionItem?.statuses;

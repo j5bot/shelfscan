@@ -27,7 +27,7 @@ type ModelContext = {
 };
 
 const Probe = ({ userId, username }: ProbeProps) => {
-    useAddPlayTool(userId, username);
+    useAddPlayTool({ canUseExtension: !!(userId && username), userId, username });
     return <span>ok</span>;
 };
 

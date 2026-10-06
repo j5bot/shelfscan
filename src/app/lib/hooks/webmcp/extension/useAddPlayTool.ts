@@ -4,6 +4,7 @@ import { withExtensionTimeout } from '@/app/lib/extension/messaging/withExtensio
 import { makeUnavailableTool } from '@/app/lib/hooks/webmcp/extension/unavailableTool';
 import { useDispatch, useStore } from '@/app/lib/hooks';
 import { getCollectionInfoByObjectId } from '@/app/lib/redux/bgg/collection/selectors';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 import { todayString } from '@/app/lib/utils/date';
 import { makePlayEntries } from '@/app/lib/utils/playEntries';
 import { McpToolConfigZod, useMcpTool } from 'webmcp-react';
@@ -81,8 +82,6 @@ const TOOL_BASE = {
                  + 'subscription in order to use this tool.',
 };
 
-const UNAVAILABLE_TOOL = makeUnavailableTool(TOOL_BASE);
-
 type PlayResponse = {
     error?: boolean;
     message?: string;
@@ -90,8 +89,9 @@ type PlayResponse = {
     numplays?: number;
 };
 
-// userId and username are the active ShelfScan BGG user (set by bgg_load_collection); the tool is unavailable without them
-export const useAddPlayTool = (userId?: string, username?: string) => {
+// access holds the active ShelfScan BGG user (set by load_bgg_collection); the tool is unavailable without it
+export const useAddPlayTool = (access: ExtensionToolAccess) => {
+    const { userId, username, canUseExtension, unavailableMessage } = access;
     const { dispatchExtensionMessage } = useExtensionMessaging();
     const dispatch = useDispatch();
     const store = useStore();
@@ -143,7 +143,9 @@ export const useAddPlayTool = (userId?: string, username?: string) => {
             };
         },
     };
-    const config = (userId && username ? addPlayConfig : UNAVAILABLE_TOOL) as McpToolConfigZod;
+    const config = (canUseExtension && userId && username
+                    ? addPlayConfig
+                    : makeUnavailableTool(TOOL_BASE, unavailableMessage)) as McpToolConfigZod;
 
     useMcpTool(config);
 

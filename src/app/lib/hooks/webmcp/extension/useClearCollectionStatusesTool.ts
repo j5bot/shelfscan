@@ -1,5 +1,6 @@
 import { CollectionItemInput } from '@/app/lib/hooks/webmcp/extension/collectionItemInput';
 import { useCollectionActionTool } from '@/app/lib/hooks/webmcp/extension/useCollectionActionTool';
+import { ExtensionToolAccess } from '@/app/lib/types/extensionToolAccess';
 
 const ClearCollectionStatusesInput = CollectionItemInput.extend({
     // required: without an existing item the extension would add a new item with no statuses
@@ -16,12 +17,12 @@ const TOOL_BASE = {
                  + 'use this tool.',
 };
 
-export const useClearCollectionStatusesTool = (userId?: string) => useCollectionActionTool({
+export const useClearCollectionStatusesTool = (access: ExtensionToolAccess) => useCollectionActionTool({
     base: TOOL_BASE,
     input: ClearCollectionStatusesInput,
     mode: 'clear',
-    userId,
+    access,
     describeResult: ({ bggId, gameName }, collid) =>
         `Cleared all statuses on ${gameName ?? `BGG game ${bggId}`} (collection item ${collid}) `
-        + `for BGG user ${userId}.`,
+        + `for BGG user ${access.userId}.`,
 });

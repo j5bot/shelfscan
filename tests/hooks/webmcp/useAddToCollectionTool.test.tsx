@@ -24,7 +24,7 @@ type ModelContext = {
 };
 
 const Probe = ({ userId }: ProbeProps) => {
-    useAddToCollectionTool(userId);
+    useAddToCollectionTool({ canUseExtension: !!userId, userId });
     return <span>ok</span>;
 };
 
@@ -82,12 +82,12 @@ describe('useAddToCollectionTool', () => {
         expect(container.textContent).toBe('ok');
     });
 
-    it('registers the collection-action input schema when enabled', async () => {
+    it('registers the collection item input schema when enabled', async () => {
         await mount(<Probe userId={USER_ID} />);
         const tools = await modelContext().getTools();
         expect(tools).toHaveLength(1);
         expect(Object.keys(tools[0].inputSchema?.properties ?? {}).sort())
-            .toEqual(['bggId', 'collectionId', 'gameName', 'type', 'versionId']);
+            .toEqual(['bggId', 'collectionId', 'gameName', 'versionId']);
     });
 
     it('does not collide with bgg_load_collection', async () => {
@@ -100,20 +100,22 @@ describe('useAddToCollectionTool', () => {
         expect(names).toHaveLength(2);
     });
 
-    it('rejects an unknown collection action type', async () => {
+    it('rejects an invalid BGG game id', async () => {
         await mount(<Probe userId={USER_ID} />);
-        const result = await execute({ type: 'bogus', bggId: 1 });
+        const result = await execute({ bggId: 0 });
         expect(result.isError).toBe(true);
-        expect(result.content[0].text).toContain('invalid_value');
+        expect(result.content[0].text).toContain('too_small');
+        expect(addToCollection).not.toHaveBeenCalled();
     });
 
-    it('only accepts the add action', async () => {
+    it('always adds, whatever other action is asked for', async () => {
+        vi.mocked(addToCollection).mockResolvedValue({ response: { collid: 99 } } as never);
         await mount(<Probe userId={USER_ID} />);
         for (const type of ['trade', 'wishlist', 'previous', 'clear', 'sell', 'info']) {
-            const result = await execute({ type, bggId: 342942 });
-            expect(result.isError).toBe(true);
+            await execute({ type, bggId: 342942 });
         }
-        expect(addToCollection).not.toHaveBeenCalled();
+        const modes = vi.mocked(addToCollection).mock.calls.map(([options]) => options.mode);
+        expect(modes).toEqual(Array(6).fill('add'));
     });
 
     it('accepts a valid collection action', async () => {
@@ -149,5 +151,16 @@ describe('useAddToCollectionTool', () => {
         await mount(<Probe />);
         const [tool] = await modelContext().getTools();
         expect(tool.inputSchema?.properties ?? {}).toEqual({});
+    });
+
+    it('explains why the tool is unavailable when it is called', async () => {
+        const UnavailableProbe = () => {
+            useAddToCollectionTool({ canUseExtension: false, unavailableMessage: 'Unavailable: user mismatch' });
+            return <span>ok</span>;
+        };
+        await mount(<UnavailableProbe />);
+        const result = await execute({});
+        expect(result.content[0].text).toBe('Unavailable: user mismatch');
+        expect(addToCollection).not.toHaveBeenCalled();
     });
 });
