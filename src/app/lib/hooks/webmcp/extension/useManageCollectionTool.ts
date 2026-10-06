@@ -8,14 +8,26 @@ import { useRemoveCollectionItemTool } from '@/app/lib/hooks/webmcp/extension/us
 import { useSetPreviouslyOwnedTool } from '@/app/lib/hooks/webmcp/extension/useSetPreviouslyOwnedTool';
 
 export const useManageCollectionTool = () => {
-    const { syncOn, hasSubscription, userId, currentUsername } = useSync();
-    const canUseExtension = syncOn && hasSubscription;
+    const {
+        syncOn,
+        hasSubscription,
+        userId,
+        currentUsername,
+        extensionUser,
+    } = useSync();
 
-    useAddToCollectionTool(canUseExtension ? userId : undefined);
-    useAddToCollectionForTradeTool(canUseExtension ? userId : undefined);
-    useAddToWishlistTool(canUseExtension ? userId : undefined);
-    useSetPreviouslyOwnedTool(canUseExtension ? userId : undefined);
-    useClearCollectionStatusesTool(canUseExtension ? userId : undefined);
-    useRemoveCollectionItemTool(canUseExtension ? userId : undefined);
-    useAddPlayTool(canUseExtension ? userId : undefined, canUseExtension ? currentUsername : undefined);
+    const canUseExtension = syncOn
+                            && hasSubscription
+                            && (!extensionUser || currentUsername === extensionUser);
+
+    const conditionalUserId = canUseExtension ? userId : undefined;
+    const conditionalUsername = canUseExtension ? currentUsername : undefined;
+
+    useAddToCollectionTool(conditionalUserId);
+    useAddToCollectionForTradeTool(conditionalUserId);
+    useAddToWishlistTool(conditionalUserId);
+    useSetPreviouslyOwnedTool(conditionalUserId);
+    useClearCollectionStatusesTool(conditionalUserId);
+    useRemoveCollectionItemTool(conditionalUserId);
+    useAddPlayTool(conditionalUserId, conditionalUsername);
 };
