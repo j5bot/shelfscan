@@ -24,7 +24,8 @@ export const useBGGCollectionTool = () => {
             + 'and make it the active ShelfScan user and collection. Transient BGG errors are retried for up to a minute. '
             + 'Returns a summary of item counts by status.',
         input: BGGLoadCollectionInput,
-        annotations: { readOnlyHint: true },
+        // nothing is written to BGG, but it replaces ShelfScan's active user and collection
+        annotations: { readOnlyHint: false },
         handler: async ({ username }, { signal }) => {
             const { user, items } = await fetchFreshBggUserDataWithRetry(username, { signal });
             signal.throwIfAborted();

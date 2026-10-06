@@ -76,7 +76,7 @@ export const useGameUPCDataTools = () => {
         title: 'Submit/verify a game/UPC mapping',
         description: 'Submit a new game/UPC mapping or verify an existing one',
         input: GameUPCSubmitOrRemoveInput,
-        annotations: { readOnlyHint: true },
+        annotations: { readOnlyHint: false },
         handler: async ({ upc, bggId, versionId, updater }) => {
             setUpdater(updater);
             const gameUPCData = await submitOrVerifyGame(upc, bggId, versionId);
