@@ -1,4 +1,5 @@
 import { ModeSettingFormProps } from '@/app/lib/extension/types';
+import { InfoFormFields } from '@/app/lib/utils/collectionInfo';
 import { CurrencySelect } from '@/app/ui/forms/CurrencySelect';
 import { DateSelect } from '@/app/ui/forms/DateSelect';
 import { PriceInput } from '@/app/ui/forms/PriceInput';
@@ -11,7 +12,7 @@ const PrivateComment = ({ formValues, setFormValues }: ModeSettingFormProps) => 
     return <textarea
            name="privatecomment"
            className="textarea textarea-md text-sm p-2"
-           placeholder="Private Comment"
+           placeholder={InfoFormFields.privatecomment.label}
            defaultValue={formValues?.['privatecomment']}
            onChange={event => {
                const privatecomment = event.currentTarget.value;
@@ -32,49 +33,51 @@ export const AddInfoForm = ({ formValues, setFormValues }: ModeSettingFormProps)
             <TextInput text={formValues?.['tradecondition']}
                        setValue={setValue}
                        field="tradecondition"
-                       label="Trade Condition" />
+                       label={InfoFormFields.tradecondition.label} />
         </div>
         <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['pp_currency'] ?? 'USD'}
                             setValue={setValue}
                             field="pp_currency"
-                            label="Paid Currency"
+                            label={InfoFormFields.pp_currency.label}
             />
             <PriceInput price={formValues?.['pricepaid'] ?? ''}
                         setValue={setValue}
                         field="pricepaid"
-                        label="Paid"
+                        label={InfoFormFields.pricepaid.label}
             />
         </div>
         <div className="flex gap-0.5 mt-0.5">
             <CurrencySelect currency={formValues?.['cv_currency'] ?? 'USD'}
                             setValue={setValue}
                             field="cv_currency"
-                            label="Value Currency"
+                            label={InfoFormFields.cv_currency.label}
             />
             <PriceInput price={formValues?.['currvalue'] ?? ''}
                         setValue={setValue}
                         field="currvalue"
-                        label="Value"
+                        label={InfoFormFields.currvalue.label}
             />
         </div>
         <div className="flex gap-0.5 m-0.5">
             <FaCheckToSlot className="h-7 w-7 mr-0.5" />
             <DateSelect date={formValues?.['acquisitiondate']} setValue={setValue}
                         field="acquisitiondate"
+                        label={InfoFormFields.acquisitiondate.label}
             />
             <TextInput text={formValues?.['acquiredfrom']} setValue={setValue}
                        field="acquiredfrom"
-                       label="Acq. Note" />
+                       label={InfoFormFields.acquiredfrom.label} />
         </div>
         <div className="flex gap-0.5 m-0.5 mt-0">
             <FaCheckDouble className="h-7 w-7 mr-0.5" />
             <DateSelect date={formValues?.['invdate']} setValue={setValue}
                         field="invdate"
+                        label={InfoFormFields.invdate.label}
             />
             <TextInput text={formValues?.['invlocation']} setValue={setValue}
                        field="invlocation"
-                       label="Inv. Note"
+                       label={InfoFormFields.invlocation.label}
             />
         </div>
     </form>

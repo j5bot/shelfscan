@@ -2,6 +2,7 @@ import { getSetting, setSetting } from '@/app/lib/database/database';
 import { addPlay } from '@/app/lib/extension/messaging/addPlay';
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
 import {
+    FormValues,
     Modes,
     ModeSetting,
     ModeSettings,
@@ -18,7 +19,8 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { BggCollectionItem, BggPlayer } from '@/app/lib/types/bgg';
+import { BggPlayer } from '@/app/lib/types/bgg';
+import { INFO_FORM_FIELD_NAMES, InfoLoadItem, readLoadedInfo } from '@/app/lib/utils/collectionInfo';
 import {
     CollectionFormState,
     resolveCollectionFormValues,
@@ -53,18 +55,10 @@ export type MakeModeBlockParams = {
     formProps?: Partial<ModeSettingFormProps>;
 };
 
-// collection item fields an infoLoad reply copies into the info form
-const InfoLoadFields = [
-    'tradecondition',
-    'pricepaid',
-    'pp_currency',
-    'currvalue',
-    'cv_currency',
-    'acquisitiondate',
-    'acquiredfrom',
-    'invdate',
-    'invlocation',
-];
+// an infoLoad reply replaces these info form fields, clearing any BGG has no value for
+const InfoLoadClearedFields = Object.fromEntries(INFO_FORM_FIELD_NAMES
+    .filter(field => field !== 'statuses')
+    .map(field => [field, undefined]));
 
 // wrapper keys for the collection view, in block order
 const PrimaryBlockKeys = ['atcb', 'apb', 'arb', 'etb'];
@@ -307,14 +301,8 @@ export const useExtension = (params?: UseExtension) => {
     });
 
     // an infoLoad reply fills the info form from the item on BGG, on top of the latest form values
-    const applyInfoLoad = useEffectEvent((colItem: BggCollectionItem & { textfield: { privatecomment: { value: string } } }) => {
-        setFormValues(prev => {
-            const infoFormValues = InfoLoadFields.reduce((acc, field) => Object.assign(acc, {
-                [field]: colItem?.[field as keyof BggCollectionItem]?.toString() ?? undefined,
-            }), { ...prev });
-            infoFormValues.privatecomment = colItem.textfield.privatecomment.value;
-            return infoFormValues;
-        });
+    const applyInfoLoad = useEffectEvent((colItem: InfoLoadItem) => {
+        setFormValues(prev => ({ ...prev, ...InfoLoadClearedFields, ...readLoadedInfo(colItem) }) as FormValues);
     });
 
     useEffect(() => {

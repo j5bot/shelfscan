@@ -1,33 +1,9 @@
 import { SetFormValue } from '@/app/lib/extension/types';
+import { CURRENCIES } from '@/app/lib/utils/currencies';
 import React from 'react';
 
-const currencies = [
-    { value: undefined, label: '' },
-    { value: 'USD', label: 'US$' },
-    { value: 'EUR', label: 'EU€' },
-    { value: 'GBP', label: 'GB£' },
-    { value: 'CAD', label: 'CA$' },
-    { value: 'AUD', label: 'AU$' },
-    { value: 'NZD', label: 'NZ$' },
-    { value: 'BRL', label: 'R$' },
-    { value: 'MXN', label: 'MX$' },
-    { value: 'CHF', label: 'SFr' },
-    { value: 'CZK', label: 'Kč' },
-    { value: 'DKK', label: 'DKK' },
-    { value: 'SEK', label: 'SEK' },
-    { value: 'HUF', label: 'Ft' },
-    { value: 'ILS', label: '₪' },
-    { value: 'NOK', label: 'NOK' },
-    { value: 'PLN', label: 'zł' },
-    { value: 'JPY', label: '¥' },
-    { value: 'CNY', label: '元' },
-    { value: 'HKD', label: 'HK$' },
-    { value: 'MYR', label: 'RM' },
-    { value: 'TWD', label: 'NT$' },
-    { value: 'PHP', label: '₱' },
-    { value: 'SGD', label: 'S$' },
-    { value: 'THB', label: '฿' },
-];
+// the empty option leaves the currency unset
+const currencies = [{ value: undefined, label: '' }, ...CURRENCIES];
 
 type CurrencySelectProps = {
     id?: string;
