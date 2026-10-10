@@ -364,7 +364,10 @@ PostHog events, including the search text (game names aren't sensitive):
 - **D1 — Minimum extension version: ≥ 0.12.0.** 0.12.0 is the first version with `doSearch`.
   Keep the constant in one place, and bump `lib/extension/version.ts` (currently `0.11.0`) when
   the extension ships.
-- **D2 — `doSearch` reply.** Items are at `response.data.items`, at most 20. If the extension is
+- **D2 — `doSearch` reply.** Items are at `response.data.items`, at most 20. *Phase 5 check:* the
+  extension's `doSearch` (shelfscan-extension `content/bgg.ts`) passes BGG's
+  `/search/boardgame` JSON through unwrapped, and that JSON is `{ items: [...] }`, so the app
+  receives `response.items`. `searchBgg` accepts both (`getDoSearchItems`). If the extension is
   not logged in to BGG, or the search fails, fall back to the XML search. A successful empty
   result is final — no fallback.
 - **D3 — Extension result order: keep the extension's relevance order.** Only XML results get
@@ -452,14 +455,34 @@ Code paths traced; live checks against BGG deferred to the Phase 5 manual pass.
    The scan page is unchanged.
 
 ### Phase 5 — Polish and release
-1. Accessibility pass: section labelling, `aria-live` status, keyboard access to cards, contrast
-   of the inverted theme in every DaisyUI theme the app ships.
-2. `pnpm lint`, `pnpm test`, `pnpm doctor`, `pnpm build`.
-3. Manual test matrix: Chrome with extension ≥ min, Chrome with older extension, Firefox/Safari
-   without extension, light and dark themes, list / large / small grid, mobile width.
-   Include the Phase 4 live checks: add (game and expansion, with and without a version), log
-   play, rate, and add-only on a trade page.
-4. Bump `lib/extension/version.ts` when the extension release with `doSearch` ships.
+1. **Accessibility** (done): results section labelled by its heading; status line is an
+   `aria-live` region (the error no longer also has `role="alert"`, which double-announced);
+   cards and rows open via native buttons; grid cards are `<li>` in a `<ul>`; inverted colors are
+   white on gray-900 / gray-900 on white.
+2. **Checks** (done): lint, type check, tests and `pnpm build` pass. `tests/utils/dbBackup.test.ts`
+   (large-backup round trip) can time out under full-suite load; it passes alone and is
+   unrelated to this feature.
+3. **Extension (shelfscan-extension, not changed from here):**
+   - `doSearch` fetches `/search/boardgame` with only a `content-type` header; BGG answers that
+     with HTML, so `response.json()` throws. It needs `accept: application/json` (verified in
+     the browser: with it, BGG returns `{ items }`).
+   - Release it as 0.12.0, then bump `lib/extension/version.ts` (currently `0.11.0`).
+4. **Manual test checklist** (needs a BGG account; adds/plays/ratings are real):
+   - [ ] Extension ≥ 0.12.0: results in relevance order, at most 20; `bgg_search` event has
+         `source: extension`.
+   - [ ] Extension < 0.12.0 or absent: XML results (verified with 0.11.3), board games then
+         expansions, newest first.
+   - [ ] Extension logged out of BGG: falls back to XML silently.
+   - [ ] Add a board game and an expansion (with and without a version): the card becomes a
+         collection card without a reload; the expansion keeps its expansion type.
+   - [ ] Log a play and rate a game that isn't in the collection; no collection item is created
+         by the play.
+   - [ ] `/swap`, `/trade`, `/math-trade/[id]`: modal offers only add; after adding, the game
+         gets the page's trade actions.
+   - [ ] "Hidden by filters" hint and Clear filters (search text kept).
+   - [ ] Dark mode, mobile width, list / small / large grid (list and large grid verified in
+         light mode).
+   - [ ] Firefox and Safari without the extension.
 
 ## Acceptance criteria
 

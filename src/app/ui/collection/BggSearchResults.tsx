@@ -154,7 +154,7 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
             status = 'No games match your filter. Type at least 3 characters to search BoardGameGeek.';
             break;
         case search.status === 'error':
-            status = <span className="flex flex-col items-center gap-2" role="alert">
+            status = <span className="flex flex-col items-center gap-2">
                 Couldn’t search BoardGameGeek.
                 <button type="button" className="btn btn-sm btn-primary" onClick={search.retry}>Retry</button>
             </span>;
