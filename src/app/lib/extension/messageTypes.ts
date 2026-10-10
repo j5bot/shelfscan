@@ -31,6 +31,7 @@ export type DocumentMessageDetailType =
     | 'ack'
     | 'add'
     | 'clear'
+    | 'doSearch'
     | 'geeklistLoad'
     | 'getData'
     | 'getLocations'
@@ -74,8 +75,13 @@ export type DocumentMessageSearchPlayerDetail = BaseDocumentMessageDetail &{
     query: string;
 };
 
+export type DocumentMessageDoSearchDetail = BaseDocumentMessageDetail & {
+    query: string;
+};
+
 export type DocumentMessageSourceDetail =
     | DocumentMessageNeedsAuthDetail
+    | DocumentMessageDoSearchDetail
     | DocumentMessageLookupDetail
     | DocumentMessageSearchPlayerDetail
     | ShelfScanEntry;

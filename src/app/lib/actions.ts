@@ -7,6 +7,7 @@ const bggCollectionBaseURL = `${bggHost}/xmlapi2/collection`;
 const bggUserBaseURL = `${bggHost}/xmlapi2/user`;
 const bggThingBaseURL = `${bggHost}/xmlapi2/thing`;
 const bggGeeklistBaseURL = `${bggHost}/xmlapi/geeklist`;
+const bggSearchBaseURL = `${bggHost}/xmlapi2/search`;
 
 const MAX_ATTEMPTS = 20;
 
@@ -80,3 +81,17 @@ export const bggGetGeeklistInner =
         const geeklistUrl = new URL(`${bggGeeklistBaseURL}/${id.toString()}`);
         return await fetchFromBggWithToken(geeklistUrl.toString(), {}).then(r => r.text());
     };
+
+
+/** BGG XML API v2 search for board games and expansions; throws when BGG doesn't answer with 2xx. */
+export const bggSearchInner = async (query: string): Promise<string> => {
+    const searchUrl = new URL(bggSearchBaseURL);
+    searchUrl.searchParams.append('query', query);
+    searchUrl.searchParams.append('type', 'boardgame,boardgameexpansion');
+
+    const response = await fetchFromBggWithToken(searchUrl.toString(), {});
+    if (!response.ok) {
+        throw new Error(`BGG search failed with status ${response.status}`);
+    }
+    return await response.text();
+};

@@ -1,3 +1,5 @@
+import { ExtensionSearchResponseError } from '@/app/lib/extension/messaging/searchBgg';
+import { ExtensionTimeoutError } from '@/app/lib/extension/messaging/withExtensionTimeout';
 import { parseUnifiedSearch, SearchMode } from '@/app/lib/hooks/useCollectionFilters';
 import {
     BggCollectionId,
@@ -5,6 +7,7 @@ import {
     BggExtensionSearchItem,
     BggSearchEntry,
     BggSearchResult,
+    BggSearchSource,
     BggSearchSubType,
 } from '@/app/lib/types/bgg';
 import { HASHTAG_PATTERN } from '@/app/lib/utils/tags';
@@ -145,9 +148,87 @@ export const prepareXmlSearchResults = (
 
 /** Extension results to show: in the extension's order (it sends at most 20), matched to the collection. */
 export const prepareExtensionSearchResults = (
-    items: BggExtensionSearchItem[],
+    results: BggSearchResult[],
     collection: CollectionMatch,
 ): PreparedBggSearchResults => {
-    const { entries, hiddenByFilters } = matchCollectionObjects(normalizeExtensionSearchItems(items), collection);
+    const { entries, hiddenByFilters } = matchCollectionObjects(results, collection);
     return { results: entries, total: entries.length, hiddenByFilters };
+};
+
+/** Search results to show, prepared the way their source needs (R6). */
+export const prepareBggSearchResults = (
+    results: BggSearchResult[],
+    source: BggSearchSource,
+    collection: CollectionMatch,
+): PreparedBggSearchResults => source === 'extension'
+    ? prepareExtensionSearchResults(results, collection)
+    : prepareXmlSearchResults(results, collection);
+
+export type BggSearchErrorReason = 'timeout' | 'error' | 'bad_response';
+
+export class BggSearchError extends Error {
+    name = 'BggSearchError';
+    readonly reason: BggSearchErrorReason;
+    readonly source: BggSearchSource;
+
+    constructor(reason: BggSearchErrorReason, source: BggSearchSource, message: string) {
+        super(message);
+        this.reason = reason;
+        this.source = source;
+    }
+}
+
+export const getBggSearchErrorReason = (error: unknown): BggSearchErrorReason => {
+    switch (true) {
+        case error instanceof BggSearchError:
+            return error.reason;
+        case error instanceof ExtensionTimeoutError:
+            return 'timeout';
+        case error instanceof ExtensionSearchResponseError:
+            return 'bad_response';
+        default:
+            return 'error';
+    }
+};
+
+export type BggSearchOutcome = {
+    source: BggSearchSource;
+    results: BggSearchResult[];
+    // the extension was tried and failed
+    fallback: boolean;
+};
+
+export type RunBggSearchParams = {
+    query: string;
+    useExtension: boolean;
+    searchExtension: (query: string) => Promise<BggExtensionSearchItem[]>;
+    // throws a BggSearchError on failure
+    searchXml: (query: string) => Promise<BggSearchResult[]>;
+    onExtensionError?: (reason: BggSearchErrorReason, error: unknown) => void;
+};
+
+/**
+ * Searches through the extension when it can, falling back to the XML API when it fails (timeout, error, not
+ * logged in, no items). A successful extension search is final, even when empty. Throws a BggSearchError when
+ * the XML API search fails.
+ */
+export const runBggSearch = async (params: RunBggSearchParams): Promise<BggSearchOutcome> => {
+    const { query, useExtension, searchExtension, searchXml, onExtensionError } = params;
+
+    if (useExtension) {
+        try {
+            const items = await searchExtension(query);
+            return { source: 'extension', results: normalizeExtensionSearchItems(items), fallback: false };
+        } catch (error) {
+            onExtensionError?.(getBggSearchErrorReason(error), error);
+        }
+    }
+
+    try {
+        return { source: 'xmlapi', results: await searchXml(query), fallback: useExtension };
+    } catch (error) {
+        throw error instanceof BggSearchError
+              ? error
+              : new BggSearchError('error', 'xmlapi', error instanceof Error ? error.message : String(error));
+    }
 };

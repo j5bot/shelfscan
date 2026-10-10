@@ -67,7 +67,8 @@ Further rules:
 
 - **Debounce** 500 ms after the last keystroke (`searchText` updates on every keystroke).
 - **Stale responses** are discarded: only the response for the current query is ever rendered
-  (`active` flag / request id; `AbortController` for the XML path).
+  (`active` flag / request key). Server actions can't be aborted, so an abandoned XML search
+  still completes and is cached, but is never rendered.
 - If the query becomes shorter than 3 characters or the collection list becomes non-empty, the
   BGG section disappears and any in-flight search is abandoned.
 - The same query is not re-requested within a session (in-memory cache keyed by normalized
@@ -312,7 +313,8 @@ export type BggSearchResult = {
 
 PostHog events, including the search text (game names aren't sensitive):
 
-- `bgg_search` — `{ query, source, fallback: boolean, resultCount, shownCount, durationMs }`
+- `bgg_search` — `{ query, source, fallback: boolean, resultCount, durationMs }` (`resultCount`
+  is before collection matching and the cap)
 - `bgg_search_error` — `{ query, source, reason: 'timeout' | 'error' | 'bad_response' }`
 - `bgg_search_result_opened` — `{ query, objectId, subType, page }` (`page`: collection / swap /
   trade / math-trade)
@@ -400,9 +402,13 @@ PostHog events, including the search text (game names aren't sensitive):
    `response.data.items` and throws when it isn't an array.
 4. `lib/extension/syncHooks/useExtensionVersion.ts`, extracted from `ExtensionNotice.tsx`
    (refactor `ExtensionNotice` to use it).
-5. `lib/hooks/useBggSearch.ts`: `({ query, enabled }) → { status, results, total, source, retry }`.
-   Debounce, source choice + fallback, `active` flag + `AbortController`, session cache,
-   analytics events.
+5. `lib/hooks/useBggSearch.ts`: `({ query, enabled }) → { status, source, results, fallback,
+   errorReason, retry }`. Debounce, `active` flag, session cache, analytics events. Source choice
+   and fallback live in the pure `runBggSearch` (`lib/utils/bggSearch.ts`); collection matching
+   and the cap happen at render with `prepareBggSearchResults`, since filters change without a
+   new search.
+6. `SyncContext` gains `syncChecked` (presence check has run) and `extensionVersion`, read once in
+   `SyncProvider`; `ExtensionNotice` uses them instead of its own observer.
 
 ### Phase 3 — UI
 1. `ui/collection/BggSearchResults.tsx`: section, heading, states (R7), list/grid rendering via

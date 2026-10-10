@@ -1,12 +1,17 @@
-import { describe, it, expect } from '../setup';
+import { describe, it, expect, vi } from '../setup';
+import { ExtensionSearchResponseError } from '@/app/lib/extension/messaging/searchBgg';
+import { ExtensionTimeoutError } from '@/app/lib/extension/messaging/withExtensionTimeout';
 import { BggExtensionSearchItem, BggSearchResult } from '@/app/lib/types/bgg';
 import {
+    BggSearchError,
     getBggSearchQuery,
     isBggSearchQueryLongEnough,
     matchCollectionObjects,
     normalizeExtensionSearchItems,
+    prepareBggSearchResults,
     prepareExtensionSearchResults,
     prepareXmlSearchResults,
+    runBggSearch,
     sortBggSearchResults,
 } from '@/app/lib/utils/bggSearch';
 
@@ -217,15 +222,96 @@ describe('prepareXmlSearchResults', () => {
 describe('prepareExtensionSearchResults', () => {
     it('keeps the extension order and matches to the collection', () => {
         const prepared = prepareExtensionSearchResults(
-            [
+            normalizeExtensionSearchItems([
                 extensionItem({ objectid: '2', yearpublished: 1990 }),
                 extensionItem({ objectid: '3' }),
                 extensionItem({ objectid: '1' }),
-            ],
+            ]),
             { objects: { 1: [100], 3: [300] }, isShown: id => id !== 300 },
         );
         expect(prepared.total).toBe(2);
         expect(prepared.hiddenByFilters).toBe(1);
         expect(prepared.results.map(r => [r.objectId, r.collectionIds])).toEqual([[2, []], [1, [100]]]);
+    });
+});
+
+describe('prepareBggSearchResults', () => {
+    const results = [result(1, 'Old', 'boardgame', 1990), result(2, 'New', 'boardgame', 2020)];
+
+    it('keeps extension results in their order', () => {
+        const prepared = prepareBggSearchResults(results, 'extension', { objects: {} });
+        expect(prepared.results.map(r => r.objectId)).toEqual([1, 2]);
+    });
+
+    it('sorts XML results', () => {
+        const prepared = prepareBggSearchResults(results, 'xmlapi', { objects: {} });
+        expect(prepared.results.map(r => r.objectId)).toEqual([2, 1]);
+    });
+});
+
+describe('runBggSearch', () => {
+    const xmlResults = [result(1, 'From XML')];
+    const searchXml = vi.fn(async () => xmlResults);
+
+    it('uses the XML API when the extension cannot search', async () => {
+        const searchExtension = vi.fn();
+        const outcome = await runBggSearch({ query: 'carc', useExtension: false, searchExtension, searchXml });
+        expect(outcome).toEqual({ source: 'xmlapi', results: xmlResults, fallback: false });
+        expect(searchExtension).not.toHaveBeenCalled();
+    });
+
+    it('uses the extension when it can, normalizing its items', async () => {
+        const outcome = await runBggSearch({
+            query: 'carc',
+            useExtension: true,
+            searchExtension: async () => [extensionItem({})],
+            searchXml,
+        });
+        expect(outcome.source).toBe('extension');
+        expect(outcome.fallback).toBe(false);
+        expect(outcome.results.map(r => r.objectId)).toEqual([822]);
+    });
+
+    it('does not fall back when the extension finds nothing', async () => {
+        const xml = vi.fn(async () => xmlResults);
+        const outcome = await runBggSearch({ query: 'zzz', useExtension: true, searchExtension: async () => [], searchXml: xml });
+        expect(outcome).toEqual({ source: 'extension', results: [], fallback: false });
+        expect(xml).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['timeout', new ExtensionTimeoutError('slow')],
+        ['bad_response', new ExtensionSearchResponseError('not logged in')],
+        ['error', new Error('boom')],
+    ] as const)('falls back to the XML API on an extension %s', async (reason, error) => {
+        const onExtensionError = vi.fn();
+        const outcome = await runBggSearch({
+            query: 'carc',
+            useExtension: true,
+            searchExtension: async () => { throw error; },
+            searchXml,
+            onExtensionError,
+        });
+        expect(outcome).toEqual({ source: 'xmlapi', results: xmlResults, fallback: true });
+        expect(onExtensionError).toHaveBeenCalledWith(reason, error);
+    });
+
+    it('rethrows XML API search errors as BggSearchErrors', async () => {
+        const failing = runBggSearch({
+            query: 'carc',
+            useExtension: false,
+            searchExtension: vi.fn(),
+            searchXml: async () => { throw new BggSearchError('bad_response', 'xmlapi', 'bad xml'); },
+        });
+        await expect(failing).rejects.toMatchObject({ reason: 'bad_response', source: 'xmlapi' });
+
+        const unknown = runBggSearch({
+            query: 'carc',
+            useExtension: false,
+            searchExtension: vi.fn(),
+            searchXml: async () => { throw new Error('network'); },
+        });
+        await expect(unknown).rejects.toBeInstanceOf(BggSearchError);
+        await expect(unknown).rejects.toMatchObject({ reason: 'error', message: 'network' });
     });
 });
