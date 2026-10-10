@@ -1,6 +1,7 @@
 import { addImageDataToCache, makeImageCacheId } from '@/app/lib/database/cacheDatabase';
 import { useCachedImage, type ResolvedImageProps } from '@/app/lib/hooks/useCachedImage';
 import React, { CSSProperties, memo, Suspense, use } from 'react';
+import { FaTriangleExclamation } from 'react-icons/fa6';
 
 export type ThumbnailBoxProps = {
     alt: string;
@@ -115,7 +116,7 @@ const ThumbnailBoxInner = (props: ThumbnailBoxInnerProps) => {
                     rounded-md overflow-clip
                     focus:overflow-visible ${scalePercent}
                     hover:overflow-visible
-                    z-[9] hover:z-10 focus:z-10
+                    z-[9] hover:z-13 focus:z-13
                     ${className}
                 `}
                 style={{
@@ -145,16 +146,29 @@ export const ThumbnailBox = memo((props: ThumbnailBoxProps) => {
         addImageDataToCache,
     });
 
+    if (!url || url.length === 0) {
+        return <div className="flex justify-center p-1">
+            <div
+                className="rounded-md"
+                style={{ width: `${size}px`, height: `${size}px`, ...styles }}
+            >
+                <FaTriangleExclamation
+                    className="fill-gray-300"
+                    style={{
+                        width: `${size * 0.8}px`,
+                        height: `${size * 0.8}px`,
+                        margin: `${size * 0.1}px`
+                    }} />
+            </div>
+        </div>;
+    }
+
     const fallback = <div className="flex justify-center p-1">
         <div
             className="skeleton rounded-md"
             style={{ width: `${size}px`, height: `${size}px`, ...styles }}
         />
     </div>;
-
-    if (!url || url.length === 0) {
-        return fallback;
-    }
 
     return (
         <Suspense fallback={fallback}>
