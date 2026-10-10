@@ -104,12 +104,15 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
         header,
         children,
         thumbnailSize,
+        defaultImageUrl,
+        defaultImageCacheId,
         setVersion,
     } = props;
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const liveItem = useSelector(state => username ? state.bgg.collection.users[username].items[item.collectionId] : undefined);
-    const bggId = liveItem?.objectId;
+    // a BGG search result isn't in the collection (no live item), but its versions still load
+    const bggId = (liveItem ?? item).objectId;
     const versionId = liveItem?.versionId;
 
     const { upcMap } = useScanHistory();
@@ -224,6 +227,8 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
             header={computedHeader}
             versionSelect={versionsContent}
             thumbnailSize={thumbnailSize}
+            defaultImageUrl={defaultImageUrl}
+            defaultImageCacheId={defaultImageCacheId}
         >
             {children}
         </GameDetails>

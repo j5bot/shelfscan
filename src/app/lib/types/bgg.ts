@@ -144,6 +144,11 @@ export type BggSearchEntry = BggSearchResult & {
     collectionIds: BggCollectionId[];
 };
 
+/** A BGG search result as a collection item (see bggSearchResultToCollectionItem), with its image id if any. */
+export type BggSearchCollectionItem = BggCollectionItem & {
+    searchImageId?: number;
+};
+
 /** An item of the extension's doSearch reply (`response.data.items`); BGG sends ids as strings. */
 export type BggExtensionSearchItem = {
     objectid?: string | number;

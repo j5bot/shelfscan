@@ -29,6 +29,8 @@ export type GameDetailsProps = {
     version?: Version;
     /** Fallback image URL when neither game nor version provides one. */
     defaultImageUrl?: string;
+    /** Image cache id for the fallback image (e.g. a BGG search result's cached image). */
+    defaultImageCacheId?: string;
     /** When provided, a search form is rendered inside the component. */
     search?: GameDetailsSearchProps;
     header?: ReactNode;
@@ -134,14 +136,15 @@ const getHeaderClasses = (header: ReactNode, view: GameDetailsProps['view']) => 
 
 /** The version's images win, then the game's, then the default game's, then the fallback. */
 const getGameImages = (props: GameDetailsProps) => {
-    const { version, game, defaultGame, defaultImageUrl } = props;
+    const { version, game, defaultGame, defaultImageUrl, defaultImageCacheId } = props;
 
+    const ownThumbnailUrl = firstNonEmptyOrUndefined(version?.thumbnailUrl, game?.thumbnailUrl, defaultGame?.thumbnailUrl);
     return {
         alt: version?.name ?? game?.name ?? defaultGame?.name ?? 'Game Image',
         imageUrl: firstNonEmptyOrUndefined(version?.imageUrl, game?.imageUrl, defaultGame?.imageUrl, defaultImageUrl),
-        thumbnailUrl: firstNonEmptyOrUndefined(
-            version?.thumbnailUrl, game?.thumbnailUrl, defaultGame?.thumbnailUrl, defaultImageUrl,
-        ) ?? '',
+        thumbnailUrl: ownThumbnailUrl ?? defaultImageUrl ?? '',
+        // only the fallback image is cached under the given id
+        cacheId: ownThumbnailUrl ? undefined : defaultImageCacheId,
     };
 };
 
@@ -213,6 +216,7 @@ export const GameDetails = (props: GameDetailsProps) => {
                     <ThumbnailBox
                         alt={images.alt}
                         url={images.thumbnailUrl}
+                        cacheId={images.cacheId}
                         imageUrl={images.imageUrl}
                         size={thumbnailSize}
                         styles={{
@@ -233,6 +237,7 @@ export const GameDetails = (props: GameDetailsProps) => {
                         <ThumbnailBox
                             alt={images.alt}
                             url={images.thumbnailUrl}
+                            cacheId={images.cacheId}
                             imageUrl={images.imageUrl}
                             size={thumbnailSize}
                         />

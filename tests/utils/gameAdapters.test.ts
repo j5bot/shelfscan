@@ -21,6 +21,10 @@ describe('bggSearchResultToCollectionItem', () => {
         expect(!!item.collectionId).toBe(false);
     });
 
+    it('keeps the search image id for the item modal', () => {
+        expect(item.searchImageId).toBe(8621446);
+    });
+
     it('has every status, all false', () => {
         expect(Object.keys(item.statuses).sort()).toEqual([...PossibleStatuses].sort());
         expect(Object.values(item.statuses).every(status => !status)).toBe(true);

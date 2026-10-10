@@ -1,7 +1,9 @@
 import { useExtension } from '@/app/lib/extension/useExtension';
+import { useBggSearchImageUrl } from '@/app/lib/hooks/useBggSearchImageUrl';
 import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
-import { type BggCollectionItem } from '@/app/lib/types/bgg';
+import { type BggCollectionItem, type BggSearchCollectionItem } from '@/app/lib/types/bgg';
+import { getBggSearchImageCacheId } from '@/app/lib/utils/bggSearch';
 import { collectionItemToGame, collectionItemToGameUPCInfo } from '@/app/lib/utils/gameAdapters';
 import { DynamicIcon } from '@/app/ui/DynamicIcon';
 import { CollectionGameDetails } from '@/app/ui/games/CollectionGameDetails';
@@ -33,6 +35,11 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
 
     // a BGG search result (no collection id) can only be added on a trade page; once added it can be traded
     const addOnly = hasTrade && !item.collectionId;
+
+    // a BGG search result shows the image cached for the search (extension results only)
+    const { searchImageId } = item as BggSearchCollectionItem;
+    const searchImageUrl = useBggSearchImageUrl(searchImageId);
+    const searchImageCacheId = searchImageId ? getBggSearchImageCacheId(searchImageId) : undefined;
     const { primaryActions, secondaryActions, settings } = useExtension({ info, version, view: 'collection', addOnly });
     const actionTemplates = usePlugins('link.actions');
 
@@ -65,6 +72,8 @@ const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) =
         <>
             <CollectionGameDetails
                 item={item} thumbnailSize={MODAL_THUMBNAIL_SIZE}
+                defaultImageUrl={searchImageUrl}
+                defaultImageCacheId={searchImageCacheId}
                 setVersion={setVersion}
             >
                 {primaryActions && (

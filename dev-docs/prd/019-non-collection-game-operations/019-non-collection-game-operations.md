@@ -329,6 +329,10 @@ export type BggSearchResult = {
   (`ThumbnailBox` `cacheId`), and its URL in `cache.responses` as `bgg-search|url|<imageId>`, so
   later visits need no extension call. URLs are also remembered in memory for the session.
   Failed lookups aren't cached.
+- **Item modal:** a BGG result opened in the modal shows the same cached image
+  (`searchImageId` on the adapted item → `GameDetails` `defaultImageUrl` /
+  `defaultImageCacheId`). The cache id applies only while that fallback image is shown, so a
+  version's own image is never cached under the search id.
 
 ### R10 — Analytics
 
