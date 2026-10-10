@@ -433,12 +433,23 @@ PostHog events, including the search text (game names aren't sensitive):
    text; it should).
 
 ### Phase 4 — Operations end to end
-1. Verify add-to-collection from the modal with no collection id (each status, with and without
-   a version).
-2. Verify how a successful add updates `state.bgg.collection` today (scan page path). If the
-   collection isn't updated until reload, add an update (reload the single item via the
-   extension's `infoLoad` / `loadCollectionItem`, or insert from the add response).
-3. Verify log play with no collection id (`syncNumPlays` must not throw), and rating.
+Code paths traced; live checks against BGG deferred to the Phase 5 manual pass.
+
+1. **Add** (no collection id): `addToCollection` sends the mode message without `collectionId`
+   (the new-item path). The extension's `<mode>-response` carries the collection item (`collid`),
+   and `ExtensionMessagingProvider` merges it into `state.bgg.collection` with
+   `updateCollectionItems`, so the game becomes a collection item without a reload. *Verify
+   live:* the response has `collid`; an added **expansion** keeps `subType: boardgameexpansion`
+   (`getCollectionItemFromObject` defaults a missing `subtype` to `boardgame`); the new card has
+   no image until the collection is refreshed (no image in the response or the search result).
+2. **Log play**: `addPlay` → `syncNumPlays` skips the play-count update without a collection id,
+   so it can't throw. No collection item is created.
+3. **Rate**: `RatingActionBlock` falls back to the game id (as on the scan page for games not in
+   the collection).
+4. **Change made**: in the collection view, a game without a collection id hides the **Tags**
+   block (tags live on a collection item; its form used `collectionId!`) and the **Update in
+   Collection** toggle (a no-op without a collection id). Both reappear once the game is added.
+   The scan page is unchanged.
 
 ### Phase 5 — Polish and release
 1. Accessibility pass: section labelling, `aria-live` status, keyboard access to cards, contrast
@@ -446,6 +457,8 @@ PostHog events, including the search text (game names aren't sensitive):
 2. `pnpm lint`, `pnpm test`, `pnpm doctor`, `pnpm build`.
 3. Manual test matrix: Chrome with extension ≥ min, Chrome with older extension, Firefox/Safari
    without extension, light and dark themes, list / large / small grid, mobile width.
+   Include the Phase 4 live checks: add (game and expansion, with and without a version), log
+   play, rate, and add-only on a trade page.
 4. Bump `lib/extension/version.ts` when the extension release with `doSearch` ships.
 
 ## Acceptance criteria

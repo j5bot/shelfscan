@@ -367,13 +367,18 @@ export const useExtension = (params?: UseExtension) => {
         />
     );
 
-    const settings = isEnabled && !addOnly && <UpdateInCollectionToggle
+    // in the collection view, a game that isn't in the collection (a BGG search result) has nothing to tag or update
+    const notInCollectionView = view === 'collection' && !collectionId;
+
+    const settings = isEnabled && !addOnly && !notInCollectionView && <UpdateInCollectionToggle
         collectionId={collectionId}
         update={update}
         onChange={setUpdate}
     />;
 
-    const blocks = addOnly ? [addToCollectionBlock] : [addToCollectionBlock, addPlayBlock, addRatingBlock, editTagsBlock];
+    const blocks = addOnly
+                   ? [addToCollectionBlock]
+                   : [addToCollectionBlock, addPlayBlock, addRatingBlock, notInCollectionView ? undefined : editTagsBlock];
     const primaries = view === 'collection'
         ? blocks.map((block, index) => <div key={PrimaryBlockKeys[index]}>{block}</div>)
         : blocks;
