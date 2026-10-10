@@ -102,8 +102,7 @@ otherwise                                               →  XML API (server act
 
 - **Failure** means: timeout, a rejected/errored dispatch, the extension not logged in to BGG,
   or a reply without an array at `response.data.items` (D2). Any failure → XML search.
-- **A successful but empty extension result is final** — no XML fallback, even if every result
-  was removed because it is already in the collection (D2/D3).
+- **A successful but empty extension result is final** — no XML fallback (D2/D3).
 
 - While extension presence is still unknown (`useExtensionPresence()` returns `null`), wait —
   don't start an XML search that would be immediately superseded.
@@ -189,11 +188,20 @@ after known years within their group.
 - **XML results** are capped at **100** (D7). When more matched, show "Showing 100 of N results
   from BoardGameGeek — refine your search." (A 3-letter query can match thousands of games.)
   Extension results are at most 20, so no cap message is shown for them.
-- Order of operations (XML): dedupe → exclude collection games → sort → cap, so the cap counts
-  only games that can be shown.
-- Exclude any result whose BGG id is already in the user's collection under **any** status
-  (`state.bgg.collection.users[username].objects.all`). These are "not yet part of the user's
-  collection in any way".
+- Order of operations (XML): dedupe → sort → match to the collection → cap.
+- **Results that are already in the collection are shown as collection items, not as BGG
+  results.** Each result is matched by BGG id against
+  `state.bgg.collection.users[username].objects.all` (any status). A match is rendered as the
+  user's own collection item(s) for that game — the normal card/row, normal colors, normal click
+  behavior — at the result's position. A game with several collection items (e.g. two copies)
+  shows all of them there. Only unmatched results get the inverted BGG-result presentation.
+- **The BGG title match replaces only the name search; the other filters still apply.** A
+  matched collection item is shown only if the collection's filters, ignoring the search text,
+  show it (e.g. a game found by an alternate title the collection search doesn't match). If all
+  of a game's collection items are hidden by filters, the result is dropped — never shown as a
+  BGG-result card — and counted for the hint below.
+- **"Hidden by filters" hint:** when one or more results were dropped that way, show "N games in
+  your collection match this search but are hidden by your filters — Clear filters".
 
 ### R7 — Display
 
@@ -224,7 +232,6 @@ States:
 | Searching | "Searching BoardGameGeek…" with a spinner (`aria-live="polite"`) |
 | Results | The section |
 | No results | "No games match your filter, and nothing on BoardGameGeek matches '<query>'." |
-| Every result already in collection | Same as "No results" plus a "clear filters" hint (see corner cases) |
 | Error | "Couldn't search BoardGameGeek." + **Retry** button |
 
 ### R8 — Operations on a BGG result
@@ -250,8 +257,8 @@ Clicking a card/row opens `CollectionItemModal` with a synthesized item (R9). In
   collection items. Don't override or overwrite that mode.
 - **No "log in to BGG" note.** When the extension is installed but not logged in, results still
   show (via the XML fallback); the modal's actions behave as they do for collection items today.
-- If the user adds the game with a status their current filters hide, it doesn't appear; the
-  "hidden by filters" hint (corner cases) covers this.
+- After an add, the game is in the collection, so the same search shows it as a collection item
+  (R6) — or, if the user's filters hide it, counts it in the "hidden by filters" hint.
 - **After a successful add**, the game must appear in the collection and leave the BGG results
   (the collection list is then non-empty, so the BGG section hides by R1). See Action plan
   phase 4 — how the scan page's add updates Redux needs verifying.
@@ -316,14 +323,16 @@ PostHog events, including the search text (game names aren't sensitive):
 
 | Case | Expected behavior |
 |---|---|
-| Matching collection items are hidden by **non-search filters** (e.g. "Owned" filter, user only has it wishlisted) | BGG search runs, but the game is excluded (it's in the collection). Show "N games in your collection match this search but are hidden by your filters — Clear filters". |
+| Matching collection items are hidden by **non-search filters** (e.g. "Owned" filter, user only has it wishlisted) | BGG search runs; the game is dropped from the results and counted in "N games in your collection match this search but are hidden by your filters — Clear filters". |
+| Search by an alternate title (e.g. "Die Burg") that the collection search doesn't match | The collection item appears in the results via the BGG id match. |
+| Game with several collection items | The ones the filters show appear at the result's position. |
 | Query matches only expansions | Section shows expansions only, ordered by year. |
 | Same name, different games ("Dune" 1979 vs 2019) | Year in the name distinguishes them. |
 | Expansion listed twice by the XML API | Deduped; marked as expansion. |
 | Alternate-title match (e.g. a translated title) | Shown under the returned name; deduped against the primary entry by id. |
 | Unknown year | Sorted last in its group; no "(year)" suffix. |
 | Very short / very broad query ("the") | Below 3 chars: no search. XML: capped at 100 with the "refine" message. Extension: its top 20. |
-| Extension returns 20 results, all already in the collection | Empty result — no XML fallback (D2). "No results" state, plus the "hidden by filters" hint if it applies. |
+| Extension returns 20 results, all already in the collection | Shown as collection items where the filters allow; the rest counted in the hint. No XML fallback. |
 | Extension returns 0 items (logged in) | Final "No results" state; no XML fallback. |
 | Same query, extension vs XML (e.g. extension failed once) | Different order and count; cached per source, so a later extension success doesn't reuse XML results. |
 | Special characters (`&`, `:`, quotes, non-Latin scripts) | Encoded with `URLSearchParams`; extension receives the raw string. |
@@ -349,7 +358,7 @@ PostHog events, including the search text (game names aren't sensitive):
   the extension ships.
 - **D2 — `doSearch` reply.** Items are at `response.data.items`, at most 20. If the extension is
   not logged in to BGG, or the search fails, fall back to the XML search. A successful empty
-  result (including one emptied by removing collection games) is final — no fallback.
+  result is final — no fallback.
 - **D3 — Extension result order: keep the extension's relevance order.** Only XML results get
   the boardgame → expansion, year-descending order.
 - **D4 — Placeholder defaults: as in the R9 table.** `collectionId: 0`, all statuses `false`,
@@ -373,7 +382,10 @@ PostHog events, including the search text (game names aren't sensitive):
    - `getBggSearchQuery(searchText, searchMode)` (R2)
    - `normalizeExtensionSearchItems(items)` (R4) — filter + dedupe, order preserved
    - `sortBggSearchResults(results)` (R6) — XML results only
-   - `excludeCollectionObjects(results, objectIds)` and the XML 100-cap (R6)
+   - `matchCollectionObjects(results, { objects, isShown })` (R6) → `BggSearchEntry` with the
+     shown `collectionIds`, plus the hidden-by-filters count
+   - `prepareXmlSearchResults` (sort → match → cap) and `prepareExtensionSearchResults`
+     (normalize → match)
 3. `lib/services/bgg/service.ts`: `bggGetSearchResultsFromXML(xml)` with expansion dedupe (R5).
 4. `lib/utils/extensionVersion.ts`: `parseExtensionVersion`, `isVersionAtLeast`.
 5. `lib/utils/gameAdapters.ts`: `bggSearchResultToCollectionItem(result)` (R9).
@@ -401,9 +413,12 @@ PostHog events, including the search text (game names aren't sensitive):
 4. Clicking a result opens `CollectionItemModal` with the adapted item. On trade pages
    (`useTradeMode()`), pass an add-only option through to `useExtension` (R8), which also
    keeps the user's saved collection mode.
-5. "Hidden by filters" hint: count collection items matching the search alone (reuse
-   `parseUnifiedSearch` matching) and offer "Clear filters" (`resetFilters` keeps search text?
-   — check behavior).
+5. Entries with `collectionIds` render the existing collection card/row (`GridItem` /
+   `ListGameRow` with `collectionId`) for each id; entries without render the BGG-result card.
+6. `isShown`: the collection filter function with the search text left out (`makeFilterFn` in
+   `useCollectionFilters` with an empty `searchText`), looked up by collection id.
+7. "Hidden by filters" hint with **Clear filters** (check whether `resetFilters` keeps the search
+   text; it should).
 
 ### Phase 4 — Operations end to end
 1. Verify add-to-collection from the modal with no collection id (each status, with and without
@@ -427,7 +442,9 @@ PostHog events, including the search text (game names aren't sensitive):
       (`/collection`, `/swap`, `/trade`, `/math-trade/[id]`) shows BGG results within the
       debounce + request time.
 - [ ] No BGG search runs for version-only or tag-only searches.
-- [ ] Results never include games already in the collection under any status.
+- [ ] Results that are in the collection (any status) show as the user's collection item(s),
+      with normal presentation, at the result's position — only where the non-search filters
+      show them; otherwise they are counted in the "hidden by filters" hint.
 - [ ] XML results: board games before expansions, each group year-descending, unknown years
       last, at most 100. Extension results: extension order, at most 20. No duplicate ids.
 - [ ] Extension ≥ 0.12.0 is used when present; any extension failure (including not logged in)

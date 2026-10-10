@@ -1,4 +1,4 @@
-import { type BggCollectionItem, type BggVersion } from '@/app/lib/types/bgg';
+import { type BggCollectionItem, type BggSearchResult, type BggVersion } from '@/app/lib/types/bgg';
 import { type Game, type Version } from '@/app/lib/types/game';
 import { type GameUPCBggInfo, type GameUPCBggVersion } from 'gameupc-hooks/types';
 
@@ -98,3 +98,28 @@ export const collectionItemToGameUPCInfo = (item: BggCollectionItem): GameUPCBgg
     versions: item.version ? [collectionVersionToGameUPCVersion(item.version)] : [],
 });
 
+
+/**
+ * A BGG search result as a collection item, for the cards and the item modal. It isn't in the collection: no
+ * collection id (0, which every collection-only check treats as absent), no statuses, no image, rating or plays.
+ */
+export const bggSearchResultToCollectionItem = (result: BggSearchResult): BggCollectionItem => ({
+    objectId: result.objectId,
+    subType: result.subType,
+    collectionId: 0,
+    name: result.name,
+    image: undefined,
+    thumbnail: undefined,
+    yearPublished: result.yearPublished,
+    statuses: {
+        own: false,
+        prevowned: false,
+        fortrade: false,
+        want: false,
+        wanttoplay: false,
+        wanttobuy: false,
+        wishlist: false,
+        preordered: false,
+    },
+    lastModified: '',
+});
