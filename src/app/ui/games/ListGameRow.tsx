@@ -30,6 +30,8 @@ type ListGameRowBaseProps = {
     /** When provided, clicking the row opens an action (e.g. a modal) instead of navigating. */
     onClick?: () => void;
     modeMap?: ComponentModeMap;
+    /** Inverted colors, for games that aren't in the collection (BGG search results). */
+    inverted?: boolean;
 };
 
 type ListGameRowCollectionProps = ListGameRowBaseProps & {
@@ -119,6 +121,7 @@ export const ListGameRow = (props: ListGameRowProps) => {
         isVerified = false,
         extraBadges,
         onClick,
+        inverted = false,
     } = props;
 
     const item = useSelector((state: RootState) => {
@@ -138,7 +141,9 @@ export const ListGameRow = (props: ListGameRowProps) => {
     const linkHref = onClick ? undefined : detailUrl;
 
     return (
-        <div className="relative flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md px-2 py-1">
+        <div className={`relative flex items-center gap-2 rounded-md px-2 py-1 ${inverted
+            ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900'
+            : 'bg-white dark:bg-gray-900'}`}>
             {/* stretched button: the whole row opens details; the BGG link stays clickable above it */}
             {onClick && <button
                 type="button"
@@ -165,7 +170,7 @@ export const ListGameRow = (props: ListGameRowProps) => {
                 </DetailLink>
                 <RowTags tags={tags} />
             </div>
-            <div className="flex items-center gap-1.5 shrink-0 text-base-content/60">
+            <div className={`flex items-center gap-1.5 shrink-0 ${inverted ? 'opacity-80' : 'text-base-content/60'}`}>
                 {statuses && <CollectionStatusBadges statuses={statuses} />}
                 <StatusBadge icon={<FaBarcode size={11} />} label="Scanned" active={isScanned} />
                 <StatusBadge icon={<FaThumbsUp size={11} />} label="Verified" active={isVerified} />

@@ -1,4 +1,5 @@
 import { useExtension } from '@/app/lib/extension/useExtension';
+import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { usePlugins } from '@/app/lib/PluginMapProvider';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
 import { collectionItemToGame, collectionItemToGameUPCInfo } from '@/app/lib/utils/gameAdapters';
@@ -26,10 +27,13 @@ type CollectionItemModalContentProps = {
 const CollectionItemModalContent = ({ item }: CollectionItemModalContentProps) => {
     const game = collectionItemToGame(item);
     const info = collectionItemToGameUPCInfo(item);
+    const { hasTrade } = useTradeMode();
 
     const [version, setVersion] = useState<GameUPCBggVersion>(info.versions?.[0]);
 
-    const { primaryActions, secondaryActions, settings } = useExtension({ info, version, view: 'collection' });
+    // a BGG search result (no collection id) can only be added on a trade page; once added it can be traded
+    const addOnly = hasTrade && !item.collectionId;
+    const { primaryActions, secondaryActions, settings } = useExtension({ info, version, view: 'collection', addOnly });
     const actionTemplates = usePlugins('link.actions');
 
     const pluginActions = actionTemplates?.game?.map(actionPlugin => {

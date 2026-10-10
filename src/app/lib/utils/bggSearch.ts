@@ -232,3 +232,10 @@ export const runBggSearch = async (params: RunBggSearchParams): Promise<BggSearc
               : new BggSearchError('error', 'xmlapi', error instanceof Error ? error.message : String(error));
     }
 };
+
+/** The result's name with its year, e.g. `Carcassonne (2000)`, since BGG has many games with the same name. */
+export const formatBggSearchResultName = (result: Pick<BggSearchResult, 'name' | 'yearPublished'>) =>
+    result.yearPublished ? `${result.name} (${result.yearPublished})` : result.name;
+
+export const getBggSearchResultUrl = (result: Pick<BggSearchResult, 'objectId'>) =>
+    `https://boardgamegeek.com/boardgame/${result.objectId}`;

@@ -38,6 +38,8 @@ export type ListGameProps = {
     modeMap?: ComponentModeMap;
     mathTradeSelected?: boolean;
     onMathTradeToggle?: () => void;
+    /** Inverted colors, for games that aren't in the collection (BGG search results). */
+    inverted?: boolean;
 };
 
 const emptyModeMap = {} as ComponentModeMap;
@@ -190,10 +192,13 @@ export const ListGame = memo((props: ListGameProps) => {
         modeMap = emptyModeMap,
         mathTradeSelected = false,
         onMathTradeToggle,
+        inverted = false,
     } = props;
 
+    const colors = inverted ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-900';
+
     return <li
-        className={`list-none relative rounded-md bg-white dark:bg-gray-900
+        className={`list-none relative rounded-md ${colors}
             ${mathTradeSelected ? 'mt-0.5 outline-2 outline-[#e07ca4]' : ''}`}
         key={keyValue}
     >

@@ -10,6 +10,7 @@ import {
 } from '@/app/lib/hooks/useActiveCollectionTab';
 import { useAddToCollectionSelection } from '@/app/lib/hooks/useAddToCollectionSelection';
 import { useAllGamesFilter } from '@/app/lib/hooks/useAllGamesFilter';
+import { useCollectionBggSearch } from '@/app/lib/hooks/useCollectionBggSearch';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
@@ -24,6 +25,7 @@ import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { downloadSwapExport, downloadSwapExportCsv } from '@/app/lib/utils/swapExport';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { AddToCollectionBar } from '@/app/ui/collection/AddToCollectionBar';
+import { BggSearchResults } from '@/app/ui/collection/BggSearchResults';
 import { CollectionHeader } from '@/app/ui/collection/CollectionHeader';
 import { CollectionOverlays } from '@/app/ui/collection/CollectionOverlays';
 import { CollectionTabList } from '@/app/ui/collection/CollectionTabList';
@@ -33,7 +35,7 @@ import { AllGamesContent } from '@/app/ui/games/AllGamesContent';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
 import { useRouter } from 'next/navigation';
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 
 export type CollectionPageModeOptions = {
     mathTradeGeeklistId?: number;
@@ -88,6 +90,22 @@ export const CollectionPageContent = ({
     } = useCollectionData({ username });
 
     const allGames = useAllGamesFilter({ items: reduxItems, makeFilterFn: collectionFilters.makeFilterFn });
+    const bggSearch = useCollectionBggSearch({
+        searchText: collectionFilters.filters.searchText,
+        searchMode: collectionFilters.filters.searchMode,
+        enabled: activeTab === CollectionTabs.ALL_GAMES
+                 && state.status === CollectionLoadStatuses.LOADED
+                 && allGames.filter.displayItems.length === 0,
+        collection,
+        isShownIgnoringName: allGames.isShownIgnoringName,
+        subType: allGames.subType,
+    });
+    const { clearFiltersKeepSearch } = collectionFilters;
+    const { resetGamesAndExpansionsMode } = allGames;
+    const clearFiltersForBggSearch = useCallback(() => {
+        clearFiltersKeepSearch();
+        resetGamesAndExpansionsMode();
+    }, [clearFiltersKeepSearch, resetGamesAndExpansionsMode]);
     const notInCollection = useNotInCollectionFilter({
         status: state.status,
         collectionItems: reduxItems,
@@ -153,6 +171,19 @@ export const CollectionPageContent = ({
         onSelectItem={setSelectedItem}
         mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
         onMathTradeToggle={tradeSelection.handleMathTradeToggle}
+        emptyContent={allGames.filter.displayItems.length === 0 && <BggSearchResults
+            query={bggSearch.query}
+            search={bggSearch.search}
+            prepared={bggSearch.prepared}
+            view={view}
+            scannedSet={allGames.scannedSet}
+            verifiedSet={allGames.verifiedSet}
+            onSelectItem={setSelectedItem}
+            mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
+            onMathTradeToggle={tradeSelection.handleMathTradeToggle}
+            onClearFilters={clearFiltersForBggSearch}
+            modeMap={modeMap}
+        />}
     />;
     if (activeTab === CollectionTabs.NOT_IN_COLLECTION) {
         tabContent = <NotInCollectionContent

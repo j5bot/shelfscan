@@ -4,6 +4,7 @@ import { ExtensionTimeoutError } from '@/app/lib/extension/messaging/withExtensi
 import { BggExtensionSearchItem, BggSearchResult } from '@/app/lib/types/bgg';
 import {
     BggSearchError,
+    formatBggSearchResultName,
     getBggSearchQuery,
     isBggSearchQueryLongEnough,
     matchCollectionObjects,
@@ -313,5 +314,12 @@ describe('runBggSearch', () => {
         });
         await expect(unknown).rejects.toBeInstanceOf(BggSearchError);
         await expect(unknown).rejects.toMatchObject({ reason: 'error', message: 'network' });
+    });
+});
+
+describe('formatBggSearchResultName', () => {
+    it('adds the year when known', () => {
+        expect(formatBggSearchResultName({ name: 'Dune', yearPublished: 1979 })).toBe('Dune (1979)');
+        expect(formatBggSearchResultName({ name: 'Dune' })).toBe('Dune');
     });
 });

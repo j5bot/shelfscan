@@ -44,6 +44,8 @@ export type UseExtension = {
     info?: GameUPCBggInfo & { collectionId?: number };
     version?: GameUPCBggVersion;
     view?: 'version' | 'collection'
+    // only the add-to-collection block (a game not in the collection, on a trade page)
+    addOnly?: boolean;
 };
 
 export type MakeModeBlockParams = {
@@ -84,7 +86,7 @@ const pulse = (target: Element | null | undefined) => {
 };
 
 export const useExtension = (params?: UseExtension) => {
-    const { info, version, view = 'version' } = params ?? {};
+    const { info, version, view = 'version', addOnly = false } = params ?? {};
     const { syncOn, userId, currentUsername, extensionUser } = useSync();
     const dispatch = useDispatch();
     const { dispatchExtensionMessage } = useExtensionMessaging();
@@ -365,13 +367,13 @@ export const useExtension = (params?: UseExtension) => {
         />
     );
 
-    const settings = isEnabled && <UpdateInCollectionToggle
+    const settings = isEnabled && !addOnly && <UpdateInCollectionToggle
         collectionId={collectionId}
         update={update}
         onChange={setUpdate}
     />;
 
-    const blocks = [addToCollectionBlock, addPlayBlock, addRatingBlock, editTagsBlock];
+    const blocks = addOnly ? [addToCollectionBlock] : [addToCollectionBlock, addPlayBlock, addRatingBlock, editTagsBlock];
     const primaries = view === 'collection'
         ? blocks.map((block, index) => <div key={PrimaryBlockKeys[index]}>{block}</div>)
         : blocks;
@@ -380,7 +382,7 @@ export const useExtension = (params?: UseExtension) => {
         {primaries}
     </> : null;
 
-    const secondaryActions = isEnabled && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
+    const secondaryActions = isEnabled && !addOnly && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };

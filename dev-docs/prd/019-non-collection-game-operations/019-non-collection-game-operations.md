@@ -196,13 +196,17 @@ after known years within their group.
   user's own collection item(s) for that game — the normal card/row, normal colors, normal click
   behavior — at the result's position. A game with several collection items (e.g. two copies)
   shows all of them there. Only unmatched results get the inverted BGG-result presentation.
-- **The BGG title match replaces only the name search; the other filters still apply.** A
+- **The BGG title match replaces only the name search; the other filters still apply** —
+  including `version:` and `#tag` terms in the search box (e.g. "carc #pnp" only shows matched
+  games tagged #pnp) and the games / expansions toggle, which also limits the BGG results. A
   matched collection item is shown only if the collection's filters, ignoring the search text,
   show it (e.g. a game found by an alternate title the collection search doesn't match). If all
   of a game's collection items are hidden by filters, the result is dropped — never shown as a
   BGG-result card — and counted for the hint below.
 - **"Hidden by filters" hint:** when one or more results were dropped that way, show "N games in
-  your collection match this search but are hidden by your filters — Clear filters".
+  your collection match this search but are hidden by your filters — Clear filters". Clear
+  filters resets every filter and the games / expansions toggle, but keeps the search
+  (`clearFiltersKeepSearch`; `resetFilters` clears the search too).
 
 ### R7 — Display
 
@@ -212,8 +216,10 @@ section:
 - Heading: **"From BoardGameGeek"** (with result count), plus a short sub-line: "Not in your
   collection". The section is a `<section aria-labelledby>`.
 - Respects the current view (list / large grid / small grid).
-- **Inverted colors**: `bg-base-content text-base-100` on each card/row — this is dark-on-light
-  in light themes and light-on-dark in dark themes automatically. Icons use `currentColor`.
+- **Inverted colors**: `bg-gray-900 text-white dark:bg-white dark:text-gray-900` on each
+  card/row (`inverted` prop on `ListGame` / `ListGameRow`) — the exact reverse of the cards'
+  existing `bg-white dark:bg-gray-900`, so it follows the same dark-mode switch. Icons use
+  `currentColor`.
   Verify WCAG AA contrast for the rating/badge text in both themes.
 - **Image**: none in v1 — the no-image default.
 - **Corner icon / status text**: a distinct "not in collection" icon (e.g. `FaPlus`) with title

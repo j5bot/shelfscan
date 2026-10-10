@@ -80,7 +80,7 @@ type GridItemProps = {
 
 const emptyModeMap = {} as ComponentModeMap;
 
-const GridItem = (props: GridItemProps) => {
+export const GridItem = (props: GridItemProps) => {
     const {
         collectionId,
         sizeKey,
@@ -147,6 +147,55 @@ const GridItem = (props: GridItemProps) => {
     );
 };
 
+type CollectionListItemProps = {
+    collectionId: number;
+    objectId: number;
+    isScanned: boolean;
+    isVerified: boolean;
+    onSelectItem: (item: BggCollectionItem) => void;
+    mathTradeSelected: boolean;
+    onMathTradeToggle: (collectionId: number) => void;
+    modeMap?: ComponentModeMap;
+};
+
+/** A collection item's list row; in a trade mode the row toggles selection instead of opening details. */
+export const CollectionListItem = (props: CollectionListItemProps) => {
+    const {
+        collectionId,
+        objectId,
+        isScanned,
+        isVerified,
+        onSelectItem,
+        mathTradeSelected,
+        onMathTradeToggle,
+        modeMap,
+    } = props;
+
+    const { hasTrade, isMathTrade } = useTradeMode();
+    const item = useSelector((state: RootState) => {
+        const username = state.bgg.user.user?.toLowerCase() ?? '';
+        return state.bgg.collection.users[username]?.items[collectionId];
+    });
+
+    return (
+        <div className={`pt-1 ${mathTradeSelected ? 'ring-2 ring-[#e07ca4] rounded-md' : ''}`}>
+            <ListGameRow
+                collectionId={collectionId}
+                detailUrl={`https://boardgamegeek.com/boardgame/${objectId}`}
+                detailUrlTarget="_blank"
+                detailUrlRel="noopener noreferrer"
+                isScanned={isScanned}
+                isVerified={isVerified}
+                onClick={hasTrade
+                    ? () => onMathTradeToggle(collectionId)
+                    : () => item && onSelectItem(item)}
+                modeMap={modeMap}
+            />
+            {isMathTrade && <MathTradeSection collectionId={collectionId} />}
+        </div>
+    );
+};
+
 type AllGamesContentProps = {
     state: CollectionLoadStatusData;
     sentinelRef: RefObject<HTMLDivElement | null>;
@@ -174,6 +223,8 @@ type AllGamesContentProps = {
     mathTradeSelectedIds: Set<number>;
     onMathTradeToggle: (collectionId: number) => void;
     modeMap?: ComponentModeMap;
+    /** Shown in place of "No games match your filter." when nothing matches. */
+    emptyContent?: ReactNode;
 };
 
 export const AllGamesContent = memo((props: AllGamesContentProps) => {
@@ -204,9 +255,10 @@ export const AllGamesContent = memo((props: AllGamesContentProps) => {
         mathTradeSelectedIds,
         onMathTradeToggle,
         modeMap = emptyModeMap,
+        emptyContent,
     } = props;
 
-    const { hasTrade, isMathTrade } = useTradeMode();
+    const { hasTrade } = useTradeMode();
 
     switch (state.status) {
         case CollectionLoadStatuses.LOADING:
@@ -237,7 +289,7 @@ export const AllGamesContent = memo((props: AllGamesContentProps) => {
 
         case CollectionLoadStatuses.LOADED: {
             let content: ReactNode = displayItems.length === 0 ? (
-                <p className="text-center py-8 text-base-content/60">
+                emptyContent ?? <p className="text-center py-8 text-base-content/60">
                     No games match your filter.
                 </p>
             ) : undefined;
@@ -249,29 +301,17 @@ export const AllGamesContent = memo((props: AllGamesContentProps) => {
                             useWindowScroll
                             totalCount={displayItems.length}
                             itemContent={index => {
-                                const collectionId = displayItems[index].collectionId;
-                                const isSelected = mathTradeSelectedIds.has(collectionId);
-                                return (
-                                    <div
-                                        className={`pt-1 ${isSelected ? 'ring-2 ring-[#e07ca4] rounded-md' : ''}`}
-                                    >
-                                        <ListGameRow
-                                            collectionId={collectionId}
-                                            detailUrl={`https://boardgamegeek.com/boardgame/${displayItems[index].objectId}`}
-                                            detailUrlTarget="_blank"
-                                            detailUrlRel="noopener noreferrer"
-                                            isScanned={scannedSet.has(displayItems[index].objectId)}
-                                            isVerified={verifiedSet.has(displayItems[index].objectId)}
-                                            onClick={hasTrade
-                                                ? () => onMathTradeToggle(collectionId)
-                                                : () => onSelectItem(displayItems[index])}
-                                            modeMap={modeMap}
-                                        />
-                                        {isMathTrade && (
-                                            <MathTradeSection collectionId={collectionId} />
-                                        )}
-                                    </div>
-                                );
+                                const { collectionId, objectId } = displayItems[index];
+                                return <CollectionListItem
+                                    collectionId={collectionId}
+                                    objectId={objectId}
+                                    isScanned={scannedSet.has(objectId)}
+                                    isVerified={verifiedSet.has(objectId)}
+                                    onSelectItem={onSelectItem}
+                                    mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
+                                    onMathTradeToggle={onMathTradeToggle}
+                                    modeMap={modeMap}
+                                />;
                             }}
                         />;
                         break;
