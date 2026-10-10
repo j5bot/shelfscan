@@ -239,3 +239,11 @@ export const formatBggSearchResultName = (result: Pick<BggSearchResult, 'name' |
 
 export const getBggSearchResultUrl = (result: Pick<BggSearchResult, 'objectId'>) =>
     `https://boardgamegeek.com/boardgame/${result.objectId}`;
+
+const BGG_SEARCH_CACHE_PREFIX = 'bgg-search';
+
+/** Dexie image cache id for a BGG search result's image. */
+export const getBggSearchImageCacheId = (imageId: number) => `${BGG_SEARCH_CACHE_PREFIX}|${imageId}`;
+
+/** Dexie response cache id for a BGG search result's image URL. */
+export const getBggSearchImageUrlCacheId = (imageId: number) => `${BGG_SEARCH_CACHE_PREFIX}|url|${imageId}`;

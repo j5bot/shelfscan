@@ -6,6 +6,8 @@ import { FaTriangleExclamation } from 'react-icons/fa6';
 export type ThumbnailBoxProps = {
     alt: string;
     url: string;
+    /** Caches the image under this id instead of one made from its URL (ThumbnailBox only). */
+    cacheId?: string;
     imageUrl?: string;
     className?: string;
     styles?: CSSProperties;
@@ -135,14 +137,14 @@ const ThumbnailBoxInner = (props: ThumbnailBoxInnerProps) => {
 };
 
 export const ThumbnailBox = memo((props: ThumbnailBoxProps) => {
-    const { alt = props.url, url, imageUrl, className, styles, size } = props;
+    const { alt = props.url, url, cacheId, imageUrl, className, styles, size } = props;
 
     const cachedImageProps = useCachedImage({
         alt,
         src: imageUrl ?? url,
         placeholderSrc: url,
         fill: true,
-        getImageId: makeImageCacheId,
+        getImageId: cacheId ? () => cacheId : makeImageCacheId,
         addImageDataToCache,
     });
 

@@ -34,6 +34,7 @@ export type DocumentMessageDetailType =
     | 'doSearch'
     | 'geeklistLoad'
     | 'getData'
+    | 'getImageUrls'
     | 'getLocations'
     | 'getPlayers'
     | 'info'
@@ -79,9 +80,15 @@ export type DocumentMessageDoSearchDetail = BaseDocumentMessageDetail & {
     query: string;
 };
 
+export type DocumentMessageImageUrlsDetail = BaseDocumentMessageDetail & {
+    imageId: number;
+    full?: boolean;
+};
+
 export type DocumentMessageSourceDetail =
     | DocumentMessageNeedsAuthDetail
     | DocumentMessageDoSearchDetail
+    | DocumentMessageImageUrlsDetail
     | DocumentMessageLookupDetail
     | DocumentMessageSearchPlayerDetail
     | ShelfScanEntry;

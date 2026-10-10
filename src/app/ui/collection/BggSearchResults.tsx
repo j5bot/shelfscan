@@ -1,10 +1,12 @@
 import { type UseBggSearchResult } from '@/app/lib/hooks/useBggSearch';
+import { useBggSearchImageUrl } from '@/app/lib/hooks/useBggSearchImageUrl';
 import { CollectionViews, type CollectionView } from '@/app/lib/hooks/useCollectionView';
 import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { type BggCollectionItem, type BggSearchEntry } from '@/app/lib/types/bgg';
 import { type ComponentModeMap } from '@/app/lib/types/modes';
 import {
     formatBggSearchResultName,
+    getBggSearchImageCacheId,
     getBggSearchResultUrl,
     isBggSearchQueryLongEnough,
     type PreparedBggSearchResults,
@@ -28,14 +30,23 @@ type BggResultProps = {
     onOpen: () => void;
 };
 
+// extension results carry an image id; its image is cached under a bgg-search id
+const useResultImage = (entry: BggSearchEntry) => {
+    const thumbnailUrl = useBggSearchImageUrl(entry.imageId) ?? '';
+    const imageCacheId = entry.imageId ? getBggSearchImageCacheId(entry.imageId) : undefined;
+    return { thumbnailUrl, imageCacheId };
+};
+
 const BggResultGridItem = ({ entry, size, onOpen }: BggResultProps & { size: SizeKey }) => {
     const name = formatBggSearchResultName(entry);
+    const { thumbnailUrl, imageCacheId } = useResultImage(entry);
     return <ListGame
         inverted
         size={size}
         keyValue={`bgg-${entry.objectId}`}
         name={name}
-        thumbnailUrl=""
+        thumbnailUrl={thumbnailUrl}
+        imageCacheId={imageCacheId}
         thumbnailSize={ThumbnailSizes[size]}
         statusText="Open on BGG"
         statusIcon={<FaArrowUpRightFromSquare size={11} aria-hidden="true" />}
@@ -48,21 +59,25 @@ const BggResultGridItem = ({ entry, size, onOpen }: BggResultProps & { size: Siz
     />;
 };
 
-const BggResultListItem = ({ entry, onOpen }: BggResultProps) => <div className="pt-1">
-    <ListGameRow
-        inverted
-        name={formatBggSearchResultName(entry)}
-        thumbnailUrl=""
-        detailUrl={getBggSearchResultUrl(entry)}
-        detailUrlTarget="_blank"
-        detailUrlRel="noopener noreferrer"
-        onClick={onOpen}
-        extraBadges={<>
-            {entry.subType === 'boardgameexpansion' && <ExpansionBadge />}
-            <FaPlus size={11} title={NOT_IN_COLLECTION} />
-        </>}
-    />
-</div>;
+const BggResultListItem = ({ entry, onOpen }: BggResultProps) => {
+    const { thumbnailUrl, imageCacheId } = useResultImage(entry);
+    return <div className="pt-1">
+        <ListGameRow
+            inverted
+            name={formatBggSearchResultName(entry)}
+            thumbnailUrl={thumbnailUrl}
+            imageCacheId={imageCacheId}
+            detailUrl={getBggSearchResultUrl(entry)}
+            detailUrlTarget="_blank"
+            detailUrlRel="noopener noreferrer"
+            onClick={onOpen}
+            extraBadges={<>
+                {entry.subType === 'boardgameexpansion' && <ExpansionBadge />}
+                <FaPlus size={11} title={NOT_IN_COLLECTION} />
+            </>}
+        />
+    </div>;
+};
 
 export type BggSearchResultsProps = {
     query: string;

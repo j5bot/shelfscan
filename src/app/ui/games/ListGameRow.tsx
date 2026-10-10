@@ -38,12 +38,15 @@ type ListGameRowCollectionProps = ListGameRowBaseProps & {
     collectionId: number;
     name?: never;
     thumbnailUrl?: never;
+    imageCacheId?: never;
 };
 
 type ListGameRowSimpleProps = ListGameRowBaseProps & {
     collectionId?: never;
     name: string;
     thumbnailUrl?: string;
+    /** Caches the thumbnail under this id instead of one made from its URL. */
+    imageCacheId?: string;
 };
 
 export type ListGameRowProps = ListGameRowCollectionProps | ListGameRowSimpleProps;
@@ -114,6 +117,7 @@ export const ListGameRow = (props: ListGameRowProps) => {
         collectionId,
         name,
         thumbnailUrl: thumbnailUrlProp,
+        imageCacheId,
         detailUrl,
         detailUrlTarget,
         detailUrlRel,
@@ -155,6 +159,7 @@ export const ListGameRow = (props: ListGameRowProps) => {
                 <ThumbnailBox
                     alt={resolvedName ?? resolvedThumbnailUrl}
                     url={resolvedThumbnailUrl}
+                    cacheId={imageCacheId}
                     size={LIST_THUMBNAIL_SIZE}
                 />
             </DetailLink>

@@ -28,7 +28,8 @@ with dark text/icons when in dark mode.
 
 ## Non-goals (v1)
 
-- Images for non-collection results (use the no-image default; see Future work).
+- Images for XML API results (they show the no-image default). Extension results get images
+  (R11).
 - Searching accessories, RPGs, video games or other BGG subtypes.
 - Showing BGG results alongside a non-empty collection result set (see Future work).
 - Batch operations (selection, batch add, batch rating, tags, swap/trade export, math trade) on
@@ -315,6 +316,20 @@ export type BggSearchResult = {
 };
 ```
 
+### R11 — Images for extension results
+
+- Extension results carry `rep_imageid` (`BggSearchResult.imageId`). For each one shown as a BGG
+  result card/row, the app sends a **`getImageUrls`** message with `{ imageId }` (no `full`)
+  and shows `imageSets.mediacard['src@2x']` from the reply (BGG's `/api/images/{id}` essential
+  reply). XML results have no image id and keep the no-image default.
+- Messages go one at a time (the app matches replies by type + millisecond timestamp, so
+  simultaneous messages collide), each with a 10 s timeout; a failure leaves the no-image
+  default for that card.
+- **Caching (Dexie):** the image blob is cached in `cache.images` as `bgg-search|<imageId>`
+  (`ThumbnailBox` `cacheId`), and its URL in `cache.responses` as `bgg-search|url|<imageId>`, so
+  later visits need no extension call. URLs are also remembered in memory for the session.
+  Failed lookups aren't cached.
+
 ### R10 — Analytics
 
 PostHog events, including the search text (game names aren't sensitive):
@@ -512,8 +527,8 @@ Code paths traced; live checks against BGG deferred to the Phase 5 manual pass.
 
 ## Future work
 
-- Images: build image URLs from the extension's `rep_imageid`, or fetch thumbnails via
-  `bggGetThingsXml` for visible results (batch ids, cached).
+- Images for XML API results: fetch thumbnails via `bggGetThingsXml` for visible results
+  (batch ids, cached).
 - Show BGG results below collection results (e.g. a "Search BoardGameGeek" button) even when the
   collection has matches.
 - Exact-match search (`exact=1`) when the query is quoted.

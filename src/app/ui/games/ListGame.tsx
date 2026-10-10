@@ -32,6 +32,8 @@ export type ListGameProps = {
     statusIcon: ReactNode;
     statusText: string;
     thumbnailUrl: string;
+    /** Caches the thumbnail under this id instead of one made from its URL. */
+    imageCacheId?: string;
     imageUrl?: string;
     /** When provided, clicking the thumbnail opens an action (e.g. a modal) instead of navigating. */
     onClick?: () => void;
@@ -62,7 +64,7 @@ const CardSections = (props: CardSectionsProps) => {
 };
 
 type CardThumbnailProps = Pick<ListGameProps,
-    'name' | 'thumbnailUrl' | 'imageUrl' | 'thumbnailSize' | 'imageContainerStyles' |
+    'name' | 'thumbnailUrl' | 'imageCacheId' | 'imageUrl' | 'thumbnailSize' | 'imageContainerStyles' |
     'rating' | 'averageRating' | 'onClick'
 > & {
     size: SizeKey;
@@ -73,6 +75,7 @@ const CardThumbnail = (props: CardThumbnailProps) => {
     const {
         name,
         thumbnailUrl,
+        imageCacheId,
         imageUrl,
         thumbnailSize,
         imageContainerStyles,
@@ -89,6 +92,7 @@ const CardThumbnail = (props: CardThumbnailProps) => {
         <ThumbnailBox
             alt={name}
             url={thumbnailUrl}
+            cacheId={imageCacheId}
             imageUrl={imageUrl}
             size={thumbnailSize}
             className={mathTradeSelected ? `p-2 border-4 border-brand-background` : ''}
@@ -187,6 +191,7 @@ export const ListGame = memo((props: ListGameProps) => {
         statusIcon,
         statusText,
         thumbnailUrl,
+        imageCacheId,
         imageUrl,
         onClick,
         modeMap = emptyModeMap,
@@ -238,6 +243,7 @@ export const ListGame = memo((props: ListGameProps) => {
                 <CardThumbnail
                     name={name}
                     thumbnailUrl={thumbnailUrl}
+                    imageCacheId={imageCacheId}
                     imageUrl={imageUrl}
                     thumbnailSize={thumbnailSize}
                     imageContainerStyles={imageContainerStyles}

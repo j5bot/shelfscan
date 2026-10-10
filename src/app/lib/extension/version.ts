@@ -1,5 +1,5 @@
 const version = {
-    "version": "0.11.0",
-    "requiredUpdate": "false"
+    "version": "0.12.0",
+    "requiredUpdate": "true"
 };
 export default version;
