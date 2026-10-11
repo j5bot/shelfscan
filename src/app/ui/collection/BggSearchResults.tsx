@@ -163,10 +163,11 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
     let content: ReactNode;
     switch (true) {
         case !query:
-            status = 'No games match your filter.';
+            status = <>No games match your filter.</>;
             break;
         case !isBggSearchQueryLongEnough(query):
-            status = 'No games match your filter. Type at least 3 characters to search BoardGameGeek.';
+            status = <>No games match your filter.
+                <br />Type at least 3 characters to search BoardGameGeek.</>;
             break;
         case search.status === 'error':
             status = <span className="flex flex-col items-center gap-2">
@@ -177,16 +178,19 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
         case search.status !== 'success':
             status = <span className="inline-flex items-center gap-2">
                 <span className="loading loading-spinner loading-sm" aria-hidden="true" />
-                No games match your filter. Searching BoardGameGeek…
+                No games match your filter.
+                <br />Searching BoardGameGeek…
             </span>;
             break;
         case results.length === 0:
-            status = `No games match your filter, and nothing on BoardGameGeek matches “${query}”.`;
+            status = <>No games match your filter,
+                <br />and nothing on BoardGameGeek matches “{query}”.</>;
             break;
         default:
-            status = `No games match your filter. ${total} found on BoardGameGeek for “${query}”.`;
+            status = <>No games match your filter.
+                <br />{total} found on BoardGameGeek for “{query}”.</>;
             content = <section aria-labelledby={headingId} className="pb-2">
-                <h2 id={headingId} className="text-base font-semibold px-1">From BoardGameGeek</h2>
+                <h2 id={headingId} className="text-base text-center font-semibold px-1">Items From BoardGameGeek</h2>
                 <p className="text-xs text-base-content/70 px-1">
                     Games marked with a plus <FaPlus className="inline" size={10} aria-hidden="true" /> aren’t in your
                     collection.
@@ -200,7 +204,6 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
     }
 
     return <div>
-        <p className="text-center pt-6 pb-4 text-base-content/60" aria-live="polite">{status}</p>
         {hiddenByFilters > 0 && (
             <p className="text-center pb-4 text-xs text-base-content/70">
                 {hiddenByFilters === 1
@@ -210,5 +213,6 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
             </p>
         )}
         {content}
+        <p className="text-center pt-6 pb-4 text-base-content/60" aria-live="polite">{status}</p>
     </div>;
 };
