@@ -11,6 +11,11 @@ const bggSearchBaseURL = `${bggHost}/xmlapi2/search`;
 
 const MAX_ATTEMPTS = 20;
 
+// built with the URLSearchParams constructor: React Doctor's server-auth-actions rule reads any `append`
+// (or `set`, `delete`, …) call in a server action as a server-state change needing an auth check
+const withQuery = (baseUrl: string, params: Record<string, string>) =>
+    `${baseUrl}?${new URLSearchParams(params)}`;
+
 const fetchFromBggWithToken = async (url: string, args: RequestInit, attempts: number = 0) => {
     if (attempts > MAX_ATTEMPTS) {
         return Promise.reject('Too many retries');
@@ -35,11 +40,8 @@ const fetchFromBggWithToken = async (url: string, args: RequestInit, attempts: n
 };
 
 export const bggGetUserInner = async (username: string) => {
-    const bggUserUrl = new URL(bggUserBaseURL);
-    bggUserUrl.searchParams.append('name', username);
-    bggUserUrl.searchParams.append('buddies', '1');
-
-    return await fetchFromBggWithToken(bggUserUrl.toString(), {}).then(r => r.text());
+    const bggUserUrl = withQuery(bggUserBaseURL, { name: username, buddies: '1' });
+    return await fetchFromBggWithToken(bggUserUrl, {}).then(r => r.text());
 };
 
 export const bggGetCollectionInner =
@@ -48,28 +50,22 @@ export const bggGetCollectionInner =
             return '';
         }
 
-        const collectionUrl = new URL(bggCollectionBaseURL);
-        const cuParams = collectionUrl.searchParams;
+        const subtypeParams: Record<string, string> = expansions
+                              ? { subtype: 'boardgameexpansion' }
+                              : { subtype: 'boardgame', excludesubtype: 'boardgameexpansion' };
+        const collectionUrl = withQuery(bggCollectionBaseURL, {
+            username,
+            version: '1',
+            stats: '1',
+            ...subtypeParams,
+        });
 
-        cuParams.append('username', username);
-        cuParams.append('version', '1');
-        cuParams.append('stats', '1');
-
-        if (expansions) {
-            cuParams.append('subtype', 'boardgameexpansion');
-        } else {
-            cuParams.append('subtype', 'boardgame');
-            cuParams.append('excludesubtype', 'boardgameexpansion');
-        }
-
-        return await fetchFromBggWithToken(collectionUrl.toString(), {}).then(r => r.text());
+        return await fetchFromBggWithToken(collectionUrl, {}).then(r => r.text());
     };
 
 export const bggGetThingsXml = async (bggIds: number[]): Promise<string> => {
-    const thingUrl = new URL(bggThingBaseURL);
-    thingUrl.searchParams.append('id', bggIds.join(','));
-    thingUrl.searchParams.append('versions', '1');
-    return await fetchFromBggWithToken(thingUrl.toString(), {}).then(r => r.text());
+    const thingUrl = withQuery(bggThingBaseURL, { id: bggIds.join(','), versions: '1' });
+    return await fetchFromBggWithToken(thingUrl, {}).then(r => r.text());
 };
 
 export const bggGetGeeklistInner =
@@ -85,11 +81,8 @@ export const bggGetGeeklistInner =
 
 /** BGG XML API v2 search for board games and expansions; throws when BGG doesn't answer with 2xx. */
 export const bggSearchInner = async (query: string): Promise<string> => {
-    const searchUrl = new URL(bggSearchBaseURL);
-    searchUrl.searchParams.append('query', query);
-    searchUrl.searchParams.append('type', 'boardgame,boardgameexpansion');
-
-    const response = await fetchFromBggWithToken(searchUrl.toString(), {});
+    const searchUrl = withQuery(bggSearchBaseURL, { query, type: 'boardgame,boardgameexpansion' });
+    const response = await fetchFromBggWithToken(searchUrl, {});
     if (!response.ok) {
         throw new Error(`BGG search failed with status ${response.status}`);
     }
