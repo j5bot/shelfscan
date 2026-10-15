@@ -367,6 +367,15 @@ export const MyProvider = ({ children }) => {
 - Clickable things are native `<button>`/`<a>`; rows containing controls use a **stretched button** (`CollapsibleList`, `ListGameRow`); dismiss-on-click notices use `DismissibleToast`.
 - `<form method="dialog">` close buttons must be `type="submit"`; every `<dialog>` needs `aria-label`/`aria-labelledby`; labels use `htmlFor`.
 
+### No Computed Values in JSX
+JSX references values; it doesn't compute them. Before the `return` (or before the JSX in a `map` callback), put into named variables:
+- lookups and derived data (`scannedSet.has(id)`, `items.find(…)`, `ThumbnailSizes[size]`)
+- any function call, including ones that produce a class, URL or id (`formatName(entry)`, `getResultUrl(entry)`, `createUpdateModeFn(key)`)
+- `??` fallbacks, comparisons, condition-chosen text, object-literal props, condition-chosen handlers
+- the choice between rendered alternatives (an `if` / `switch` / ternary assigning a node, not a ternary inside JSX)
+
+Fine inline, as long as no function is called to produce them: className / style logic, `key`s, URLs written as template literals, plain property access, `&&` on a precomputed boolean or optional node, and event-handler arrows that only forward a call.
+
 ### Typed Redux Hooks
 ```typescript
 import { useSelector, useDispatch } from '@/app/lib/hooks';

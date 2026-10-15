@@ -160,7 +160,7 @@ This document defines the coding conventions used throughout the ShelfScan proje
 ## Branching Logic
 - Use `if` statements for simple conditions and early returns. Always use block bodies with braces, even for single-line bodies.
 - Use `switch` statements for multiple discrete cases, especially when returning different values. Use `switch (true)` for range-based conditions.
-- Use ternary expressions for simple conditional rendering in JSX or short inline conditions. 
+- Use ternary expressions for short inline conditions and className / style logic. To choose between rendered alternatives, assign the node to a variable before the `return` (see *No computed values in JSX*).
 - For more complex conditional logic in JSX, prepare the React nodes in variables before they 
   are used in the return 
   statement for clarity.  Use switches when deciding between multiple alternatives, even in JSX.
@@ -211,10 +211,24 @@ This document defines the coding conventions used throughout the ShelfScan proje
       {children}
   </div>;
   ```
-- **Conditional rendering**: Use `&&` for conditional presence, ternary for conditional alternatives.
+- **Conditional rendering**: Use `&&` on a precomputed boolean or optional value for conditional presence. Choose between alternatives in a variable before the `return`, not with a ternary in JSX.
   ```typescript
-  {version?.name && <div>...</div>}
-  {codes.length > 0 ? <Scanlist ... /> : <div>...</div>}
+  const list = codes.length > 0 ? <Scanlist ... /> : <div>...</div>;
+  return <>
+      {version?.name && <div>...</div>}
+      {list}
+  </>;
+  ```
+- **No computed values in JSX**: JSX references values; it doesn't compute them. Before the `return` (or before the JSX in a `map` callback), put into named variables: derived data and lookups (`scannedSet.has(id)`, `items.find(…)`, `ThumbnailSizes[size]`), any function call — including ones that produce a class, URL or id (`formatName(entry)`, `getResultUrl(entry)`, `createUpdateModeFn(key)`) — fallbacks and comparisons (`userId ?? ''`, `count > 0`), message text chosen by a condition, object literals passed as props, and handlers chosen by a condition.
+  - Fine inline, as long as no function is called to produce them: className / style logic, `key`s, URLs written as template literals (`` href={`https://boardgamegeek.com/boardgame/${id}`} ``), plain property access, `&&` on a precomputed boolean or optional node, and event-handler arrows that only forward a call (`onClick={() => onSelect(item)}`).
+  ```typescript
+  // ✗
+  <ListGameRow name={formatName(entry)} isScanned={scannedSet.has(entry.objectId)} userId={userId ?? ''} />
+  // ✓
+  const name = formatName(entry);
+  const isScanned = scannedSet.has(entry.objectId);
+  const actionUserId = userId ?? '';
+  return <ListGameRow name={name} isScanned={isScanned} userId={actionUserId} />;
   ```
 - **Logical short-circuit returns**: Components can return falsy to render nothing.
   ```typescript

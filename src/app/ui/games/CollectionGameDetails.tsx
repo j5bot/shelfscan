@@ -135,6 +135,9 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
     }) as CollapsibleListProps<unknown>['onSelect'];
 
     const renderVersionItemFn = renderVersionItem.bind(null, { currentVersionIndex } as SelectVersionContext);
+    const game = collectionItemToGame(shownItem);
+    const displayVersion = resolveDisplayVersion(shownItem, versions, currentVersionIndex);
+    const detailsHeader = header ?? computeCollectionHeader(shownItem);
 
     const versionsContent = <div
         id="select-version"
@@ -157,9 +160,9 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
     return <>
         <GameDetails
             view="collection"
-            game={collectionItemToGame(shownItem)}
-            version={resolveDisplayVersion(shownItem, versions, currentVersionIndex)}
-            header={header ?? computeCollectionHeader(shownItem)}
+            game={game}
+            version={displayVersion}
+            header={detailsHeader}
             versionSelect={versionsContent}
             thumbnailSize={thumbnailSize}
             defaultImageUrl={defaultImageUrl}

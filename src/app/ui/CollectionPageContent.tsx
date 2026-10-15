@@ -141,6 +141,21 @@ export const CollectionPageContent = ({
         onDuplicateFilter: collectionFilters.duplicateFilterPreset,
     };
 
+    // shown in place of the All Games list when nothing in the collection matches
+    const bggSearchResults = show.noDisplayItems && <BggSearchResults
+        query={bggSearch.query}
+        search={bggSearch.search}
+        prepared={bggSearch.prepared}
+        view={view}
+        scannedSet={allGames.scannedSet}
+        verifiedSet={allGames.verifiedSet}
+        onSelectItem={setSelectedItem}
+        mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
+        onMathTradeToggle={tradeSelection.handleMathTradeToggle}
+        onClearFilters={clearFiltersForBggSearch}
+        modeMap={modeMap}
+    />;
+
     let tabContent = <AllGamesContent
         state={state}
         sentinelRef={sentinelRef}
@@ -159,19 +174,7 @@ export const CollectionPageContent = ({
         onSelectItem={setSelectedItem}
         mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
         onMathTradeToggle={tradeSelection.handleMathTradeToggle}
-        emptyContent={show.noDisplayItems && <BggSearchResults
-            query={bggSearch.query}
-            search={bggSearch.search}
-            prepared={bggSearch.prepared}
-            view={view}
-            scannedSet={allGames.scannedSet}
-            verifiedSet={allGames.verifiedSet}
-            onSelectItem={setSelectedItem}
-            mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
-            onMathTradeToggle={tradeSelection.handleMathTradeToggle}
-            onClearFilters={clearFiltersForBggSearch}
-            modeMap={modeMap}
-        />}
+        emptyContent={bggSearchResults}
     />;
     if (activeTab === CollectionTabs.NOT_IN_COLLECTION) {
         tabContent = <NotInCollectionContent

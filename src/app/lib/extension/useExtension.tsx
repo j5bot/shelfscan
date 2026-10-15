@@ -186,6 +186,14 @@ export const useExtension = (params?: UseExtension) => {
         const handleButtonClick = modeSetting.addFn
                                   ? () => setFormKey?.(k => k + 1)
                                   : (e: SyntheticEvent<HTMLButtonElement>) => addFn(modeSetting, e);
+        const handleSelectMode = createUpdateModeFn(modeKey);
+        const blockFormProps = {
+            key: formKey,
+            formValues,
+            setFormValues,
+            addFn: modeSetting.addFn,
+            ...formProps,
+        };
 
         return {
             modeSetting,
@@ -198,14 +206,8 @@ export const useExtension = (params?: UseExtension) => {
                 statuses={statuses}
                 update={update}
                 onAction={handleButtonClick}
-                onSelectMode={createUpdateModeFn(modeKey)}
-                formProps={{
-                    key: formKey,
-                    formValues,
-                    setFormValues,
-                    addFn: modeSetting.addFn,
-                    ...formProps,
-                }}
+                onSelectMode={handleSelectMode}
+                formProps={blockFormProps}
             />,
         };
     };
@@ -241,9 +243,12 @@ export const useExtension = (params?: UseExtension) => {
         formProps: { gameName },
     }).block;
 
+    // only rendered when the extension is enabled, which needs a user id
+    const actionUserId = userId ?? '';
+
     const addRatingBlock = <RatingActionBlock
         key="arb"
-        userId={userId ?? ''}
+        userId={actionUserId}
         collectionId={collectionId}
         gameId={bggId}
         versionId={versionId}
@@ -266,7 +271,7 @@ export const useExtension = (params?: UseExtension) => {
         onChange={setUpdate}
     />;
     const secondaryActions = sections.secondary
-                             && <DataForms collectionId={collectionId} userId={userId ?? ''} gameId={bggId} />;
+                             && <DataForms collectionId={collectionId} userId={actionUserId} gameId={bggId} />;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };

@@ -38,8 +38,13 @@ const useResultImage = (entry: BggSearchEntry) => {
 };
 
 const BggResultGridItem = ({ entry, size, onOpen }: BggResultProps & { size: SizeKey }) => {
-    const name = formatBggSearchResultName(entry);
     const { thumbnailUrl, imageCacheId } = useResultImage(entry);
+    const name = formatBggSearchResultName(entry);
+    const detailUrl = getBggSearchResultUrl(entry);
+    const thumbnailSize = ThumbnailSizes[size];
+    const isExpansion = entry.subType === 'boardgameexpansion';
+    const expansionBadge = isExpansion && <ExpansionBadge className="absolute bottom-1 left-1" />;
+
     return <ListGame
         inverted
         size={size}
@@ -47,12 +52,12 @@ const BggResultGridItem = ({ entry, size, onOpen }: BggResultProps & { size: Siz
         name={name}
         thumbnailUrl={thumbnailUrl}
         imageCacheId={imageCacheId}
-        thumbnailSize={ThumbnailSizes[size]}
+        thumbnailSize={thumbnailSize}
         statusText="Open on BGG"
         statusIcon={<FaArrowUpRightFromSquare size={11} aria-hidden="true" />}
         cornerIcon={<FaPlus title={NOT_IN_COLLECTION} className="shrink-0" />}
-        bottomLeftIcon={entry.subType === 'boardgameexpansion' && <ExpansionBadge className="absolute bottom-1 left-1" />}
-        detailUrl={getBggSearchResultUrl(entry)}
+        bottomLeftIcon={expansionBadge}
+        detailUrl={detailUrl}
         detailUrlTarget="_blank"
         detailUrlRel="noopener noreferrer"
         onClick={onOpen}
@@ -61,20 +66,25 @@ const BggResultGridItem = ({ entry, size, onOpen }: BggResultProps & { size: Siz
 
 const BggResultListItem = ({ entry, onOpen }: BggResultProps) => {
     const { thumbnailUrl, imageCacheId } = useResultImage(entry);
+    const name = formatBggSearchResultName(entry);
+    const detailUrl = getBggSearchResultUrl(entry);
+    const isExpansion = entry.subType === 'boardgameexpansion';
+    const badges = <>
+        {isExpansion && <ExpansionBadge />}
+        <FaPlus size={11} title={NOT_IN_COLLECTION} />
+    </>;
+
     return <div className="pt-1">
         <ListGameRow
             inverted
-            name={formatBggSearchResultName(entry)}
+            name={name}
             thumbnailUrl={thumbnailUrl}
             imageCacheId={imageCacheId}
-            detailUrl={getBggSearchResultUrl(entry)}
+            detailUrl={detailUrl}
             detailUrlTarget="_blank"
             detailUrlRel="noopener noreferrer"
             onClick={onOpen}
-            extraBadges={<>
-                {entry.subType === 'boardgameexpansion' && <ExpansionBadge />}
-                <FaPlus size={11} title={NOT_IN_COLLECTION} />
-            </>}
+            extraBadges={badges}
         />
     </div>;
 };
@@ -128,36 +138,69 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
         onSelectItem(bggSearchResultToCollectionItem(entry));
     };
 
+    const isList = view === CollectionViews.LIST;
     const size: SizeKey = view === CollectionViews.LARGE_GRID ? 'large' : 'small';
-    const cards = results.flatMap(entry => {
-        if (entry.collectionIds.length === 0) {
-            return view === CollectionViews.LIST
-                   ? [<BggResultListItem key={`bgg-${entry.objectId}`} entry={entry} onOpen={() => openResult(entry)} />]
-                   : [<BggResultGridItem key={`bgg-${entry.objectId}`} entry={entry} size={size} onOpen={() => openResult(entry)} />];
+    const thumbnailSize = ThumbnailSizes[size];
+    const gridMathTradeToggle = hasTrade ? onMathTradeToggle : undefined;
+
+    // a game in the collection shows its collection item(s); any other game its BGG result
+    const renderEntry = (entry: BggSearchEntry): ReactNode[] => {
+        const { objectId, collectionIds } = entry;
+        const onOpen = () => openResult(entry);
+
+        if (collectionIds.length === 0) {
+            const card = isList
+                         ? <BggResultListItem key={`bgg-${objectId}`} entry={entry} onOpen={onOpen} />
+                         : <BggResultGridItem key={`bgg-${objectId}`} entry={entry} size={size} onOpen={onOpen} />;
+            return [card];
         }
-        return entry.collectionIds.map(collectionId => view === CollectionViews.LIST
-            ? <CollectionListItem
-                key={collectionId}
-                collectionId={collectionId}
-                objectId={entry.objectId}
-                isScanned={scannedSet.has(entry.objectId)}
-                isVerified={verifiedSet.has(entry.objectId)}
-                onSelectItem={onSelectItem}
-                mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                onMathTradeToggle={onMathTradeToggle}
-                modeMap={modeMap}
-            />
-            : <GridItem
+
+        const isScanned = scannedSet.has(objectId);
+        const isVerified = verifiedSet.has(objectId);
+        return collectionIds.map(collectionId => {
+            const mathTradeSelected = mathTradeSelectedIds.has(collectionId);
+            if (isList) {
+                return <CollectionListItem
+                    key={collectionId}
+                    collectionId={collectionId}
+                    objectId={objectId}
+                    isScanned={isScanned}
+                    isVerified={isVerified}
+                    onSelectItem={onSelectItem}
+                    mathTradeSelected={mathTradeSelected}
+                    onMathTradeToggle={onMathTradeToggle}
+                    modeMap={modeMap}
+                />;
+            }
+            return <GridItem
                 key={collectionId}
                 sizeKey={size}
                 collectionId={collectionId}
-                thumbnailSize={ThumbnailSizes[size]}
+                thumbnailSize={thumbnailSize}
                 onSelectItem={onSelectItem}
                 modeMap={modeMap}
-                mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
-                onMathTradeToggle={hasTrade ? onMathTradeToggle : undefined}
-            />);
-    });
+                mathTradeSelected={mathTradeSelected}
+                onMathTradeToggle={gridMathTradeToggle}
+            />;
+        });
+    };
+    const cards = results.flatMap(renderEntry);
+    const cardList = isList
+                     ? <div className="flex flex-col">{cards}</div>
+                     : <ul className={`${GridClasses[size]} pt-2`}>{cards}</ul>;
+    const showingNote = total > results.length
+                        ? ` Showing ${results.length} of ${total} — refine your search.`
+                        : undefined;
+
+    const hiddenMessage = hiddenByFilters === 1
+                          ? '1 game in your collection matches this search but is hidden by your filters. '
+                          : `${hiddenByFilters} games in your collection match this search but are hidden by your filters. `;
+    const hiddenNotice = hiddenByFilters > 0 && (
+        <p className="text-center pb-4 text-xs text-base-content/70">
+            {hiddenMessage}
+            <button type="button" className="link" onClick={onClearFilters}>Clear filters</button>
+        </p>
+    );
 
     let status: ReactNode;
     let content: ReactNode;
@@ -194,24 +237,15 @@ export const BggSearchResults = (props: BggSearchResultsProps) => {
                 <p className="text-xs text-base-content/70 px-1">
                     Games marked with a plus <FaPlus className="inline" size={10} aria-hidden="true" /> aren’t in your
                     collection.
-                    {total > results.length && ` Showing ${results.length} of ${total} — refine your search.`}
+                    {showingNote}
                 </p>
-                {view === CollectionViews.LIST
-                 ? <div className="flex flex-col">{cards}</div>
-                 : <ul className={`${GridClasses[size]} pt-2`}>{cards}</ul>}
+                {cardList}
             </section>;
             break;
     }
 
     return <div>
-        {hiddenByFilters > 0 && (
-            <p className="text-center pb-4 text-xs text-base-content/70">
-                {hiddenByFilters === 1
-                 ? '1 game in your collection matches this search but is hidden by your filters. '
-                 : `${hiddenByFilters} games in your collection match this search but are hidden by your filters. `}
-                <button type="button" className="link" onClick={onClearFilters}>Clear filters</button>
-            </p>
-        )}
+        {hiddenNotice}
         {content}
         <p className="text-center pt-6 pb-4 text-base-content/60" aria-live="polite">{status}</p>
     </div>;

@@ -255,7 +255,8 @@ The full style guide is in `copilot-instructions.md` at the repository root. Key
 
 ### React Components
 - Return fragments (`<>`) for multiple top-level elements.
-- Conditional rendering: `&&` for presence, ternary for alternatives.
+- Conditional rendering: `&&` on a precomputed boolean for presence; choose alternatives in a variable before the `return`.
+- No computed values in JSX: put lookups (`set.has(id)`), function calls (including ones producing a class or URL), `??` fallbacks, comparisons, condition-chosen text, object-literal props and condition-chosen handlers in named variables before the `return`. Fine inline unless a function produces them: className / style logic, `key`s, template-literal URLs, property access, forwarding event-handler arrows.
 - Destructure props in parameters.
 - Use `void expression` to suppress unused-variable warnings on intentionally unused values.
 

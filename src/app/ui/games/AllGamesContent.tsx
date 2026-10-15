@@ -177,6 +177,10 @@ export const CollectionListItem = (props: CollectionListItemProps) => {
         return state.bgg.collection.users[username]?.items[collectionId];
     });
 
+    const handleClick = hasTrade
+                        ? () => onMathTradeToggle(collectionId)
+                        : () => item && onSelectItem(item);
+
     return (
         <div className={`pt-1 ${mathTradeSelected ? 'ring-2 ring-[#e07ca4] rounded-md' : ''}`}>
             <ListGameRow
@@ -186,9 +190,7 @@ export const CollectionListItem = (props: CollectionListItemProps) => {
                 detailUrlRel="noopener noreferrer"
                 isScanned={isScanned}
                 isVerified={isVerified}
-                onClick={hasTrade
-                    ? () => onMathTradeToggle(collectionId)
-                    : () => item && onSelectItem(item)}
+                onClick={handleClick}
                 modeMap={modeMap}
             />
             {isMathTrade && <MathTradeSection collectionId={collectionId} />}
@@ -302,13 +304,16 @@ export const AllGamesContent = memo((props: AllGamesContentProps) => {
                             totalCount={displayItems.length}
                             itemContent={index => {
                                 const { collectionId, objectId } = displayItems[index];
+                                const isScanned = scannedSet.has(objectId);
+                                const isVerified = verifiedSet.has(objectId);
+                                const mathTradeSelected = mathTradeSelectedIds.has(collectionId);
                                 return <CollectionListItem
                                     collectionId={collectionId}
                                     objectId={objectId}
-                                    isScanned={scannedSet.has(objectId)}
-                                    isVerified={verifiedSet.has(objectId)}
+                                    isScanned={isScanned}
+                                    isVerified={isVerified}
                                     onSelectItem={onSelectItem}
-                                    mathTradeSelected={mathTradeSelectedIds.has(collectionId)}
+                                    mathTradeSelected={mathTradeSelected}
                                     onMathTradeToggle={onMathTradeToggle}
                                     modeMap={modeMap}
                                 />;
