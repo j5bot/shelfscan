@@ -80,11 +80,27 @@ export const useAllGamesFilter = ({ items, makeFilterFn }: UseAllGamesFilterOpti
         [makeFilterFn, scannedSet, verifiedSet, tagMap],
     );
 
-    const allGamesExtraFilterFn = useCallback((item: BggCollectionItem): boolean => {
-        if (!extraFilterFn(item)) { return false; }
-        if (gamesAndExpansionsMode === GamesAndExpansionsModes.ALL) { return true; }
-        return item.subType === GamesAndExpansionsModeSubTypes[gamesAndExpansionsMode];
-    }, [extraFilterFn, gamesAndExpansionsMode]);
+    const nameIgnoringFilterFn = useMemo(
+        () => makeFilterFn(scannedSet, verifiedSet, tagMap, { ignoreNameSearch: true }),
+        [makeFilterFn, scannedSet, verifiedSet, tagMap],
+    );
+
+    const subType = gamesAndExpansionsMode === GamesAndExpansionsModes.ALL
+                    ? undefined
+                    : GamesAndExpansionsModeSubTypes[gamesAndExpansionsMode];
+
+    const allGamesExtraFilterFn = useCallback((item: BggCollectionItem): boolean =>
+        extraFilterFn(item) && (!subType || item.subType === subType),
+    [extraFilterFn, subType]);
+
+    // whether every filter but the name search shows the item: for games a BGG search found by title
+    const isShownIgnoringName = useCallback((item: BggCollectionItem): boolean =>
+        nameIgnoringFilterFn(item) && (!subType || item.subType === subType),
+    [nameIgnoringFilterFn, subType]);
+
+    const resetGamesAndExpansionsMode = useCallback(() => {
+        setGamesAndExpansionsMode(GamesAndExpansionsModes.ALL);
+    }, []);
 
     const sortFields = useMemo<SortFieldDef<BggCollectionItem, AllGamesSortField>[]>(() => [
         {
@@ -140,5 +156,9 @@ export const useAllGamesFilter = ({ items, makeFilterFn }: UseAllGamesFilterOpti
         verifiedSet,
         gamesAndExpansionsMode,
         cycleGamesAndExpansionsMode,
+        resetGamesAndExpansionsMode,
+        // the board game / expansion subtype the games and expansions toggle limits to, if any
+        subType,
+        isShownIgnoringName,
     };
 };

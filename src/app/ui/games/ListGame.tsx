@@ -32,12 +32,16 @@ export type ListGameProps = {
     statusIcon: ReactNode;
     statusText: string;
     thumbnailUrl: string;
+    /** Caches the thumbnail under this id instead of one made from its URL. */
+    imageCacheId?: string;
     imageUrl?: string;
     /** When provided, clicking the thumbnail opens an action (e.g. a modal) instead of navigating. */
     onClick?: () => void;
     modeMap?: ComponentModeMap;
     mathTradeSelected?: boolean;
     onMathTradeToggle?: () => void;
+    /** Inverted colors, for games that aren't in the collection (BGG search results). */
+    inverted?: boolean;
 };
 
 const emptyModeMap = {} as ComponentModeMap;
@@ -60,7 +64,7 @@ const CardSections = (props: CardSectionsProps) => {
 };
 
 type CardThumbnailProps = Pick<ListGameProps,
-    'name' | 'thumbnailUrl' | 'imageUrl' | 'thumbnailSize' | 'imageContainerStyles' |
+    'name' | 'thumbnailUrl' | 'imageCacheId' | 'imageUrl' | 'thumbnailSize' | 'imageContainerStyles' |
     'rating' | 'averageRating' | 'onClick'
 > & {
     size: SizeKey;
@@ -71,6 +75,7 @@ const CardThumbnail = (props: CardThumbnailProps) => {
     const {
         name,
         thumbnailUrl,
+        imageCacheId,
         imageUrl,
         thumbnailSize,
         imageContainerStyles,
@@ -87,6 +92,7 @@ const CardThumbnail = (props: CardThumbnailProps) => {
         <ThumbnailBox
             alt={name}
             url={thumbnailUrl}
+            cacheId={imageCacheId}
             imageUrl={imageUrl}
             size={thumbnailSize}
             className={mathTradeSelected ? `p-2 border-4 border-brand-background` : ''}
@@ -185,15 +191,19 @@ export const ListGame = memo((props: ListGameProps) => {
         statusIcon,
         statusText,
         thumbnailUrl,
+        imageCacheId,
         imageUrl,
         onClick,
         modeMap = emptyModeMap,
         mathTradeSelected = false,
         onMathTradeToggle,
+        inverted = false,
     } = props;
 
+    const colors = inverted ? 'bg-gray-900 text-white dark:bg-white dark:text-gray-900' : 'bg-white dark:bg-gray-900';
+
     return <li
-        className={`list-none relative rounded-md bg-white dark:bg-gray-900
+        className={`list-none relative rounded-md ${colors}
             ${mathTradeSelected ? 'mt-0.5 outline-2 outline-[#e07ca4]' : ''}`}
         key={keyValue}
     >
@@ -233,6 +243,7 @@ export const ListGame = memo((props: ListGameProps) => {
                 <CardThumbnail
                     name={name}
                     thumbnailUrl={thumbnailUrl}
+                    imageCacheId={imageCacheId}
                     imageUrl={imageUrl}
                     thumbnailSize={thumbnailSize}
                     imageContainerStyles={imageContainerStyles}

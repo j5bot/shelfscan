@@ -31,8 +31,10 @@ export type DocumentMessageDetailType =
     | 'ack'
     | 'add'
     | 'clear'
+    | 'doSearch'
     | 'geeklistLoad'
     | 'getData'
+    | 'getImageUrls'
     | 'getLocations'
     | 'getPlayers'
     | 'info'
@@ -74,8 +76,19 @@ export type DocumentMessageSearchPlayerDetail = BaseDocumentMessageDetail &{
     query: string;
 };
 
+export type DocumentMessageDoSearchDetail = BaseDocumentMessageDetail & {
+    query: string;
+};
+
+export type DocumentMessageImageUrlsDetail = BaseDocumentMessageDetail & {
+    imageId: number;
+    full?: boolean;
+};
+
 export type DocumentMessageSourceDetail =
     | DocumentMessageNeedsAuthDetail
+    | DocumentMessageDoSearchDetail
+    | DocumentMessageImageUrlsDetail
     | DocumentMessageLookupDetail
     | DocumentMessageSearchPlayerDetail
     | ShelfScanEntry;

@@ -1,4 +1,3 @@
-import { getSetting, setSetting } from '@/app/lib/database/database';
 import { addPlay } from '@/app/lib/extension/messaging/addPlay';
 import { addToCollection } from '@/app/lib/extension/messaging/addToCollection';
 import {
@@ -7,43 +6,35 @@ import {
     ModeSetting,
     ModeSettings,
     ModeSettingFormProps,
-    SetFormValues,
 } from '@/app/lib/extension/types';
 import { useExtensionMessaging } from '@/app/lib/extension/ExtensionMessagingProvider';
+import { useCollectionFormValues } from '@/app/lib/extension/useCollectionFormValues';
+import { useExtensionModes } from '@/app/lib/extension/useExtensionModes';
+import { useInfoLoadMessages } from '@/app/lib/extension/useInfoLoadMessages';
+import { useModeMessage } from '@/app/lib/extension/useModeMessage';
 import { useSync } from '@/app/lib/extension/useSync';
 import { MakeModeSettings } from '@/app/lib/extension/utils';
-import { bggHost } from '@/app/lib/services/bgg/constants';
 import { todayString } from '@/app/lib/utils/date';
 import { extensionUserMatches } from '@/app/lib/utils/extensionToolAccess';
+import { getExtensionSections, resolveMode } from '@/app/lib/utils/extensionModes';
 import { useDispatch, useSelector } from '@/app/lib/hooks';
 import {
     getCollectionInfoByObjectId,
 } from '@/app/lib/redux/bgg/collection/selectors';
-import { BggPlayer } from '@/app/lib/types/bgg';
-import { INFO_FORM_FIELD_NAMES, InfoLoadItem, readLoadedInfo } from '@/app/lib/utils/collectionInfo';
-import {
-    CollectionFormState,
-    resolveCollectionFormValues,
-    statusesToFormValue,
-} from '@/app/lib/utils/collectionFormValues';
+import { INFO_FORM_FIELD_NAMES, readLoadedInfo } from '@/app/lib/utils/collectionInfo';
 import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
 import { DataForms } from '@/app/ui/extension/DataForms';
 import { ModeActionBlock } from '@/app/ui/extension/ModeActionBlock';
 import { RatingActionBlock } from '@/app/ui/extension/RatingActionBlock';
 import { UpdateInCollectionToggle } from '@/app/ui/extension/UpdateInCollectionToggle';
-import React, {
-    SyntheticEvent,
-    useCallback,
-    useEffect,
-    useEffectEvent,
-    useMemo,
-    useState
-} from 'react';
+import React, { SyntheticEvent, useState } from 'react';
 
 export type UseExtension = {
     info?: GameUPCBggInfo & { collectionId?: number };
     version?: GameUPCBggVersion;
     view?: 'version' | 'collection'
+    // only the add-to-collection block (a game not in the collection, on a trade page)
+    addOnly?: boolean;
 };
 
 export type MakeModeBlockParams = {
@@ -84,15 +75,13 @@ const pulse = (target: Element | null | undefined) => {
 };
 
 export const useExtension = (params?: UseExtension) => {
-    const { info, version, view = 'version' } = params ?? {};
+    const { info, version, view = 'version', addOnly = false } = params ?? {};
     const { syncOn, userId, currentUsername, extensionUser } = useSync();
     const dispatch = useDispatch();
     const { dispatchExtensionMessage } = useExtensionMessaging();
+    const { modes, updateModes } = useExtensionModes();
 
-    const [modes, setModes] = useState<Modes>({ collection: 'add', play: 'quick', tags: 'choose' });
-    const [players, setPlayers] = useState<BggPlayer[]>();
     const [updateChoice, setUpdate] = useState<boolean>(true);
-    const [formState, setFormState] = useState<CollectionFormState>({ values: {} });
     const [detailedPlayKey, setDetailedPlayKey] = useState<number>(0);
 
     const { collectionId, collection } =
@@ -104,61 +93,29 @@ export const useExtension = (params?: UseExtension) => {
     const update = !!collectionId && updateChoice;
     const isEnabled = syncOn && !!userId && extensionUserMatches(currentUsername, extensionUser);
     const gameName = version?.name ?? info?.name;
-
+    const bggId = info?.id;
+    const versionId = version?.version_id;
     const statuses = collectionItem?.statuses;
+    const sections = getExtensionSections({ isEnabled, addOnly, view, collectionId });
 
-    // trade condition and statuses follow the collection item; other fields keep the user's edits
-    const currentTradeCondition = collectionItem?.tradeCondition as string | undefined;
-    const currentStatuses = statusesToFormValue(collectionItem?.statuses);
-    const formValues = useMemo(
-        () => resolveCollectionFormValues(formState, {
-            tradecondition: currentTradeCondition,
-            statuses: currentStatuses,
-        }),
-        [formState, currentTradeCondition, currentStatuses],
-    );
-    const setFormValues = useCallback<SetFormValues>(action => {
-        const against = { tradecondition: currentTradeCondition, statuses: currentStatuses };
-        setFormState(prev => {
-            const current = resolveCollectionFormValues(prev, against);
-            return {
-                values: typeof action === 'function' ? action(current) : action,
-                against,
-            };
-        });
-    }, [currentTradeCondition, currentStatuses]);
+    const { formValues, setFormValues } = useCollectionFormValues(collectionItem);
 
-    const updateModes = async (
-        event: SyntheticEvent<HTMLElement> | undefined,
-        modes: Modes
-    ) => {
-        // close mode collapse
-        if (event) {
-            const collapse = document
-                .querySelector(`[data-collapse=${
-                    event.currentTarget
-                        .parentElement?.getAttribute('data-collapse-key')
-                }]`);
-            (
-                collapse?.querySelector('input[type=checkbox]') as HTMLInputElement | undefined
-            )?.click();
-        }
+    // an infoLoad reply fills the info form from the item on BGG, on top of the latest form values
+    useInfoLoadMessages(colItem => {
+        setFormValues(prev => ({ ...prev, ...InfoLoadClearedFields, ...readLoadedInfo(colItem) }) as FormValues);
+    });
 
-        await setSetting('extensionModes', modes);
-        setModes(modes);
-    };
     const createUpdateModeFn =
         (type: keyof Modes) => (mode: Modes[keyof Modes], setting: ModeSetting) =>
             (e: SyntheticEvent<HTMLElement>) => {
                 if (userId && collectionItem && setting.message) {
                     setting.message(userId, dispatchExtensionMessage, collectionItem);
                 }
-                return updateModes(e, Object.assign({}, modes, { [type]: mode }));
+                return updateModes(e, { ...modes, [type]: mode });
             };
 
-
     const addToCollectionFromEvent = async (modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        if (!(userId && info?.id)) {
+        if (!(userId && bggId)) {
             return;
         }
         const { entries } = readForm(modes.collection, formValues);
@@ -168,8 +125,8 @@ export const useExtension = (params?: UseExtension) => {
             entries,
             userId,
             name: gameName,
-            bggId: info?.id,
-            versionId: version?.version_id,
+            bggId,
+            versionId,
             dispatchExtensionMessage,
         });
         pulse(e.currentTarget.parentElement?.previousElementSibling);
@@ -177,210 +134,144 @@ export const useExtension = (params?: UseExtension) => {
     };
 
     const addPlayFromEvent = async (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
-        const { entries } = readForm(modes.play, formValues);
-        const date = entries.playdate ?? todayString();
-
-        if (!(userId && currentUsername && info?.id)) {
+        if (!(userId && currentUsername && bggId)) {
             return;
         }
-
+        const { entries } = readForm(modes.play, formValues);
         const resultPromise = addPlay({
             userId,
             username: currentUsername,
             collectionId,
             name: gameName,
-            bggId: info?.id,
-            versionId: version?.version_id,
-            date,
+            bggId,
+            versionId,
+            date: entries.playdate ?? todayString(),
             entries,
             dispatch,
             dispatchExtensionMessage,
         });
-
         pulse(e.currentTarget.previousElementSibling);
         return resultPromise;
     };
 
     const editTags = (_modeSetting: ModeSetting, e: SyntheticEvent<HTMLButtonElement>) => {
         const { entries } = readForm('tags', formValues);
-
         dispatchExtensionMessage({
             userId,
             collectionId,
             type: 'tags',
             formValues: entries,
         });
-
         pulse(e.currentTarget.previousElementSibling);
     };
 
-    const makeModeBlock = (params: MakeModeBlockParams) => {
-        const {
-            modeKey,
-            defaultMode,
+    const makeModeBlock = (blockParams: MakeModeBlockParams) => {
+        const { modeKey, defaultMode, addFn, formKey, setFormKey, formProps } = blockParams;
+
+        const modeSettings = MakeModeSettings[modeKey]({
+            collectionId: collectionItem?.collectionId,
+            update,
+            statuses,
             addFn,
-            formKey,
-            setFormKey,
-            formProps,
-        } = params;
-
-        if (!isEnabled) {
-            return {};
-        }
-
-        const modeSettings =
-            MakeModeSettings[modeKey]({
-                collectionId: collectionItem?.collectionId,
-                update,
-                statuses,
-                addFn,
-            }) as ModeSettings;
-        const allowedModes = Object.entries(modeSettings)
-            .map(([mode, settings]) => !update ? settings.updateOnly ? undefined : mode : mode)
-            .filter(x => x);
-        const currentMode = allowedModes.includes(modes[modeKey]) ? modes[modeKey] : defaultMode;
-        const modeSetting = modeSettings[currentMode];
-        // only adding a new item can't be 'previous' or 'clear'
-        const isDisabled = modeKey === 'collection' && !update && ['previous', 'clear'].includes(currentMode);
+        }) as ModeSettings;
+        const { modeSetting, isDisabled } = resolveMode({
+            modeKey,
+            modeSettings,
+            selectedMode: modes[modeKey],
+            defaultMode,
+            update,
+        });
 
         // modes with their own form (e.g. detailed play) open it; others act immediately
         const handleButtonClick = modeSetting.addFn
                                   ? () => setFormKey?.(k => k + 1)
-                                  : (e: SyntheticEvent<HTMLButtonElement>) =>
-                                      addFn(modeSetting, e);
+                                  : (e: SyntheticEvent<HTMLButtonElement>) => addFn(modeSetting, e);
+        const handleSelectMode = createUpdateModeFn(modeKey);
+        const blockFormProps = {
+            key: formKey,
+            formValues,
+            setFormValues,
+            addFn: modeSetting.addFn,
+            ...formProps,
+        };
 
         return {
-            currentMode,
             modeSetting,
-            block: modeSetting && (
-                <ModeActionBlock
-                    key={`${modeKey}-block`}
-                    modeKey={modeKey}
-                    modeSettings={modeSettings}
-                    modeSetting={modeSetting}
-                    disabled={isDisabled}
-                    statuses={statuses}
-                    update={update}
-                    onAction={handleButtonClick}
-                    onSelectMode={createUpdateModeFn(modeKey)}
-                    formProps={{
-                        key: formKey,
-                        formValues,
-                        setFormValues,
-                        addFn: modeSetting.addFn,
-                        ...formProps,
-                    }}
-                />
-            ),
+            block: <ModeActionBlock
+                key={`${modeKey}-block`}
+                modeKey={modeKey}
+                modeSettings={modeSettings}
+                modeSetting={modeSetting}
+                disabled={isDisabled}
+                statuses={statuses}
+                update={update}
+                onAction={handleButtonClick}
+                onSelectMode={handleSelectMode}
+                formProps={blockFormProps}
+            />,
         };
     };
 
-    const { modeSetting: atcModeSetting, block: addToCollectionBlock } =
-        makeModeBlock({
-            modeKey: 'collection',
-            defaultMode: 'add',
-            addFn: addToCollectionFromEvent,
-        });
+    const addToCollectionMode = makeModeBlock({
+        modeKey: 'collection',
+        defaultMode: 'add',
+        addFn: addToCollectionFromEvent,
+    });
 
-    const { block: addPlayBlock } = makeModeBlock({
+    useModeMessage({
+        modeSetting: isEnabled ? addToCollectionMode.modeSetting : undefined,
+        userId,
+        collectionItem,
+        dispatchExtensionMessage,
+    });
+
+    const addPlayBlock = makeModeBlock({
         modeKey: 'play',
         defaultMode: 'quick',
         addFn: addPlayFromEvent,
         formKey: detailedPlayKey,
         setFormKey: setDetailedPlayKey,
         formProps: { gameName },
-    });
+    }).block;
 
-    const { block: editTagsBlock } = makeModeBlock({
+    const editTagsBlock = makeModeBlock({
         modeKey: 'tags',
         defaultMode: 'choose',
         addFn: editTags,
         formKey: detailedPlayKey,
         setFormKey: setDetailedPlayKey,
         formProps: { gameName },
-    });
+    }).block;
 
-    // an infoLoad reply fills the info form from the item on BGG, on top of the latest form values
-    const applyInfoLoad = useEffectEvent((colItem: InfoLoadItem) => {
-        setFormValues(prev => ({ ...prev, ...InfoLoadClearedFields, ...readLoadedInfo(colItem) }) as FormValues);
-    });
+    // only rendered when the extension is enabled, which needs a user id
+    const actionUserId = userId ?? '';
 
-    useEffect(() => {
-        (async () => {
-            const extensionModes = await getSetting('extensionModes') as Modes ?? modes
-            if (!extensionModes.collection) {
-                setModes({ collection: 'add', play: 'quick', tags: 'wishlist' });
-                return;
-            }
-            setModes(extensionModes);
-        })();
-
-        const messageHandler = (event: MessageEvent) => {
-            // players come from the extension's content script on this page,
-            // infoLoad responses from the extension's hidden BGG iframe
-            if (event.origin !== window.location.origin && event.origin !== bggHost) {
-                return;
-            }
-            if (!players && event.data.players) {
-                setPlayers(event.data.players);
-            }
-            if (event.data?.type === 'infoLoad-response') {
-                applyInfoLoad(event.data.response.collectionItem);
-            }
-        };
-
-        window.addEventListener('message', messageHandler);
-
-        return () => {
-            window.removeEventListener('message', messageHandler);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-
-    // send once per user/item/mode; the item's own updates (often caused by
-    // this message's response) must not re-send it
-    const sendATCModeMessage = useEffectEvent(() => {
-        if (!(atcModeSetting?.message && userId && collectionItem)) {
-            return;
-        }
-        atcModeSetting.message(userId, dispatchExtensionMessage, collectionItem);
-    });
-    const hasATCModeMessage = !!atcModeSetting?.message;
-    useEffect(() => {
-        sendATCModeMessage();
-    }, [hasATCModeMessage, userId, collectionId]);
-
-
-    const addRatingBlock = isEnabled && (
-        <RatingActionBlock
-            key="arb"
-            userId={userId ?? ''}
-            collectionId={collectionId}
-            gameId={info?.id}
-            versionId={version?.version_id}
-            name={gameName}
-            collectionRating={collectionItem?.rating}
-            comment={collectionItem?.comment}
-        />
-    );
-
-    const settings = isEnabled && <UpdateInCollectionToggle
+    const addRatingBlock = <RatingActionBlock
+        key="arb"
+        userId={actionUserId}
         collectionId={collectionId}
-        update={update}
-        onChange={setUpdate}
+        gameId={bggId}
+        versionId={versionId}
+        name={gameName}
+        collectionRating={collectionItem?.rating}
+        comment={collectionItem?.comment}
     />;
 
-    const blocks = [addToCollectionBlock, addPlayBlock, addRatingBlock, editTagsBlock];
+    const blocks = sections.addOnly
+                   ? [addToCollectionMode.block]
+                   : [addToCollectionMode.block, addPlayBlock, addRatingBlock, sections.tags && editTagsBlock];
     const primaries = view === 'collection'
         ? blocks.map((block, index) => <div key={PrimaryBlockKeys[index]}>{block}</div>)
         : blocks;
 
-    const primaryActions = isEnabled ? <>
-        {primaries}
-    </> : null;
-
-    const secondaryActions = isEnabled && <DataForms collectionId={collectionId} userId={userId} gameId={info?.id} />;
+    const primaryActions = sections.primary ? <>{primaries}</> : null;
+    const settings = sections.settings && <UpdateInCollectionToggle
+        collectionId={collectionId}
+        update={update}
+        onChange={setUpdate}
+    />;
+    const secondaryActions = sections.secondary
+                             && <DataForms collectionId={collectionId} userId={actionUserId} gameId={bggId} />;
 
     return { collectionItem, userId, syncOn, primaryActions, secondaryActions, settings };
 };

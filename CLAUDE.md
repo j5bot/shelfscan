@@ -111,9 +111,21 @@ Full style guide is in `copilot-instructions.md`. Key points:
 - Buttons that close a `<dialog>` via `<form method="dialog">` must be `type="submit"` (`type="button"` does nothing there). Every `<dialog>` needs `aria-label` or `aria-labelledby`.
 - Tie `<label>`s to controls with `htmlFor`/`id` (`useId()` for unique ids).
 
+### No computed values in JSX
+
+JSX should reference values, not compute them. Before the `return` (or before the JSX inside a `map` callback), put into named variables:
+
+- derived data and lookups: `scannedSet.has(id)`, `items.find(…)`, `ThumbnailSizes[size]`
+- any function call, including ones that produce a class, URL or id: `formatName(entry)`, `getResultUrl(entry)`, `createUpdateModeFn(key)`
+- fallbacks and comparisons: `userId ?? ''`, `count > 0`, `subType === 'boardgameexpansion'`
+- message text chosen by a condition, and object literals passed as props (`formProps={{ … }}`)
+- handlers chosen by a condition (`const handleClick = hasTrade ? … : …`)
+
+Fine inline (as long as no function is called to produce them): className / style logic, `key`s, URLs written as template literals (`` href={`https://boardgamegeek.com/boardgame/${id}`} ``), plain property access, `&&` on a precomputed boolean or optional node (`{isExpansion && <Badge />}`), and event-handler arrows that only forward a call (`onClick={() => onSelect(item)}`).
+
 ### Complex JSX conditionals
 
-Prepare nodes in variables before the return statement when there are multiple alternatives; use `switch` rather than chains of ternaries:
+Prepare nodes in variables before the return statement when there are alternatives (no element-choosing ternaries inside JSX); use `switch` rather than chains of ternaries:
 
 ```typescript
 let content: ReactNode = <DefaultView />;

@@ -125,6 +125,47 @@ export type BggCollection = {
     tagsByItem: BggItemTagMap;
 };
 
+export type BggSearchSubType = 'boardgame' | 'boardgameexpansion';
+export type BggSearchSource = 'extension' | 'xmlapi';
+
+/** A board game or expansion found by a BGG search, from either the extension or the XML API. */
+export type BggSearchResult = {
+    objectId: number;
+    name: string;
+    subType: BggSearchSubType;
+    yearPublished?: number;
+    // the extension's rep_imageid, unused for now
+    imageId?: number;
+    source: BggSearchSource;
+};
+
+/** A search result with the user's collection items for that game that the filters show; empty when it isn't in the collection. */
+export type BggSearchEntry = BggSearchResult & {
+    collectionIds: BggCollectionId[];
+};
+
+/** A BGG search result as a collection item (see bggSearchResultToCollectionItem), with its image id if any. */
+export type BggSearchCollectionItem = BggCollectionItem & {
+    searchImageId?: number;
+};
+
+/** An item of the extension's doSearch reply (`response.data.items`); BGG sends ids as strings. */
+export type BggExtensionSearchItem = {
+    objectid?: string | number;
+    subtype?: string;
+    primaryname?: string;
+    nameid?: string;
+    yearpublished?: number | string | null;
+    ordtitle?: string;
+    rep_imageid?: number | string | null;
+    objecttype?: string;
+    name?: string;
+    sortindex?: string;
+    type?: string;
+    id?: string;
+    href?: string;
+};
+
 export type BggPlayer = {
     name: string;
     userid?: number;

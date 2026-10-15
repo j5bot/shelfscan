@@ -10,8 +10,10 @@ import {
 } from '@/app/lib/hooks/useActiveCollectionTab';
 import { useAddToCollectionSelection } from '@/app/lib/hooks/useAddToCollectionSelection';
 import { useAllGamesFilter } from '@/app/lib/hooks/useAllGamesFilter';
+import { useCollectionBggSearch } from '@/app/lib/hooks/useCollectionBggSearch';
 import { CollectionLoadStatuses, useCollectionData } from '@/app/lib/hooks/useCollectionData';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
+import { useCollectionTradeActions } from '@/app/lib/hooks/useCollectionTradeActions';
 import { CollectionViews, useCollectionView } from '@/app/lib/hooks/useCollectionView';
 import { useNotInCollectionFilter } from '@/app/lib/hooks/useNotInCollectionFilter';
 import { useOLWLGMathTrade } from '@/app/lib/hooks/useOLWLGMathTrade';
@@ -21,9 +23,10 @@ import { useTradeMode } from '@/app/lib/hooks/useTradeMode';
 import { useTradeSelection } from '@/app/lib/hooks/useTradeSelection';
 import { RootState } from '@/app/lib/redux/store';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { downloadSwapExport, downloadSwapExportCsv } from '@/app/lib/utils/swapExport';
+import { getCollectionPageFlags } from '@/app/lib/utils/collectionPage';
 import { BggCollectionForm } from '@/app/ui/BggCollectionForm';
 import { AddToCollectionBar } from '@/app/ui/collection/AddToCollectionBar';
+import { BggSearchResults } from '@/app/ui/collection/BggSearchResults';
 import { CollectionHeader } from '@/app/ui/collection/CollectionHeader';
 import { CollectionOverlays } from '@/app/ui/collection/CollectionOverlays';
 import { CollectionTabList } from '@/app/ui/collection/CollectionTabList';
@@ -32,8 +35,7 @@ import { TradeActionBar } from '@/app/ui/collection/TradeActionBar';
 import { AllGamesContent } from '@/app/ui/games/AllGamesContent';
 import { NotInCollectionContent } from '@/app/ui/games/NotInCollectionContent';
 import { NavDrawer } from '@/app/ui/NavDrawer';
-import { useRouter } from 'next/navigation';
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 
 export type CollectionPageModeOptions = {
     mathTradeGeeklistId?: number;
@@ -55,12 +57,10 @@ export const CollectionPageContent = ({
 
     const { mathTradeGeeklistId: initialMathTradeGeeklistId } = modeOptions;
 
-    const router = useRouter();
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const collection = useSelector((state: RootState) => state.bgg.collection?.users[username?.toLowerCase() ?? ''] ?? undefined);
     const { syncOn } = useSync();
     const tradeMode = useTradeMode();
-    const { hasExport, isMathTrade, isTrade } = tradeMode;
 
     const { activeTab, setActiveTab } = useActiveCollectionTab();
     const { view, setView } = useCollectionView();
@@ -94,29 +94,38 @@ export const CollectionPageContent = ({
         filters: collectionFilters.filters,
     });
     const addSelection = useAddToCollectionSelection(notInCollection.notInCollectionItems);
+    const tradeActions = useCollectionTradeActions({ mathTrade, tradeSelection });
 
-    const { sentinelRef, sectionRef, stickyTop } = useStickyBar(
-        activeTab === CollectionTabs.ALL_GAMES && state.status === CollectionLoadStatuses.LOADED,
-    );
+    const show = getCollectionPageFlags({
+        isAllGamesTab: activeTab === CollectionTabs.ALL_GAMES,
+        isLoaded: state.status === CollectionLoadStatuses.LOADED,
+        displayCount: allGames.filter.displayItems.length,
+        canBatchAdd: addSelection.canBatch,
+        mathTradeMode: mathTrade.mathTradeMode,
+        syncOn,
+        tradeMode,
+    });
+
+    const bggSearch = useCollectionBggSearch({
+        searchText: collectionFilters.filters.searchText,
+        searchMode: collectionFilters.filters.searchMode,
+        enabled: show.bggSearch,
+        collection,
+        isShownIgnoringName: allGames.isShownIgnoringName,
+        subType: allGames.subType,
+    });
+    const { clearFiltersKeepSearch } = collectionFilters;
+    const { resetGamesAndExpansionsMode } = allGames;
+    const clearFiltersForBggSearch = useCallback(() => {
+        clearFiltersKeepSearch();
+        resetGamesAndExpansionsMode();
+    }, [clearFiltersKeepSearch, resetGamesAndExpansionsMode]);
+
+    const { sentinelRef, sectionRef, stickyTop } = useStickyBar(show.stickyBar);
 
     const modeMap = useMemo(() => ({
         batchRating: view === CollectionViews.LARGE_GRID && syncOn && batchRate,
     }), [syncOn, batchRate, view]);
-
-    const openGeeklist = (id: number) => {
-        if (isMathTrade) {
-            router.replace(`/math-trade/${id}`);
-            return;
-        }
-        mathTrade.setMathTradeMode(true);
-    };
-
-    // swap/trade pages export a file; math trades post to the geeklist via the extension
-    const runTradeAction = () => void (
-        hasExport ?
-        tradeSelection.handleSwapExport(isTrade ? downloadSwapExportCsv : downloadSwapExport) :
-        tradeSelection.handleBulkMathTradeAdd()
-    );
 
     // filter and saved-preset props shared by both tabs
     const filterProps = {
@@ -132,8 +141,20 @@ export const CollectionPageContent = ({
         onDuplicateFilter: collectionFilters.duplicateFilterPreset,
     };
 
-    const showAddToCollectionBar = addSelection.canBatch && activeTab === CollectionTabs.NOT_IN_COLLECTION;
-    const showTradeActionBar = (mathTrade.mathTradeMode && syncOn) || hasExport;
+    // shown in place of the All Games list when nothing in the collection matches
+    const bggSearchResults = show.noDisplayItems && <BggSearchResults
+        query={bggSearch.query}
+        search={bggSearch.search}
+        prepared={bggSearch.prepared}
+        view={view}
+        scannedSet={allGames.scannedSet}
+        verifiedSet={allGames.verifiedSet}
+        onSelectItem={setSelectedItem}
+        mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
+        onMathTradeToggle={tradeSelection.handleMathTradeToggle}
+        onClearFilters={clearFiltersForBggSearch}
+        modeMap={modeMap}
+    />;
 
     let tabContent = <AllGamesContent
         state={state}
@@ -153,6 +174,7 @@ export const CollectionPageContent = ({
         onSelectItem={setSelectedItem}
         mathTradeSelectedIds={tradeSelection.selectedMathTradeIds}
         onMathTradeToggle={tradeSelection.handleMathTradeToggle}
+        emptyContent={bggSearchResults}
     />;
     if (activeTab === CollectionTabs.NOT_IN_COLLECTION) {
         tabContent = <NotInCollectionContent
@@ -191,7 +213,7 @@ export const CollectionPageContent = ({
                         canRefresh={!!username}
                         isRefreshing={isRefreshing}
                         onRefresh={() => refreshCollection()}
-                        canBatchRate={syncOn && !isMathTrade}
+                        canBatchRate={show.canBatchRate}
                         batchRate={batchRate}
                         onToggleBatchRate={() => {
                             setView(CollectionViews.LARGE_GRID);
@@ -206,12 +228,7 @@ export const CollectionPageContent = ({
                             allGeekLists={mathTrade.allGeekLists}
                             isRefreshingGeeklist={mathTrade.isRefreshingGeeklist}
                             onRefreshGeeklist={() => void mathTrade.handleRefreshGeeklist()}
-                            onSelectGeeklist={id => {
-                                mathTrade.setActiveGeekListId(id);
-                                if (isMathTrade) {
-                                    router.replace(`/math-trade/${id}`);
-                                }
-                            }}
+                            onSelectGeeklist={tradeActions.selectGeeklist}
                             onLoadAnother={() => mathTrade.setShowMathTradeDialog(true)}
                         />
                     )}
@@ -221,7 +238,7 @@ export const CollectionPageContent = ({
                     <Suspense>
                         <BggCollectionForm />
                     </Suspense>
-                    {showAddToCollectionBar && (
+                    {show.addToCollectionBar && (
                         <AddToCollectionBar
                             selectionMode={addSelection.selectionMode}
                             selectedCount={addSelection.selectedIds.size}
@@ -230,13 +247,13 @@ export const CollectionPageContent = ({
                             onRequestAdd={addSelection.requestAdd}
                         />
                     )}
-                    {showTradeActionBar && (
+                    {show.tradeActionBar && (
                         <TradeActionBar
                             mode={tradeMode}
                             selectedCount={tradeSelection.selectedMathTradeIds.size}
                             actionableCount={tradeSelection.actionableTradeItemsCount}
-                            isBusy={hasExport ? tradeSelection.isExportingSwap : mathTrade.isBulkMathTradeAdding}
-                            onAction={runTradeAction}
+                            isBusy={tradeActions.isTradeActionBusy}
+                            onAction={tradeActions.runTradeAction}
                         />
                     )}
                     {username && <section
@@ -255,7 +272,7 @@ export const CollectionPageContent = ({
                 onDismissRefreshError={clearRefreshError}
                 selectedItem={selectedItem}
                 onCloseItem={() => setSelectedItem(null)}
-                onGeeklistLoaded={openGeeklist}
+                onGeeklistLoaded={tradeActions.openGeeklist}
                 mathTrade={mathTrade}
                 tradeSelection={tradeSelection}
                 addSelection={addSelection}

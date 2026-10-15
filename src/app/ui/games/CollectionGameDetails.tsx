@@ -1,19 +1,17 @@
-import { bggGetThingsXml } from '@/app/lib/actions';
-import { addResponseToCache, getResponseFromCache } from '@/app/lib/database/cacheDatabase';
 import { useGameUPCData } from '@/app/lib/GameUPCDataProvider';
 import { useSelector } from '@/app/lib/hooks';
+import { useThingVersions } from '@/app/lib/hooks/useThingVersions';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { SelectVersionContext } from '@/app/lib/SelectVersionContext';
-import { bggGetVersionsFromXML } from '@/app/lib/services/bgg/service';
-import { type BggCollectionItem, BggVersion } from '@/app/lib/types/bgg';
+import { type BggCollectionItem } from '@/app/lib/types/bgg';
+import { collectionItemToGame, createSlug } from '@/app/lib/utils/gameAdapters';
 import {
-    collectionItemToGame,
-    collectionVersionToGameUPCVersion,
-    collectionVersionToVersion,
-    createSlug,
-    gameUPCVersionToVersion
-} from '@/app/lib/utils/gameAdapters';
+    getScannedVersions,
+    resolveCurrentVersionIndex,
+    resolveDisplayVersion,
+    type VersionSelection,
+} from '@/app/lib/utils/versionSelection';
 import { CollapsibleList, CollapsibleListProps } from '@/app/ui/CollapsibleList';
 import { GameDetails, GameDetailsProps } from '@/app/ui/games/GameDetails';
 import {
@@ -22,9 +20,9 @@ import {
 } from '@/app/ui/games/renderers';
 import { PlaysIcon } from '@/app/ui/icons/PlaysIcon';
 import { RatingIcon } from '@/app/ui/icons/RatingIcon';
-import { GameUPCBggInfo, GameUPCBggVersion } from 'gameupc-hooks/types';
+import { GameUPCBggVersion } from 'gameupc-hooks/types';
 import Link from 'next/link';
-import React, { type ReactNode, useEffect, useState, useTransition } from 'react';
+import React, { type ReactNode, useState } from 'react';
 import { type IconType } from 'react-icons';
 import { FaCheck, FaEye, FaHeart, FaRecycle } from 'react-icons/fa6';
 
@@ -104,99 +102,42 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
         header,
         children,
         thumbnailSize,
+        defaultImageUrl,
+        defaultImageCacheId,
         setVersion,
     } = props;
 
     const username = useSelector((state: RootState) => state.bgg.user?.user);
     const liveItem = useSelector(state => username ? state.bgg.collection.users[username].items[item.collectionId] : undefined);
-    const bggId = liveItem?.objectId;
+    // a BGG search result isn't in the collection (no live item), but its versions still load
+    const shownItem = liveItem ?? item;
     const versionId = liveItem?.versionId;
 
     const { upcMap } = useScanHistory();
     const { gameDataMap, isGetPending } = useGameUPCData();
+    const versions = useThingVersions({
+        bggId: shownItem.objectId,
+        initialVersions: getScannedVersions({ objectId: liveItem?.objectId, upcMap, gameDataMap }),
+        isGetPending,
+    });
 
-    const upc = liveItem?.objectId ? upcMap.has(liveItem.objectId) ? upcMap.get(liveItem.objectId) : undefined : undefined;
-    const infos: GameUPCBggInfo[] | undefined = upc ? gameDataMap[upc]?.bgg_info : undefined;
-    const info = infos?.find(info => info.id === liveItem?.objectId);
-    const infoVersions = info?.versions;
-
-    const [versions, setVersions] = useState<GameUPCBggVersion[]>(infoVersions ?? []);
-
-    // a clicked version is kept with the versions/versionId it was chosen against; once either
-    // changes, the item's own version (if it is in the list) is selected again
-    const [selection, setSelection] = useState<{
-        index: number;
-        versions: GameUPCBggVersion[];
-        versionId: typeof versionId;
-    }>();
-    const itemVersionIndex = versionId
-        ? versions.findIndex(version => version.version_id === versionId)
-        : -1;
-    const selectionIsCurrent = selection?.versions === versions && selection?.versionId === versionId;
-    const currentVersionIndex = itemVersionIndex >= 0 && !selectionIsCurrent
-        ? itemVersionIndex
-        : selection?.index ?? null;
+    const [selection, setSelection] = useState<VersionSelection>();
+    const currentVersionIndex = resolveCurrentVersionIndex(versions, versionId, selection);
 
     const versionClickHandler = ((e: React.MouseEvent<HTMLLIElement>) => {
-        const index = e.currentTarget.getAttribute('data-version-index') ?? null;
-
+        const index = e.currentTarget.getAttribute('data-version-index');
         if (index === null) {
             return;
         }
-
-        const currentVersion = parseInt(index, 10);
-        setSelection({ index: currentVersion, versions, versionId });
-        setVersion(versions[currentVersion]);
+        const clickedIndex = parseInt(index, 10);
+        setSelection({ index: clickedIndex, versions, versionId });
+        setVersion(versions[clickedIndex]);
     }) as CollapsibleListProps<unknown>['onSelect'];
 
-    const [isLoading, startGetVersions] = useTransition();
-
-    const game = collectionItemToGame(liveItem ?? item);
-    const adaptedVersion = (liveItem ?? item).version ? collectionVersionToVersion((liveItem ?? item).version!) : currentVersionIndex !== null
-        ? gameUPCVersionToVersion(versions[currentVersionIndex]) : undefined;
-    const computedHeader = header ?? computeCollectionHeader(liveItem ?? item);
-
     const renderVersionItemFn = renderVersionItem.bind(null, { currentVersionIndex } as SelectVersionContext);
-
-    useEffect(() => {
-        let active = true;
-
-        if (!bggId || isLoading || isGetPending || versions.length > 0) {
-            return;
-        }
-
-        startGetVersions(async () => {
-            if (!active) {
-                return;
-            }
-
-            let xml: string | undefined;
-            const cacheId = `thing|${bggId}`;
-
-            try {
-                xml = await getResponseFromCache(cacheId);
-            } catch (e) {
-                console.error('error getting from cache', cacheId, e);
-            }
-
-            if (!xml) {
-                xml = await bggGetThingsXml([bggId]);
-                if (!xml.startsWith('<error>')) {
-                    addResponseToCache({ id: cacheId, method: 'GET', response: xml }).then();
-                } else {
-                    return;
-                }
-            }
-
-            const newVersions = bggGetVersionsFromXML(xml)
-                .map(version => collectionVersionToGameUPCVersion(version as BggVersion));
-            setVersions(newVersions);
-        });
-
-        return () => {
-            active = false;
-        };
-    }, [bggId, isGetPending, isLoading, versions]);
+    const game = collectionItemToGame(shownItem);
+    const displayVersion = resolveDisplayVersion(shownItem, versions, currentVersionIndex);
+    const detailsHeader = header ?? computeCollectionHeader(shownItem);
 
     const versionsContent = <div
         id="select-version"
@@ -220,10 +161,12 @@ export const CollectionGameDetails = (props: CollectionGameDetailsProps) => {
         <GameDetails
             view="collection"
             game={game}
-            version={adaptedVersion}
-            header={computedHeader}
+            version={displayVersion}
+            header={detailsHeader}
             versionSelect={versionsContent}
             thumbnailSize={thumbnailSize}
+            defaultImageUrl={defaultImageUrl}
+            defaultImageCacheId={defaultImageCacheId}
         >
             {children}
         </GameDetails>

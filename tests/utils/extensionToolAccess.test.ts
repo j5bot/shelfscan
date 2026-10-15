@@ -4,6 +4,8 @@ import { extensionUserMatches, getExtensionToolAccess } from '@/app/lib/utils/ex
 
 const READY: SyncContextValue = {
     syncOn: true,
+    syncChecked: true,
+    extensionVersion: null,
     hasSubscription: true,
     userId: '4317241',
     currentUsername: 'ShelfScan',

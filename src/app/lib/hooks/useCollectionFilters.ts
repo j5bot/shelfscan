@@ -197,6 +197,11 @@ export const parseUnifiedSearch = (
     return { nameQuery, versionQuery, tagQueries, anyTextQuery: '' };
 };
 
+export type MakeFilterFnOptions = {
+    // skip the name part of the search (name prefix / Name mode / All mode text), keeping version and tags
+    ignoreNameSearch?: boolean;
+};
+
 // ── Three-state toggle cycle ───────────────────────────────────────────────────
 
 export const cycleThreeState = <T extends string>(
@@ -213,11 +218,14 @@ type UseCollectionFiltersResult = {
     filters: CollectionFilters;
     setFilter: <K extends keyof CollectionFilters>(key: K, value: CollectionFilters[K]) => void;
     resetFilters: () => void;
+    // resets every filter but the search
+    clearFiltersKeepSearch: () => void;
     hasActiveFilters: boolean;
     makeFilterFn: (
         scannedSet: Set<number>,
         verifiedSet: Set<number>,
         tagMap: BggTagMap,
+        options?: MakeFilterFnOptions,
     ) => (item: BggCollectionItem) => boolean;
     savedFilters: FilterPreset[];
     saveFilterPreset: () => Promise<void>;
@@ -264,6 +272,10 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
 
     const resetFilters = useCallback(() => {
         setFilters(DEFAULT_FILTERS);
+    }, []);
+
+    const clearFiltersKeepSearch = useCallback(() => {
+        setFilters(prev => ({ ...DEFAULT_FILTERS, searchMode: prev.searchMode, searchText: prev.searchText }));
     }, []);
 
     const saveFilterPreset = useCallback(async () => {
@@ -339,11 +351,12 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
     );
 
     const makeFilterFn = useCallback(
-        (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap) => {
-            const { nameQuery, versionQuery, tagQueries, anyTextQuery } = parseUnifiedSearch(
-                filters.searchText,
-                filters.searchMode,
-            );
+        (scannedSet: Set<number>, verifiedSet: Set<number>, tagMap: BggTagMap, options?: MakeFilterFnOptions) => {
+            const parsed = parseUnifiedSearch(filters.searchText, filters.searchMode);
+            const { versionQuery, tagQueries } = parsed;
+            // a BGG search matches names itself, so its collection matches skip the name part of the search
+            const nameQuery = options?.ignoreNameSearch ? '' : parsed.nameQuery;
+            const anyTextQuery = options?.ignoreNameSearch ? '' : parsed.anyTextQuery;
             return (item: BggCollectionItem): boolean => {
                 const { statuses } = item;
 
@@ -453,6 +466,7 @@ export const useCollectionFilters = (): UseCollectionFiltersResult => {
         filters,
         setFilter,
         resetFilters,
+        clearFiltersKeepSearch,
         hasActiveFilters,
         makeFilterFn,
         savedFilters,

@@ -4,6 +4,7 @@ import {
     BggCollectionMap,
     BggCollectionStatuses,
     BggRawObject,
+    BggSearchResult,
     BggUser,
     PossibleStatus,
     PossibleStatuses
@@ -413,4 +414,60 @@ export const summarizeCollection = (items: BggCollectionMap): BggCollectionSumma
         expansions,
         statuses,
     };
+};
+
+/**
+ * Board games and expansions from an XML API v2 search (`/xmlapi2/search`), in the response's order. BGG lists
+ * most expansions twice, as `boardgame` and as `boardgameexpansion`; each game is kept once, as an expansion if
+ * either entry says so, under its primary name when there is one. Throws on a BGG error or unparseable response.
+ */
+export const bggGetSearchResultsFromXML = (xml: string): BggSearchResult[] => {
+    const document = getPageDOM(xml, true);
+    const error = getBggXmlError(xml);
+    if (error) {
+        throw new Error(error);
+    }
+    if (!document.querySelector('items')) {
+        throw new Error('Unexpected search response from BGG');
+    }
+
+    const byId = new Map<number, BggSearchResult>();
+    const hasPrimaryName = new Set<number>();
+
+    document.querySelectorAll('items > item').forEach(element => {
+        const objectId = elementGetter(element, true, undefined, 'id') as number | undefined;
+        const type = element.getAttribute('type');
+        const nameElement = element.querySelector('name');
+        const name = nameElement?.getAttribute('value')?.trim();
+        if (!objectId || objectId <= 0 || !name || (type !== 'boardgame' && type !== 'boardgameexpansion')) {
+            return;
+        }
+        const isPrimary = nameElement?.getAttribute('type') === 'primary';
+        const year = elementGetter(element, true, 'yearpublished', 'value') as number | undefined;
+        const existing = byId.get(objectId);
+
+        if (existing) {
+            if (type === 'boardgameexpansion') {
+                existing.subType = type;
+            }
+            if (isPrimary && !hasPrimaryName.has(objectId)) {
+                existing.name = name;
+                hasPrimaryName.add(objectId);
+            }
+            existing.yearPublished ??= year && year > 0 ? year : undefined;
+            return;
+        }
+        if (isPrimary) {
+            hasPrimaryName.add(objectId);
+        }
+        byId.set(objectId, {
+            objectId,
+            name,
+            subType: type,
+            yearPublished: year && year > 0 ? year : undefined,
+            source: 'xmlapi',
+        });
+    });
+
+    return [...byId.values()];
 };
