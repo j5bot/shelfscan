@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from '@/app/lib/hooks';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { getCollectionItemFromObject } from '@/app/lib/services/bgg/service';
 import { gameUPCInfoToCollectionItem } from '@/app/lib/utils/gameAdapters';
+import { createResolvers } from '@/app/lib/utils/promise';
 import posthog from 'posthog-js';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
@@ -67,7 +68,7 @@ export const ExtensionMessagingProvider = ({ children }: { children: ReactNode }
 
         if (!matchingMessages) {
             messagesRef.current[messageKey] = [timestampedDetail as DocumentMessageDetail, undefined];
-            promisesRef.current[messageKey] = Promise.withResolvers<DocumentMessageResponseDetail | undefined>();
+            promisesRef.current[messageKey] = createResolvers<DocumentMessageResponseDetail | undefined>();
         }
 
         return promisesRef.current[messageKey].promise;
