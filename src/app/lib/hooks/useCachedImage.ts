@@ -1,4 +1,5 @@
 import { enqueueFetch } from '@/app/lib/utils/fetchQueue';
+import { createResolvers } from '@/app/lib/utils/promise';
 import { getImageDataFromCache as getFromCache, hasCachedImage } from '@/app/lib/database/cacheDatabase';
 import { ImageProps } from 'next/image';
 import { useLayoutEffect, useMemo, useRef } from 'react';
@@ -87,11 +88,11 @@ export const useCachedImage = (
     } as ImageProps);
 
     const placeholderSrcPromise =
-        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(),
+        useMemo(() => createResolvers<ResolvedImageProps | undefined>(),
             // eslint-disable-next-line react-hooks/exhaustive-deps
             [normalSrc, placeholder, normalImageId]);
     const cachedSrcPromise =
-        useMemo(() => Promise.withResolvers<ResolvedImageProps | undefined>(),
+        useMemo(() => createResolvers<ResolvedImageProps | undefined>(),
             // eslint-disable-next-line react-hooks/exhaustive-deps
             [normalSrc, placeholder, normalImageId]);
 
