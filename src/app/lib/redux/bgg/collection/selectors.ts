@@ -38,7 +38,7 @@ export const getCollectionItemsByObjectId =
             return [];
         }
 
-        const allCollectionItems = collection?.objects.all[id];
+        const allCollectionItems = collection.objects.all?.[id];
         if (!allCollectionItems?.length) {
             return [];
         }
@@ -57,7 +57,7 @@ export const getCollectionInfoByObjectId =
             return {};
         }
 
-        const allCollectionItems = collection?.objects.all[id];
+        const allCollectionItems = collection.objects.all?.[id];
 
         if (!allCollectionItems?.length) {
             return {};
