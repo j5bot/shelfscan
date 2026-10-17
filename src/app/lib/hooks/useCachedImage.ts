@@ -156,11 +156,9 @@ export const useCachedImage = (
     };
 
     const cacheBlob = async (id: string, blob: Blob) => {
-        try {
-            void addImageDataToCache(id, blob);
-        } catch (e) {
-            console.error('caching blob failed', id, e);
-        }
+        // not awaited, so a try/catch would miss the rejection
+        addImageDataToCache(id, blob)
+            .catch((e: unknown) => console.error('caching blob failed', id, e));
         return blob;
     };
 

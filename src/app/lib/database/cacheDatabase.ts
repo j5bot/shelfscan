@@ -64,41 +64,29 @@ export const hasCachedImage = async (id: string): Promise<boolean> =>
 
 export const addImageDataToCache = async (id: string, blob: Blob) => {
     const mimeType = blob.type || 'application/octet-stream';
+    const putArrayData = async () => cacheDatabase.images.put({
+        id,
+        arrayData: await blob.arrayBuffer(),
+        type: mimeType,
+        size: blob.size,
+        timestamp: Date.now(),
+    });
+
+    // put, not add: two components loading the same image both miss the cache and both write
     const previousImage = await cacheDatabase.images.get(id);
-    if (previousImage) {
-        if (previousImage.data) {
-            return cacheDatabase.images.put({
-                id,
-                data: blob,
-                size: blob.size,
-                timestamp: Date.now()
-            });
-        } else if (previousImage.arrayData) {
-            return cacheDatabase.images.put({
-                id,
-                arrayData: await blob.arrayBuffer(),
-                type: mimeType,
-                size: blob.size,
-                timestamp: Date.now(),
-            });
-        }
-    } else {
-        try {
-            return cacheDatabase.images.add({
-                id,
-                data: blob,
-                size: blob.size,
-                timestamp: Date.now()
-            });
-        } catch {
-            return cacheDatabase.images.add({
-                id,
-                arrayData: await blob.arrayBuffer(),
-                type: mimeType,
-                size: blob.size,
-                timestamp: Date.now(),
-            });
-        }
+    if (previousImage?.arrayData) {
+        return putArrayData();
+    }
+    try {
+        return await cacheDatabase.images.put({
+            id,
+            data: blob,
+            size: blob.size,
+            timestamp: Date.now()
+        });
+    } catch {
+        // browsers that can't store Blobs in IndexedDB
+        return putArrayData();
     }
 };
 
@@ -116,11 +104,6 @@ export const clearImageCache = async () => {
 export const getResponseFromCache = async (id: string) =>
     (await cacheDatabase.responses.get(id))?.response;
 
-export const addResponseToCache = async (cachedResponse: CachedTextResponse) => {
-    const previousResponse = await cacheDatabase.responses.get(cachedResponse.id);
-    if (previousResponse) {
-        return cacheDatabase.responses.put(cachedResponse);
-    } else {
-        return cacheDatabase.responses.add(cachedResponse);
-    }
-};
+// put, not get-then-add: concurrent writes of the same id would throw a ConstraintError
+export const addResponseToCache = async (cachedResponse: CachedTextResponse) =>
+    cacheDatabase.responses.put(cachedResponse);
