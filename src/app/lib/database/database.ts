@@ -104,14 +104,8 @@ database.version(6).stores({
 export const getSetting = async (id: string) =>
     (await database.settings.get(id))?.value;
 
-export const setSetting = async (id: string, value: SettingEntity['value']) => {
-    const hasSetting = await database.settings.get(id);
-    if (hasSetting) {
-        await database.settings.put({ id, value });
-    } else {
-        await database.settings.add({ id, value });
-    }
-};
+export const setSetting = async (id: string, value: SettingEntity['value']) =>
+    await database.settings.put({ id, value });
 
 export const removeSetting = async (id: string) =>
     await database.settings.delete(id);
@@ -130,14 +124,8 @@ export const getSettings = async () => {
 export const getCollection = async (id: string) =>
     (await database.collections.get(id))?.value;
 
-export const setCollection = async (id: string, value: BggCollectionMap) => {
-    const hasCollection = await database.collections.get(id);
-    if (hasCollection) {
-        await database.collections.put({ id, value });
-    } else {
-        await database.collections.add({ id, value });
-    }
-};
+export const setCollection = async (id: string, value: BggCollectionMap) =>
+    await database.collections.put({ id, value });
 
 export const updateCollectionItemNumPlays = async (id: string, collectionId: number, numplays: number) => {
     const entry = await database.collections.get(id);
@@ -159,14 +147,8 @@ export const getPlugin = async (id: string) =>
 export const getScanned = async (id: string) =>
     (await database.scanned.get(id))?.codes;
 
-export const setScanned = async (id: string, codes: string[]) => {
-    const hasEntry = await database.scanned.get(id);
-    if (hasEntry) {
-        await database.scanned.put({ id, codes });
-    } else {
-        await database.scanned.add({ id, codes });
-    }
-};
+export const setScanned = async (id: string, codes: string[]) =>
+    await database.scanned.put({ id, codes });
 
 export const removeScanned = async (id: string) =>
     await database.scanned.delete(id);
