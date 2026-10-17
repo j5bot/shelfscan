@@ -2,6 +2,7 @@ allowBuilds:
   '@carbon/grid': true
   '@carbon/layout': true
   '@pnpm/exe': true
+  '@posthog/cli': true
   core-js: true
   esbuild: true
   unrs-resolver: true

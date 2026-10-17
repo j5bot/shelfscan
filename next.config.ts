@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withPostHogConfig } from '@posthog/nextjs-config';
 
 const nextConfig: NextConfig = {
     allowedDevOrigins: ['192.168.0.*'],
@@ -30,4 +31,18 @@ const nextConfig: NextConfig = {
     }
 };
 
-export default nextConfig;
+// source maps are generated, uploaded to PostHog error tracking and then
+// deleted from the build output; skipped when the upload credentials are absent
+const personalApiKey = process.env.POSTHOG_PERSONAL_API_KEY ?? '';
+const projectId = process.env.POSTHOG_PROJECT_ID ?? '';
+
+export default withPostHogConfig(nextConfig, {
+    personalApiKey,
+    projectId,
+    sourcemaps: {
+        enabled: personalApiKey !== '' && projectId !== '',
+        releaseName: 'shelfscan',
+        releaseVersion: process.env.VERCEL_GIT_COMMIT_SHA,
+        deleteAfterUpload: true,
+    },
+});
