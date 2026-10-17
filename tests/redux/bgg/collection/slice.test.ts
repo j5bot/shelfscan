@@ -123,6 +123,16 @@ describe('bgg/collection/slice', () => {
             expect(after2.users['bob'].items[10]).toBeUndefined();
             expect(after2.users['bob'].items[20]).toBeDefined();
         });
+
+        it('initialises the objects.all and versions.all maps for an empty collection', () => {
+            const nextState = collectionReducer(
+                emptyState(),
+                updateCollectionItems({ username: 'carol', items: {} }),
+            );
+
+            expect(nextState.users['carol'].objects.all).toEqual({});
+            expect(nextState.users['carol'].versions.all).toEqual({});
+        });
     });
 
     describe('#updateCollectionItems object-index maps', () => {

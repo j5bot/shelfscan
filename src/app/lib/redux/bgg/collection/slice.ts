@@ -228,8 +228,8 @@ export const bggCollectionSlice = createSlice({
                 state.users[username] = {
                     items: {},
                     images: {},
-                    objects: {} as BggObjectsByStatus,
-                    versions: {} as BggVersionsByStatus,
+                    objects: { all: {} } as BggObjectsByStatus,
+                    versions: { all: {} } as BggVersionsByStatus,
                     tags: {},
                     tagsByItem: {},
                 };

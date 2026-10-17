@@ -1,6 +1,7 @@
 import { describe, it, expect } from '../../../setup.js';
 import {
     getCollectionInfoByObjectId,
+    getCollectionItemsByObjectId,
     getIndexesInCollectionFromInfos,
     selectTagsByCollectionId,
 } from '@/app/lib/redux/bgg/collection/selectors';
@@ -116,12 +117,43 @@ const makeInfo = (
     })),
 });
 
+// a user whose collection loaded with no items, so no objects.all map was built
+const makeStateWithoutObjectsAll = (): RootState => ({
+    bgg: {
+        user: { user: 'alice' },
+        collection: {
+            users: {
+                alice: {
+                    items: {},
+                    images: {},
+                    tags: {},
+                    tagsByItem: {},
+                    objects: {} as BggObjectsByStatus,
+                    versions: {} as BggVersionsByStatus,
+                },
+            },
+        },
+    },
+}) as unknown as RootState;
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
 describe('bgg/collection/selectors', () => {
+    describe('#getCollectionItemsByObjectId', () => {
+        it('returns an empty array when the collection has no objects.all map', () => {
+            const state = makeStateWithoutObjectsAll();
+            expect(getCollectionItemsByObjectId([state, 43018])).toEqual([]);
+        });
+    });
+
     describe('#getCollectionInfoByObjectId', () => {
+        it('returns an empty object when the collection has no objects.all map', () => {
+            const state = makeStateWithoutObjectsAll();
+            expect(getCollectionInfoByObjectId([state, 43018, undefined])).toEqual({});
+        });
+
         it('returns an empty object when id is undefined', () => {
             const state = makeState();
             expect(getCollectionInfoByObjectId([state, undefined, undefined])).toEqual({});
