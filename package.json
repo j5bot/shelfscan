@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.7",
+    "@posthog/nextjs-config": "1.11.3",
     "@tailwindcss/postcss": "4.3.3",
     "@types/image-blob-reduce": "4.1.4",
     "@types/loadable__component": "5.13.10",

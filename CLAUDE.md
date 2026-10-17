@@ -20,7 +20,7 @@ Run a single test file: `pnpm exec vitest run tests/utils.test.ts`
 
 **Node version**: 24.x (see `.nvmrc`). **pnpm** 12 (`packageManager` in `package.json`).
 
-**Env vars**: `BGG_TOKEN` and `GAMEUPC_TOKEN` (server-only, see Server Actions below), `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` and `CONTACT_TO_EMAIL` (server-only, used by the `/contact` form via Resend), plus `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST`, `NEXT_PUBLIC_POSTHOG_UI_HOST` for PostHog (initialised in `instrumentation-client.ts`; `pnpm dev` throws if the token or host is missing). See `.env.example`.
+**Env vars**: `BGG_TOKEN` and `GAMEUPC_TOKEN` (server-only, see Server Actions below), `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` and `CONTACT_TO_EMAIL` (server-only, used by the `/contact` form via Resend), plus `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN`, `NEXT_PUBLIC_POSTHOG_HOST`, `NEXT_PUBLIC_POSTHOG_UI_HOST` for PostHog (initialised in `instrumentation-client.ts`; `pnpm dev` throws if the token or host is missing). Build-time only: `POSTHOG_PERSONAL_API_KEY` and `POSTHOG_PROJECT_ID` — when both are set, `withPostHogConfig` in `next.config.ts` generates browser source maps, uploads them to PostHog error tracking and deletes them from the output; otherwise no source maps are emitted. See `.env.example`.
 
 ## Architecture
 
