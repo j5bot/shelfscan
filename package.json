@@ -29,7 +29,7 @@
     "dexie-export-import": "4.4.1",
     "gameupc-hooks": "1.1.0",
     "jszip": "3.10.2",
-    "motion": "13.4.2",
+    "motion": "14.3.0",
     "next": "16.4.2",
     "nextstepjs": "2.3.0",
     "p-queue": "10.0.0",
