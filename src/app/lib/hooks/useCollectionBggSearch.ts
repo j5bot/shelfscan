@@ -1,5 +1,5 @@
 import { useBggSearch } from '@/app/lib/hooks/useBggSearch';
-import { SearchMode } from '@/app/lib/hooks/useCollectionFilters';
+import { SearchMode } from '@/app/lib/utils/collectionFilters';
 import { BggCollection, BggCollectionItem, BggSearchSubType } from '@/app/lib/types/bgg';
 import { getBggSearchQuery, prepareBggSearchResults } from '@/app/lib/utils/bggSearch';
 import { useCallback, useMemo } from 'react';

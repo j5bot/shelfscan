@@ -1,6 +1,6 @@
-# Code Instructions — ShelfScan Style Guide
+# CODE_STYLES.md — ShelfScan Code Style & Standards
 
-This document defines the coding conventions used throughout the ShelfScan project. Follow these rules precisely when writing or modifying code.
+This is the single source of truth for coding conventions in ShelfScan, for every agent (Claude Code, Codex, Copilot, …) and human contributor. Follow these rules precisely when writing or modifying code. Project architecture, commands and dependency notes live in `CLAUDE.md` / `AGENTS.md` / `.github/copilot-instructions.md`; those files defer to this one for style.
 
 ---
 
@@ -393,6 +393,7 @@ export default bggUserSlice.reducer;
 - File starts with `'use server';` directive.
 - Export individual async functions — no classes.
 - Keep all `process.env` access inside server action files.
+- Never call external APIs that need auth tokens from client components — go through a server action.
 - Name pattern: verb + noun (e.g., `fetchGameDataForUpc`, `bggGetUserInner`, `warmupGameUPCApi`).
 - Use `Object.assign` for merging headers/options (project convention, not spread):
   ```typescript
@@ -565,6 +566,16 @@ export default bggUserSlice.reducer;
 | Tests | `tests/` mirroring `src/app/lib/` | `name.test.ts` |
 | CSS | `src/app/globals.css` or co-located `.css` | `PascalCase.css` matching component |
 | Constants | Co-located `constants.ts` | `constants.ts` |
+
+---
+
+## Testing
+
+- Import all test primitives (`describe`, `it`, `expect`, `vi`, …) from `tests/setup.ts`, never from `vitest` directly:
+  ```typescript
+  import { describe, it, expect, vi } from '../setup';
+  ```
+- Tests cover pure logic (utils, services, redux, plugins); there are no component tests. Prefer extracting logic from hooks/components into a pure `lib/utils/` function and testing that (e.g. `resolveGameSelection`, `findRecentDuplicate`).
 
 ---
 

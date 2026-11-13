@@ -1,12 +1,5 @@
+import { SortDirection, SortFieldDef, sortCollection } from '@/app/lib/utils/collectionSort';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
-export type SortDirection = 'asc' | 'desc';
-
-export type SortFieldDef<T, F extends string> = {
-    field: F;
-    label: string;
-    compare: (a: T, b: T) => number;
-};
 
 type UseFilterSortOptions<T, F extends string> = {
     items?: T[];
@@ -85,22 +78,12 @@ export const useFilterSort = <T, F extends string>(options: UseFilterSortOptions
         }
     }, [sortField, defaultSortDirection]);
 
-    const compareFn = useMemo(
-        () => sortFields.find(s => s.field === sortField)?.compare,
-        [sortFields, sortField],
-    );
-
     const displayItems = useMemo(() => {
         const query = filterText.trim().toLowerCase();
         let filtered = query ? items.filter(item => filterFn(item, query)) : items;
         if (extraFilterFn) { filtered = filtered.filter(extraFilterFn); }
-        if (!compareFn) { return filtered; }
-        filtered = [...filtered].sort((a, b) => {
-            const cmp = compareFn(a, b);
-            return sortDirection === 'asc' ? cmp : -cmp;
-        });
-        return filtered;
-    }, [items, filterText, filterFn, extraFilterFn, compareFn, sortDirection]);
+        return sortCollection(filtered, sortField, sortDirection, sortFields);
+    }, [items, filterText, filterFn, extraFilterFn, sortField, sortDirection, sortFields]);
 
     return {
         filterText,
