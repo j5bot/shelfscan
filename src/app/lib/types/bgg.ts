@@ -85,6 +85,12 @@ export type BggCollectionItem = {
     rating?: number;
     averageRating?: number;
     plays?: number;
+    // from the collection's `stats` element; undefined when BGG has no value
+    minPlayers?: number;
+    maxPlayers?: number;
+    minPlayTime?: number;
+    maxPlayTime?: number;
+    playingTime?: number;
     // private info
     privatecomment?: string;
     pricepaid?: number;

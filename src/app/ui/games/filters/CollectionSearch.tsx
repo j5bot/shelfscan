@@ -1,6 +1,6 @@
 // noinspection JSXDomNesting
 
-import { SearchMode } from '@/app/lib/hooks/useCollectionFilters';
+import { SearchMode } from '@/app/lib/utils/collectionFilters';
 import { VersionIcon } from '@/app/ui/icons/VersionIcon';
 import { FaA, FaAsterisk, FaTags } from 'react-icons/fa6';
 

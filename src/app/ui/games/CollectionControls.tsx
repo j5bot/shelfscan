@@ -1,5 +1,5 @@
-import { CollectionFilters, FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
-import { SortDirection } from '@/app/lib/hooks/useFilterSort';
+import { CollectionFilters, FilterPreset } from '@/app/lib/utils/collectionFilters';
+import { SortDirection } from '@/app/lib/utils/collectionSort';
 import { CollectionSearch } from '@/app/ui/games/filters/CollectionSearch';
 import { SavedFilterPresets } from '@/app/ui/games/filters/SavedFilterPresets';
 import { SortControls, SortFieldOption } from '@/app/ui/games/filters/SortControls';

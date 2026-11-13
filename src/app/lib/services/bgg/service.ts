@@ -6,7 +6,6 @@ import {
     BggRawObject,
     BggSearchResult,
     BggUser,
-    PossibleStatus,
     PossibleStatuses
 } from '@/app/lib/types/bgg';
 import { GeekList } from '@/app/lib/types/geeklist';
@@ -159,6 +158,12 @@ export const getPrivateInfoFromObject = (object: BggRawObject): Partial<BggColle
     };
 };
 
+// BGG uses 0 (or leaves the attribute out) for a value it doesn't have
+const getPositiveStat = (stats: Element | null, attribute: string): number | undefined => {
+    const value = elementGetter(stats, true, undefined, attribute) as number | undefined;
+    return value !== undefined && !isNaN(value) && value > 0 ? value : undefined;
+};
+
 const parseCollectionXml = (xml?: string): BggCollectionItem[] | undefined => {
     if (!xml || xml.length === 0) {
         return undefined;
@@ -185,6 +190,7 @@ const parseCollectionXml = (xml?: string): BggCollectionItem[] | undefined => {
             const status = item.getElementsByTagName('status')?.[0];
             const rating = elementGetter(item, false, 'stats > rating', 'value');
             const averageRating = elementGetter(item, false, 'stats > rating > average', 'value');
+            const stats = item.querySelector('stats');
             const tradeCondition = elementGetter(item, false, 'conditiontext');
             const plays = elementGetter(item, true, 'numplays');
             const comment = elementGetter(item, false, 'comment');
@@ -218,6 +224,11 @@ const parseCollectionXml = (xml?: string): BggCollectionItem[] | undefined => {
                 rating: rating === 'N/A' ? undefined : parseFloat(rating?.toString() ?? '0'),
                 averageRating: averageRating ? parseFloat(averageRating.toString()) : undefined,
                 plays,
+                minPlayers: getPositiveStat(stats, 'minplayers'),
+                maxPlayers: getPositiveStat(stats, 'maxplayers'),
+                minPlayTime: getPositiveStat(stats, 'minplaytime'),
+                maxPlayTime: getPositiveStat(stats, 'maxplaytime'),
+                playingTime: getPositiveStat(stats, 'playingtime'),
                 tradeCondition,
                 comment,
                 wishlistcomment,
@@ -391,29 +402,6 @@ export const getBggXmlError = (xml?: string): string | undefined => {
         return undefined;
     }
     return (error.querySelector('message') ?? error).textContent?.trim() || 'Unknown BGG error';
-};
-
-export type BggCollectionSummary = {
-    total: number;
-    games: number;
-    expansions: number;
-    statuses: Record<PossibleStatus, number>;
-};
-
-export const summarizeCollection = (items: BggCollectionMap): BggCollectionSummary => {
-    const values = Object.values(items);
-    const expansions = values.filter(item => item.subType === 'boardgameexpansion').length;
-    const statuses = Object.fromEntries(PossibleStatuses.map(status => [
-        status,
-        values.filter(item => item.statuses?.[status]).length,
-    ])) as BggCollectionSummary['statuses'];
-
-    return {
-        total: values.length,
-        games: values.length - expansions,
-        expansions,
-        statuses,
-    };
 };
 
 /**

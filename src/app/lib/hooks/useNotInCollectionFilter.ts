@@ -1,6 +1,7 @@
 import { CollectionLoadStatus, CollectionLoadStatuses } from '@/app/lib/hooks/useCollectionData';
-import { CollectionFilters, parseUnifiedSearch } from '@/app/lib/hooks/useCollectionFilters';
-import { SortFieldDef, useFilterSort } from '@/app/lib/hooks/useFilterSort';
+import { CollectionFilters, parseUnifiedSearch } from '@/app/lib/utils/collectionFilters';
+import { useFilterSort } from '@/app/lib/hooks/useFilterSort';
+import { SortFieldDef } from '@/app/lib/utils/collectionSort';
 import { NotInCollectionEntry, useNotInCollection } from '@/app/lib/hooks/useNotInCollection';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { BggCollectionItem } from '@/app/lib/types/bgg';

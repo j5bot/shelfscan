@@ -1,6 +1,6 @@
 import { ExtensionSearchResponseError } from '@/app/lib/extension/messaging/searchBgg';
 import { ExtensionTimeoutError } from '@/app/lib/extension/messaging/withExtensionTimeout';
-import { parseUnifiedSearch, SearchMode } from '@/app/lib/hooks/useCollectionFilters';
+import { parseUnifiedSearch, SearchMode } from '@/app/lib/utils/collectionFilters';
 import {
     BggCollectionId,
     BggCollectionObjectMap,

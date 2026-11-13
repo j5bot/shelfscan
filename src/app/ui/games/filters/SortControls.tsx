@@ -1,4 +1,4 @@
-import { SortDirection } from '@/app/lib/hooks/useFilterSort';
+import { SortDirection } from '@/app/lib/utils/collectionSort';
 import { FaArrowDown, FaArrowUp, FaArrowUpWideShort } from 'react-icons/fa6';
 
 export type SortFieldOption<F extends string> = {

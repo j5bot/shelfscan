@@ -1,5 +1,5 @@
 import { describe, it, expect } from '../setup.js';
-import { parseUnifiedSearch } from '@/app/lib/hooks/useCollectionFilters';
+import { parseUnifiedSearch } from '@/app/lib/utils/collectionFilters';
 
 describe('parseUnifiedSearch — tag negation', () => {
     it('marks a `!#tag` token as negated in tags mode', () => {
