@@ -1,6 +1,6 @@
-import { type CollectionFilters, type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
+import { type CollectionFilters, type FilterPreset } from '@/app/lib/utils/collectionFilters';
 import { CollectionViews, type CollectionView } from '@/app/lib/hooks/useCollectionView';
-import { type SortDirection, type SortFieldDef } from '@/app/lib/hooks/useFilterSort';
+import { type SortDirection, type SortFieldDef } from '@/app/lib/utils/collectionSort';
 import { type NotInCollectionEntry } from '@/app/lib/hooks/useNotInCollection';
 import { CollectionControls } from '@/app/ui/games/CollectionControls';
 import { ListGame } from '@/app/ui/games/ListGame';

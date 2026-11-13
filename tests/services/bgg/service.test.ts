@@ -9,8 +9,8 @@ import {
     getCollectionFromXml,
     getCollectionItemFromObject,
     getBggXmlError,
-    summarizeCollection,
 } from '@/app/lib/services/bgg/service';
+import { summarizeCollection } from '@/app/lib/utils/collectionSummary';
 
 // Mock Dexie-backed cache so the service module loads cleanly
 vi.mock('@/app/lib/database/cacheDatabase', () => ({
@@ -47,6 +47,7 @@ type BuildCollectionXmlOptions = {
     subType?: string;
     own?: string;
     rating?: string;
+    stats?: string;
 };
 
 const buildCollectionXml = (options: BuildCollectionXmlOptions = {}) => {
@@ -58,6 +59,7 @@ const buildCollectionXml = (options: BuildCollectionXmlOptions = {}) => {
         subType = 'boardgame',
         own = '1',
         rating = '8.5',
+        stats = 'minplayers="2" maxplayers="6" minplaytime="60" maxplaytime="120" numowned="150000"',
     } = options;
 
     return `<?xml version="1.0" encoding="utf-8"?>
@@ -67,7 +69,7 @@ const buildCollectionXml = (options: BuildCollectionXmlOptions = {}) => {
         <yearpublished>${yearPublished}</yearpublished>
         <status own="${own}" prevowned="0" fortrade="0" want="0" wanttoplay="0"
                 wanttobuy="0" wishlist="0" preordered="0" lastmodified="2024-01-01 00:00:00" />
-        <stats minplayers="2" maxplayers="6" minplaytime="60" maxplaytime="120" numowned="150000">
+        <stats ${stats}>
           <rating value="${rating}">
             <usersrated value="50000" />
           </rating>
@@ -258,6 +260,29 @@ describe('bgg/service', () => {
             const xml = buildCollectionXml({ rating: '9.0', collId: '204' });
             const result = getCollectionFromXml(xml);
             expect(result?.[204].rating).toBeCloseTo(9.0);
+        });
+
+        it('parses player counts and play times from the stats element', () => {
+            const xml = buildCollectionXml({
+                collId: '205',
+                stats: 'minplayers="1" maxplayers="4" minplaytime="30" maxplaytime="90" playingtime="90"',
+            });
+            const item = getCollectionFromXml(xml)?.[205];
+            expect(item?.minPlayers).toBe(1);
+            expect(item?.maxPlayers).toBe(4);
+            expect(item?.minPlayTime).toBe(30);
+            expect(item?.maxPlayTime).toBe(90);
+            expect(item?.playingTime).toBe(90);
+        });
+
+        it('treats 0 and missing stats attributes as unknown', () => {
+            const xml = buildCollectionXml({ collId: '206', stats: 'minplayers="0" maxplayers="0" playingtime="45"' });
+            const item = getCollectionFromXml(xml)?.[206];
+            expect(item?.minPlayers).toBeUndefined();
+            expect(item?.maxPlayers).toBeUndefined();
+            expect(item?.minPlayTime).toBeUndefined();
+            expect(item?.maxPlayTime).toBeUndefined();
+            expect(item?.playingTime).toBe(45);
         });
 
         it('filters out items missing objectId or collectionId', () => {
