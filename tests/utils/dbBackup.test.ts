@@ -111,6 +111,9 @@ describe('dbBackup', () => {
             expect(summary.tables.map(t => t.name).sort()).toEqual([...INCLUDED_TABLES].sort());
         });
 
+        // ~3s alone, but it can pass the 5s default when the full suite runs in parallel
+        const LARGE_BACKUP_TIMEOUT_MS = 30_000;
+
         it('handles a backup blob spanning many PNG data-block chunks without stack overflow', async () => {
             // png-compressor's binary block encoding blows the call stack for a single block
             // larger than the JS engine's argument-spread limit; this seeds enough rows that the
@@ -135,7 +138,7 @@ describe('dbBackup', () => {
 
             expect(await database.scanHistory.count()).toBe(entries.length);
             expect(summary.tables).toEqual([{ name: 'scanHistory', rowCount: entries.length }]);
-        });
+        }, LARGE_BACKUP_TIMEOUT_MS);
     });
 
     describe('scoping', () => {

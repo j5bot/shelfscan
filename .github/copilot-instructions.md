@@ -1,7 +1,8 @@
 # Copilot Instructions — ShelfScan
 
-> This file is the single source of truth for GitHub Copilot cloud agent. It combines the project
-> architecture guide and the code-style guide into one place. Read it fully before making changes.
+> This file is the project guide for GitHub Copilot cloud agent. Read it fully before making changes.
+> **Code style and standards are defined in [`CODE_STYLES.md`](../CODE_STYLES.md) at the repository
+> root — read it too and follow it for every change.**
 
 ---
 
@@ -86,7 +87,7 @@ shelfscan/
 ├── public/                           # Static assets (images, sounds, videos, .xpi)
 ├── patches/                          # pnpm patch for @undecaf/barcode-detector-polyfill
 ├── assets/                           # Source design files and blog drafts (not deployed)
-├── copilot-instructions.md           # Code style guide (also read this)
+├── CODE_STYLES.md                    # Code style & standards (also read this)
 ├── AGENTS.md                         # Extended project guide
 ├── src/
 │   └── app/                          # Next.js App Router root
@@ -206,7 +207,7 @@ shelfscan/
 | `src/app/ui/Scanner.tsx` | Barcode scanner UI |
 | `next.config.ts` | `serverExternalPackages`, image domains, dev origins |
 | `package.json` | `pnpm.overrides`, `pnpm.patchedDependencies`, peer rules |
-| `copilot-instructions.md` | Full code style guide (formatting, naming, patterns) |
+| `CODE_STYLES.md` | Full code style & standards guide (formatting, naming, patterns) |
 
 ---
 
@@ -225,77 +226,10 @@ shelfscan/
 
 ---
 
-## Code Style (Summary)
+## Code Style
 
-The full style guide is in `copilot-instructions.md` at the repository root. Key rules:
-
-### Formatting
-- **Indentation**: 4 spaces. No tabs. No Prettier.
-- **Semicolons**: Always.
-- **Quotes**: Single quotes in TS/TSX; backticks for templates; double quotes only in JSX string attributes.
-- **Trailing commas**: Yes, in multi-line object literals, arrays, parameter lists, import lists.
-
-### TypeScript Naming
-- Types/interfaces: `PascalCase`, always `type` keyword (not `interface`).
-- True constants: `UPPER_SNAKE_CASE`.
-- Const objects used as enums/maps: `PascalCase`.
-- Variables/functions: `camelCase`. React components: `PascalCase`. Hooks: `camelCase` prefixed `use`.
-- Context providers: `PascalCase` suffixed `Provider`. Redux slices: file named `slice.ts`.
-
-### Imports
-- Always use `@/*` path alias for internal imports (never `../../`).
-- Import typed Redux hooks only from `@/app/lib/hooks`.
-- Group: internal `@/` imports first, then external library imports.
-- Use `import type` or `import { type X }` for type-only imports.
-
-### Functions
-- Prefer `const` arrow functions for everything except Next.js page/layout components.
-- Use `function` declarations only for `export default function Page()` / `Layout()`.
-- Guard clauses at top of functions; always use braces for `if` blocks.
-
-### React Components
-- Return fragments (`<>`) for multiple top-level elements.
-- Conditional rendering: `&&` on a precomputed boolean for presence; choose alternatives in a variable before the `return`.
-- No computed values in JSX: put lookups (`set.has(id)`), function calls (including ones producing a class or URL), `??` fallbacks, comparisons, condition-chosen text, object-literal props and condition-chosen handlers in named variables before the `return`. Fine inline unless a function produces them: className / style logic, `key`s, template-literal URLs, property access, forwarding event-handler arrows.
-- Destructure props in parameters.
-- Use `void expression` to suppress unused-variable warnings on intentionally unused values.
-
-### Context Provider Pattern
-```typescript
-const FeatureContext = createContext<{ value: T; setValue: (v: T) => void }>({ ... });
-export const useFeature = () => useContext(FeatureContext);
-export const FeatureProvider = ({ children }: { children: ReactNode }) => {
-    const [value, setValue] = useState<T>(initial);
-    return <FeatureContext.Provider value={{ value, setValue }}>
-        {children}
-    </FeatureContext.Provider>;
-};
-```
-
-### Redux Slice Pattern
-```typescript
-const SLICE_TITLE = 'FEATURE';
-const initialState: FeatureState = {};
-export const featureSlice = createSlice({
-    name: `${SLICE_TITLE}_SLICE`,
-    initialState,
-    reducers: { ... },
-});
-export const { actionName } = featureSlice.actions;
-export default featureSlice.reducer;
-```
-
-### Async Patterns
-- `.then()` for fire-and-forget: `getGameData(code).then();`
-- `await` when result is needed.
-- `useTransition` for non-blocking async state updates.
-- `useEffect` cleanup pattern: `let active = true; return () => { active = false; };`
-
-### Styling (Tailwind)
-- Template literals for multi-line class strings.
-- Template literal interpolation for conditional classes: `${condition ? 'class-a' : 'class-b'}`.
-- Use DaisyUI classes directly: `btn`, `modal`, `badge`, `loading`, `collapse`, `tooltip`, etc.
-- CSS custom properties via `style={{ '--prop': 'value' } as CSSProperties}`.
+See [`CODE_STYLES.md`](../CODE_STYLES.md) at the repository root — formatting, naming, TypeScript, React/JSX,
+effects, accessibility, context provider and Redux patterns, async, styling, file placement and testing.
 
 ---
 
@@ -307,12 +241,12 @@ export default featureSlice.reducer;
 3. It inherits all context providers from `(overview)/layout.tsx` automatically.
 
 ### Add a new context provider
-1. Create `src/app/lib/FeatureProvider.tsx` following the provider pattern above.
+1. Create `src/app/lib/FeatureProvider.tsx` following the provider pattern in `CODE_STYLES.md`.
 2. Add it to the nested provider chain in `src/app/(overview)/layout.tsx`.
 3. Export a `useFeature` hook from the file.
 
 ### Add a new Redux slice
-1. Create `src/app/lib/redux/bgg/feature/slice.ts` following the slice pattern above.
+1. Create `src/app/lib/redux/bgg/feature/slice.ts` following the slice pattern in `CODE_STYLES.md`.
 2. Add a `selectors.ts` file in the same directory for computed values.
 3. Register the reducer in `bggSlice.ts` (`combineReducers`) or in `store.ts`.
 

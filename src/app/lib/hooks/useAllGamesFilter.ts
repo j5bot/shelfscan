@@ -1,11 +1,12 @@
 import { useSelector } from '@/app/lib/hooks';
 import { useCollectionFilters } from '@/app/lib/hooks/useCollectionFilters';
-import { SortFieldDef, useFilterSort } from '@/app/lib/hooks/useFilterSort';
+import { useFilterSort } from '@/app/lib/hooks/useFilterSort';
 import { selectTagMap } from '@/app/lib/redux/bgg/collection/selectors';
 import { RootState } from '@/app/lib/redux/store';
 import { useScanHistory } from '@/app/lib/ScanHistoryProvider';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
-import { type AllGamesSortField } from '@/app/ui/games/AllGamesContent';
+import { type AllGamesSortField, getCollectionSortFields } from '@/app/lib/utils/collectionSort';
+import { getScannedSets } from '@/app/lib/utils/scanSets';
 import { useCallback, useMemo, useState } from 'react';
 
 export const GamesAndExpansionsModes = {
@@ -37,11 +38,6 @@ const nextGamesAndExpansionsMode = (current: GamesAndExpansionsMode) => {
     return advanceStepper<GamesAndExpansionsMode>(modes, current);
 };
 
-const modifiedOrAcquired = (item: BggCollectionItem) =>
-    item.lastModified
-        ? new Date(item.lastModified).valueOf()
-        : (item.acquisitiondate ? new Date(item.acquisitiondate).valueOf() : 0);
-
 type UseAllGamesFilterOptions = {
     items: BggCollectionItem[];
     makeFilterFn: ReturnType<typeof useCollectionFilters>['makeFilterFn'];
@@ -59,21 +55,7 @@ export const useAllGamesFilter = ({ items, makeFilterFn }: UseAllGamesFilterOpti
         setGamesAndExpansionsMode(prev => nextGamesAndExpansionsMode(prev));
     }, []);
 
-    const scannedSet = useMemo(() => {
-        const set = new Set<number>();
-        for (const entry of scanHistory) {
-            if (entry.bggId !== undefined) { set.add(entry.bggId); }
-        }
-        return set;
-    }, [scanHistory]);
-
-    const verifiedSet = useMemo(() => {
-        const set = new Set<number>();
-        for (const entry of scanHistory) {
-            if (entry.bggId !== undefined && entry.verified) { set.add(entry.bggId); }
-        }
-        return set;
-    }, [scanHistory]);
+    const { scannedSet, verifiedSet } = useMemo(() => getScannedSets(scanHistory), [scanHistory]);
 
     const extraFilterFn = useMemo(
         () => makeFilterFn(scannedSet, verifiedSet, tagMap),
@@ -102,43 +84,7 @@ export const useAllGamesFilter = ({ items, makeFilterFn }: UseAllGamesFilterOpti
         setGamesAndExpansionsMode(GamesAndExpansionsModes.ALL);
     }, []);
 
-    const sortFields = useMemo<SortFieldDef<BggCollectionItem, AllGamesSortField>[]>(() => [
-        {
-            field: 'name',
-            label: 'Name',
-            compare: (a, b) => a.name?.localeCompare(b.name),
-        },
-        {
-            field: 'lastModified',
-            label: 'Modified',
-            compare: (a, b) => modifiedOrAcquired(a) - modifiedOrAcquired(b),
-        },
-        {
-            field: 'rating',
-            label: 'Rating',
-            compare: (a, b) => (a.rating ?? 0) - (b.rating ?? 0),
-        },
-        {
-            field: 'averageRating',
-            label: 'Avg. Rating',
-            compare: (a, b) => (a.averageRating ?? 0) - (b.averageRating ?? 0),
-        },
-        {
-            field: 'plays',
-            label: 'Plays',
-            compare: (a, b) => (a.plays ?? 0) - (b.plays ?? 0),
-        },
-        {
-            field: 'dateLastScanned',
-            label: 'Scanned',
-            compare: (a, b) => (lastScannedMap.get(a.objectId) ?? 0) - (lastScannedMap.get(b.objectId) ?? 0),
-        },
-        {
-            field: 'yearPublished',
-            label: 'Year',
-            compare: (a, b) => (a.yearPublished ?? 0) - (b.yearPublished ?? 0),
-        },
-    ], [lastScannedMap]);
+    const sortFields = useMemo(() => getCollectionSortFields(lastScannedMap), [lastScannedMap]);
 
     const filter = useFilterSort<BggCollectionItem, AllGamesSortField>({
         items,

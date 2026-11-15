@@ -1,9 +1,10 @@
 import { bggGetCollectionInner } from '@/app/lib/actions';
-import { getCollection, setCollection } from '@/app/lib/database/database';
+import { setCollection } from '@/app/lib/database/database';
 import { useDispatch, useSelector } from '@/app/lib/hooks/index';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { RootState } from '@/app/lib/redux/store';
 import { getCollectionFromXml } from '@/app/lib/services/bgg/service';
+import { readStoredCollection } from '@/app/lib/services/bgg/storedCollection';
 import { BggCollectionItem } from '@/app/lib/types/bgg';
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import sleep from 'sleep-promise';
@@ -62,9 +63,9 @@ export const useCollectionData = ({ username }: UseCollectionDataOptions): UseCo
     const loadCollection = useCallback(async () => {
         setState({ status: CollectionLoadStatuses.LOADING });
         try {
-            const map = username ? await getCollection(username.toLowerCase()) : undefined;
+            const map = username ? await readStoredCollection(username) : undefined;
             if (!mountedRef.current) { return; }
-            if (!map || Object.keys(map).length === 0) {
+            if (!map) {
                 setState({ status: CollectionLoadStatuses.EMPTY });
                 return;
             }

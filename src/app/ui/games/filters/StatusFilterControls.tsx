@@ -13,14 +13,15 @@ import {
     WantFilter,
     WishlistFilter,
     WishlistPriorityFilter,
-} from '@/app/lib/hooks/useCollectionFilters';
+} from '@/app/lib/utils/collectionFilters';
 import { ThreeStateToggle } from '@/app/ui/games/filters/ThreeStateToggle';
 import { VersionIcon } from '@/app/ui/icons/VersionIcon';
-import { CSSProperties, ReactNode } from 'react';
+import { CSSProperties, ReactNode, useState } from 'react';
 import {
     FaBarcode,
     FaCalendar,
     FaCheck,
+    FaClock,
     FaDice,
     FaHeart,
     FaRecycle,
@@ -29,6 +30,7 @@ import {
     FaThumbsUp,
     FaUser,
     FaUserGroup,
+    FaUsers,
 } from 'react-icons/fa6';
 import { SiTarget } from 'react-icons/si';
 
@@ -200,6 +202,81 @@ const PlaysFilterControl = ({ filters, setFilter }: FilterControlProps) => {
     </ExpandedFilterGroup>;
 };
 
+type NumberFilterKey = 'players' | 'maxPlayTime';
+
+type NumberFilterConfig = {
+    key: NumberFilterKey;
+    id: string;
+    icon: ReactNode;
+    title: string;
+    inputLabel: string;
+    placeholder: string;
+    unit?: string;
+};
+
+const NumberFilters: Record<NumberFilterKey, NumberFilterConfig> = {
+    players: {
+        key: 'players', id: 'players-control', title: 'Player Count',
+        inputLabel: 'Plays with this many players', placeholder: '#',
+        icon: <FaUsers size={12} aria-hidden="true" />,
+    },
+    maxPlayTime: {
+        key: 'maxPlayTime', id: 'play-time-control', title: 'Max Play Time',
+        inputLabel: 'Longest play time in minutes', placeholder: 'Max', unit: 'min',
+        icon: <FaClock size={12} aria-hidden="true" />,
+    },
+};
+
+/** A toggle that opens a single number input; it stays open while the filter has a value. */
+const NumberFilterControl = ({ config, filters, setFilter }: FilterControlProps & { config: NumberFilterConfig }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const value = filters[config.key];
+    const isActive = value !== '';
+    const isExpanded = isOpen || isActive;
+    const filterName = config.title.toLowerCase();
+    const toggleLabel = isExpanded ? `Clear ${filterName} filter` : `Filter by ${filterName}`;
+
+    const handleToggle = () => {
+        if (isExpanded) {
+            setFilter(config.key, '');
+            setIsOpen(false);
+            return;
+        }
+        setIsOpen(true);
+    };
+
+    const toggle = <button
+        id={isExpanded ? undefined : config.id}
+        type="button"
+        className={`btn btn-condensed btn-xs ${
+            isActive ? 'btn-success text-success-content' : `text-base-content/40 ${BUTTON_BG_CLASS}`
+        } rounded-sm gap-0.5`}
+        onClick={handleToggle}
+        aria-expanded={isExpanded}
+        aria-label={toggleLabel}
+        title={config.title}
+    >
+        {config.icon}
+    </button>;
+
+    if (!isExpanded) {
+        return toggle;
+    }
+    return <ExpandedFilterGroup id={config.id}>
+        {toggle}
+        <input
+            type="text"
+            inputMode="numeric"
+            className="input input-bordered input-xs w-11 px-1.5 rounded-sm"
+            placeholder={config.placeholder}
+            value={value}
+            onChange={e => setFilter(config.key, removeNonDigits(e.target.value))}
+            aria-label={config.inputLabel}
+        />
+        {config.unit && <span className="text-xs text-base-content/50 pr-1">{config.unit}</span>}
+    </ExpandedFilterGroup>;
+};
+
 const WishlistFilterControl = ({ filters, setFilter }: FilterControlProps) => {
     const isActive = filters.wishlist !== 'default';
     const toggle = <ThreeStateToggle
@@ -299,6 +376,8 @@ export const StatusFilterControls = (props: FilterControlProps) => <>
     <WantFilterControl {...props} />
     <RatingFilterControl {...props} />
     <PlaysFilterControl {...props} />
+    <NumberFilterControl config={NumberFilters.players} {...props} />
+    <NumberFilterControl config={NumberFilters.maxPlayTime} {...props} />
     <SimpleFilterToggle config={SimpleToggles.trade} {...props} />
     <SimpleFilterToggle config={SimpleToggles.condition} {...props} />
     <WishlistFilterControl {...props} />

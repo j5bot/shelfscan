@@ -1,5 +1,6 @@
 import { useExtensionTool } from '@/app/lib/hooks/webmcp/extension/useExtensionTool';
 import { useBGGCollectionTool } from '@/app/lib/hooks/webmcp/useBGGCollectionTool';
+import { useCollectionQueryTool } from '@/app/lib/hooks/webmcp/useCollectionQueryTool';
 import { useGameUPCDataTools } from '@/app/lib/hooks/webmcp/useGameUPCDataTools';
 import { useScannedCodesTool } from '@/app/lib/hooks/webmcp/useScannedCodesTool';
 import { useScanUPCTool } from '@/app/lib/hooks/webmcp/useScanUPCTool';
@@ -13,6 +14,7 @@ type Props = {
 // tool hooks must run inside WebMCPProvider, so they live in a child component
 const McpTools = ({ children }: Props) => {
     useBGGCollectionTool();
+    useCollectionQueryTool();
     useGameUPCDataTools();
     useExtensionTool();
     useScannedCodesTool();

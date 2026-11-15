@@ -1,5 +1,7 @@
 # AGENT.md — ShelfScan Project Guide
 
+> **Code style and standards** (formatting, naming, TypeScript, React/JSX, effects, accessibility, context/Redux patterns, async, file placement, testing) are defined in [`CODE_STYLES.md`](CODE_STYLES.md). Read it before writing or modifying code; this file covers the project itself.
+
 ## Project Overview
 
 ShelfScan is a **board game UPC barcode scanner** web application. Users scan board game barcodes (via webcam/phone camera), look up game data through the [GameUPC API](https://gameupc.com), and interact with [BoardGameGeek (BGG)](https://boardgamegeek.com). A companion browser extension (Chrome, Edge, Firefox, Safari; source in the sibling `shelfscan-extension` repo) enables additional actions like adding games to a BGG collection, logging plays, rating, posting to the BGG GeekMarket, and adding items to math-trade geeklists.
@@ -322,8 +324,7 @@ shelfscan/
 
 ## Path Aliases
 
-- `@/*` → `./src/*` (configured in `tsconfig.json`)
-- Example: `import { useSettings } from '@/app/lib/SettingsProvider'`
+- `@/*` → `./src/*` (configured in `tsconfig.json`); see `CODE_STYLES.md` → Imports.
 
 ---
 
@@ -340,45 +341,4 @@ export const fetchSomething = async (param: string) => {
 // Called from client components directly — Next.js handles the RPC.
 ```
 
-### Context Provider Pattern
-```typescript
-// 1. Create context with default value
-const MyContext = createContext<MyType>(defaultValue);
-
-// 2. Export hook
-export const useMyContext = () => useContext(MyContext);
-
-// 3. Provider component wraps children; memoize the value so consumers
-//    only re-render when something in it actually changes
-export const MyProvider = ({ children }) => {
-    const [items, setItems] = useState<Item[]>([]);
-    const addItem = useCallback((item: Item) => setItems(prev => [...prev, item]), []);
-    const value = useMemo(() => ({ items, addItem }), [items, addItem]);
-    return <MyContext.Provider value={value}>{children}</MyContext.Provider>;
-};
-```
-
-### Effects, State and Accessibility
-- **Derive, don't mirror**: compute from props/state during render; don't copy props into state via effects. Drafts committed on blur use uncontrolled `defaultValue` + `key={committedValue}`.
-- **`useEffectEvent`** for effect code that needs the latest props without re-running the effect.
-- **Clean up** timers, listeners, observers and `fetch`es (`AbortController`); guard post-`await` updates with an `active` flag.
-- **Never mutate state in place** (`Object.assign(state, …)` + `setState(state)` doesn't re-render); use spreads or functional updates.
-- Reset loading flags in `finally`; check `response.ok`; `.catch()` promises started in event handlers.
-- Clickable things are native `<button>`/`<a>`; rows containing controls use a **stretched button** (`CollapsibleList`, `ListGameRow`); dismiss-on-click notices use `DismissibleToast`.
-- `<form method="dialog">` close buttons must be `type="submit"`; every `<dialog>` needs `aria-label`/`aria-labelledby`; labels use `htmlFor`.
-
-### No Computed Values in JSX
-JSX references values; it doesn't compute them. Before the `return` (or before the JSX in a `map` callback), put into named variables:
-- lookups and derived data (`scannedSet.has(id)`, `items.find(…)`, `ThumbnailSizes[size]`)
-- any function call, including ones that produce a class, URL or id (`formatName(entry)`, `getResultUrl(entry)`, `createUpdateModeFn(key)`)
-- `??` fallbacks, comparisons, condition-chosen text, object-literal props, condition-chosen handlers
-- the choice between rendered alternatives (an `if` / `switch` / ternary assigning a node, not a ternary inside JSX)
-
-Fine inline, as long as no function is called to produce them: className / style logic, `key`s, URLs written as template literals, plain property access, `&&` on a precomputed boolean or optional node, and event-handler arrows that only forward a call.
-
-### Typed Redux Hooks
-```typescript
-import { useSelector, useDispatch } from '@/app/lib/hooks';
-// These are pre-typed with RootState and AppDispatch — no need for type params.
-```
-
+For context providers, Redux slices/selectors/typed hooks, effects, accessibility and JSX rules, see `CODE_STYLES.md`.

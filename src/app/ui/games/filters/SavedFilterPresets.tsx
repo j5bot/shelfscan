@@ -1,4 +1,4 @@
-import { FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
+import { FilterPreset } from '@/app/lib/utils/collectionFilters';
 import { SavedFiltersModal } from '@/app/ui/games/SavedFiltersModal';
 import { CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { FaSliders } from 'react-icons/fa6';

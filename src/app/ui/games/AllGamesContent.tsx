@@ -4,8 +4,8 @@ import { ComponentModeMap } from '@/app/lib/types/modes';
 import { firstNonEmptyOrUndefined } from '@/app/lib/utils';
 import { MathTradeSection } from '@/app/ui/games/MathTradeSection';
 import { CollectionLoadStatuses, type CollectionLoadStatusData } from '@/app/lib/hooks/useCollectionData';
-import { type CollectionFilters, type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
-import { type SortFieldDef, type SortDirection } from '@/app/lib/hooks/useFilterSort';
+import { type CollectionFilters, type FilterPreset } from '@/app/lib/utils/collectionFilters';
+import { type AllGamesSortField, type SortFieldDef, type SortDirection } from '@/app/lib/utils/collectionSort';
 import { CollectionViews, type CollectionView } from '@/app/lib/hooks/useCollectionView';
 import { RootState } from '@/app/lib/redux/store';
 import { type BggCollectionItem } from '@/app/lib/types/bgg';
@@ -27,8 +27,6 @@ import {
     FaRecycle,
 } from 'react-icons/fa6';
 import { Virtuoso, VirtuosoGrid } from 'react-virtuoso';
-
-export type AllGamesSortField = 'name' | 'lastModified' | 'dateLastScanned' | 'yearPublished' | 'rating' | 'averageRating' | 'plays';
 
 const THUMBNAIL_SIZE = 100;
 

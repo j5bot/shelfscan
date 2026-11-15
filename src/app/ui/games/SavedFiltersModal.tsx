@@ -1,4 +1,4 @@
-import { type FilterPreset } from '@/app/lib/hooks/useCollectionFilters';
+import { type FilterPreset } from '@/app/lib/utils/collectionFilters';
 import { useEffect } from 'react';
 import { FaCopy } from 'react-icons/fa';
 import { FaXmark } from 'react-icons/fa6';

@@ -3,7 +3,7 @@ import { useDispatch } from '@/app/lib/hooks';
 import { updateCollectionItems } from '@/app/lib/redux/bgg/collection/slice';
 import { setBggUser } from '@/app/lib/redux/bgg/user/slice';
 import { fetchFreshBggUserDataWithRetry, identifyBggUser } from '@/app/lib/services/bgg/loadUser';
-import { summarizeCollection } from '@/app/lib/services/bgg/service';
+import { summarizeCollection } from '@/app/lib/utils/collectionSummary';
 import { useMcpTool } from 'webmcp-react';
 import { z } from 'zod';
 
